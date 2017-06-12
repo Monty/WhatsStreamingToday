@@ -1,0 +1,19 @@
+## MAC OS
+.DS_Store
+
+# Output from running any commands
+*.csv
+*.txt
+
+# In case you save a spreadsheet
+.xls
+.ods
+
+# Local backups
+*.bak
+
+# Downloaded data used for examination and testing
+/Acorn-series-html/
+/Acorn-episodes-html/
+/MHz-series-html/
+/MHz-episodes-html/
