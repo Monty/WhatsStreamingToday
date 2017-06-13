@@ -40,8 +40,11 @@ curl -s https://mhzchoice.vhx.tv/series https://mhzchoice.vhx.tv/series?page=2 \
     | awk -v TITLE_FILE=$TITLE_FILE -v URL_FILE=$URL_FILE  \
 	-v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
 
+# keep track of the number of series we find
+lastRow=1
 while read line
 do
+    ((lastRow++))
     curl -sS $line \
     | tee \
         >(awk -v NAME_FILE=$NAME_FILE -v HEADER_FILE=$HEADER_FILE \
@@ -69,6 +72,9 @@ echo -e \
 paste $TITLE_FILE $URL_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
     $DESCRIPTION_FILE \
     | nl >>$SPREADSHEET_FILE
+echo -e \
+    "\tTotal\t=COUNTA(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)" \
+    >>$SPREADSHEET_FILE
 
 # Shortcut for checking differences between two files.
 function checkdiffs () {
@@ -83,7 +89,7 @@ else
     echo "### diff $1 $2"
     diff $1 $2
     if [ $? == 0 ]; then
-        echo '### -- no diffs found --'
+        echo "### -- no diffs found --"
     fi
 fi
 }

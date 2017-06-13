@@ -37,17 +37,23 @@ rm -f $URL_FILE $CAPTION_FILE $TITLE_FILE $DESCRIPTION_FILE \
 curl -s https://acorn.tv/browse \
     | awk -v CAPTION_FILE=$CAPTION_FILE -v URL_FILE=$URL_FILE -f fetchAcorn-series.awk
 
+# keep track of the last spreadsheet row containing data
+lastRow=1
 while read line
 do
+    ((lastRow++))
     curl -s $line \
         | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
             -v SEASONS_FILE=$SEASONS_FILE -v EPISODES_FILE=$EPISODES_FILE \
             -f fetchAcorn-episodes.awk
 done < "$URL_FILE"
 
-echo -e '#\tTitle\tURL\tSeasons\tEpisodes\tDescription' >$SPREADSHEET_FILE
-paste $CAPTION_FILE $URL_FILE $SEASONS_FILE $EPISODES_FILE \
+echo -e "#\tTitle\tURL\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
+paste $TITLE_FILE $URL_FILE $SEASONS_FILE $EPISODES_FILE \
       $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
+echo -e \
+    "\tTotal\t=COUNTA(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)" \
+    >>$SPREADSHEET_FILE
 
 # Shortcut for checking differences between two files.
 function checkdiffs () {
@@ -62,7 +68,7 @@ else
     echo "### diff $1 $2"
     diff $1 $2
     if [ $? == 0 ]; then
-        echo '### -- no diffs found --'
+        echo "### -- no diffs found --"
     fi
 fi
 }
