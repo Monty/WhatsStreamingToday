@@ -14,8 +14,8 @@ mkdir -p $COLUMNS $BASELINE
 # in one day will only generate one set of results
 URL_FILE="$COLUMNS/urls-$DATE.csv"
 PUBLISHED_URLS="$BASELINE/urls.txt"
-CAPTION_FILE="$COLUMNS/captions-$DATE.csv"
-PUBLISHED_CAPTIONS="$BASELINE/captions.txt"
+MARQUEE_FILE="$COLUMNS/marquees-$DATE.csv"
+PUBLISHED_MARQUEES="$BASELINE/marquees.txt"
 TITLE_FILE="$COLUMNS/titles-$DATE.csv"
 PUBLISHED_TITLES="$BASELINE/titles.txt"
 DESCRIPTION_FILE="$COLUMNS/descriptions-$DATE.csv"
@@ -31,11 +31,11 @@ PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 # Name diffs with both date and time so every run produces a new result
 POSSIBLE_DIFFS="Acorn_diffs-$LONGDATE.txt"
 
-rm -f $URL_FILE $CAPTION_FILE $TITLE_FILE $DESCRIPTION_FILE \
+rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $DESCRIPTION_FILE \
     $SEASONS_FILE $EPISODES_FILE $SPREADSHEET_FILE
 
 curl -s https://acorn.tv/browse \
-    | awk -v CAPTION_FILE=$CAPTION_FILE -v URL_FILE=$URL_FILE -f fetchAcorn-series.awk
+    | awk -v URL_FILE=$URL_FILE -v MARQUEE_FILE=$MARQUEE_FILE -f fetchAcorn-series.awk
 
 # keep track of the last spreadsheet row containing data
 lastRow=1
@@ -77,10 +77,10 @@ fi
 cat >>$POSSIBLE_DIFFS << EOF
 ==> ${0##*/} completed: `date`
 
-`checkdiffs $TITLE_FILE $CAPTION_FILE`
+`checkdiffs $TITLE_FILE $MARQUEE_FILE`
 
 `checkdiffs $URL_FILE $PUBLISHED_URLS`
-`checkdiffs $CAPTION_FILE $PUBLISHED_CAPTIONS`
+`checkdiffs $MARQUEE_FILE $PUBLISHED_MARQUEES`
 `checkdiffs $TITLE_FILE $PUBLISHED_TITLES`
 `checkdiffs $DESCRIPTION_FILE $PUBLISHED_DESCRIPTIONS`
 `checkdiffs $SEASONS_FILE $PUBLISHED_SEASONS`
