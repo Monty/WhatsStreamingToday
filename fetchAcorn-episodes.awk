@@ -21,8 +21,8 @@
     sub (/<\/p>$/,"")
     # get rid of unnecessary characters and text
     gsub (/\\/,"")
-    sub (/Not [Aa]vailable in Canada\./,"")
-    sub (/NOT AVAILABLE IN CANADA\./,"")
+    # sub (/Not [Aa]vailable in Canada\./,"")
+    # sub (/NOT AVAILABLE IN CANADA\./,"")
     sub (/CC Available\. CC Available/,"CC Available")
     # fix sloppy input spacing
     sub (/\.CC Available/,". CC Available")
