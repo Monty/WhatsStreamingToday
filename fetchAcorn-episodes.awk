@@ -30,7 +30,7 @@
     gsub (/  */," ")
     sub (/ *$/,"")
     # fix funky HTML characters
-	gsub (/&#39;/,"'")
+    gsub (/&#39;/,"'")
     print >> DESCRIPTION_FILE
 }
 
