@@ -15,10 +15,10 @@ I wrote these scripts to fetch the descriptions and other info from
 their websites and create .csv spreadsheet files containing these
 columns:
 
-**Acorn TV:** # | Title | URL | Seasons | Episodes | Description
+**Acorn TV:** # | Title | Seasons | Episodes | Description
 
-**MHz Choice:** # | Title | URL | Seasons | Episodes | Genre |
-Country | Language | Rating | Description
+**MHz Choice:** # | Title | Seasons | Episodes | Genre | Country |
+Language | Rating | Description
 
 I know of no way to incorporate formatting such as column width,
 horizontal centering, etc. into a .csv file. I doubt it would be

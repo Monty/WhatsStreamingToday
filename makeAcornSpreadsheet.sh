@@ -18,6 +18,8 @@ MARQUEE_FILE="$COLUMNS/marquees-$DATE.csv"
 PUBLISHED_MARQUEES="$BASELINE/marquees.txt"
 TITLE_FILE="$COLUMNS/titles-$DATE.csv"
 PUBLISHED_TITLES="$BASELINE/titles.txt"
+LINK_FILE="$COLUMNS/links-$DATE.csv"
+PUBLISHED_LINKS="$BASELINE/links.txt"
 DESCRIPTION_FILE="$COLUMNS/descriptions-$DATE.csv"
 PUBLISHED_DESCRIPTIONS="$BASELINE/descriptions.txt"
 SEASONS_FILE="$COLUMNS/numberOfSeasons-$DATE.csv"
@@ -31,7 +33,7 @@ PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 # Name diffs with both date and time so every run produces a new result
 POSSIBLE_DIFFS="Acorn_diffs-$LONGDATE.txt"
 
-rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $DESCRIPTION_FILE \
+rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
     $SEASONS_FILE $EPISODES_FILE $SPREADSHEET_FILE
 
 curl -s https://acorn.tv/browse \
@@ -48,11 +50,17 @@ do
             -f fetchAcorn-episodes.awk
 done < "$URL_FILE"
 
-echo -e "#\tTitle\tURL\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
-paste $TITLE_FILE $URL_FILE $SEASONS_FILE $EPISODES_FILE \
+# Join the URL and Title into a hyperlink
+# WARNING there is an actual tab character in the following command
+# because sed in macOS doesn't regognize \t
+paste $URL_FILE $TITLE_FILE \
+    | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
+
+echo -e "#\tTitle\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
+paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
       $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
 echo -e \
-    "\tTotal\t=COUNTA(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)" \
+    "\tTotal\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
     >>$SPREADSHEET_FILE
 
 # Shortcut for checking differences between two files.
@@ -82,6 +90,7 @@ cat >>$POSSIBLE_DIFFS << EOF
 `checkdiffs $URL_FILE $PUBLISHED_URLS`
 `checkdiffs $MARQUEE_FILE $PUBLISHED_MARQUEES`
 `checkdiffs $TITLE_FILE $PUBLISHED_TITLES`
+`checkdiffs $LINK_FILE $PUBLISHED_LINKS`
 `checkdiffs $DESCRIPTION_FILE $PUBLISHED_DESCRIPTIONS`
 `checkdiffs $SEASONS_FILE $PUBLISHED_SEASONS`
 `checkdiffs $EPISODES_FILE $PUBLISHED_EPISODES`

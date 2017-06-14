@@ -10,6 +10,7 @@ mkdir -p $COLUMNS $BASELINE
 cp -p $COLUMNS/urls-$DATE.csv $BASELINE/urls.txt
 cp -p $COLUMNS/marquees-$DATE.csv $BASELINE/marquees.txt
 cp -p $COLUMNS/titles-$DATE.csv $BASELINE/titles.txt
+cp -p $COLUMNS/links-$DATE.csv $BASELINE/links.txt
 cp -p $COLUMNS/descriptions-$DATE.csv $BASELINE/descriptions.txt
 cp -p $COLUMNS/numberOfSeasons-$DATE.csv $BASELINE/numberOfSeasons.txt
 cp -p $COLUMNS/numberOfEpisodes-$DATE.csv $BASELINE/numberOfEpisodes.txt
