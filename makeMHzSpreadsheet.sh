@@ -38,7 +38,7 @@ rm -f $URL_FILE $NAME_FILE $TITLE_FILE $DESCRIPTION_FILE \
 
 curl -s https://mhzchoice.vhx.tv/series https://mhzchoice.vhx.tv/series?page=2 \
     | awk -v TITLE_FILE=$TITLE_FILE -v URL_FILE=$URL_FILE  \
-	-v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
+    -v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
 
 # keep track of the number of series we find
 lastRow=1

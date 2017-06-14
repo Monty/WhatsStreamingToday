@@ -59,9 +59,9 @@ echo -e \
 function checkdiffs () {
 echo
 if [ ! -e "$2" ] ; then
-	# If the second file doesn't exist, assume no differences
-	# and copy the first file to the second so it can serve
-	# as a base for diffs in the future.
+    # If the second file doesn't exist, assume no differences
+    # and copy the first file to the second so it can serve
+    # as a base for diffs in the future.
     echo "==> $2 does not exist. Creating it, assuming no diffs."
     cp -p $1 $2
 else
