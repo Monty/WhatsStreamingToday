@@ -1,5 +1,5 @@
 # Given the output of an episode file (for example) curl -s https://acorn.tv/800words
-# create lists of names, descriptions, episodes and seasons
+# create lists of titles, descriptions, episodes and seasons
 # to be pasted into a spreadsheet
 #
 # Invoked with file parameters as follows:

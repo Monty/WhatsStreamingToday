@@ -1,7 +1,7 @@
 # Given the output of an episode file for a TV series from the MHz website
 # such as the result from: 
 #     curl -s https://mhzchoice.vhx.tv/detective-montalbano
-# create lists of names, descriptions, genres, countries, languages, etc.
+# create lists of marquees, descriptions, genres, countries, languages, etc.
 # to be pasted into a spreadsheet
 #
 # e.g.
@@ -12,9 +12,8 @@
 #
 #
 # Invoked with file parameters as follows:
-# awk -v NAME_FILE=$NAME_FILE -v HEADER_FILE=$HEADER_FILE \
-#     -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-#     -f fetchMHz-episodeInfo.awk
+# awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
+#     -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk)
 
 BEGIN {
     numPrinted = 0
@@ -25,7 +24,7 @@ BEGIN {
     sub (/.*<title>/,"")
     sub (/ - MHz Choice<.*/,"")
     gsub (/&#x27;/,"'")
-    print >> NAME_FILE
+    print >> MARQUEE_FILE
 }
 
 /meta name="description" content=/,/>/ {

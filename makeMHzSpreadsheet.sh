@@ -14,8 +14,8 @@ mkdir -p $COLUMNS $BASELINE
 # in one day will only generate one set of results
 URL_FILE="$COLUMNS/urls-$DATE.csv"
 PUBLISHED_URLS="$BASELINE/urls.txt"
-NAME_FILE="$COLUMNS/names-$DATE.csv"
-PUBLISHED_NAMES="$BASELINE/names.txt"
+MARQUEE_FILE="$COLUMNS/marquees-$DATE.csv"
+PUBLISHED_MARQUEES="$BASELINE/marquees.txt"
 TITLE_FILE="$COLUMNS/titles-$DATE.csv"
 PUBLISHED_TITLES="$BASELINE/titles.txt"
 DESCRIPTION_FILE="$COLUMNS/descriptions-$DATE.csv"
@@ -33,11 +33,11 @@ PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 # Name diffs with both date and time so every run produces a new result
 POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
 
-rm -f $URL_FILE $NAME_FILE $TITLE_FILE $DESCRIPTION_FILE \
+rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $DESCRIPTION_FILE \
     $SEASONS_FILE $EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE
 
 curl -s https://mhzchoice.vhx.tv/series https://mhzchoice.vhx.tv/series?page=2 \
-    | awk -v TITLE_FILE=$TITLE_FILE -v URL_FILE=$URL_FILE  \
+    | awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
     -v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
 
 # keep track of the number of series we find
@@ -47,9 +47,8 @@ do
     ((lastRow++))
     curl -sS $line \
     | tee \
-        >(awk -v NAME_FILE=$NAME_FILE -v HEADER_FILE=$HEADER_FILE \
-            -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-            -f fetchMHz-episodeInfo.awk) \
+        >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
+            -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
     | sed -n -f fetchMHz-seasonURLs.sed \
         | while read episode
             do
@@ -64,6 +63,7 @@ do
                 | echo -n "+`cat`" >>$EPISODES_FILE
             done
 done < "$URL_FILE"
+# Add newline
 echo >>$EPISODES_FILE
 
 echo -e \
@@ -97,11 +97,11 @@ fi
 cat >>$POSSIBLE_DIFFS << EOF
 ==> ${0##*/} completed: `date`
 
-`checkdiffs $NAME_FILE $TITLE_FILE`
+`checkdiffs $MARQUEE_FILE $TITLE_FILE`
 
-`checkdiffs $TITLE_FILE $PUBLISHED_TITLES`
 `checkdiffs $URL_FILE $PUBLISHED_URLS`
-`checkdiffs $NAME_FILE $PUBLISHED_NAMES`
+`checkdiffs $MARQUEE_FILE $PUBLISHED_MARQUEES`
+`checkdiffs $TITLE_FILE $PUBLISHED_TITLES`
 `checkdiffs $DESCRIPTION_FILE $PUBLISHED_DESCRIPTIONS`
 `checkdiffs $SEASONS_FILE $PUBLISHED_SEASONS`
 `checkdiffs $EPISODES_FILE $PUBLISHED_EPISODES`

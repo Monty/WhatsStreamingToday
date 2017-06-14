@@ -8,8 +8,8 @@
 #
 #
 # Invoked with file parameters as follows:
-# awk -v TITLE_FILE=$TITLE_FILE -v URL_FILE=$URL_FILE  \
-#       -v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
+# awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
+#     -v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
 
 /https:\/\/mhzchoice.vhx.tv\/.*strong title/ {
     sub (/.*href="/,"")
