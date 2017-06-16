@@ -4,6 +4,7 @@
 # Make sure we can execute curl.
 if [ ! -x "`which curl 2>/dev/null`" ]; then
     echo "[Error] Can't run curl. Install curl and rerun this script."
+    echo "        To test, type:  curl -Is https://github.com/ | head -5"
     exit 1
 fi
 
