@@ -1,6 +1,12 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on Acorn TV
 
+# Make sure we can execute curl.
+if [ ! -x "`which curl 2>/dev/null`" ]; then
+    echo "[Error] Can't run curl. Install curl and rerun this script."
+    exit 1
+fi
+
 DATE=`date "+%y%m%d"`
 LONGDATE=`date "+%y%m%d.%H%M%S"`
 
