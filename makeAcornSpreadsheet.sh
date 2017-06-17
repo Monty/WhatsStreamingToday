@@ -1,6 +1,12 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on Acorn TV
 
+# Use "-c" switch to get a Canadian view of descriptions, i.e. without
+# removing the text "Not available in Canada."
+if [ "$1" == '-c' ] ; then
+    IN_CANADA="yes"
+fi
+
 # Make sure we can execute curl.
 if [ ! -x "`which curl 2>/dev/null`" ] ; then
     echo "[Error] Can't run curl. Install curl and rerun this script."
@@ -62,7 +68,7 @@ do
     curl -s $line \
         | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
             -v SEASONS_FILE=$SEASONS_FILE -v EPISODES_FILE=$EPISODES_FILE \
-            -f fetchAcorn-episodes.awk
+            -v IN_CANADA=$IN_CANADA -f fetchAcorn-episodes.awk
 done < "$URL_FILE"
 
 # Join the URL and Title into a hyperlink

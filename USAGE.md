@@ -1,6 +1,8 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh** or **makeMHzSpreadsheet.sh**
+Run **makeAcornSpreadsheet.sh [-c]** or **makeMHzSpreadsheet.sh**  
+(_-c turns off deletion of_ "Not available in Canada." _in Acorn TV
+descriptions._)
 
 Each will create a number of .csv files. To see the complete list,
 look at **saveLatestAcornFiles.sh** or **saveLatestMHzFiles.sh**.
@@ -40,6 +42,5 @@ to the rm command.
 
 You will be given a choice whether to delete the primary spreadsheet
 files, secondary spreadsheet files, diff results, and diff baselines.
-Answer y to delete them, anything else to skip. Deleting them
-cannot be undone! To see exacly what will be deleted, look at the
-script.
+Answer y to delete them, anything else to skip. Deleting them cannot
+be undone! To see exacly what will be deleted, look at the script.

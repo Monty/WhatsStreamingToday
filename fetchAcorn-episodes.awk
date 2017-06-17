@@ -1,11 +1,11 @@
 # Given the output of an episode file (for example) curl -s https://acorn.tv/800words
 # create lists of titles, descriptions, episodes and seasons
-# to be pasted into a spreadsheet
+# to be pasted into a spreadsheet. Note that IN_CANADA affects processing.
 #
 # Invoked with file parameters as follows:
 # awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
 #     -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
-#     -f fetchAcorn-episodes.awk
+#     -v IN_CANADA=$IN_CANADA -f fetchAcorn-episodes.awk
 
 /span itemprop="name"/ {
     sub (/.*name">/,"")
@@ -21,8 +21,10 @@
     sub (/<\/p>$/,"")
     # get rid of unnecessary characters and text
     gsub (/\\/,"")
-    # sub (/Not [Aa]vailable in Canada\./,"")
-    # sub (/NOT AVAILABLE IN CANADA\./,"")
+    if (IN_CANADA != "yes") {
+        sub (/Not [Aa]vailable in Canada\./,"")
+        sub (/NOT AVAILABLE IN CANADA\./,"")
+    }
     sub (/CC Available\. CC Available/,"CC Available")
     # fix sloppy input spacing
     sub (/\.CC Available/,". CC Available")
