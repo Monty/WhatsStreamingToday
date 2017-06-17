@@ -1,6 +1,23 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on MHz Networks
 
+# Make sure we can execute curl.
+if [ ! -x "`which curl 2>/dev/null`" ] ; then
+    echo "[Error] Can't run curl. Install curl and rerun this script."
+    echo "        To test, type:  curl -Is https://github.com/ | head -5"
+    exit 1
+fi
+
+# Make sure network is up and MHz Choice site is reachable
+# While there are two URLs required at MHz, we only need to check one
+BASE_URL="https://mhzchoice.vhx.tv/series"
+BASE_URL2="https://mhzchoice.vhx.tv/series?page=2"
+if ! curl -o /dev/null -Isf $BASE_URL ; then
+    echo "[Error] $BASE_URL isn't available, or your network is down."
+    echo "        Try accessing $BASE_URL in your browser"
+    exit 1
+fi
+
 DATE=`date "+%y%m%d"`
 LONGDATE=`date "+%y%m%d.%H%M%S"`
 
@@ -38,7 +55,7 @@ POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
     $SEASONS_FILE $EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE
 
-curl -s https://mhzchoice.vhx.tv/series https://mhzchoice.vhx.tv/series?page=2 \
+curl -s $BASE_URL $BASE_URL2 \
     | awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
     -v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
 
@@ -95,7 +112,7 @@ if [ ! -e "$2" ] ; then
 else
     echo "### diff $1 $2"
     diff $1 $2
-    if [ $? == 0 ]; then
+    if [ $? == 0 ] ; then
         echo "### -- no diffs found --"
     fi
 fi
