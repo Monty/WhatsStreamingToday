@@ -2,9 +2,17 @@
 # Create a .csv spreadsheet of shows available on Acorn TV
 
 # Make sure we can execute curl.
-if [ ! -x "`which curl 2>/dev/null`" ]; then
+if [ ! -x "`which curl 2>/dev/null`" ] ; then
     echo "[Error] Can't run curl. Install curl and rerun this script."
     echo "        To test, type:  curl -Is https://github.com/ | head -5"
+    exit 1
+fi
+
+# Make sure network is up and the Acorn TV site is reachable
+BASE_URL="https://acorn.tv/browse"
+if ! curl -o /dev/null -Isf $BASE_URL ; then
+    echo "[Error] $BASE_URL isn't available, or your network is down."
+    echo "        Try accessing $BASE_URL in your browser"
     exit 1
 fi
 
@@ -43,7 +51,7 @@ POSSIBLE_DIFFS="Acorn_diffs-$LONGDATE.txt"
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
     $SEASONS_FILE $EPISODES_FILE $SPREADSHEET_FILE
 
-curl -s https://acorn.tv/browse \
+curl -s $BASE_URL \
     | awk -v URL_FILE=$URL_FILE -v MARQUEE_FILE=$MARQUEE_FILE -f fetchAcorn-series.awk
 
 # keep track of the last spreadsheet row containing data
@@ -82,7 +90,7 @@ if [ ! -e "$2" ] ; then
 else
     echo "### diff $1 $2"
     diff $1 $2
-    if [ $? == 0 ]; then
+    if [ $? == 0 ] ; then
         echo "### -- no diffs found --"
     fi
 fi
