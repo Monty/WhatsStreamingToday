@@ -21,6 +21,13 @@ spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
+Shows in the spreadsheet are in the order they are found on the
+web. If you want to sort by Title, Language, Rating, etc. you should
+either create a Named Range to sort on or delete the "Totals" row
+at the end. Otherwise the "Totals" row will wind up in the middle
+of your spreadsheet. You can always get back to the original order
+by sorting on the first column.
+
 #### To see what has changed since a previous run:
 
 Examine the diff file called **Acorn_diffs-[LONGDATE].txt** or

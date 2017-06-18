@@ -19,6 +19,9 @@
     sub (/.*strong title="/,"")
     sub (/".*$/,"")
     gsub (/&#x27;/,"'")
+    if (match ($0, /^The /)) {
+        $0 = substr($0, 5) ", The"
+    }
     print >> TITLE_FILE
 }
 

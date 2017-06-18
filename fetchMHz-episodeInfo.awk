@@ -24,6 +24,9 @@ BEGIN {
     sub (/.*<title>/,"")
     sub (/ - MHz Choice<.*/,"")
     gsub (/&#x27;/,"'")
+    if (match ($0, /^The /)) {
+        $0 = substr($0, 5) ", The"
+    }
     print >> MARQUEE_FILE
 }
 

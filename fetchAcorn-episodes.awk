@@ -10,6 +10,9 @@
 /span itemprop="name"/ {
     sub (/.*name">/,"")
     sub (/<.*/,"")
+    if (match ($0, /^The /)) {
+        $0 = substr($0, 5) ", The"
+    }
     episodeLinesFound = 0
     episodeStr = ""
     print >> TITLE_FILE
