@@ -1,6 +1,18 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on MHz Networks
 
+# Use "-t" switch to print a "Totals" line at the end of the spreadsheet
+while getopts ":t" opt; do
+    case $opt in
+        t)
+            PRINT_TOTALS="yes"
+            ;;
+        \?)
+            echo "Ignoring invalid option: -$OPTARG" >&2
+            ;;
+    esac
+done
+
 # Make sure we can execute curl.
 if [ ! -x "`which curl 2>/dev/null`" ] ; then
     echo "[Error] Can't run curl. Install curl and rerun this script."
@@ -96,9 +108,11 @@ echo -e \
 paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
     $DESCRIPTION_FILE \
     | nl >>$SPREADSHEET_FILE
-echo -e \
-    "\tTotal\t=SUM(C2:C$lastRow)\t=SUM(D2:E$lastRow)\t\t\t\t\t=COUNTA(I2:I$lastRow)" \
-    >>$SPREADSHEET_FILE
+if [ "$PRINT_TOTALS" = "yes" ] ; then
+	echo -e \
+    	"\tTotal\t=SUM(C2:C$lastRow)\t=SUM(D2:E$lastRow)\t\t\t\t\t=COUNTA(I2:I$lastRow)" \
+    	>>$SPREADSHEET_FILE
+fi
 
 # Shortcut for checking differences between two files.
 function checkdiffs () {
@@ -133,7 +147,9 @@ cat >>$POSSIBLE_DIFFS << EOF
 `checkdiffs $HEADER_FILE $PUBLISHED_HEADERS`
 
 
-### Any funny stuff with file lengths?
+### Any funny stuff with file lengths? Any differences in
+### number of lines indicates the website was updated in the
+### middle of processing. You should rerun the script!
 `wc $COLUMNS/*$DATE.csv`
 
 EOF

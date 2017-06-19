@@ -3,7 +3,8 @@
 
 # Use "-c" switch to get a Canadian view of descriptions,
 # i.e. don't remove the text "Not available in Canada."
-while getopts ":c" opt; do
+# Use "-t" switch to print a "Totals" line at the end of the spreadsheet
+while getopts ":ct" opt; do
     case $opt in
         c)
             # Only echo this once, even if -c occurs twice
@@ -11,6 +12,9 @@ while getopts ":c" opt; do
                 echo "Invoking Canadian version..." >&2
                 IN_CANADA="yes"
             fi
+            ;;
+        t)
+            PRINT_TOTALS="yes"
             ;;
         \?)
             echo "Ignoring invalid option: -$OPTARG" >&2
@@ -91,9 +95,11 @@ paste $URL_FILE $TITLE_FILE \
 echo -e "#\tTitle\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
 paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
       $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
-echo -e \
-    "\tTotal\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
-    >>$SPREADSHEET_FILE
+if [ "$PRINT_TOTALS" = "yes" ] ; then
+    echo -e \
+        "\tTotal\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
+        >>$SPREADSHEET_FILE
+fi
 
 # Shortcut for checking differences between two files.
 function checkdiffs () {
@@ -128,7 +134,9 @@ cat >>$POSSIBLE_DIFFS << EOF
 `checkdiffs $EPISODES_FILE $PUBLISHED_EPISODES`
 
 
-### Any funny stuff with file lengths?
+### Any funny stuff with file lengths? Any differences in
+### number of lines indicates the website was updated in the
+### middle of processing. You should rerun the script!
 `wc $COLUMNS/*$DATE.csv`
 
 EOF
