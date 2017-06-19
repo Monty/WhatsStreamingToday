@@ -1,11 +1,22 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on Acorn TV
 
-# Use "-c" switch to get a Canadian view of descriptions, i.e. without
-# removing the text "Not available in Canada."
-if [ "$1" == '-c' ] ; then
-    IN_CANADA="yes"
-fi
+# Use "-c" switch to get a Canadian view of descriptions,
+# i.e. don't remove the text "Not available in Canada."
+while getopts ":c" opt; do
+    case $opt in
+        c)
+            # Only echo this once, even if -c occurs twice
+            if [ -z $IN_CANADA ] ; then
+                echo "Invoking Canadian version..." >&2
+                IN_CANADA="yes"
+            fi
+            ;;
+        \?)
+            echo "Ignoring invalid option: -$OPTARG" >&2
+            ;;
+    esac
+done
 
 # Make sure we can execute curl.
 if [ ! -x "`which curl 2>/dev/null`" ] ; then
