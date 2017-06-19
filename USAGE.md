@@ -28,13 +28,13 @@ spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
-Rows in the spreadsheet are in the order the shows are found on
-the web. If you want to sort by Title, Language, Rating, etc.
-**_and_** have included a "Totals" row by using **-t** you should
-either create a Named Range to sort on or delete the "Totals" row
-at the end. Otherwise the "Totals" row will wind up in the middle
-of your spreadsheet. You can always get back to the original order
-by sorting on the first column.
+Rows in the spreadsheet are in the order the shows are found on the
+web. If you want to sort by Title, Language, Rating, etc.  **_and_**
+you used **-t** to add column totals and row counts you should
+either create a Named Range to sort on or delete the added rows.
+Otherwise those rows will wind up in the middle of your spreadsheet.
+You can always get back to the original order by sorting on the
+first column.
 
 #### To see what has changed since a previous run:
 

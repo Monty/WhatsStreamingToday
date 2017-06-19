@@ -3,7 +3,7 @@
 
 # Use "-c" switch to get a Canadian view of descriptions,
 # i.e. don't remove the text "Not available in Canada."
-# Use "-t" switch to print a "Totals" line at the end of the spreadsheet
+# Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
 while getopts ":ct" opt; do
     case $opt in
         c)
@@ -96,9 +96,11 @@ echo -e "#\tTitle\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
 paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
       $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
 if [ "$PRINT_TOTALS" = "yes" ] ; then
-    echo -e \
-        "\tTotal\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
+    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
         >>$SPREADSHEET_FILE
+    echo -e \
+"\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
+		>>$SPREADSHEET_FILE
 fi
 
 # Shortcut for checking differences between two files.
@@ -137,6 +139,7 @@ cat >>$POSSIBLE_DIFFS << EOF
 ### Any funny stuff with file lengths? Any differences in
 ### number of lines indicates the website was updated in the
 ### middle of processing. You should rerun the script!
+
 `wc $COLUMNS/*$DATE.csv`
 
 EOF
