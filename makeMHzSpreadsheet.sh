@@ -109,12 +109,12 @@ paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
     $DESCRIPTION_FILE \
     | nl >>$SPREADSHEET_FILE
 if [ "$PRINT_TOTALS" = "yes" ] ; then
-	echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
-        >>$SPREADSHEET_FILE
 	echo -e \
 "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
 \t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)" \
     	>>$SPREADSHEET_FILE
+	echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
+        >>$SPREADSHEET_FILE
 fi
 
 # Shortcut for checking differences between two files.
