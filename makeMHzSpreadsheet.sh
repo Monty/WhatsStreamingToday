@@ -2,10 +2,14 @@
 # Create a .csv spreadsheet of shows available on MHz Networks
 
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":t" opt; do
+# Use :-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
+while getopts ":tu" opt; do
     case $opt in
         t)
             PRINT_TOTALS="yes"
+            ;;
+        u)
+            HYPER_SORT="yes"
             ;;
         \?)
             echo "Ignoring invalid option: -$OPTARG" >&2
@@ -105,15 +109,19 @@ paste $URL_FILE $TITLE_FILE \
 echo -e \
     '#\tTitle\tSeasons\tEpisodes\tGenre\tCountry\tLanguage\tRating\tDescription' \
     >$SPREADSHEET_FILE
-paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
-    $DESCRIPTION_FILE \
-    | nl >>$SPREADSHEET_FILE
+if [ "$HYPER_SORT" = "yes" ] ; then
+    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
+        $DESCRIPTION_FILE | nl | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
+else
+    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
+        $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
+fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
-	echo -e \
+    echo -e \
 "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
 \t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)" \
-    	>>$SPREADSHEET_FILE
-	echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
+        >>$SPREADSHEET_FILE
+    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
         >>$SPREADSHEET_FILE
 fi
 

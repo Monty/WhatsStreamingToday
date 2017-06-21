@@ -1,15 +1,19 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-ct]** or **makeMHzSpreadsheet.sh [-t]**  
+Run **makeAcornSpreadsheet.sh [-ctu]** or **makeMHzSpreadsheet.sh [-tu]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-c**
 &nbsp;&nbsp;&nbsp;&nbsp;
-Don't delete the text "Not available in Canada." in Acorn TV
+_Canadian_ - Don't delete the text "Not available in Canada." in Acorn TV
 descriptions.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-t**
 &nbsp;&nbsp;&nbsp;&nbsp;
-Add column totals and row counts at the end of the spreadsheet.
+_Totals_ - Add column totals and row counts at the end of the spreadsheet.  
+&nbsp;&nbsp;&nbsp;&nbsp;
+**-u**
+&nbsp;&nbsp;&nbsp;&nbsp;
+_Unsorted_ - Leave shows in the order they are found on the web.
 
 Each script creates a number of .csv files. To see the complete list,
 look at **saveLatestAcornFiles.sh** or **saveLatestMHzFiles.sh**.
@@ -28,13 +32,14 @@ spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
-Rows in the spreadsheet are in the order the shows are found on the
-web. If you want to sort by Title, Language, Rating, etc.  **_and_**
-you used **-t** to add column totals and row counts you should
-either create a Named Range to sort on or delete the added rows.
-Otherwise those rows will wind up in the middle of your spreadsheet.
-You can always get back to the original order by sorting on the
-first column.
+Rows in the spreadsheet are sorted by title. You can sort them in
+the order they are found on the web by using the **-u** switch or
+sorting on the first column.
+
+If you want to sort by a different column **_and_** you used the
+**-t** switch to add column totals and row counts you should either
+create a Named Range to sort on or delete the added rows.  Otherwise
+those rows will wind up in the middle of your spreadsheet.
 
 #### To see what has changed since a previous run:
 

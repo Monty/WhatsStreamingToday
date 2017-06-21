@@ -4,7 +4,8 @@
 # Use "-c" switch to get a Canadian view of descriptions,
 # i.e. don't remove the text "Not available in Canada."
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":ct" opt; do
+# Use :-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
+while getopts ":ctu" opt; do
     case $opt in
         c)
             # Only echo this once, even if -c occurs twice
@@ -15,6 +16,9 @@ while getopts ":ct" opt; do
             ;;
         t)
             PRINT_TOTALS="yes"
+            ;;
+        u)
+            HYPER_SORT="yes"
             ;;
         \?)
             echo "Ignoring invalid option: -$OPTARG" >&2
@@ -93,12 +97,17 @@ paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
 echo -e "#\tTitle\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
-paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
-      $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
+if [ "$HYPER_SORT" = "yes" ] ; then
+    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
+        $DESCRIPTION_FILE | nl | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
+else
+    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
+        $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
+fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
 "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
-		>>$SPREADSHEET_FILE
+        >>$SPREADSHEET_FILE
     echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
         >>$SPREADSHEET_FILE
 fi
