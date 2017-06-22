@@ -9,7 +9,7 @@ while getopts ":tu" opt; do
             PRINT_TOTALS="yes"
             ;;
         u)
-            HYPER_SORT="yes"
+            UNSORTED="yes"
             ;;
         \?)
             echo "Ignoring invalid option: -$OPTARG" >&2
@@ -109,12 +109,12 @@ paste $URL_FILE $TITLE_FILE \
 echo -e \
     '#\tTitle\tSeasons\tEpisodes\tGenre\tCountry\tLanguage\tRating\tDescription' \
     >$SPREADSHEET_FILE
-if [ "$HYPER_SORT" = "yes" ] ; then
-    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | nl | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
-else
+if [ "$UNSORTED" = "yes" ] ; then
     paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
         $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
+else
+    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
+        $DESCRIPTION_FILE | nl | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
 fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
