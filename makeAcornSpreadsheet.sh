@@ -113,6 +113,7 @@ if [ "$PRINT_TOTALS" = "yes" ] ; then
 fi
 
 # Shortcut for checking differences between two files.
+# checkdiffs newfile oldfile
 function checkdiffs () {
 echo
 if [ ! -e "$2" ] ; then
@@ -123,7 +124,15 @@ if [ ! -e "$2" ] ; then
     cp -p $1 $2
 else
     echo "### diff $1 $2"
-    diff $1 $2
+    diff \
+        --unchanged-group-format='' \
+        --old-group-format='### %dn line%(n=1?:s) deleted at %df:
+%<' \
+        --new-group-format='### %dN line%(N=1?:s) added after %de:
+%>' \
+        --changed-group-format='### %dn line%(n=1?:s) changed at %df:
+%<------ to:
+%>' $2 $1
     if [ $? == 0 ] ; then
         echo "### -- no diffs found --"
     fi

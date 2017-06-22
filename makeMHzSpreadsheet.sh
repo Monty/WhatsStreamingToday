@@ -126,27 +126,37 @@ if [ "$PRINT_TOTALS" = "yes" ] ; then
 fi
 
 # Shortcut for checking differences between two files.
+# checkdiffs newfile oldfile
 function checkdiffs () {
 echo
 if [ ! -e "$2" ] ; then
     # If the second file doesn't exist, assume no differences
     # and copy the first file to the second so it can serve
     # as a base for diffs in the future.
-    echo "==> $2 did not exist. Creating it, assuming no diffs."
+    echo "==> $2 does not exist. Creating it, assuming no diffs."
     cp -p $1 $2
 else
     echo "### diff $1 $2"
-    diff $1 $2
+    diff \
+        --unchanged-group-format='' \
+        --old-group-format='### %dn line%(n=1?:s) deleted at %df:
+%<' \
+        --new-group-format='### %dN line%(N=1?:s) added after %de:
+%>' \
+        --changed-group-format='### %dn line%(n=1?:s) changed at %df:
+%<------ to:
+%>' $2 $1
     if [ $? == 0 ] ; then
         echo "### -- no diffs found --"
     fi
 fi
 }
+
 # Preserve any possible errors for debugging
 cat >>$POSSIBLE_DIFFS << EOF
 ==> ${0##*/} completed: `date`
 
-`checkdiffs $MARQUEE_FILE $TITLE_FILE`
+`checkdiffs $TITLE_FILE $MARQUEE_FILE`
 
 `checkdiffs $URL_FILE $PUBLISHED_URLS`
 `checkdiffs $MARQUEE_FILE $PUBLISHED_MARQUEES`
