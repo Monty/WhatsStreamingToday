@@ -15,8 +15,8 @@ I wrote these scripts to fetch the descriptions and other info from
 their websites and create .csv spreadsheet files containing these
 columns: (*Titles are hyperlinks to the series on the web*)
 
-+ **Acorn TV:** # | Title | Seasons | Episodes | Description
-+ **MHz Choice:** # | Title | Seasons | Episodes | Genre | Country
++ **Acorn TV:** Title | Seasons | Episodes | Description
++ **MHz Choice:** Title | Seasons | Episodes | Genre | Country
 | Language | Rating | Description
 
 I know of no way to incorporate formatting such as column width,

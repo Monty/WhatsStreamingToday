@@ -32,10 +32,8 @@ spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
-Rows in the spreadsheet are sorted by title. You can sort them in
-the order they are found on the web by using the **-u** switch or
-sorting on the first column.
-
+Shows in the spreadsheet are sorted by title. You can sort them in
+the order they are found on the web by using the **-u** switch.
 If you want to sort by a different column **_and_** you used the
 **-t** switch to add column totals and row counts you should either
 create a Named Range to sort on or delete the added rows.  Otherwise
