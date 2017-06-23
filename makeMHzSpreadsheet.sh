@@ -126,15 +126,15 @@ if [ "$PRINT_TOTALS" = "yes" ] ; then
 fi
 
 # Shortcut for checking differences between two files.
-# checkdiffs newfile oldfile
+# checkdiffs basefile newfile
 function checkdiffs () {
 echo
-if [ ! -e "$2" ] ; then
-    # If the second file doesn't exist, assume no differences
-    # and copy the first file to the second so it can serve
+if [ ! -e "$1" ] ; then
+    # If the basefile file doesn't yet exist, assume no differences
+    # and copy the newfile to the basefile so it can serve
     # as a base for diffs in the future.
-    echo "==> $2 does not exist. Creating it, assuming no diffs."
-    cp -p $1 $2
+    echo "==> $1 does not exist. Creating it, assuming no diffs."
+    cp -p $2 $1
 else
     echo "### diff $1 $2"
     diff \
@@ -145,7 +145,7 @@ else
 %>' \
         --changed-group-format='### %dn line%(n=1?:s) changed at %df:
 %<------ to:
-%>' $2 $1
+%>' $1 $2
     if [ $? == 0 ] ; then
         echo "### -- no diffs found --"
     fi
@@ -156,16 +156,16 @@ fi
 cat >>$POSSIBLE_DIFFS << EOF
 ==> ${0##*/} completed: `date`
 
-`checkdiffs $TITLE_FILE $MARQUEE_FILE`
+`checkdiffs $MARQUEE_FILE $TITLE_FILE`
 
-`checkdiffs $URL_FILE $PUBLISHED_URLS`
-`checkdiffs $MARQUEE_FILE $PUBLISHED_MARQUEES`
-`checkdiffs $TITLE_FILE $PUBLISHED_TITLES`
-`checkdiffs $LINK_FILE $PUBLISHED_LINKS`
-`checkdiffs $DESCRIPTION_FILE $PUBLISHED_DESCRIPTIONS`
-`checkdiffs $SEASONS_FILE $PUBLISHED_SEASONS`
-`checkdiffs $EPISODES_FILE $PUBLISHED_EPISODES`
-`checkdiffs $HEADER_FILE $PUBLISHED_HEADERS`
+`checkdiffs $PUBLISHED_URLS $URL_FILE`
+`checkdiffs $PUBLISHED_MARQUEES $MARQUEE_FILE`
+`checkdiffs $PUBLISHED_TITLES $TITLE_FILE`
+`checkdiffs $PUBLISHED_LINKS $LINK_FILE`
+`checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE`
+`checkdiffs $PUBLISHED_SEASONS $SEASONS_FILE`
+`checkdiffs $PUBLISHED_EPISODES $EPISODES_FILE`
+`checkdiffs $PUBLISHED_HEADERS $HEADER_FILE`
 
 
 ### Any funny stuff with file lengths? Any differences in
