@@ -1,7 +1,7 @@
 #! /bin/bash
 # Save the current results as a baseline so we can check for changes in the future
 
-DATE=`date "+%y%m%d"`
+DATE="$(date +%y%m%d)"
 
 COLUMNS="Acorn-columns"
 BASELINE="Acorn-baseline"

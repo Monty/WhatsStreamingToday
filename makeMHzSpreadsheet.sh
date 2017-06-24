@@ -18,7 +18,7 @@ while getopts ":tu" opt; do
 done
 
 # Make sure we can execute curl.
-if [ ! -x "`which curl 2>/dev/null`" ] ; then
+if [ ! -x "$(which curl 2>/dev/null)" ] ; then
     echo "[Error] Can't run curl. Install curl and rerun this script."
     echo "        To test, type:  curl -Is https://github.com/ | head -5"
     exit 1
@@ -34,8 +34,8 @@ if ! curl -o /dev/null -Isf $BASE_URL ; then
     exit 1
 fi
 
-DATE=`date "+%y%m%d"`
-LONGDATE=`date "+%y%m%d.%H%M%S"`
+DATE="$(date +%y%m%d)"
+LONGDATE="$(date +%y%m%d.%H%M%S)"
 
 COLUMNS="MHz-columns"
 BASELINE="MHz-baseline"
@@ -95,7 +95,7 @@ do
                 fi
                 curl -sS $episode \
                 | sed -n -f fetchMHz-numberOfEpisodes.sed \
-                | echo -n "+`cat`" >>$EPISODES_FILE
+                | echo -n "+$(cat)" >>$EPISODES_FILE
             done
 done < "$URL_FILE"
 # Add newline
@@ -154,28 +154,28 @@ fi
 
 # Preserve any possible errors for debugging
 cat >>$POSSIBLE_DIFFS << EOF
-==> ${0##*/} completed: `date`
+==> ${0##*/} completed: $(date)
 
-`checkdiffs $MARQUEE_FILE $TITLE_FILE`
+$(checkdiffs $MARQUEE_FILE $TITLE_FILE)
 
-`checkdiffs $PUBLISHED_URLS $URL_FILE`
-`checkdiffs $PUBLISHED_MARQUEES $MARQUEE_FILE`
-`checkdiffs $PUBLISHED_TITLES $TITLE_FILE`
-`checkdiffs $PUBLISHED_LINKS $LINK_FILE`
-`checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE`
-`checkdiffs $PUBLISHED_SEASONS $SEASONS_FILE`
-`checkdiffs $PUBLISHED_EPISODES $EPISODES_FILE`
-`checkdiffs $PUBLISHED_HEADERS $HEADER_FILE`
+$(checkdiffs $PUBLISHED_URLS $URL_FILE)
+$(checkdiffs $PUBLISHED_MARQUEES $MARQUEE_FILE)
+$(checkdiffs $PUBLISHED_TITLES $TITLE_FILE)
+$(checkdiffs $PUBLISHED_LINKS $LINK_FILE)
+$(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
+$(checkdiffs $PUBLISHED_SEASONS $SEASONS_FILE)
+$(checkdiffs $PUBLISHED_EPISODES $EPISODES_FILE)
+$(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
 
 
 ### Any funny stuff with file lengths? Any differences in
 ### number of lines indicates the website was updated in the
 ### middle of processing. You should rerun the script!
 
-`wc $COLUMNS/*$DATE.csv`
+$(wc $COLUMNS/*$DATE.csv)
 
 EOF
 
 echo
-echo "==> ${0##*/} completed: `date`"
+echo "==> ${0##*/} completed: $(date)"
 
