@@ -123,18 +123,23 @@ if [ ! -e "$1" ] ; then
     echo "==> $1 does not exist. Creating it, assuming no diffs."
     cp -p $2 $1
 else
-    echo "### diff $1 $2"
+    echo "==> what changed between $1 and $2:"
+    # first the stats
+    diff -c $1 $2 | diffstat -sq \
+        -D $(cd "$(dirname "$2")" && pwd -P) \
+        | sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
+    # then the diffs
     diff \
         --unchanged-group-format='' \
-        --old-group-format='### %dn line%(n=1?:s) deleted at %df:
+        --old-group-format='==> deleted %dn line%(n=1?:s) at line %df:
 %<' \
-        --new-group-format='### %dN line%(N=1?:s) added after %de:
+        --new-group-format='==> added %dN line%(N=1?:s) after line %de:
 %>' \
-        --changed-group-format='### %dn line%(n=1?:s) changed at %df:
+        --changed-group-format='==> changed %dn line%(n=1?:s) at line %df:
 %<------ to:
 %>' $1 $2
     if [ $? == 0 ] ; then
-        echo "### -- no diffs found --"
+        echo "==> no diffs found"
     fi
 fi
 }
