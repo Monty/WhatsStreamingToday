@@ -167,7 +167,7 @@ $(checkdiffs $PUBLISHED_SEASONS $SEASONS_FILE)
 $(checkdiffs $PUBLISHED_EPISODES $EPISODES_FILE)
 $(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
 
-`checkdiffs $PUBLISHED_SPREADSHEET $SPREADSHEET_FILE`
+$(checkdiffs $PUBLISHED_SPREADSHEET $SPREADSHEET_FILE)
 
 
 ### Any funny stuff with file lengths? Any differences in
