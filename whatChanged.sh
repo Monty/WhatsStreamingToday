@@ -10,6 +10,7 @@
 #  It's a specialized diff that only looks at lines starting with "=HYPERLINK"
 #  It will likely report no diffs on any files not in "TV spreadsheet" format
 
+# "cat" provides a no-op for a pipe
 PIPE_TO="cat"
 while getopts ":b" opt; do
     case $opt in

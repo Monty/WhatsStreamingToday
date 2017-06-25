@@ -1,11 +1,14 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-ctu]** or **makeMHzSpreadsheet.sh [-tu]**  
+Run **makeAcornSpreadsheet.sh [-cdtu]** or **makeMHzSpreadsheet.sh [-dtu]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-c**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Canadian_ - Don't delete the text "Not available in Canada." in Acorn TV
-descriptions.  
+_Canadian_ - Don't delete the text "Not available in Canada." in Acorn TV  
+&nbsp;&nbsp;&nbsp;&nbsp;
+**-d**
+&nbsp;&nbsp;&nbsp;&nbsp;
+_Debug_ - Create a diffs file that details what changed in each column.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-t**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -41,15 +44,37 @@ those rows will wind up in the middle of your spreadsheet.
 
 #### To see what has changed since a previous run:
 
-Examine the diff file called **Acorn_diffs-[LONGDATE].txt** or
-**MHz_diffs-[LONGDATE].txt**, where **[LONGDATE]** is the date/time
-the script was run in the format yymmdd.HHMMSS, e.g. 170609.161113.
+Run **whatChanged.sh [-b] oldSpreadsheet.csv newSpreadsheet.csv**
+
+This creates a human readable diff of any two "TV spreadsheets"
+from the same streaming service. If you use the -b [_brief_] option
+it will only summarize what was done, e.g.  
+&nbsp;&nbsp;&nbsp;&nbsp; deleted 1 show at line 35  
+&nbsp;&nbsp;&nbsp;&nbsp; added 2 shows after line 98  
+&nbsp;&nbsp;&nbsp;&nbsp; changed 1 show at line 101
+
+A few extra diffs are created by using the -d [_debug]_ option with
+the primary script.
+
+The descriptions in the spreadsheet are quite long, so you may want
+to redirect the full output into a .csv file and open it as a
+spreadsheet for easier viewing.
 
 If you are happy with the diffs, you can create a new baseline by
 running **saveLatestAcornFiles.sh** or **saveLatestMHzFiles.sh**.
 
 If the diff file is large or complex, it could be due to a bug in
 the script, or an unforeseen change in the format of the website.
+
+#### To help debug any problems:
+
+Run one of the primary scripts with the -d [_debug]_ option. This
+provides diffs of each column individually, as well as a diff of
+the entire spreadsheet.
+
+Examine the diff file called **Acorn_diffs-[LONGDATE].txt** or
+**MHz_diffs-[LONGDATE].txt**, where **[LONGDATE]** is the date/time
+the script was run in the format yymmdd.HHMMSS, e.g. 170609.161113.
 
 #### To remove any files created by running scripts:
 

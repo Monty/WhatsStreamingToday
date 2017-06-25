@@ -1,10 +1,14 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on MHz Networks
 
+# Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
 # Use :-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
-while getopts ":tu" opt; do
+while getopts ":dtu" opt; do
     case $opt in
+        d)
+            DEBUG="yes"
+            ;;
         t)
             PRINT_TOTALS="yes"
             ;;
@@ -123,6 +127,11 @@ if [ "$PRINT_TOTALS" = "yes" ] ; then
         >>$SPREADSHEET_FILE
     echo -e "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)" \
         >>$SPREADSHEET_FILE
+fi
+
+# If we don't want to create a "diffs" file for debugging, exit here
+if [ "$DEBUG" != "yes" ] ; then
+    exit
 fi
 
 # Shortcut for checking differences between two files.

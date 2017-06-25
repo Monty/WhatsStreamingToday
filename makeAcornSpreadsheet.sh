@@ -3,9 +3,10 @@
 
 # Use "-c" switch to get a Canadian view of descriptions,
 # i.e. don't remove the text "Not available in Canada."
+# Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
 # Use :-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
-while getopts ":ctu" opt; do
+while getopts ":cdtu" opt; do
     case $opt in
         c)
             # Only echo this once, even if -c occurs twice
@@ -13,6 +14,9 @@ while getopts ":ctu" opt; do
                 echo "Invoking Canadian version..." >&2
                 IN_CANADA="yes"
             fi
+            ;;
+        d)
+            DEBUG="yes"
             ;;
         t)
             PRINT_TOTALS="yes"
@@ -110,6 +114,11 @@ if [ "$PRINT_TOTALS" = "yes" ] ; then
         >>$SPREADSHEET_FILE
     echo -e "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)" \
         >>$SPREADSHEET_FILE
+fi
+
+# If we don't want to create a "diffs" file for debugging, exit here
+if [ "$DEBUG" != "yes" ] ; then
+    exit
 fi
 
 # Shortcut for checking differences between two files.
