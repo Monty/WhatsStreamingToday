@@ -6,8 +6,8 @@
 *.txt
 
 # In case you save a spreadsheet
-.xls
-.ods
+*.xls
+*.ods
 
 # Local backups
 *.bak
