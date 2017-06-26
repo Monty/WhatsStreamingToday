@@ -36,11 +36,12 @@ should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
 Shows in the spreadsheet are sorted by title. You can sort them in
-the order they are found on the web by using the **-u** switch.
-If you want to sort by a different column **_and_** you used the
-**-t** switch to add column totals and row counts you should either
-create a Named Range to sort on or delete the added rows.  Otherwise
-those rows will wind up in the middle of your spreadsheet.
+the order they are found on the web by using the **-u** switch or
+sorting on the first column.  If you want to sort by a different
+column **_and_** you used the **-t** switch to add column totals
+and row counts you should either create a Named Range to sort on
+or delete the added rows.  Otherwise those rows will wind up in the
+middle of your spreadsheet.
 
 #### To see what has changed since a previous run:
 
@@ -52,9 +53,6 @@ it will only summarize what was done, e.g.
 &nbsp;&nbsp;&nbsp;&nbsp; deleted 1 show at line 35  
 &nbsp;&nbsp;&nbsp;&nbsp; added 2 shows after line 98  
 &nbsp;&nbsp;&nbsp;&nbsp; changed 1 show at line 101
-
-A few extra diffs are created by using the -d [_debug]_ option with
-the primary script.
 
 The descriptions in the spreadsheet are quite long, so you may want
 to redirect the full output into a .csv file and open it as a
@@ -69,8 +67,8 @@ the script, or an unforeseen change in the format of the website.
 #### To help debug any problems:
 
 Run one of the primary scripts with the -d [_debug]_ option. This
-provides diffs of each column individually, as well as a diff of
-the entire spreadsheet.
+provides diffs of each column individually, which is more useful
+for debugging than diffs of the whole spreadsheet.
 
 Examine the diff file called **Acorn_diffs-[LONGDATE].txt** or
 **MHz_diffs-[LONGDATE].txt**, where **[LONGDATE]** is the date/time

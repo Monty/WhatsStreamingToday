@@ -111,21 +111,21 @@ paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
 echo -e \
-    'Title\tSeasons\tEpisodes\tGenre\tCountry\tLanguage\tRating\tDescription' \
+    '#\tTitle\tSeasons\tEpisodes\tGenre\tCountry\tLanguage\tRating\tDescription' \
     >$SPREADSHEET_FILE
 if [ "$UNSORTED" = "yes" ] ; then
     paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE >>$SPREADSHEET_FILE
+        $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
 else
     paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
+        $DESCRIPTION_FILE | nl | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
 fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
-"Non-blank values\t=COUNTA(B2:B$lastRow)\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\
-\t=COUNTA(E2:E$lastRow)\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)" \
+"\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
+\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)" \
         >>$SPREADSHEET_FILE
-    echo -e "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)" \
+    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
         >>$SPREADSHEET_FILE
 fi
 
@@ -180,8 +180,6 @@ $(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
 $(checkdiffs $PUBLISHED_SEASONS $SEASONS_FILE)
 $(checkdiffs $PUBLISHED_EPISODES $EPISODES_FILE)
 $(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
-
-$(checkdiffs $PUBLISHED_SPREADSHEET $SPREADSHEET_FILE)
 
 
 ### Any funny stuff with file lengths? Any differences in

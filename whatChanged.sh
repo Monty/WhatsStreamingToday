@@ -10,6 +10,11 @@
 #  It's a specialized diff that only looks at lines starting with "=HYPERLINK"
 #  It will likely report no diffs on any files not in "TV spreadsheet" format
 
+# Only keep lines containing "=HYPERLINK" then get rid of leading sequence numbers
+function sanitize () {
+    sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ $1
+}
+
 # "cat" provides a no-op for a pipe
 PIPE_TO="cat"
 while getopts ":b" opt; do
@@ -27,12 +32,8 @@ while getopts ":b" opt; do
 done
 shift $((OPTIND - 1))
 
-echo "==> what changed between $1 and $2:"
-# first the stats
-diff -c $1 $2 | diffstat -s \
-    -D $(cd "$(dirname "$2")" && pwd -P) \
-    | sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
-# then the diffs
+echo "==> changes between $1 and $2:"
+# Now the diffs
 diff \
     --unchanged-group-format='' \
     --old-group-format='==> deleted %dn show%(n=1?:s) at line %df:
@@ -41,4 +42,7 @@ diff \
 %>' \
     --changed-group-format='==> changed %dn show%(n=1?:s) at line %df:
 %<------ to:
-%>' <(grep ^=HYPERLINK $1) <(grep ^=HYPERLINK $2) | $PIPE_TO
+%>' <(sanitize $1) <(sanitize $2) | $PIPE_TO
+if [ ${PIPESTATUS[0]} == 0 ] ; then
+    echo "==> nothing changed"
+fi
