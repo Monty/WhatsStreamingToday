@@ -45,7 +45,7 @@ COLUMNS="MHz-columns"
 BASELINE="MHz-baseline"
 mkdir -p $COLUMNS $BASELINE
 
-# File names are used in saveLatestMHzFiles.sh
+# File names are used in saveTodaysMHzFiles.sh
 # so if you change them here, change them there as well
 # they are named with today's date so running them twice
 # in one day will only generate one set of results

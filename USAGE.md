@@ -19,7 +19,7 @@ _Totals_ - Add column totals and row counts at the end of the spreadsheet.
 _Unsorted_ - Leave shows in the order they are found on the web.
 
 Each script creates a number of .csv files. To see the complete list,
-look at **saveLatestAcornFiles.sh** or **saveLatestMHzFiles.sh**.
+look at **saveTodaysAcornFiles.sh** or **saveTodaysMHzFiles.sh**.
 
 The primary spreadsheet file is called **Acorn_TV_Shows-[DATE].csv**
 or **MHz_TV_Shows-[DATE].csv**, where **[DATE]** is today’s date
@@ -69,8 +69,9 @@ from the same streaming service.  The descriptions in the spreadsheet
 are quite long, so you may want to redirect the full output into a
 .csv file and open it as a spreadsheet for easier viewing.
 
-If you are happy with the diffs, you can create a new baseline by
-running **saveLatestAcornFiles.sh** or **saveLatestMHzFiles.sh**.
+If you are happy with the diffs, you can create a new baseline from
+today's results by running **saveTodaysAcornFiles.sh** or
+**saveTodaysMHzFiles.sh**.
 
 If the diff file is large or complex, it could be due to a bug in
 the script, or an unforeseen change in the format of the website.
