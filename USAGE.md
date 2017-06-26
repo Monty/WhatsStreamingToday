@@ -45,18 +45,29 @@ middle of your spreadsheet.
 
 #### To see what has changed since a previous run:
 
-Run **whatChanged.sh [-b] oldSpreadsheet.csv newSpreadsheet.csv**
+Run **whatChanged.sh [-bs] oldSpreadsheet.csv newSpreadsheet.csv**  
+&nbsp;&nbsp;&nbsp;&nbsp;
+**-b**
+&nbsp;&nbsp;&nbsp;&nbsp;
+_Brief_ - Don't output the diffs, just list what was done, e.g.
+```
+    ==> 2 insertions, 1 deletion, 1 modification
+    deleted 1 show at line 35
+    added 2 shows after line 98
+    changed 1 show at line 101
+```
+&nbsp;&nbsp;&nbsp;&nbsp;
+**-s**
+&nbsp;&nbsp;&nbsp;&nbsp;
+_Summary_ - Only output the diffstat summary line, e.g
+```
+    ==> 10 insertions, 10 deletions, 6 modifications
+```
 
-This creates a human readable diff of any two "TV spreadsheets"
-from the same streaming service. If you use the -b [_brief_] option
-it will only summarize what was done, e.g.  
-&nbsp;&nbsp;&nbsp;&nbsp; deleted 1 show at line 35  
-&nbsp;&nbsp;&nbsp;&nbsp; added 2 shows after line 98  
-&nbsp;&nbsp;&nbsp;&nbsp; changed 1 show at line 101
-
-The descriptions in the spreadsheet are quite long, so you may want
-to redirect the full output into a .csv file and open it as a
-spreadsheet for easier viewing.
+This script creates a human readable diff of any two "TV spreadsheets"
+from the same streaming service.  The descriptions in the spreadsheet
+are quite long, so you may want to redirect the full output into a
+.csv file and open it as a spreadsheet for easier viewing.
 
 If you are happy with the diffs, you can create a new baseline by
 running **saveLatestAcornFiles.sh** or **saveLatestMHzFiles.sh**.
@@ -70,7 +81,7 @@ Run one of the primary scripts with the -d [_debug]_ option. This
 provides diffs of each column individually, which is more useful
 for debugging than diffs of the whole spreadsheet.
 
-Examine the diff file called **Acorn_diffs-[LONGDATE].txt** or
+Then examine the diff file called **Acorn_diffs-[LONGDATE].txt** or
 **MHz_diffs-[LONGDATE].txt**, where **[LONGDATE]** is the date/time
 the script was run in the format yymmdd.HHMMSS, e.g. 170609.161113.
 
