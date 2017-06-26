@@ -1,5 +1,5 @@
 #! /bin/bash
-# Save the current results as a baseline so we can check for changes in the future
+# Save the current days results as a baseline so we can check for changes in the future
 
 DATE="$(date +%y%m%d)"
 
