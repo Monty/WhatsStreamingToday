@@ -14,7 +14,7 @@ while getopts ":d:" opt; do
       echo "Ignoring invalid option: -$OPTARG" >&2
       ;;
     :)
-      echo "Option -$OPTARG requires a 'date' argument." >&2
+      echo "Option -$OPTARG requires a 'date' argument such as $DATE" >&2
       exit 1
       ;;
   esac
