@@ -71,14 +71,15 @@ are quite long, so you may want to redirect the full output into a
 
 If you are happy with the diffs, you can create a new baseline from
 today's results by running **saveTodaysAcornFiles.sh** or
-**saveTodaysMHzFiles.sh**.
+**saveTodaysMHzFiles.sh**. To save results from a different date
+use **-d DATE**.
 
 If the diff file is large or complex, it could be due to a bug in
 the script, or an unforeseen change in the format of the website.
 
 #### To help debug any problems:
 
-Run one of the primary scripts with the -d [_debug]_ option. This
+Run one of the primary scripts with the **-d** [_debug]_ option. This
 provides diffs of each column individually, which is more useful
 for debugging than diffs of the whole spreadsheet.
 
@@ -90,7 +91,7 @@ the script was run in the format yymmdd.HHMMSS, e.g. 170609.161113.
 
 Run **cleanupEverything.sh [-i | -v]**
 
-If you add either -v or -i as an option, it will be passed along
+If you add either **-v** or **-i** as an option, it will be passed along
 to the rm command.
 
 You will be given a choice whether to delete the primary spreadsheet

@@ -1,7 +1,24 @@
 #! /bin/bash
 # Save the current days results as a baseline so we can check for changes in the future
+# -d DATE picks a different date
 
 DATE="$(date +%y%m%d)"
+
+# Allow user to override DATE
+while getopts ":d:" opt; do
+  case $opt in
+    d)
+      DATE="$OPTARG"
+      ;;
+    \?)
+      echo "Ignoring invalid option: -$OPTARG" >&2
+      ;;
+    :)
+      echo "Option -$OPTARG requires a 'date' argument." >&2
+      exit 1
+      ;;
+  esac
+done
 
 COLUMNS="Acorn-columns"
 BASELINE="Acorn-baseline"
