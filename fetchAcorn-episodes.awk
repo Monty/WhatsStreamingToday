@@ -25,6 +25,7 @@
     # get rid of unnecessary characters and text
     gsub (/\\/,"")
     if (IN_CANADA != "yes") {
+        sub (/Series 1 not available in Canada\./,"")
         sub (/Not [Aa]vailable in Canada\./,"")
         sub (/NOT AVAILABLE IN CANADA\./,"")
     }
@@ -33,6 +34,7 @@
     sub (/\.CC Available/,". CC Available")
     gsub (/ \./,".")
     gsub (/  */," ")
+    sub (/^ */,"")
     sub (/ *$/,"")
     # fix funky HTML characters
     gsub (/&#39;/,"'")
