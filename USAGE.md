@@ -51,7 +51,7 @@ Run **whatChanged.sh [-bs] oldSpreadsheet.csv newSpreadsheet.csv**
 &nbsp;&nbsp;&nbsp;&nbsp;
 _Brief_ - Don't output the diffs, just list what was done, e.g.
 ```
-    ### 2 insertions, 1 deletion, 1 modification
+    ==> 2 insertions, 1 deletion, 1 modification
     deleted 1 show at line 35
     added 2 shows after line 98
     changed 1 show at line 101
@@ -61,7 +61,7 @@ _Brief_ - Don't output the diffs, just list what was done, e.g.
 &nbsp;&nbsp;&nbsp;&nbsp;
 _Summary_ - Only output the diffstat summary line, e.g
 ```
-    ### 10 insertions, 10 deletions, 6 modifications
+    ==> 10 insertions, 10 deletions, 6 modifications
 ```
 
 This script creates a human readable diff of any two "TV spreadsheets"
