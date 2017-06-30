@@ -52,9 +52,9 @@ Run **whatChanged.sh [-bs] oldSpreadsheet.csv newSpreadsheet.csv**
 _Brief_ - Don't output the diffs, just list what was done, e.g.
 ```
     ==> 2 insertions, 1 deletion, 1 modification
-    deleted 1 show at line 35
-    added 2 shows after line 98
-    changed 1 show at line 101
+        deleted 1 show at line 35
+        added 2 shows after line 98
+        changed 1 show at line 101
 ```
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-s**
