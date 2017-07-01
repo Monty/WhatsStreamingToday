@@ -172,19 +172,19 @@ cat >>$POSSIBLE_DIFFS << EOF
 
 $(checkdiffs $MARQUEE_FILE $TITLE_FILE)
 
+
 ### MHz shows on the web are not sorted by title. When shows are
 ### rearranged, the individual column diffs may look significant.
 ### Check the "titles" column diffs to see if the changes are only
 ### from identical titles being deleted and re-inserted.
-
-$(checkdiffs $PUBLISHED_URLS $URL_FILE)
-$(checkdiffs $PUBLISHED_MARQUEES $MARQUEE_FILE)
 $(checkdiffs $PUBLISHED_TITLES $TITLE_FILE)
+$(checkdiffs $PUBLISHED_MARQUEES $MARQUEE_FILE)
+$(checkdiffs $PUBLISHED_URLS $URL_FILE)
 $(checkdiffs $PUBLISHED_LINKS $LINK_FILE)
 $(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
+$(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
 $(checkdiffs $PUBLISHED_SEASONS $SEASONS_FILE)
 $(checkdiffs $PUBLISHED_EPISODES $EPISODES_FILE)
-$(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
 
 
 ### Any funny stuff with file lengths? Any differences in
