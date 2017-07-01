@@ -13,9 +13,9 @@
 
 #   Extract the URLs for each season
 /<select class="js-switch-season/,/<\/select>/ {
-    s+^ *++
+    s/^ *//
     /^<option value=/!D
-    s+^<option value="++
-    s+".*++
+    s/^<option value="//
+    s/".*//
     p
 }

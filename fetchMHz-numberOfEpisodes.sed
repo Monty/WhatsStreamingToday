@@ -6,9 +6,10 @@
 
 # Extract only the number of episodes
 /<h2 class=.*content-label/,/h2>/ {
-    s+^ *++
+    s/^ *//
     /^<h2 class=/D
     /^<\/h2>/D
-    s+ Episode.*++
+    s/ Episode.*//
+    s/^/+/
     p
 }

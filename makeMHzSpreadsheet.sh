@@ -99,7 +99,7 @@ do
                 fi
                 curl -sS "$episode" \
                 | sed -n -f fetchMHz-numberOfEpisodes.sed \
-                | echo -n "+$(cat)" >>$EPISODES_FILE
+                | tr -d '\n' >>$EPISODES_FILE
             done
 done < "$URL_FILE"
 # Add newline
