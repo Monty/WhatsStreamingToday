@@ -16,7 +16,7 @@
 
 # Only keep lines containing "=HYPERLINK" then get rid of leading sequence numbers
 function sanitize () {
-    sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ $1
+    sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ "$1"
 }
 
 while getopts ":bs" opt; do
@@ -34,9 +34,9 @@ while getopts ":bs" opt; do
 done
 shift $((OPTIND - 1))
 
-echo "==> changes between $1 and $2:"
+echo "==>" changes between "$1" and "$2":
 # first the stats
-diff -c <(sanitize $1) <(sanitize $2) | diffstat -sq \
+diff -c <(sanitize "$1") <(sanitize "$2") | diffstat -sq \
     | sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
 if [ "$SUMMARY" = "yes" ] ; then
     exit
@@ -52,21 +52,20 @@ function checkdiffs () {
 %>' \
         --changed-group-format='#   ==> changed %dn show%(n=1?:s) at line %df <==
 %<------ to:
-%>' $1 $2
+%>' "$1" "$2"
 }
 
 if [ "$BRIEF" = "yes" ] ; then
     # Only print lines beginning with "#   ==>"
     # but delete the "#   ==>" and terminating "<=="
     # since that looks better in this context
-    checkdiffs <(sanitize $1) <(sanitize $2) \
+    checkdiffs <(sanitize "$1") <(sanitize "$2") \
         | sed -e "/#   ==>/!D" -e "s/#   ==> /    /" -e "s/ <==//"
-    if [ ${PIPESTATUS[0]} == 0 ] ; then
+    if [ "${PIPESTATUS[0]}" == 0 ] ; then
         echo "==> nothing changed"
     fi
 else
-    checkdiffs <(sanitize $1) <(sanitize $2)
-    if [ $? == 0 ] ; then
+    if checkdiffs <(sanitize "$1") <(sanitize "$2") ; then 
         echo "==> nothing changed"
     fi
 fi

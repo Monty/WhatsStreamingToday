@@ -85,10 +85,10 @@ curl -s $BASE_URL \
 
 # keep track of the last spreadsheet row containing data
 lastRow=1
-while read line
+while read -r line
 do
     ((lastRow++))
-    curl -s $line \
+    curl -s "$line" \
         | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
             -v SEASONS_FILE=$SEASONS_FILE -v EPISODES_FILE=$EPISODES_FILE \
             -v IN_CANADA=$IN_CANADA -f fetchAcorn-episodes.awk
@@ -130,11 +130,11 @@ if [ ! -e "$1" ] ; then
     # and copy the newfile to the basefile so it can serve
     # as a base for diffs in the future.
     echo "==> $1 does not exist. Creating it, assuming no diffs."
-    cp -p $2 $1
+    cp -p "$2" "$1"
 else
     echo "==> what changed between $1 and $2:"
     # first the stats
-    diff -c $1 $2 | diffstat -sq \
+    diff -c "$1" "$2" | diffstat -sq \
         -D $(cd "$(dirname "$2")" && pwd -P) \
         | sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
     # then the diffs
@@ -146,7 +146,7 @@ else
 %>' \
         --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
 %<------ to:
-%>' $1 $2
+%>' "$1" "$2"
     if [ $? == 0 ] ; then
         echo "==> no diffs found"
     fi

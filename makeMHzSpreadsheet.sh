@@ -81,15 +81,15 @@ curl -s $BASE_URL $BASE_URL2 \
 
 # keep track of the number of series we find
 lastRow=1
-while read line
+while read -r line
 do
     ((lastRow++))
-    curl -sS $line \
+    curl -sS "$line" \
     | tee \
         >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
             -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
     | sed -n -f fetchMHz-seasonURLs.sed \
-        | while read episode
+        | while read -r episode
             do
                 if [[ "${episode}" =~ season:1 ]] ; then
                     if [[ -e "$EPISODES_FILE" ]] ; then
@@ -97,7 +97,7 @@ do
                     fi
                     echo -n "=" >>$EPISODES_FILE
                 fi
-                curl -sS $episode \
+                curl -sS "$episode" \
                 | sed -n -f fetchMHz-numberOfEpisodes.sed \
                 | echo -n "+$(cat)" >>$EPISODES_FILE
             done
@@ -143,11 +143,11 @@ if [ ! -e "$1" ] ; then
     # and copy the newfile to the basefile so it can serve
     # as a base for diffs in the future.
     echo "==> $1 does not exist. Creating it, assuming no diffs."
-    cp -p $2 $1
+    cp -p "$2" "$1"
 else
     echo "==> what changed between $1 and $2:"
     # first the stats
-    diff -c $1 $2 | diffstat -sq \
+    diff -c "$1" "$2" | diffstat -sq \
         -D $(cd "$(dirname "$2")" && pwd -P) \
         | sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
     # then the diffs
@@ -159,7 +159,7 @@ else
 %>' \
         --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
 %<------ to:
-%>' $1 $2
+%>' "$1" "$2"
     if [ $? == 0 ] ; then
         echo "==> no diffs found"
     fi
