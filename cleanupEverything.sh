@@ -4,45 +4,41 @@
 echo "Answer y to delete, anything else to skip. Deletion cannot be undone!"
 echo ""
 
-# Allow use of switches -v or -i to be used with rm command
-if [ "$1" == '-v' ] || [ "$1" == '-i' ]; then
-    SWITCH="$1"
-else
-    SWITCH=""
-fi
+# Allow switches -v or -i to be passed to the rm command
+while getopts ":iv" opt; do
+    case $opt in
+        i)
+            ASK="-i"
+            ;;
+        v)
+            TELL="-v"
+            ;;
+        \?)
+            echo "Ignoring invalid option: -$OPTARG" >&2
+            ;;
+    esac
+done
+shift $((OPTIND - 1))
 
-read -r -p "Delete all primary spreadsheet files? [y/N] " YESNO
-if [ "$YESNO" != "y" ]; then
-    echo "Skipping..."
-else
-    echo "Deleting ..."
-    rm -f $SWITCH Acorn_TV_Shows*.csv MHz_TV_Shows*.csv
-fi
-echo ""
+# Ask $1 first, shift, then rm $@
+function yesnodelete () {
+    read -r -p "Delete $1? [y/N] " YESNO
+    shift
+    if [ "$YESNO" != "y" ]; then
+        echo "Skipping..."
+    else
+        echo "Deleting ..."
+        # Don't quote $@. Globbing needs to take place here.
+        rm -rf $ASK $TELL $@
+    fi
+    echo ""
+}
 
-read -r -p "Delete all secondary spreadsheet files? [y/N] " YESNO
-if [ "$YESNO" != "y" ]; then
-    echo "Skipping..."
-else
-    echo "Deleting ..."
-    rm -rf $SWITCH Acorn-columns MHz-columns
-fi
-echo ""
+# Quote filenames so globbing takes place in the "rm" command itself,
+# i.e. the function is passed the number of parameters seen below, not
+# the expananded list which could be quite long.
+yesnodelete "all primary spreadsheet files" "Acorn_TV_Shows*.csv" "MHz_TV_Shows*.csv"
+yesnodelete "all secondary spreadsheet files" "Acorn-columns" "MHz-columns"
+yesnodelete "all diff results" "Acorn_diffs*.txt" "MHz_diffs*.txt"
+yesnodelete "all diff baselines" "Acorn-baseline" "MHz-baseline"
 
-read -r -p "Delete all diff results? [y/N] " YESNO
-if [ "$YESNO" != "y" ]; then
-    echo "Skipping..."
-else
-    echo "Deleting ..."
-    rm -f $SWITCH Acorn_diffs*.txt MHz_diffs*.txt
-fi
-echo ""
-
-read -r -p "Delete all diff baselines? [y/N] " YESNO
-if [ "$YESNO" != "y" ]; then
-    echo "Skipping..."
-else
-    echo "Deleting ..."
-    rm -rf $SWITCH Acorn-baseline MHz-baseline
-fi
-echo ""
