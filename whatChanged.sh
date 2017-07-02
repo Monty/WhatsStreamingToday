@@ -34,7 +34,7 @@ while getopts ":bs" opt; do
 done
 shift $((OPTIND - 1))
 
-echo "==>" changes between "$1" and "$2":
+echo "==> changes between $1 and $2:"
 # first the stats
 diff -c <(sanitize "$1") <(sanitize "$2") | diffstat -sq \
     | sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
@@ -61,7 +61,7 @@ if [ "$BRIEF" = "yes" ] ; then
     # since that looks better in this context
     checkdiffs <(sanitize "$1") <(sanitize "$2") \
         | sed -e "/#   ==>/!D" -e "s/#   ==> /    /" -e "s/ <==//"
-    if [ "${PIPESTATUS[0]}" == 0 ] ; then
+    if [ ${PIPESTATUS[0]} == 0 ] ; then
         echo "==> nothing changed"
     fi
 else
