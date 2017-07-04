@@ -139,13 +139,13 @@ else
     # then the diffs
     diff \
         --unchanged-group-format='' \
-        --old-group-format='==> deleted %dn line%(n=1?:s) at line %df:
-    %<' \
-        --new-group-format='==> added %dN line%(N=1?:s) after line %de:
-    %>' \
-        --changed-group-format='==> changed %dn line%(n=1?:s) at line %df:
-    %<------ to:
-    %>' "$1" "$2"
+        --old-group-format='==> deleted %dn line%(n=1?:s) at line %df <==
+%<' \
+        --new-group-format='==> added %dN line%(N=1?:s) after line %de <==
+%>' \
+        --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
+%<------ to:
+%>' "$1" "$2"
     if [ $? == 0 ] ; then
         echo "==> no diffs found"
     fi
