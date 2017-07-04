@@ -85,18 +85,18 @@ while read -r line; do
     ((lastRow++))
     curl -sS "$line" \
         | tee \
-        >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-        -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
+            >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
+            -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
         | awk -f fetchMHz-seasonURLs.awk \
-        | while read -r episode; do
-              if [[ "${episode}" =~ season:1 ]] ; then
+        | while read -r episode_URL; do
+              if [[ "${episode_URL}" =~ season:1 ]] ; then
                   if [[ -e "$EPISODES_FILE" ]] ; then
                       echo >>$EPISODES_FILE
                   fi
                   echo -n "=" >>$EPISODES_FILE
               fi
-              curl -sS "$episode" \
-                  | awk -v EPISODE_URL=$episode -f fetchMHz-numberOfEpisodes.awk >>$EPISODES_FILE
+              curl -sS "$episode_URL" \
+                  | awk -v EPISODE_URL=$episode_URL -f fetchMHz-numberOfEpisodes.awk >>$EPISODES_FILE
           done
 done < "$URL_FILE"
 # Add newline
