@@ -103,10 +103,10 @@ paste $URL_FILE $TITLE_FILE \
 echo -e "#\tTitle\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
 if [ "$UNSORTED" = "yes" ] ; then
     paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
-        $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
+        $DESCRIPTION_FILE | nl -n ln >>$SPREADSHEET_FILE
 else
     paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
-        $DESCRIPTION_FILE | nl | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
+        $DESCRIPTION_FILE | nl -n ln | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
 fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
