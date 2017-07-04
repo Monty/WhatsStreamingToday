@@ -81,26 +81,24 @@ curl -s $BASE_URL $BASE_URL2 \
 
 # keep track of the number of series we find
 lastRow=1
-while read -r line
-do
+while read -r line; do
     ((lastRow++))
     curl -sS "$line" \
-    | tee \
+        | tee \
         >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-            -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
-    | sed -n -f fetchMHz-seasonURLs.sed \
-        | while read -r episode
-            do
-                if [[ "${episode}" =~ season:1 ]] ; then
-                    if [[ -e "$EPISODES_FILE" ]] ; then
-                        echo >>$EPISODES_FILE
-                    fi
-                    echo -n "=" >>$EPISODES_FILE
-                fi
-                curl -sS "$episode" \
-                | sed -n -f fetchMHz-numberOfEpisodes.sed \
-                | tr -d '\n' >>$EPISODES_FILE
-            done
+        -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
+        | sed -n -f fetchMHz-seasonURLs.sed \
+        | while read -r episode; do
+              if [[ "${episode}" =~ season:1 ]] ; then
+                  if [[ -e "$EPISODES_FILE" ]] ; then
+                      echo >>$EPISODES_FILE
+                  fi
+                  echo -n "=" >>$EPISODES_FILE
+              fi
+              curl -sS "$episode" \
+                  | sed -n -f fetchMHz-numberOfEpisodes.sed \
+                  | tr -d '\n' >>$EPISODES_FILE
+          done
 done < "$URL_FILE"
 # Add newline
 echo >>$EPISODES_FILE
@@ -122,8 +120,8 @@ else
 fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
-"\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
-\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)" \
+        "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
+        \t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)" \
         >>$SPREADSHEET_FILE
     echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
         >>$SPREADSHEET_FILE

@@ -16,7 +16,7 @@
 
 # Only keep lines containing "=HYPERLINK" then get rid of leading sequence numbers
 function sanitize () {
-    sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ "$1"
+sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ "$1"
 }
 
 while getopts ":bs" opt; do
@@ -44,13 +44,13 @@ fi
 
 # Now the diffs
 function checkdiffs () {
-    diff \
-        --unchanged-group-format='' \
-        --old-group-format='#   ==> deleted %dn show%(n=1?:s) at line %df <==
+diff \
+    --unchanged-group-format='' \
+    --old-group-format='#   ==> deleted %dn show%(n=1?:s) at line %df <==
 %<' \
-        --new-group-format='#   ==> added %dN show%(N=1?:s) after line %de <==
+    --new-group-format='#   ==> added %dN show%(N=1?:s) after line %de <==
 %>' \
-        --changed-group-format='#   ==> changed %dn show%(n=1?:s) at line %df <==
+    --changed-group-format='#   ==> changed %dn show%(n=1?:s) at line %df <==
 %<------ to:
 %>' "$1" "$2"
 }
