@@ -87,7 +87,7 @@ while read -r line; do
         | tee \
         >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
         -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
-        | sed -n -f fetchMHz-seasonURLs.sed \
+        | awk -f fetchMHz-seasonURLs.awk \
         | while read -r episode; do
               if [[ "${episode}" =~ season:1 ]] ; then
                   if [[ -e "$EPISODES_FILE" ]] ; then
@@ -96,8 +96,7 @@ while read -r line; do
                   echo -n "=" >>$EPISODES_FILE
               fi
               curl -sS "$episode" \
-                  | sed -n -f fetchMHz-numberOfEpisodes.sed \
-                  | tr -d '\n' >>$EPISODES_FILE
+                  | awk -v EPISODE_URL=$episode -f fetchMHz-numberOfEpisodes.awk >>$EPISODES_FILE
           done
 done < "$URL_FILE"
 # Add newline
