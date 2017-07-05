@@ -77,7 +77,7 @@ rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
 
 curl -s $BASE_URL $BASE_URL2 \
     | awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
-    -v SEASONS_FILE=$SEASONS_FILE -f fetchMHz-series.awk
+    -v SEASONS_FILE=$SEASONS_FILE -f getMhzFrom-browsePage.awk
 
 # keep track of the number of series we find
 lastRow=1
@@ -86,7 +86,7 @@ while read -r line; do
     curl -sS "$line" \
         | tee \
             >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-            -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk) \
+            -v HEADER_FILE=$HEADER_FILE -f getMhzFrom-seriesPages.awk) \
         | awk -f fetchMHz-seasonURLs.awk \
         | while read -r episode_URL; do
               if [[ "${episode_URL}" =~ season:1 ]] ; then
@@ -96,7 +96,7 @@ while read -r line; do
                   echo -n "=" >>$EPISODES_FILE
               fi
               curl -sS "$episode_URL" \
-                  | awk -v EPISODE_URL=$episode_URL -f fetchMHz-numberOfEpisodes.awk >>$EPISODES_FILE
+                  | awk -v EPISODE_URL=$episode_URL -f getMhzFrom-episodePages.awk >>$EPISODES_FILE
           done
 done < "$URL_FILE"
 # Add newline
