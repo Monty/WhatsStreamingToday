@@ -82,8 +82,12 @@ curl -s $BROWSE_URL $BROWSE_URL2 \
 
 # keep track of the number of series we find
 lastRow=1
+# loop through the list of series URLs from $URL_FILE
 while read -r line; do
     ((lastRow++))
+    # Generate series Marquees, Descriptions, Headers from MHz series pages
+    #     (Headers include Genre, Country, Language, Rating)
+    # and return the list of Episode URLs for further processing
     curl -sS "$line" \
         | tee \
             >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \

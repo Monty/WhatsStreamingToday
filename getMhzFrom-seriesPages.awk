@@ -1,19 +1,21 @@
-# Given the output of an episode file for a TV series from the MHz website
-# such as the result from: 
-#     curl -s https://mhzchoice.vhx.tv/detective-montalbano
-# create lists of marquees, descriptions, genres, countries, languages, etc.
-# to be pasted into a spreadsheet
+# Generate series Marquees, Descriptions, Headers from MHz series pages
+#       (Headers include Genre, Country, Language, Rating)
+# and return the list of Episode URLs for further processing
 #
-# e.g.
-# <title>Detective Montalbano - MHz Choice</title>
-# <meta name="description" content="New episodes premiering June 27th!
-# MYSTERY | ITALY | ITALIAN WITH ENGLISH SUBTITLES | TV-14
-# Murder, betrayal, office politics, temptation... it&#x27;s all in a day&#x27;s work for Detective Salvo Montalbano. Filmed in the ancient, sun-washed Sicilian city of Ragusa Ibla, the series is based on the international best-selling mystery novels by Andrea Camilleri and stars Luca Zingaretti">
+# INVOCATION:
+#       curl -s https://mhzchoice.vhx.tv/a-french-village/ \
+#           | awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
+#           -v HEADER_FILE=$HEADER_FILE -f getMHzFrom-seriesPages.awk
 #
+# INPUT:
+#       <title>A French Village - MHz Choice</title>
+#       <meta name="description" content="DRAMA | FRANCE | FRENCH WITH ENGLISH SUBTITLES | TV-MA^M
+#       This acclaimed drama is about the German...all in a day&#x27;s worki... its inhabitants.">
 #
-# Invoked with file parameters as follows:
-# awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-#     -v HEADER_FILE=$HEADER_FILE -f getMhzFrom-seriesPages.awk
+# OUTPUT:
+#       $MARQUEE_FILE, $DESCRIPTION_FILE, $HEADER_FILE,
+#       list of Episode URLs
+#       
 
 BEGIN {
     numPrinted = 0
