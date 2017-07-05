@@ -13,7 +13,7 @@
 #
 # Invoked with file parameters as follows:
 # awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-#     -v HEADER_FILE=$HEADER_FILE -f fetchMHz-episodeInfo.awk)
+#     -v HEADER_FILE=$HEADER_FILE -f getMhzFrom-seriesPages.awk
 
 BEGIN {
     numPrinted = 0
