@@ -89,10 +89,8 @@ while read -r line; do
     #     (Headers include Genre, Country, Language, Rating)
     # and return the list of Episode URLs for further processing
     curl -sS "$line" \
-        | tee \
-            >(awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-            -v HEADER_FILE=$HEADER_FILE -f getMHzFrom-seriesPages.awk) \
-        | awk -f fetchMHz-seasonURLs.awk \
+        | awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
+            -v HEADER_FILE=$HEADER_FILE -f getMHzFrom-seriesPages.awk \
         | while read -r episode_URL; do
               if [[ "${episode_URL}" =~ season:1 ]] ; then
                   if [[ -e "$NUM_EPISODES_FILE" ]] ; then

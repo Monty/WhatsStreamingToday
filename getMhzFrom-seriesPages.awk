@@ -11,15 +11,20 @@
 #       <title>A French Village - MHz Choice</title>
 #       <meta name="description" content="DRAMA | FRANCE | FRENCH WITH ENGLISH SUBTITLES | TV-MA^M
 #       This acclaimed drama is about the German...all in a day&#x27;s work... its inhabitants.">
+# ---
+#       <select class="js-switch-season btn-dropdown-black margin-right-medium" data-switch-season >
+#           <option value="https://mhzchoice.vhx.tv/a-french-village/season:1" selected>
+#             Season 1
+#           </option>
+#           <option value="https://mhzchoice.vhx.tv/a-french-village/season:2">
+#             Season 2
+#           </option>
+#       </select>
 #
 # OUTPUT:
 #       $MARQUEE_FILE, $DESCRIPTION_FILE, $HEADER_FILE,
 #       list of Episode URLs
 #       
-
-BEGIN {
-    printed = "no"
-}
 
 /title>/ {
     sub (/.*<title>/,"")
@@ -32,9 +37,13 @@ BEGIN {
 }
 
 /meta name="description" content=/,/>/ {
-    sub (/.*name="description" content="/,"")
+    # if we're on the first line of this block ...
+    if ($0 ~ /name="description" content="/) {
+        headerPrinted = "no"
+        sub (/.*name="description" content="/,"")
+    }
+    # If we find a header, clean it up and print it
     if ($0 ~ /\| TV/) {
-        # Extract the header
         sub (/WITH ENGLISH SUBTITLES /,"")
         sub (/SCANDINAVIAN CRIME FICTION/,"Sweden")
         sub (/NONFICTION - DOCUMENTARY/,"Documentary")
@@ -52,20 +61,31 @@ BEGIN {
         }
         # print the finalized header
         print fld[1] "\t" fld[2] "\t" fld[(numFields-1)] "\t" fld[(numFields)] >> HEADER_FILE
-        printed = "yes"
+        headerPrinted = "yes"
     } else {
-        # Extract the description
-        gsub (/"\>/,"")
+        # We found a description, clean it up and print it
         gsub (/  */," ")
         gsub (/&#x27;/,"'")
         gsub (/\r/," ")
-        # print the finalized description
-        printf ("%s", $0) >> DESCRIPTION_FILE
+        # if it's not the last line of the description, print it without a newline
+        if ($0 !~ /"\>/) {
+            printf ("%s", $0) >> DESCRIPTION_FILE
+        } else {
+            # if it's the last line of the description, print it with a newline
+            sub (/"\>/,"")
+            print $0 >> DESCRIPTION_FILE
+            # if we didn't find a header in this block, print a blank one
+            if (headerPrinted == "no")
+                print "\t\t\t" >> HEADER_FILE
+        }
     }
 }
 
-END {
-    if (printed == "no")
-        print "\t\t\t" >> HEADER_FILE
-    print "" >> DESCRIPTION_FILE
+# Return the list of Episode URLs for further processing
+/<select class="js-switch-season/,/<\/select>/ {
+    sub (/^ */,"")
+    if ($0 ~ /^<option value="/) {
+        split($0,fld,"\"")
+        print fld[2]
+    }
 }
