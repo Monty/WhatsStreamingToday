@@ -3,7 +3,7 @@
 
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-# Use :-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
+# Use "-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
 while getopts ":dtu" opt; do
     case $opt in
         d)
@@ -66,6 +66,9 @@ PUBLISHED_NUM_EPISODES="$BASELINE/numberOfEpisodes.txt"
 HEADER_FILE="$COLUMNS/headers-$DATE.csv"
 PUBLISHED_HEADERS="$BASELINE/headers.txt"
 #
+EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
+PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
+#
 SPREADSHEET_FILE="MHz_TV_Shows-$DATE.csv"
 PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 #
@@ -73,7 +76,7 @@ PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
 
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
-    $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE
+    $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_INFO_FILE
 
 # Generate series URLs, Titles, Number of Seasons from MHz "Browse" page
 curl -sS $BROWSE_URL $BROWSE_URL2 \
@@ -84,7 +87,6 @@ curl -sS $BROWSE_URL $BROWSE_URL2 \
 lastRow=1
 # loop through the list of series URLs from $URL_FILE
 while read -r line; do
-    ((lastRow++))
     # Generate series Marquees, Descriptions, Headers from MHz series pages
     #     (Headers include Genre, Country, Language, Rating)
     # and return the list of Episode URLs for further processing
@@ -98,10 +100,15 @@ while read -r line; do
                   fi
                   echo -n "=" >>$NUM_EPISODES_FILE
               fi
+              # Generate a separate file with a line for each episode containing 
+              # seriesNumber, episodeURL, seriesTitle, seasonNumber, episodeNumber,
+              # episodeTitle, & episodeDescription.
+              # Return the number of episodes but with no terminating newline
               curl -sS "$episode_URL" \
-                  | awk -v EPISODE_URL=$episode_URL -f getMHzFrom-episodePages.awk \
-                  >>$NUM_EPISODES_FILE
+                  | awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
+                  -f getMHzFrom-episodePages.awk >>$NUM_EPISODES_FILE
           done
+    ((lastRow++))
 done < "$URL_FILE"
 # Add newline
 echo >>$NUM_EPISODES_FILE
@@ -115,11 +122,16 @@ echo -e \
     '#\tTitle\tSeasons\tEpisodes\tGenre\tCountry\tLanguage\tRating\tDescription' \
     >$SPREADSHEET_FILE
 if [ "$UNSORTED" = "yes" ] ; then
+    # sort key 1 sorts in the order found on the web
+    # sort key 4 sorts by title
+    # both sort $EPISODE_INFO_FILE by season then episode (if one is provided)
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | nl >>$SPREADSHEET_FILE
+        $DESCRIPTION_FILE | nl -n ln | cat - $EPISODE_INFO_FILE \
+        | sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 else
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | nl | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
+        $DESCRIPTION_FILE | nl -n ln | cat - $EPISODE_INFO_FILE \
+        | sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
@@ -186,6 +198,7 @@ $(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
 $(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
 $(checkdiffs $PUBLISHED_NUM_SEASONS $NUM_SEASONS_FILE)
 $(checkdiffs $PUBLISHED_NUM_EPISODES $NUM_EPISODES_FILE)
+$(checkdiffs $PUBLISHED_EPISODE_INFO $EPISODE_INFO_FILE)
 
 
 ### Any funny stuff with file lengths? Any differences in
