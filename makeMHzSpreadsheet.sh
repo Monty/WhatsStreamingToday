@@ -76,7 +76,7 @@ rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
     $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE
 
 # Generate series URLs, Titles, Number of Seasons from MHz "Browse" page
-curl -s $BROWSE_URL $BROWSE_URL2 \
+curl -sS $BROWSE_URL $BROWSE_URL2 \
     | awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
     -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -f getMHzFrom-browsePage.awk
 
