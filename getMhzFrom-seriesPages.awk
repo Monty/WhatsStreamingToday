@@ -10,7 +10,7 @@
 # INPUT:
 #       <title>A French Village - MHz Choice</title>
 #       <meta name="description" content="DRAMA | FRANCE | FRENCH WITH ENGLISH SUBTITLES | TV-MA^M
-#       This acclaimed drama is about the German...all in a day&#x27;s worki... its inhabitants.">
+#       This acclaimed drama is about the German...all in a day&#x27;s work... its inhabitants.">
 #
 # OUTPUT:
 #       $MARQUEE_FILE, $DESCRIPTION_FILE, $HEADER_FILE,
@@ -18,8 +18,7 @@
 #       
 
 BEGIN {
-    numPrinted = 0
-    FS = "\|"
+    printed = "no"
 }
 
 /title>/ {
@@ -41,18 +40,19 @@ BEGIN {
         sub (/NONFICTION - DOCUMENTARY/,"Documentary")
         gsub (/ \| /,"|")
         sub (/\r/,"")
-        # ensure lowercase for everything but the first character
-        # in all fields but the last
-        for (i = 1; i < NF; ++i) {
-            $i = substr($i,1,1) tolower(substr($i,2))
-            # uppercase for second of two word fields
-            if (match($i,/ /) > 0)
-                $i = substr($i,1,RSTART) toupper(substr($i,RSTART+1,1)) \
-                   (substr($i,RSTART+2))
+        # Split out header fields
+        numFields = split($0,fld,"\|")
+        # lowercase everything but the first character in all fields but the last
+        for (i = 1; i < numFields; ++i) {
+            fld[i] = substr(fld[i],1,1) tolower(substr(fld[i],2))
+            # uppercase the first character of any second word
+            if (match(fld[i],/ /) > 0)
+                fld[i] = substr(fld[i],1,RSTART) toupper(substr(fld[i],RSTART+1,1)) \
+                   (substr(fld[i],RSTART+2))
         }
         # print the finalized header
-        print $1 "\t" $2 "\t" $(NF-1) "\t" $(NF) >> HEADER_FILE
-        numPrinted += 1
+        print fld[1] "\t" fld[2] "\t" fld[(numFields-1)] "\t" fld[(numFields)] >> HEADER_FILE
+        printed = "yes"
     } else {
         # Extract the description
         gsub (/"\>/,"")
@@ -65,7 +65,7 @@ BEGIN {
 }
 
 END {
-    if (numPrinted == 0)
-        printf ("\t\t\t\n") >> HEADER_FILE
+    if (printed == "no")
+        print "\t\t\t" >> HEADER_FILE
     print "" >> DESCRIPTION_FILE
 }
