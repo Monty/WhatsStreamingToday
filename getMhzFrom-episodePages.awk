@@ -88,7 +88,7 @@
     if ($0 ~ /<p>/) {
         sub (/.*<p>/,"")
         sub (/<\/p>.*/,"")
-        printf ("%d\t=HYPERLINK(\"%s\",\"%s, S%02dE%02d, %s\"\)\t%s\t\t\t\t\t\t%s\n", \
+        printf ("%d\t=HYPERLINK(\"%s\",\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t%s\n", \
             SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeNumber, episodeTitle, \
             episodeDuration, $0) >>EPISODE_INFO_FILE
     }
