@@ -66,6 +66,8 @@ PUBLISHED_NUM_EPISODES="$BASELINE/numberOfEpisodes.txt"
 HEADER_FILE="$COLUMNS/headers-$DATE.csv"
 PUBLISHED_HEADERS="$BASELINE/headers.txt"
 #
+EPISODE_URL_FILE="$COLUMNS/episodeUrls-$DATE.csv"
+PUBLISHED_EPISODE_URLS="$BASELINE/episodeUrls.txt"
 EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
 PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 #
@@ -75,8 +77,8 @@ PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 # Name diffs with both date and time so every run produces a new result
 POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
 
-rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
-    $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_INFO_FILE
+rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEASONS_FILE \
+    $NUM_EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE $EPISODE_INFO_FILE
 
 # Generate series URLs, Titles, Number of Seasons from MHz "Browse" page
 curl -sS $BROWSE_URL $BROWSE_URL2 \
@@ -104,6 +106,7 @@ while read -r line; do
               # seriesNumber, episodeURL, seriesTitle, seasonNumber, episodeNumber,
               # episodeTitle, & episodeDescription.
               # Return the number of episodes but with no terminating newline
+              echo "$episode_URL" >> $EPISODE_URL_FILE
               curl -sS "$episode_URL" \
                   | awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
                   -f getMHzFrom-episodePages.awk >>$NUM_EPISODES_FILE
@@ -198,6 +201,7 @@ $(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
 $(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
 $(checkdiffs $PUBLISHED_NUM_SEASONS $NUM_SEASONS_FILE)
 $(checkdiffs $PUBLISHED_NUM_EPISODES $NUM_EPISODES_FILE)
+$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URL_FILE)
 $(checkdiffs $PUBLISHED_EPISODE_INFO $EPISODE_INFO_FILE)
 
 

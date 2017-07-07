@@ -20,6 +20,12 @@
 #             Season 2
 #           </option>
 #       </select>
+# ---
+#       (on one line)
+#       <a data-load-more="infinite_scroll: false;" \
+#       data-load-more-target="js-load-more-items-container" \
+#       class="js-load-more-link btn btn-site-secondary btn-nowrap" \
+#       href="/detective-montalbano?page=2">Show More</a>
 #
 # OUTPUT:
 #       $MARQUEE_FILE, $DESCRIPTION_FILE, $HEADER_FILE,
@@ -88,4 +94,11 @@
         split($0,fld,"\"")
         print fld[2]
     }
+}
+
+# If there is more to load ...
+/class="js-load-more-link/ {
+    sub (/.*href="/,"https://mhzchoice.vhx.tv")
+    sub (/">.*/,"")
+    print $0
 }

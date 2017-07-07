@@ -32,6 +32,7 @@ cp -p $COLUMNS/descriptions-$DATE.csv $BASELINE/descriptions.txt
 cp -p $COLUMNS/numberOfSeasons-$DATE.csv $BASELINE/numberOfSeasons.txt
 cp -p $COLUMNS/numberOfEpisodes-$DATE.csv $BASELINE/numberOfEpisodes.txt
 cp -p $COLUMNS/headers-$DATE.csv $BASELINE/headers.txt
+cp -p $COLUMNS/episodeUrls-$DATE.csv $BASELINE/episodUrls.txt
 cp -p $COLUMNS/episodeInfo-$DATE.csv $BASELINE/episodeInfo.txt
 
 cp -p MHz_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
