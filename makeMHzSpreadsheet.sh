@@ -2,12 +2,16 @@
 # Create a .csv spreadsheet of shows available on MHz Networks
 
 # Use "-d" switch to output a "diffs" file useful for debugging
+# Use "-l" switch to include every episode description for each series
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
 # Use "-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
-while getopts ":dtu" opt; do
+while getopts ":dltu" opt; do
     case $opt in
         d)
             DEBUG="yes"
+            ;;
+        l)
+            INCLUDE_EPISODES="yes"
             ;;
         t)
             PRINT_TOTALS="yes"
@@ -118,24 +122,38 @@ echo >>$NUM_EPISODES_FILE
 
 # WARNING there is an actual tab character in the following command
 # because sed in macOS doesn't regognize \t
+# Create hyperlinks
 paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
+# Output header
 echo -e \
     '#\tTitle\tSeasons\tEpisodes\tGenre\tCountry\tLanguage\tRating\tDescription' \
     >$SPREADSHEET_FILE
+#
+# Output body
+if [ "$INCLUDE_EPISODES" = "yes" ] ; then
+    # pick a second file to include in the spreadsheet
+    file2=$EPISODE_INFO_FILE
+else
+    # null out included file
+    file2=""
+fi
+#
 if [ "$UNSORTED" = "yes" ] ; then
     # sort key 1 sorts in the order found on the web
     # sort key 4 sorts by title
-    # both sort $EPISODE_INFO_FILE by season then episode (if one is provided)
+    # both sort $file2 by season then episode (if one is provided)
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $EPISODE_INFO_FILE \
+        $DESCRIPTION_FILE | nl -n ln | cat - $file2 \
         | sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 else
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $EPISODE_INFO_FILE \
+        $DESCRIPTION_FILE | nl -n ln | cat - $file2 \
         | sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
+#
+# Output footer
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
         "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
