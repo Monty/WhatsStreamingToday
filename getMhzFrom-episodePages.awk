@@ -12,16 +12,21 @@
 # INPUT:
 #        <title>A French Village - MHz Choice</title>
 #  ---
-#              <h2 class="site-font-secondary-color site-font-primary-family content-label padding-top-medium grid-padding-right">
-#                18 Episodes
-#              </h2>
+#        <h2 class="site-font-secondary-color site-font-primary-family content-label \
+#        padding-top-medium grid-padding-right">
+#          18 Episodes
+#        </h2>
 #  ---
-#                <a href="https://mhzchoice.vhx.tv/a-french-village/season:1/videos/the-landing-june-12-1940"><strong title="The Landing (June 12, 1940)">The Landing (June 12, 1940)</strong></a>
+#        <div class="duration-container is-locked">47:58</div>
 #  ---
-#              <h4 class="transparent"><span class='media-identifier media-episode'>Episode 1</span> </h4>
-#             <div class="transparent padding-top-medium">
-#               <p>A doctor oversees the birth of a child. Directed by Phillipe Triboit, 2009.</p>
-#             </div>
+#        <a href="https://mhzchoice.vhx.tv/a-french-village/season:1/videos/the-landing\
+#       -june-12-1940"><strong title="The Landing (June 12, 1940)">The Landing (June 12, 1940)\
+#       </strong></a>
+#  ---
+#        <h4 class="transparent"><span class='media-identifier media-episode'>Episode 1</span> </h4>
+#        <div class="transparent padding-top-medium">
+#        <p>A doctor oversees the birth of a child. Directed by Phillipe Triboit, 2009.</p>
+#        </div>
 # OUTPUT:
 #       $EPISODE_INFO_FILE & the number of episodes
 #
@@ -46,6 +51,15 @@
         $0 = substr($0, 5) ", The"
     }
     seriesTitle = $0
+    next
+}
+
+# Extract the duration
+/<div class="duration-container/ {
+    sub (/.*<div class="duration-container.*">/,"")
+    sub (/<\/div>/,"")
+    gsub (/ /,"")
+    episodeDuration = "'" $0
     next
 }
 
@@ -74,8 +88,8 @@
     if ($0 ~ /<p>/) {
         sub (/.*<p>/,"")
         sub (/<\/p>.*/,"")
-        printf ("%d\t=HYPERLINK(\"%s\",\"%s, S%02dE%02d, %s\"\)\t\t\t\t\t\t\t%s\n", \
+        printf ("%d\t=HYPERLINK(\"%s\",\"%s, S%02dE%02d, %s\"\)\t%s\t\t\t\t\t\t%s\n", \
             SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeNumber, episodeTitle, \
-            $0) >>EPISODE_INFO_FILE
+            episodeDuration, $0) >>EPISODE_INFO_FILE
     }
 }

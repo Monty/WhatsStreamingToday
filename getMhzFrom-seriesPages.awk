@@ -21,7 +21,6 @@
 #           </option>
 #       </select>
 # ---
-#       (on one line)
 #       <a data-load-more="infinite_scroll: false;" \
 #       data-load-more-target="js-load-more-items-container" \
 #       class="js-load-more-link btn btn-site-secondary btn-nowrap" \

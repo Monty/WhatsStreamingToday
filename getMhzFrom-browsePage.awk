@@ -6,7 +6,8 @@
 #           -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -f getMHzFrom-browsePage.awk
 #
 # INPUT:
-#       <a href="https://mhzchoice.vhx.tv/a-french-village"><strong title="A French Village">A French Village</strong></a>
+#       <a href="https://mhzchoice.vhx.tv/a-french-village"><strong title=\
+#       "A French Village">A French Village</strong></a>
 #   ---
 #       <h4 class="transparent"><span class='media-count'>6 seasons</span></h4>
 #
@@ -17,7 +18,6 @@
     split($0,fld,"\"")
     URL = fld[2]
     TITLE = fld[4]
-
     print URL "/" >> URL_FILE
 
     # Canonicalize Title
