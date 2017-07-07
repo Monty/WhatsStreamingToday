@@ -10,12 +10,10 @@
 #        Season 3
 #      </option>
 #  </select>
-
-#   Extract the URLs for each season
 /<select class="js-switch-season/,/<\/select>/ {
-    s/^ *//
-    /^<option value=/!D
-    s/^<option value="//
-    s/".*//
-    p
+    sub (/^ */,"")
+    if ($0 ~ /^<option value="/) {
+        split($0,fld,"\"")
+        print fld[2]
+    }
 }

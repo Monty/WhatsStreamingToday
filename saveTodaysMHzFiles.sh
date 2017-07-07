@@ -6,18 +6,18 @@ DATE="$(date +%y%m%d)"
 
 # Allow user to override DATE
 while getopts ":d:" opt; do
-  case $opt in
-    d)
-      DATE="$OPTARG"
-      ;;
-    \?)
-      echo "Ignoring invalid option: -$OPTARG" >&2
-      ;;
-    :)
-      echo "Option -$OPTARG requires a 'date' argument such as $DATE" >&2
-      exit 1
-      ;;
-  esac
+    case $opt in
+        d)
+            DATE="$OPTARG"
+            ;;
+        \?)
+            echo "Ignoring invalid option: -$OPTARG" >&2
+            ;;
+        :)
+            echo "Option -$OPTARG requires a 'date' argument such as $DATE" >&2
+            exit 1
+            ;;
+    esac
 done
 
 COLUMNS="MHz-columns"
@@ -32,5 +32,7 @@ cp -p $COLUMNS/descriptions-$DATE.csv $BASELINE/descriptions.txt
 cp -p $COLUMNS/numberOfSeasons-$DATE.csv $BASELINE/numberOfSeasons.txt
 cp -p $COLUMNS/numberOfEpisodes-$DATE.csv $BASELINE/numberOfEpisodes.txt
 cp -p $COLUMNS/headers-$DATE.csv $BASELINE/headers.txt
+cp -p $COLUMNS/episodeUrls-$DATE.csv $BASELINE/episodUrls.txt
+cp -p $COLUMNS/episodeInfo-$DATE.csv $BASELINE/episodeInfo.txt
 
 cp -p MHz_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt

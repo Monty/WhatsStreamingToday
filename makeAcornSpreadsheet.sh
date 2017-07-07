@@ -85,13 +85,12 @@ curl -s $BASE_URL \
 
 # keep track of the last spreadsheet row containing data
 lastRow=1
-while read -r line
-do
+while read -r line; do
     ((lastRow++))
     curl -s "$line" \
         | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-            -v SEASONS_FILE=$SEASONS_FILE -v EPISODES_FILE=$EPISODES_FILE \
-            -v IN_CANADA=$IN_CANADA -f fetchAcorn-episodes.awk
+        -v SEASONS_FILE=$SEASONS_FILE -v EPISODES_FILE=$EPISODES_FILE \
+        -v IN_CANADA=$IN_CANADA -f fetchAcorn-episodes.awk
 done < "$URL_FILE"
 
 # Join the URL and Title into a hyperlink
@@ -110,7 +109,7 @@ else
 fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
-"\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
+        "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
         >>$SPREADSHEET_FILE
     echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
         >>$SPREADSHEET_FILE

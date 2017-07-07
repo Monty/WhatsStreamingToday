@@ -22,16 +22,16 @@ shift $((OPTIND - 1))
 
 # Ask $1 first, shift, then rm $@
 function yesnodelete () {
-    read -r -p "Delete $1? [y/N] " YESNO
-    shift
-    if [ "$YESNO" != "y" ]; then
-        echo "Skipping..."
-    else
-        echo "Deleting ..."
-        # Don't quote $@. Globbing needs to take place here.
-        rm -rf $ASK $TELL $@
-    fi
-    echo ""
+read -r -p "Delete $1? [y/N] " YESNO
+shift
+if [ "$YESNO" != "y" ]; then
+    echo "Skipping..."
+else
+    echo "Deleting ..."
+    # Don't quote $@. Globbing needs to take place here.
+    rm -rf $ASK $TELL $@
+fi
+echo ""
 }
 
 # Quote filenames so globbing takes place in the "rm" command itself,
