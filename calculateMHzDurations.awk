@@ -10,7 +10,7 @@
 #  him disappears the same day. Directed by Alberto Sironi, 1999.
 #
 # OUTPUT:
-#       $DURATION_FILE
+#       $DURATION_FILE with one total duration of a series per line
 
 # Extract the duration
 BEGIN {
