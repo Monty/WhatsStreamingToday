@@ -131,6 +131,9 @@ echo >>$NUM_EPISODES_FILE
 paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
+# Total the duration of all episodes in every series
+awk -v DURATION_FILE=$DURATION_FILE -f calculateMHzDurations.awk $EPISODE_INFO_FILE
+
 # Output header
 echo -e \
     '#\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription' \
