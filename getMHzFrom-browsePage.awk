@@ -22,6 +22,7 @@
 
     # Canonicalize Title
     gsub (/&#x27;/,"'",TITLE)
+    gsub (/&quot;/,"\"\"",TITLE)
     if (match (TITLE, /^The /)) {
         TITLE = substr(TITLE, 5) ", The"
     }

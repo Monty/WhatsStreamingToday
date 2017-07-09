@@ -47,6 +47,7 @@
     sub (/.*<title>/,"")
     sub (/ - MHz Choice<.*/,"")
     gsub (/&#x27;/,"'")
+    gsub (/&quot;/,"\"\"")
     if (match ($0, /^The /)) {
         $0 = substr($0, 5) ", The"
     }
@@ -72,6 +73,7 @@
     split ($0,fld,"\"")
     episodeURL = fld[2]
     episodeTitle = fld[4]
+    gsub (/&quot;/,"\"\"",episodeTitle)
     sub (/.*season:/,"")
     sub (/\/.*/,"")
     seasonNumber = $0
@@ -92,7 +94,8 @@
     if ($0 ~ /<p>/) {
         sub (/.*<p>/,"")
         sub (/<\/p>.*/,"")
-        printf ("%d\t=HYPERLINK(\"%s\",\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t%s\n", \
+        gsub (/&quot;/,"\"")
+        printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t%s\n", \
             SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeNumber, episodeTitle, \
             episodeDuration, $0) >>EPISODE_INFO_FILE
     }

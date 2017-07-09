@@ -71,6 +71,7 @@
         # We found a description, clean it up and print it
         gsub (/  */," ")
         gsub (/&#x27;/,"'")
+        gsub (/&quot;/,"\"")
         gsub (/\r/," ")
         # if it's not the last line of the description, print it without a newline
         if ($0 !~ /"\>/) {
