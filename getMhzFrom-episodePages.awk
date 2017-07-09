@@ -69,7 +69,7 @@
 # Extract the episode URL and the episode title
 /<strong title="/ {
     gsub (/&#x27;/,"'")
-    split($0,fld,"\"")
+    split ($0,fld,"\"")
     episodeURL = fld[2]
     episodeTitle = fld[4]
     sub (/.*season:/,"")

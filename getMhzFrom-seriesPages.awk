@@ -55,12 +55,12 @@
         gsub (/ \| /,"|")
         sub (/\r/,"")
         # Split out header fields
-        numFields = split($0,fld,"\|")
+        numFields = split ($0,fld,"\|")
         # lowercase everything but the first character in all fields but the last
         for (i = 1; i < numFields; ++i) {
             fld[i] = substr(fld[i],1,1) tolower(substr(fld[i],2))
             # uppercase the first character of any second word
-            if (match(fld[i],/ /) > 0)
+            if (match (fld[i],/ /) > 0)
                 fld[i] = substr(fld[i],1,RSTART) toupper(substr(fld[i],RSTART+1,1)) \
                    (substr(fld[i],RSTART+2))
         }
@@ -90,7 +90,7 @@
 /<select class="js-switch-season/,/<\/select>/ {
     sub (/^ */,"")
     if ($0 ~ /^<option value="/) {
-        split($0,fld,"\"")
+        split ($0,fld,"\"")
         print fld[2]
     }
 }

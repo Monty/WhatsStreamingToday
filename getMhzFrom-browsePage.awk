@@ -15,7 +15,7 @@
 #       $URL_FILE, $TITLE_FILE, $NUM_SEASONS_FILE
 
 /https:\/\/mhzchoice.vhx.tv\/.*strong title/ {
-    split($0,fld,"\"")
+    split ($0,fld,"\"")
     URL = fld[2]
     TITLE = fld[4]
     print URL "/" >> URL_FILE
