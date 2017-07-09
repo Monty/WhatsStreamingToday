@@ -67,6 +67,8 @@ NUM_SEASONS_FILE="$COLUMNS/numberOfSeasons-$DATE.csv"
 PUBLISHED_NUM_SEASONS="$BASELINE/numberOfSeasons.txt"
 NUM_EPISODES_FILE="$COLUMNS/numberOfEpisodes-$DATE.csv"
 PUBLISHED_NUM_EPISODES="$BASELINE/numberOfEpisodes.txt"
+DURATION_FILE="$COLUMNS/durations-$DATE.csv"
+PUBLISHED_DURATIONS="$BASELINE/durations.txt"
 HEADER_FILE="$COLUMNS/headers-$DATE.csv"
 PUBLISHED_HEADERS="$BASELINE/headers.txt"
 #
@@ -75,14 +77,20 @@ PUBLISHED_EPISODE_URLS="$BASELINE/episodeUrls.txt"
 EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
 PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 #
-SPREADSHEET_FILE="MHz_TV_Shows-$DATE.csv"
-PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+if [ "$INCLUDE_EPISODES" = "yes" ] ; then
+	SPREADSHEET_FILE="MHz_TV_ShowsEpisodes-$DATE.csv"
+	PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+else
+	SPREADSHEET_FILE="MHz_TV_Shows-$DATE.csv"
+	PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+fi
 #
 # Name diffs with both date and time so every run produces a new result
 POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
 
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEASONS_FILE \
-    $NUM_EPISODES_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE $EPISODE_INFO_FILE
+    $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE \
+    $EPISODE_INFO_FILE
 
 # Generate series URLs, Titles, Number of Seasons from MHz "Browse" page
 curl -sS $BROWSE_URL $BROWSE_URL2 \
@@ -126,15 +134,19 @@ echo >>$NUM_EPISODES_FILE
 paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
+# Total the duration of all episodes in every series
+totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateMHzDurations.awk $EPISODE_INFO_FILE)
+
 # Output header
 echo -e \
-    '#\tTitle\tSeasons\tEpisodes\tGenre\tCountry\tLanguage\tRating\tDescription' \
+    '#\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription' \
     >$SPREADSHEET_FILE
 #
 # Output body
 if [ "$INCLUDE_EPISODES" = "yes" ] ; then
     # pick a second file to include in the spreadsheet
     file2=$EPISODE_INFO_FILE
+    ((lastRow+=$(sed -n '$=' $file2)))
 else
     # null out included file
     file2=""
@@ -144,11 +156,11 @@ if [ "$UNSORTED" = "yes" ] ; then
     # sort key 1 sorts in the order found on the web
     # sort key 4 sorts by title
     # both sort $file2 by season then episode (if one is provided)
-    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE \
+    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE \
         $DESCRIPTION_FILE | nl -n ln | cat - $file2 \
         | sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 else
-    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $HEADER_FILE \
+    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE \
         $DESCRIPTION_FILE | nl -n ln | cat - $file2 \
         | sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
@@ -157,9 +169,10 @@ fi
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
         "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
-        \t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)" \
+        \t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)\
+        \t=COUNTA(J2:J$lastRow)" \
         >>$SPREADSHEET_FILE
-    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
+    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime" \
         >>$SPREADSHEET_FILE
 fi
 
@@ -219,6 +232,7 @@ $(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
 $(checkdiffs $PUBLISHED_HEADERS $HEADER_FILE)
 $(checkdiffs $PUBLISHED_NUM_SEASONS $NUM_SEASONS_FILE)
 $(checkdiffs $PUBLISHED_NUM_EPISODES $NUM_EPISODES_FILE)
+$(checkdiffs $PUBLISHED_DURATIONS $DURATION_FILE)
 $(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URL_FILE)
 $(checkdiffs $PUBLISHED_EPISODE_INFO $EPISODE_INFO_FILE)
 
