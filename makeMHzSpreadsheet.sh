@@ -77,8 +77,13 @@ PUBLISHED_EPISODE_URLS="$BASELINE/episodeUrls.txt"
 EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
 PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 #
-SPREADSHEET_FILE="MHz_TV_Shows-$DATE.csv"
-PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+if [ "$INCLUDE_EPISODES" = "yes" ] ; then
+	SPREADSHEET_FILE="MHz_TV_ShowsEpisodes-$DATE.csv"
+	PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+else
+	SPREADSHEET_FILE="MHz_TV_Shows-$DATE.csv"
+	PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+fi
 #
 # Name diffs with both date and time so every run produces a new result
 POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
@@ -130,7 +135,7 @@ paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
 # Total the duration of all episodes in every series
-awk -v DURATION_FILE=$DURATION_FILE -f calculateMHzDurations.awk $EPISODE_INFO_FILE
+totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateMHzDurations.awk $EPISODE_INFO_FILE)
 
 # Output header
 echo -e \
@@ -167,7 +172,7 @@ if [ "$PRINT_TOTALS" = "yes" ] ; then
         \t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)\
         \t=COUNTA(J2:J$lastRow)" \
         >>$SPREADSHEET_FILE
-    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)" \
+    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime" \
         >>$SPREADSHEET_FILE
 fi
 

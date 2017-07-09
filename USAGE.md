@@ -1,14 +1,19 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-cdtu]** or **makeMHzSpreadsheet.sh [-dtu]**  
+Run **makeAcornSpreadsheet.sh [-cdtu]** or **makeMHzSpreadsheet.sh [-dltu]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-c**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Canadian_ - Don't delete the text "Not available in Canada." in Acorn TV  
+_Canadian_ - Don't delete the text "Not available in Canada." in Acorn TV.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-d**
 &nbsp;&nbsp;&nbsp;&nbsp;
 _Debug_ - Create a diffs file that details what changed in each column.  
+&nbsp;&nbsp;&nbsp;&nbsp;
+**-l**
+&nbsp;&nbsp;&nbsp;&nbsp;
+_Long_ - Include descriptions of every episode, not just the series in
+MHz Choice.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-t**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -22,10 +27,12 @@ Each script creates a number of .csv files. To see the complete list,
 look at **saveTodaysAcornFiles.sh** or **saveTodaysMHzFiles.sh**.
 
 The primary spreadsheet file is called **Acorn_TV_Shows-[DATE].csv**
-or **MHz_TV_Shows-[DATE].csv**, where **[DATE]** is today’s date
-in the format yymmdd, e.g. 170610. It can be loaded into Open Office
-or Google Sheets for further formatting. Any secondary .csv files
-are tucked away in the directories **Acorn-columns** or **MHz-columns**.
+or **MHz_TV_Shows-[DATE].csv** -- **MHz_TV_ShowsEpisodes-[DATE].csv**
+if the **-l** switch is used.  **[DATE]** is today’s date in the
+format yymmdd, e.g. 170610.  These spreadsheets can be loaded into
+Open Office or Google Sheets for further formatting. Any secondary
+.csv files are tucked away in the directories **Acorn-columns** or
+**MHz-columns**.
 
 Running the script again will overwrite any .csv files from earlier
 that day but not from any previous day.
@@ -70,9 +77,10 @@ are quite long, so you may want to redirect the full output into a
 .csv file and open it as a spreadsheet for easier viewing.
 
 If you are happy with the diffs, you can create a new baseline from
-today's results by running **saveTodaysAcornFiles.sh** or
-**saveTodaysMHzFiles.sh**. To save results from a different date
-use **-d DATE**.
+today's results by running **saveTodaysAcornFiles.sh [-v]** or
+**saveTodaysMHzFiles.sh [-v]** where **-v** is the "verbose" option
+to be passed through to the **cp** command. To save results from a
+different date use **-d DATE** with a date in the format yymmdd.
 
 If the diff file is large or complex, it could be due to a bug in
 the script, or an unforeseen change in the format of the website.
@@ -96,8 +104,8 @@ from identical titles being deleted and re-inserted.
 
 Run **cleanupEverything.sh [-i | -v]**
 
-If you add either **-v** or **-i** as an option, it will be passed along
-to the rm command.
+If you add either **-v** or **-i** as an option, it will be passed
+through to the **rm** command.
 
 You will be given a choice whether to delete the primary spreadsheet
 files, secondary spreadsheet files, diff results, and diff baselines.

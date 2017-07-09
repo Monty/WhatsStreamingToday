@@ -59,7 +59,10 @@
     sub (/.*<div class="duration-container.*">/,"")
     sub (/<\/div>/,"")
     gsub (/ /,"")
-    episodeDuration = "'" $0
+    episodeDuration = $0
+    # Spreadsheets decipher 2 part durations as time-of-day so make sure they're 3 parts
+    if (split ($0, tm, ":") == 2)
+        episodeDuration = "00:" $0
     next
 }
 
@@ -83,6 +86,7 @@
     next
 }
 
+# WARNING - other scripts depend on the number and order of the fields below
 # Extract the episode description and print the composed info
 /<div class="transparent padding-top-medium"/,/<\/div>/ {
     if ($0 ~ /<p>/) {
