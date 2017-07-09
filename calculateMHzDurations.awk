@@ -39,8 +39,8 @@ END {
         totalTime[2] += mins[i] + int(totalTime[3] / 60)
         totalTime[1] += hrs[i] + int(totalTime[2] / 60)
         totalTime[3] %= 60; totalTime[2] %= 60
-        printf "%02d:%02d:%02d\n", hrs[i], mins[i], secs[i] >> DURATION_FILE
+        printf ("%02d:%02d:%02d\n", hrs[i], mins[i], secs[i]) >> DURATION_FILE
     }
-    printf "%02d:%02d:%02d\n", totalTime[1], totalTime[2], totalTime[3]
+    printf ("%02d:%02d:%02d\n", totalTime[1], totalTime[2], totalTime[3])
 }
 
