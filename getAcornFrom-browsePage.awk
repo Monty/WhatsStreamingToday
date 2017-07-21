@@ -13,6 +13,7 @@
 # OUTPUT:
 #       $MARQUEE_FILE, $URL_FILE
 
+# Extract the Marquee
 /itemprop="name"/ {
     sub (/.*title">/,"")
     sub (/<\/p>$/,"")
@@ -23,9 +24,9 @@
     print >> MARQUEE_FILE
 }
 
+# Extract the URL
 /itemprop="url"/ {
-    sub (/.*href="/,"")
-    sub (/\/">$/,"")
-    print $0 "/" >> URL_FILE
+    split ($0,fld,"\"")
+    print fld[4] >> URL_FILE
 }
 

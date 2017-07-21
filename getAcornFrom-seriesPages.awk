@@ -24,7 +24,7 @@
 #  ---
 #        <p id="franchise-description" itemprop="description">"The writing is sublime" (New \
 #        York Times) in this anything-but-a-procedural cop drama ... as reluctant partners \
-#        patrolling the streets of Montreal. Not Available in Canada. CC Available." />
+#        patrolling the streets of Montreal. Not Available in Canada. CC Available.</p>
 #  ---
 #        <meta itemprop="seasonNumber" content="1" />
 #  ---
@@ -81,19 +81,17 @@
 
 # Extract the number of episodes in the series
 /itemprop="numberOfEpisodes"/ {
-    sub (/.*content="/,"")
-    sub (/" \/>.*/,"")
+    split ($0,fld,"\"")
     episodeLinesFound += 1
     if (episodeLinesFound != 1)
-        numEpisodesStr = numEpisodesStr "+" $0
+        numEpisodesStr = numEpisodesStr "+" fld[4]
     next
 }
 
 # Extract the number of seasons in the series
 /itemprop="numberOfSeasons"/ {
-    sub (/.*content="/,"")
-    sub (/" \/>.*/,"")
-    numSeasons = $0
+    split ($0,fld,"\"")
+    numSeasons = fld[4]
     print numSeasons >> NUM_SEASONS_FILE
     next
 }
@@ -180,7 +178,7 @@
 
 # Extract episode number
 /<h6>.*span itemprop="episodeNumber">/ {
-    # If we don't know what kind of show it is, use "X"
+    # If we don't know what kind of show it is, use "S"
     if (showType == "")
         showType = "S"
     sub (/.*episodeNumber">/,"")
