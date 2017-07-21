@@ -78,11 +78,11 @@ EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
 PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 #
 if [ "$INCLUDE_EPISODES" = "yes" ] ; then
-	SPREADSHEET_FILE="MHz_TV_ShowsEpisodes-$DATE.csv"
-	PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+    SPREADSHEET_FILE="MHz_TV_ShowsEpisodes-$DATE.csv"
+    PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 else
-	SPREADSHEET_FILE="MHz_TV_Shows-$DATE.csv"
-	PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+    SPREADSHEET_FILE="MHz_TV_Shows-$DATE.csv"
+    PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 fi
 #
 # Name diffs with both date and time so every run produces a new result
@@ -97,45 +97,52 @@ curl -sS $BROWSE_URL $BROWSE_URL2 \
     | awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
     -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -f getMHzFrom-browsePage.awk
 
-# keep track of the number of series we find
+# keep track of the number of rows in the spreadsheet
 lastRow=1
 # loop through the list of series URLs from $URL_FILE
 while read -r line; do
     # Generate series Marquees, Descriptions, Headers from MHz series pages
     #     (Headers include Genre, Country, Language, Rating)
-    # and return the list of Episode URLs for further processing
+    # and the list of Episode URLs for further processing.
     curl -sS "$line" \
         | awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-            -v HEADER_FILE=$HEADER_FILE -f getMHzFrom-seriesPages.awk \
-        | while read -r episode_URL; do
-              if [[ "${episode_URL}" =~ season:1 ]] ; then
-                  if [[ -e "$NUM_EPISODES_FILE" ]] ; then
-                      echo >>$NUM_EPISODES_FILE
-                  fi
-                  echo -n "=" >>$NUM_EPISODES_FILE
-              fi
-              # Generate a separate file with a line for each episode containing 
-              # seriesNumber, episodeURL, seriesTitle, seasonNumber, episodeNumber,
-              # episodeTitle, & episodeDescription.
-              # Return the number of episodes but with no terminating newline
-              echo "$episode_URL" >> $EPISODE_URL_FILE
-              curl -sS "$episode_URL" \
-                  | awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
-                  -f getMHzFrom-episodePages.awk >>$NUM_EPISODES_FILE
-          done
+            -v HEADER_FILE=$HEADER_FILE -v EPISODE_URL_FILE=$EPISODE_URL_FILE \
+            -f getMHzFrom-seriesPages.awk 
     ((lastRow++))
 done < "$URL_FILE"
-# Add newline
+
+# keep track of the series number we're processing
+currentSeriesNumber=0
+# loop through the list of episode URLs from $EPISODE_URL_FILE
+while read -r episode_URL; do
+    # Control the context of the NUM_EPISODES_FILE when a new series is found
+    if [[ "${episode_URL}" =~ season:1 ]] ; then
+        ((currentSeriesNumber++))
+        if [[ -e "$NUM_EPISODES_FILE" ]] ; then
+            echo >>$NUM_EPISODES_FILE
+        fi
+        echo -n "=" >>$NUM_EPISODES_FILE
+    fi
+    # Generate a separate file with a line for each episode containing 
+    # seriesNumber, episodeURL, seriesTitle, seasonNumber, episodeNumber,
+    # episodeTitle, episodeDuration, & episodeDescription with the same columns
+    # as the primary spreadsheet so they can be combined into one.
+    # Add to the number of episodes in a series but with no terminating newline
+    curl -sS "$episode_URL" \
+        | awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$currentSeriesNumber \
+        -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE -f getMHzFrom-episodePages.awk
+done < "$EPISODE_URL_FILE"
+# Add final newline
 echo >>$NUM_EPISODES_FILE
 
+# Join the URL and Title into a hyperlink
 # WARNING there is an actual tab character in the following command
 # because sed in macOS doesn't regognize \t
-# Create hyperlinks
 paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
 # Total the duration of all episodes in every series
-totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateMHzDurations.awk $EPISODE_INFO_FILE)
+totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
 
 # Output header
 echo -e \

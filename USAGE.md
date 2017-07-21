@@ -1,6 +1,6 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-cdtu]** or **makeMHzSpreadsheet.sh [-dltu]**  
+Run **makeAcornSpreadsheet.sh [-cdltu]** or **makeMHzSpreadsheet.sh [-dltu]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-c**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -12,8 +12,9 @@ _Debug_ - Create a diffs file that details what changed in each column.
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-l**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Long_ - Include descriptions of every episode, not just the series in
-MHz Choice.  
+_Long_ - Include descriptions of every episode, not just the series.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Fast for MHz Choice, but can take 30 minutes or more for Acorn TV.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-t**
 &nbsp;&nbsp;&nbsp;&nbsp;
