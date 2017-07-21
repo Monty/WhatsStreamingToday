@@ -4,9 +4,10 @@
 # Use "-c" switch to get a Canadian view of descriptions,
 # i.e. don't remove the text "Not available in Canada."
 # Use "-d" switch to output a "diffs" file useful for debugging
+# Use "-l" switch to include every episode description for each series
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
 # Use :-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
-while getopts ":cdtu" opt; do
+while getopts ":cdltu" opt; do
     case $opt in
         c)
             # Only echo this once, even if -c occurs twice
@@ -17,6 +18,10 @@ while getopts ":cdtu" opt; do
             ;;
         d)
             DEBUG="yes"
+            ;;
+        l)
+            INCLUDE_EPISODES="yes"
+            echo "NOTICE: The -l option for Acorn TV can take a half hour or more."
             ;;
         t)
             PRINT_TOTALS="yes"
@@ -38,10 +43,10 @@ if [ ! -x "$(which curl 2>/dev/null)" ] ; then
 fi
 
 # Make sure network is up and the Acorn TV site is reachable
-BASE_URL="https://acorn.tv/browse"
-if ! curl -o /dev/null -Isf $BASE_URL ; then
-    echo "[Error] $BASE_URL isn't available, or your network is down."
-    echo "        Try accessing $BASE_URL in your browser"
+BROWSE_URL="https://acorn.tv/browse"
+if ! curl -o /dev/null -Isf $BROWSE_URL ; then
+    echo "[Error] $BROWSE_URL isn't available, or your network is down."
+    echo "        Try accessing $BROWSE_URL in your browser"
     exit 1
 fi
 
@@ -66,32 +71,83 @@ LINK_FILE="$COLUMNS/links-$DATE.csv"
 PUBLISHED_LINKS="$BASELINE/links.txt"
 DESCRIPTION_FILE="$COLUMNS/descriptions-$DATE.csv"
 PUBLISHED_DESCRIPTIONS="$BASELINE/descriptions.txt"
-SEASONS_FILE="$COLUMNS/numberOfSeasons-$DATE.csv"
-PUBLISHED_SEASONS="$BASELINE/numberOfSeasons.txt"
-EPISODES_FILE="$COLUMNS/numberOfEpisodes-$DATE.csv"
-PUBLISHED_EPISODES="$BASELINE/numberOfEpisodes.txt"
+NUM_SEASONS_FILE="$COLUMNS/numberOfSeasons-$DATE.csv"
+PUBLISHED_NUM_SEASONS="$BASELINE/numberOfSeasons.txt"
+NUM_EPISODES_FILE="$COLUMNS/numberOfEpisodes-$DATE.csv"
+PUBLISHED_NUM_EPISODES="$BASELINE/numberOfEpisodes.txt"
+DURATION_FILE="$COLUMNS/durations-$DATE.csv"
+PUBLISHED_DURATIONS="$BASELINE/durations.txt"
 #
-SPREADSHEET_FILE="Acorn_TV_Shows-$DATE.csv"
-PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+EPISODE_URL_FILE="$COLUMNS/episodeUrls-$DATE.csv"
+PUBLISHED_EPISODE_URLS="$BASELINE/episodeUrls.txt"
+EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
+PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
+EPISODE_DESCRIPTION_FILE="$COLUMNS/episodeDescription-$DATE.csv"
+PUBLISHED_EPISODE_DESCRIPTION="$BASELINE/episodeDescription.txt"
+EPISODE_PASTED_FILE="$COLUMNS/episodePasted-$DATE.csv"
+PUBLISHED_EPISODE_PASTED="$BASELINE/episodePasted.txt"
+#
+if [ "$INCLUDE_EPISODES" = "yes" ] ; then
+    SPREADSHEET_FILE="Acorn_TV_ShowsEpisodes-$DATE.csv"
+    PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+else
+    SPREADSHEET_FILE="Acorn_TV_Shows-$DATE.csv"
+    PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+fi
 #
 # Name diffs with both date and time so every run produces a new result
 POSSIBLE_DIFFS="Acorn_diffs-$LONGDATE.txt"
 
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
-    $SEASONS_FILE $EPISODES_FILE $SPREADSHEET_FILE
+    $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE $SPREADSHEET_FILE \
+    $EPISODE_URL_FILE $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE \
+    $EPISODE_PASTED_FILE
 
-curl -s $BASE_URL \
-    | awk -v URL_FILE=$URL_FILE -v MARQUEE_FILE=$MARQUEE_FILE -f fetchAcorn-series.awk
+curl -s $BROWSE_URL \
+    | awk -v URL_FILE=$URL_FILE -v MARQUEE_FILE=$MARQUEE_FILE -f getAcornFrom-browsePage.awk
 
-# keep track of the last spreadsheet row containing data
+# keep track of the number of rows in the spreadsheet
 lastRow=1
+# loop through the list of series URLs from $URL_FILE
 while read -r line; do
-    ((lastRow++))
+    # Create column files with lists of series titles, descriptions, number
+    # of seasons, and number of episodes, to be pasted into the spreadsheet.
+    # Note that IN_CANADA affects processing.
+    #
+    # Create a separate file with a line for each episode containing
+    # seriesNumber, episodeURL, seriesTitle, seasonNumber, episodeNumber,
+    # episodeTitle, & episodeDuration with the same columns as the primary
+    # spreadsheet so they can be combined into one.
     curl -s "$line" \
         | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-        -v SEASONS_FILE=$SEASONS_FILE -v EPISODES_FILE=$EPISODES_FILE \
-        -v IN_CANADA=$IN_CANADA -f fetchAcorn-episodes.awk
+        -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE \
+        -v EPISODE_URL_FILE=$EPISODE_URL_FILE -v IN_CANADA=$IN_CANADA \
+        -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
+        -f getAcornFrom-seriesPages.awk
+    ((lastRow++))
 done < "$URL_FILE"
+
+if [ "$INCLUDE_EPISODES" = "yes" ] ; then
+    # keep track of the series number we're processing
+    currentSeriesNumber=0
+    # loop through the list of episode URLs from $EPISODE_URL_FILE
+    # WARNING can take an hour or more
+    while read -r episode_URL; do
+        # Generate a separate file with a line for each episode containing
+        # the description of that episode
+        curl -sS "$episode_URL" \
+            | awk -v EPISODE_DESCRIPTION_FILE=$EPISODE_DESCRIPTION_FILE \
+            -v SERIES_NUMBER=$currentSeriesNumber -f getAcornFrom-episodePages.awk
+    done < "$EPISODE_URL_FILE"
+    # lines containing "~~~dup~~~" are duplicates, remove them
+    paste $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE | grep -v "~~~dup~~~" > $EPISODE_PASTED_FILE
+    # pick a second file to include in the spreadsheet
+    file2=$EPISODE_PASTED_FILE
+    ((lastRow+=$(sed -n '$=' $file2)))
+else
+    # null out included file
+    file2=""
+fi
 
 # Join the URL and Title into a hyperlink
 # WARNING there is an actual tab character in the following command
@@ -99,19 +155,32 @@ done < "$URL_FILE"
 paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
-echo -e "#\tTitle\tSeasons\tEpisodes\tDescription" >$SPREADSHEET_FILE
+# Total the duration of all episodes in every series
+totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
+
+# Output header
+echo -e "#\tTitle\tSeasons\tEpisodes\tDuration\tDescription" >$SPREADSHEET_FILE
+#
+# Output body
 if [ "$UNSORTED" = "yes" ] ; then
-    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
-        $DESCRIPTION_FILE | nl -n ln >>$SPREADSHEET_FILE
+    # sort key 1 sorts in the order found on the web
+    # sort key 4 sorts by title
+    # both sort $file2 by season then episode (if one is provided)
+    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
+        $DESCRIPTION_FILE | nl -n ln | cat - $file2 \
+        | sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 else
-    paste $LINK_FILE $SEASONS_FILE $EPISODES_FILE \
-        $DESCRIPTION_FILE | nl -n ln | sort --key=2  --field-separator=\; >>$SPREADSHEET_FILE
+    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
+        $DESCRIPTION_FILE | nl -n ln | cat - $file2 \
+        | sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
+#
+# Output footer
 if [ "$PRINT_TOTALS" = "yes" ] ; then
     echo -e \
-        "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)" \
-        >>$SPREADSHEET_FILE
-    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)" \
+        "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
+        \t=COUNTA(F2:F$lastRow)" >>$SPREADSHEET_FILE
+    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime" \
         >>$SPREADSHEET_FILE
 fi
 
@@ -124,6 +193,10 @@ fi
 # checkdiffs basefile newfile
 function checkdiffs () {
 echo
+if [ ! -e "$2" ] ; then
+    echo "==> $2 does not exist. Skipping diff."
+    return 1
+fi
 if [ ! -e "$1" ] ; then
     # If the basefile file doesn't yet exist, assume no differences
     # and copy the newfile to the basefile so it can serve
@@ -163,8 +236,11 @@ $(checkdiffs $PUBLISHED_MARQUEES $MARQUEE_FILE)
 $(checkdiffs $PUBLISHED_URLS $URL_FILE)
 $(checkdiffs $PUBLISHED_LINKS $LINK_FILE)
 $(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
-$(checkdiffs $PUBLISHED_SEASONS $SEASONS_FILE)
-$(checkdiffs $PUBLISHED_EPISODES $EPISODES_FILE)
+$(checkdiffs $PUBLISHED_NUM_SEASONS $NUM_SEASONS_FILE)
+$(checkdiffs $PUBLISHED_NUM_EPISODES $NUM_EPISODES_FILE)
+$(checkdiffs $PUBLISHED_DURATIONS $DURATION_FILE)
+$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URL_FILE)
+$(checkdiffs $PUBLISHED_EPISODE_INFO $EPISODE_INFO_FILE)
 
 
 ### Any funny stuff with file lengths? Any differences in

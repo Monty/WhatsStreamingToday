@@ -27,6 +27,7 @@
         TITLE = substr(TITLE, 5) ", The"
     }
     print TITLE >> TITLE_FILE
+    next
 }
 
 /h4 class="transparent.*media-count/ {

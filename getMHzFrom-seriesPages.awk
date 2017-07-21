@@ -5,7 +5,8 @@
 # INVOCATION:
 #       curl -s https://mhzchoice.vhx.tv/a-french-village/ \
 #           | awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-#           -v HEADER_FILE=$HEADER_FILE -f getMHzFrom-seriesPages.awk
+#           -v HEADER_FILE=$HEADER_FILE -v EPISODE_URL_FILE=$EPISODE_URL_FILE \
+#           -f getMHzFrom-seriesPages.awk
 #
 # INPUT:
 #       <title>A French Village - MHz Choice</title>
@@ -39,6 +40,7 @@
         $0 = substr($0, 5) ", The"
     }
     print >> MARQUEE_FILE
+    next
 }
 
 /meta name="description" content=/,/>/ {
@@ -92,7 +94,7 @@
     sub (/^ */,"")
     if ($0 ~ /^<option value="/) {
         split ($0,fld,"\"")
-        print fld[2]
+        print fld[2] >> EPISODE_URL_FILE
     }
 }
 
@@ -100,5 +102,5 @@
 /class="js-load-more-link/ {
     sub (/.*href="/,"https://mhzchoice.vhx.tv")
     sub (/">.*/,"")
-    print $0
+    print $0 >> EPISODE_URL_FILE
 }
