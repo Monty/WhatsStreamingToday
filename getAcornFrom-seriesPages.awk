@@ -142,7 +142,7 @@
     mins = tm[2] + int(secs / 60)
     hrs =  int(mins / 60)
     secs %= 60; mins %= 60
-    episodeDuration = hrs ":" mins ":" secs
+    episodeDuration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
     next
 }
 
