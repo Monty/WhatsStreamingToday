@@ -67,13 +67,12 @@
 
 # Extract the duration
 /<div class="duration-container/ {
-    sub (/.*<div class="duration-container.*">/,"")
-    sub (/<\/div>/,"")
-    gsub (/ /,"")
-    episodeDuration = $0
+    split ($0,fld,"[<>]")
+    episodeDuration = fld[3]
+    gsub (/ /,"",episodeDuration)
     # Spreadsheets decipher 2 part durations as time-of-day so make sure they're 3 parts
-    if (split ($0, tm, ":") == 2)
-        episodeDuration = "00:" $0
+    if (split (episodeDuration, tm, ":") == 2)
+        episodeDuration = "00:" episodeDuration
     next
 }
 
@@ -110,12 +109,12 @@
         episodeDescription = ""
     }
     if ($0 ~ /<p>/) {
-        sub (/.*<p>/,"")
-        sub (/<\/p>.*/,"")
-        gsub (/&quot;/,"\"")
+        split ($0,fld,"[<>]")
+        paragraph = fld[3]
+        gsub (/&quot;/,"\"",paragraph)
         # Could be in multiple paragraphs
         descriptionLinesFound += 1
-        episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") $0
+        episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph
     }
     if ($0 ~ /<\/div>/) {
         print episodeDescription >> EPISODE_INFO_FILE

@@ -99,25 +99,25 @@
 # Extract the series description
 /id="franchise-description"/ {
     # get rid of boilerplate
-    sub (/.*itemprop="description">/,"")
-    sub (/<\/p>$/,"")
+    split ($0,fld,"[<>]")
+    description = fld[3]
     # get rid of unnecessary characters and text
-    gsub (/\\/,"")
+    gsub (/\\/,"",description)
     if (IN_CANADA != "yes") {
-        sub (/Series 1 not available in Canada\./,"")
-        sub (/Not [Aa]vailable in Canada\./,"")
-        sub (/NOT AVAILABLE IN CANADA\./,"")
+        sub (/Series 1 not available in Canada\./,"",description)
+        sub (/Not [Aa]vailable in Canada\./,"",description)
+        sub (/NOT AVAILABLE IN CANADA\./,"",description)
     }
-    sub (/CC Available\. CC Available/,"CC Available")
+    sub (/CC Available\. CC Available/,"CC Available",description)
     # fix sloppy input spacing
-    sub (/\.CC Available/,". CC Available")
-    gsub (/ \./,".")
-    gsub (/  */," ")
-    sub (/^ */,"")
-    sub (/ *$/,"")
+    sub (/\.CC Available/,". CC Available",description)
+    gsub (/ \./,".",description)
+    gsub (/  */," ",description)
+    sub (/^ */,"",description)
+    sub (/ *$/,"",description)
     # fix funky HTML characters
-    gsub (/&#39;/,"'")
-    print >> DESCRIPTION_FILE
+    gsub (/&#39;/,"'",description)
+    print description >> DESCRIPTION_FILE
     next
 }
 
@@ -125,6 +125,7 @@
 /<meta itemprop="seasonNumber" content="/ {
     split ($0,fld,"\"")
     seasonNumber = fld[4]
+    next
 }
 
 # Extract the episode URL
@@ -132,6 +133,7 @@
     split ($0,fld,"\"")
     episodeURL = fld[4]
     print episodeURL >> EPISODE_URL_FILE
+    next
 }
 
 # Extract the episode duration
@@ -148,10 +150,9 @@
 
 # Extract the episode title
 /<h5 itemprop="name">/ {
-    sub (/.*<h5 itemprop="name">/,"")
-    sub (/<.*/,"")
-    gsub (/&amp;/,"\\&")
-    episodeTitle = $0
+    split ($0,fld,"[<>]")
+    episodeTitle = fld[3]
+    gsub (/&amp;/,"\\&", episodeTitle)
     next
 }
 
@@ -181,9 +182,8 @@
     # If we don't know what kind of show it is, use "S"
     if (showType == "")
         showType = "S"
-    sub (/.*episodeNumber">/,"")
-    sub (/<\/span>.*/,"")
-    episodeNumber = $0
+    split ($0,fld,"[<>]")
+    episodeNumber = fld[5]
     # print seriesTitle " " showType seasonNumber "E" episodeNumber >> "debug.txt"
     printf ("%d\t=HYPERLINK(\"%s\";\"%s, %s%02dE%02d, %s\"\)\t\t\t%s\n", \
         SERIES_NUMBER, episodeURL, seriesTitle, showType, seasonNumber, episodeNumber, episodeTitle, \

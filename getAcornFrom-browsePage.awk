@@ -14,14 +14,14 @@
 #       $MARQUEE_FILE, $URL_FILE
 
 # Extract the Marquee
-/itemprop="name"/ {
-    sub (/.*title">/,"")
-    sub (/<\/p>$/,"")
-    gsub (/&amp;/,"\\&")
-    if (match ($0, /^The /)) {
-        $0 = substr($0, 5) ", The"
+/<p itemprop="name"/ {
+    split ($0,fld,"[<>]")
+    marquee = fld[3]
+    gsub (/&amp;/,"\\&", marquee)
+    if (match (marquee, /^The /)) {
+        marquee = substr(marquee, 5) ", The"
     }
-    print >> MARQUEE_FILE
+    print marquee >> MARQUEE_FILE
 }
 
 # Extract the URL

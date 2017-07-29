@@ -74,6 +74,10 @@
         gsub (/  */," ")
         gsub (/&#x27;/,"'")
         gsub (/&quot;/,"\"")
+        gsub (/&lsquo;/,"’")
+        gsub (/&rsquo;/,"’")
+        gsub (/&ldquo;/,"“")
+        gsub (/&rdquo;/,"”")
         gsub (/\r/," ")
         # if it's not the last line of the description, print it without a newline
         if ($0 !~ /"\>/) {
