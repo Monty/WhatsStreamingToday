@@ -7,13 +7,17 @@
 # episodeTitle, & episodeDuration with the same columns as the primary
 # spreadsheet so they can be combined into one.
 #
+# Create a separate file with a line for each series duration
+#
+# Return the total duration of all series
+#
 # INVOCATION:
 #       curl -s https://acorn.tv/192/ \
 #           | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
 #           -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE \
-#           -v EPISODE_URL_FILE=$EPISODE_URL_FILE -v IN_CANADA=$IN_CANADA \
+#           -v EPISODE_CURL_FILE=$EPISODE_CURL_FILE -v IN_CANADA=$IN_CANADA \
 #           -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
-#           -f getAcornFrom-seriesPages.awk
+#           -v DURATION_FILE=$DURATION_FILE -v ERROR_FILE=$ERROR_FILE -f getAcornFrom-seriesPages.awk
 #
 # INPUT:
 #        <title>Acorn TV | 19-2</title>
@@ -22,9 +26,15 @@
 #        <meta itemprop="numberOfEpisodes" content="30" />
 #        <meta itemprop="numberOfSeasons" content="3" />
 #  ---
+#        <meta itemprop="numberOfEpisodes" content="10" />
+#        <meta itemprop="numberOfEpisodes" content="10" />
+#        <meta itemprop="numberOfEpisodes" content="10" />
+#  ---
 #        <p id="franchise-description" itemprop="description">"The writing is sublime" (New \
 #        York Times) in this anything-but-a-procedural cop drama ... as reluctant partners \
 #        patrolling the streets of Montreal. Not Available in Canada. CC Available.</p>
+#  ---
+#        <p>We're sorry, but Acorn TV is not available in this territory.</p>
 #  ---
 #        <meta itemprop="seasonNumber" content="1" />
 #  ---
@@ -52,6 +62,8 @@
 #        <h6>A Dance to the Music of Time: Episode <span itemprop="episodeNumber">1</span></h6>
 #        <h6>Christmas Special : Episode <span itemprop="episodeNumber">1</span></h6>
 #        <h6>Feature Film: Episode <span itemprop="episodeNumber">1</span></h6>
+#
+#        <!-- Viewers Also Watched -->
 #
 #  OUTPUT:
 #       $EPISODE_INFO_FILE
@@ -83,6 +95,8 @@
 /itemprop="numberOfEpisodes"/ {
     split ($0,fld,"\"")
     episodeLinesFound += 1
+    if (episodeLinesFound == 1)
+        totalEpisodes = fld[4]
     if (episodeLinesFound != 1)
         numEpisodesStr = numEpisodesStr "+" fld[4]
     next
@@ -92,8 +106,14 @@
 /itemprop="numberOfSeasons"/ {
     split ($0,fld,"\"")
     numSeasons = fld[4]
+    if (numSeasons == 0)
+        printf ("==> No seasons: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
     print numSeasons >> NUM_SEASONS_FILE
     next
+}
+
+/Acorn TV is not available in this territory/ {
+    printf ("==> Not available here: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
 }
 
 # Extract the series description
@@ -104,7 +124,7 @@
     # get rid of unnecessary characters and text
     gsub (/\\/,"",description)
     if (IN_CANADA != "yes") {
-        sub (/Series 1 not available in Canada\./,"",description)
+        sub (/Series [[:digit:]]* not available in Canada\./,"",description)
         sub (/Not [Aa]vailable in Canada\./,"",description)
         sub (/NOT AVAILABLE IN CANADA\./,"",description)
     }
@@ -132,7 +152,13 @@
 /<a itemprop="url"/ {
     split ($0,fld,"\"")
     episodeURL = fld[4]
-    print episodeURL >> EPISODE_URL_FILE
+    # Feature films don't have episodes
+    if (episodeURL ~ /\/featurefilm\//)
+        next
+    # neither should single episode series
+    if (totalEpisodes == 1)
+        next
+    print "url = \"" episodeURL "\"" >> EPISODE_CURL_FILE
     next
 }
 
@@ -144,7 +170,20 @@
     mins = tm[2] + int(secs / 60)
     hrs =  int(mins / 60)
     secs %= 60; mins %= 60
+    #
+    seriesSecs += secs
+    seriesMins += mins + int(seriesSecs / 60)
+    seriesHrs += hrs + int(seriesMins / 60)
+    seriesSecs %= 60; seriesMins %= 60
+    #
+    totalSecs += secs
+    totalMins += mins + int(totalSecs / 60)
+    totalHrs += hrs + int(totalMins / 60)
+    totalSecs %= 60; totalMins %= 60
+    #
     episodeDuration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+    if (episodeDuration == "00:00:00")
+        printf ("==> No duration: %d\t%s  %s\n", SERIES_NUMBER, seriesTitle, episodeURL)  >> ERROR_FILE
     next
 }
 
@@ -184,10 +223,38 @@
         showType = "S"
     split ($0,fld,"[<>]")
     episodeNumber = fld[5]
-    # print seriesTitle " " showType seasonNumber "E" episodeNumber >> "debug.txt"
+    # Feature films don't have episodes
+    if (episodeURL ~ /\/featurefilm\//)
+        next
+    # neither should single episode series
+    if (totalEpisodes == 1)
+        next
     printf ("%d\t=HYPERLINK(\"%s\";\"%s, %s%02dE%02d, %s\"\)\t\t\t%s\n", \
-        SERIES_NUMBER, episodeURL, seriesTitle, showType, seasonNumber, episodeNumber, episodeTitle, \
-        episodeDuration) >>EPISODE_INFO_FILE
+        SERIES_NUMBER, episodeURL, seriesTitle, showType, seasonNumber, episodeNumber, \
+        episodeTitle, episodeDuration) >>EPISODE_INFO_FILE
+    next
 }
 
-END { print (episodeLinesFound == 1 ? "=0" : "=" numEpisodesStr) >> NUM_EPISODES_FILE }
+/-- Viewers Also Watched --/ {
+    print (episodeLinesFound == 1 ? "=0" : "=" numEpisodesStr) >> NUM_EPISODES_FILE
+    if (description == "")
+        printf ("==> No description: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
+    description = ""
+    #
+    seriesDuration = sprintf ("%02d:%02d:%02d", seriesHrs, seriesMins, seriesSecs)
+    print seriesDuration >> DURATION_FILE
+    if (seriesDuration == "00:00:00")
+        printf ("==> No duration: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
+    seriesSecs = 0
+    seriesMins = 0
+    seriesHrs = 0
+    seriesDuration = ""
+    #
+    showType = ""
+    SERIES_NUMBER += 1
+}
+
+END {
+    # Return the total duration of all series
+    printf ("%02d:%02d:%02d\n", totalHrs, totalMins, totalSecs)
+}

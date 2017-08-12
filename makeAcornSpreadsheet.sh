@@ -57,10 +57,11 @@ COLUMNS="Acorn-columns"
 BASELINE="Acorn-baseline"
 mkdir -p $COLUMNS $BASELINE
 
-# File names are used in saveTodaysAcornFiles.sh
-# so if you change them here, change them there as well
-# they are named with today's date so running them twice
-# in one day will only generate one set of results
+# File names are used in saveTodaysAcornFiles.sh and rebuildAcornBaseline.sh
+# so if you change them here, change them there as well. Most are named
+# with today's date so running them twice in one day will only generate
+# one set of results
+CURL_CONFIG_FILE="$COLUMNS/curlConfig-$DATE.csv"
 URL_FILE="$COLUMNS/urls-$DATE.csv"
 PUBLISHED_URLS="$BASELINE/urls.txt"
 MARQUEE_FILE="$COLUMNS/marquees-$DATE.csv"
@@ -78,8 +79,8 @@ PUBLISHED_NUM_EPISODES="$BASELINE/numberOfEpisodes.txt"
 DURATION_FILE="$COLUMNS/durations-$DATE.csv"
 PUBLISHED_DURATIONS="$BASELINE/durations.txt"
 #
-EPISODE_URL_FILE="$COLUMNS/episodeUrls-$DATE.csv"
-PUBLISHED_EPISODE_URLS="$BASELINE/episodeUrls.txt"
+EPISODE_CURL_FILE="$COLUMNS/episodeCurls-$DATE.csv"
+PUBLISHED_EPISODE_CURLS="$BASELINE/episodeCurls.txt"
 EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
 PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 EPISODE_DESCRIPTION_FILE="$COLUMNS/episodeDescription-$DATE.csv"
@@ -95,52 +96,64 @@ else
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 fi
 #
-# Name diffs with both date and time so every run produces a new result
+# Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="Acorn_diffs-$LONGDATE.txt"
+ERROR_FILE="Acorn_anomalies-$LONGDATE.txt"
 
-rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
+rm -f $URL_FILE $CURL_CONFIG_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
     $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE $SPREADSHEET_FILE \
-    $EPISODE_URL_FILE $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE \
+    $EPISODE_CURL_FILE $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE \
     $EPISODE_PASTED_FILE
 
-curl -s $BROWSE_URL \
-    | awk -v URL_FILE=$URL_FILE -v MARQUEE_FILE=$MARQUEE_FILE -f getAcornFrom-browsePage.awk
+curl -sS $BROWSE_URL \
+    | awk -v URL_FILE=$URL_FILE -v CURL_CONFIG_FILE=$CURL_CONFIG_FILE \
+    -v MARQUEE_FILE=$MARQUEE_FILE -f getAcornFrom-browsePage.awk
+
+# Print header for possible errors from processing series
+echo -e "### Possible anomalies from processing series are listed below.\n" > $ERROR_FILE
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
-# loop through the list of series URLs from $URL_FILE
-while read -r line; do
-    # Create column files with lists of series titles, descriptions, number
-    # of seasons, and number of episodes, to be pasted into the spreadsheet.
-    # Note that IN_CANADA affects processing.
-    #
-    # Create a separate file with a line for each episode containing
-    # seriesNumber, episodeURL, seriesTitle, seasonNumber, episodeNumber,
-    # episodeTitle, & episodeDuration with the same columns as the primary
-    # spreadsheet so they can be combined into one.
-    curl -s "$line" \
-        | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
-        -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE \
-        -v EPISODE_URL_FILE=$EPISODE_URL_FILE -v IN_CANADA=$IN_CANADA \
-        -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
-        -f getAcornFrom-seriesPages.awk
-    ((lastRow++))
-done < "$URL_FILE"
+# loop through the list of series URLs from $CURL_CONFIG_FILE
+# Create column files with lists of series titles, descriptions, number
+# of seasons, and number of episodes, to be pasted into the spreadsheet.
+# Note that IN_CANADA affects processing.
+#
+# Create a separate file with a line for each episode containing
+# seriesNumber, episodeURL, seriesTitle, seasonNumber, episodeNumber,
+# episodeTitle, & episodeDuration with the same columns as the primary
+# spreadsheet so they can be combined into one.
+totalTime=$(curl -sS --config $CURL_CONFIG_FILE \
+    | awk -v TITLE_FILE=$TITLE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
+    -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE \
+    -v EPISODE_CURL_FILE=$EPISODE_CURL_FILE -v IN_CANADA=$IN_CANADA \
+    -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
+    -v DURATION_FILE=$DURATION_FILE -v ERROR_FILE=$ERROR_FILE -f getAcornFrom-seriesPages.awk)
+((lastRow+=$(sed -n '$=' $TITLE_FILE)))
 
 if [ "$INCLUDE_EPISODES" = "yes" ] ; then
-    # keep track of the series number we're processing
-    currentSeriesNumber=0
-    # loop through the list of episode URLs from $EPISODE_URL_FILE
+    # Print  header for possible errors from processing episodes
+    # Don't delete the blank lines!
+    cat >> $ERROR_FILE << EOF1
+
+### Possible anomalies from processing episodes are listed below.
+### At least one episode may have no description, but if there are many,
+### there could be a temporary problem with the Acorn website.
+### You can check by using your browser to visit the associated URL.
+### You should rerun the script when the problem is cleared up.
+
+EOF1
+
+    episodeNumber=1
+    # loop through the list of episode URLs from $EPISODE_CURL_FILE
     # WARNING can take an hour or more
-    while read -r episode_URL; do
-        # Generate a separate file with a line for each episode containing
-        # the description of that episode
-        curl -sS "$episode_URL" \
-            | awk -v EPISODE_DESCRIPTION_FILE=$EPISODE_DESCRIPTION_FILE \
-            -v SERIES_NUMBER=$currentSeriesNumber -f getAcornFrom-episodePages.awk
-    done < "$EPISODE_URL_FILE"
-    # lines containing "~~~dup~~~" are duplicates, remove them
-    paste $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE | grep -v "~~~dup~~~" > $EPISODE_PASTED_FILE
+    # Generate a separate file with a line for each episode containing
+    # the description of that episode
+    curl -sS --config $EPISODE_CURL_FILE \
+        | awk -v EPISODE_DESCRIPTION_FILE=$EPISODE_DESCRIPTION_FILE \
+        -v ERROR_FILE=$ERROR_FILE -v EPISODE_CURL_FILE=$EPISODE_CURL_FILE \
+        -v EPISODE_NUMBER=$episodeNumber -f getAcornFrom-episodePages.awk
+    paste $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE > $EPISODE_PASTED_FILE
     # pick a second file to include in the spreadsheet
     file2=$EPISODE_PASTED_FILE
     ((lastRow+=$(sed -n '$=' $file2)))
@@ -154,9 +167,6 @@ fi
 # because sed in macOS doesn't regognize \t
 paste $URL_FILE $TITLE_FILE \
     | sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
-
-# Total the duration of all episodes in every series
-totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
 
 # Output header
 echo -e "#\tTitle\tSeasons\tEpisodes\tDuration\tDescription" >$SPREADSHEET_FILE
@@ -226,10 +236,16 @@ fi
 }
 
 # Preserve any possible errors for debugging
-cat >>$POSSIBLE_DIFFS << EOF
+cat >>$POSSIBLE_DIFFS << EOF2
 ==> ${0##*/} completed: $(date)
 
+### Differences between the titles found in two places on the Acorn website
+### are listed below. These are not our problem though.
+
 $(checkdiffs $MARQUEE_FILE $TITLE_FILE)
+
+### Differences between saved Acorn-baseline and current Acorn-columns files
+### are listed below.
 
 $(checkdiffs $PUBLISHED_TITLES $TITLE_FILE)
 $(checkdiffs $PUBLISHED_MARQUEES $MARQUEE_FILE)
@@ -239,17 +255,18 @@ $(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
 $(checkdiffs $PUBLISHED_NUM_SEASONS $NUM_SEASONS_FILE)
 $(checkdiffs $PUBLISHED_NUM_EPISODES $NUM_EPISODES_FILE)
 $(checkdiffs $PUBLISHED_DURATIONS $DURATION_FILE)
-$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URL_FILE)
+$(checkdiffs $PUBLISHED_EPISODE_CURLS $EPISODE_CURL_FILE)
 $(checkdiffs $PUBLISHED_EPISODE_INFO $EPISODE_INFO_FILE)
 
 
-### Any funny stuff with file lengths? Any differences in
-### number of lines indicates the website was updated in the
+### Any funny stuff with file lengths? There should only
+### be two different lengths. Any differences in the number
+### of lines indicates the website was updated in the
 ### middle of processing. You should rerun the script!
 
 $(wc $COLUMNS/*$DATE.csv)
 
-EOF
+EOF2
 
 echo
 echo "==> ${0##*/} completed: $(date)"

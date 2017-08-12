@@ -18,7 +18,7 @@
     split ($0,fld,"\"")
     URL = fld[2]
     TITLE = fld[4]
-    print URL "/" >> URL_FILE
+    print URL >> URL_FILE
 
     # Canonicalize Title
     gsub (/&#x27;/,"'",TITLE)

@@ -27,6 +27,9 @@
 # Extract the URL
 /itemprop="url"/ {
     split ($0,fld,"\"")
-    print fld[4] >> URL_FILE
+    URL = fld[4]
+    sub (/\/$/,"",URL)
+    print URL >> URL_FILE
+    print "url = \"" URL "\"" >> CURL_CONFIG_FILE
 }
 

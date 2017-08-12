@@ -28,12 +28,12 @@ Each script creates a number of .csv files. To see the complete list,
 look at **saveTodaysAcornFiles.sh** or **saveTodaysMHzFiles.sh**.
 
 The primary spreadsheet file is called **Acorn_TV_Shows-[DATE].csv**
-or **MHz_TV_Shows-[DATE].csv** -- **MHz_TV_ShowsEpisodes-[DATE].csv**
-if the **-l** switch is used.  **[DATE]** is today’s date in the
-format yymmdd, e.g. 170610.  These spreadsheets can be loaded into
-Open Office or Google Sheets for further formatting. Any secondary
-.csv files are tucked away in the directories **Acorn-columns** or
-**MHz-columns**.
+or **MHz_TV_Shows-[DATE].csv** -- **Acorn_TV_ShowsEpisodes-[DATE].csv**
+or **MHz_TV_ShowsEpisodes-[DATE].csv** if the **-l** switch is used.
+**[DATE]** is today’s date in the format yymmdd, e.g. 170810.  These
+spreadsheets can be loaded into Open Office or Google Sheets for
+further formatting. Any secondary .csv files are tucked away in the
+directories **Acorn-columns** or **MHz-columns**.
 
 Running the script again will overwrite any .csv files from earlier
 that day but not from any previous day.
@@ -96,10 +96,30 @@ Then examine the diff file called **Acorn_diffs-[LONGDATE].txt** or
 **MHz_diffs-[LONGDATE].txt**, where **[LONGDATE]** is the date/time
 the script was run in the format yymmdd.HHMMSS, e.g. 170609.161113.
 
+Occasionally the Acorn TV website has missing or incomplete data
+such as missing descriptions, missing durations, etc. Some are
+intentional, but if there are a large number, something is probably
+broken. Usually it's Acorn TV's problem. Cross check the file called 
+**Acorn_anomalies-[LONGDATE].txt** against what you see in your browser.
+
 MHz shows on the web are not sorted by title. When shows are
 rearranged, the individual column diffs may look significant.
 Check the "titles" column diffs to see if the changes are only
 from identical titles being deleted and re-inserted.
+
+#### To recover an older Acorn-baseline
+
+Run **rebuildAcornBaseline.sh [-d | -v]**
+
+This will use the current **Acorn_TV_ShowsEpisodes-[DATE].csv** to
+create an **Acorn-baseline-[DATE].csv**. To recreate a different date's
+baseline, use **-d DATE** with a date in the format yymmdd.  **-v** is
+a "verbose" option to be passed through to the underlying commands.
+
+It can be useful to run **diff -rq** on old and new baselines to see
+what columns changed. Of course, you can replace the current 
+**Acorn-baseline-[DATE]** with a rebuilt one if the rebuilt one
+is more accurate.
 
 #### To remove any files created by running scripts:
 
@@ -109,6 +129,7 @@ If you add either **-v** or **-i** as an option, it will be passed
 through to the **rm** command.
 
 You will be given a choice whether to delete the primary spreadsheet
-files, secondary spreadsheet files, diff results, and diff baselines.
-Answer y to delete them, anything else to skip. Deleting them cannot
-be undone! To see exacly what will be deleted, look at the script.
+files, secondary spreadsheet files, Acorn anomalies reports, diff
+results, and diff baselines. Answer y to delete them, anything
+else to skip. Deleting them cannot be undone! To see exacly what
+will be deleted, look at the script.
