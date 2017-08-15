@@ -16,7 +16,7 @@ function formatTVsheet() {
   //
   // Use this var ss instead of the next to use a single copy to format any spreadsheet
   // Upside: You only have to authorize the code once
-  // Downside: Before running, you'll have to modify the URL below to reflect the spreadsheet 
+  // Downside: Before running, you'll have to modify the URL below to reflect the spreadsheet
   // you want to format
   var ss = SpreadsheetApp.openByUrl(
     'https://docs.google.com/spreadsheets/d/abc1234567/edit');
@@ -45,10 +45,19 @@ function formatTVsheet() {
   var dataColumnLength = lastRowNum - totalsRowCount - 1;
   Logger.log('Data column length: ' + dataColumnLength);
 
+  // All columns: Vertical align top, Horizontal align center as default to save code
+  sheet.getDataRange().setVerticalAlignment("top").setHorizontalAlignment("center");
+  // title column and description column: Horizontal align left, wrap text
+  sheet.getRange(2, titleColumnNum, dataColumnLength).setHorizontalAlignment("left").setWrap(true);
+  sheet.getRange(2, descriptionColumnNum, dataColumnLength).setHorizontalAlignment("left").setWrap(true);
+  // Duration Column: Format Elapsed hours (01):Minute (01):Second (01)
+  sheet.getRange(2, durationColumnNum, dataColumnLength).setNumberFormat("[hh]:mm:ss");
+
+  // Row 1: Bold
+  sheet.getRange(1, 1, 1, lastColumnNum).setFontWeight("bold");
+
   // Define Ranges
-  var allData = sheet.getDataRange();
   var showsData = sheet.getRange(1, 1, dataColumnLength + 1, lastColumnNum);
-  var topRow = sheet.getRange(1, 1, 1, lastColumnNum);
   if (totalsTitleValue.toString().match('Total ') == 'Total ') {
     var totalsRow = sheet.getRange(lastRowNum, 1, 1, lastColumnNum);
     var totalsDuration = totalsRow.getCell(1, durationColumnNum);
@@ -58,26 +67,6 @@ function formatTVsheet() {
     var countsDuration = countsRow.getCell(1, durationColumnNum);
     var countsDescription = countsRow.getCell(1, descriptionColumnNum);
   }
-  var firstColumn = sheet.getRange(2, 1, dataColumnLength);
-  var titleColumn = sheet.getRange(2, titleColumnNum, dataColumnLength);
-  var intermediateColumns = sheet.getRange(2, 3, dataColumnLength, descriptionColumnNum - 3);
-  var durationColumn = sheet.getRange(2, durationColumnNum, dataColumnLength);
-  var descriptionColumn = sheet.getRange(2, descriptionColumnNum, dataColumnLength);
-  Logger.log('Number of intermediate columns: ' + intermediateColumns.getNumColumns());
-
-  // Row 1: Bold; Horizontal align center
-  topRow.setFontWeight("bold");
-  topRow.setHorizontalAlignment("center");
-
-  // All columns: Vertical align top
-  allData.setVerticalAlignment("top");
-
-  // All columns except title column and description column: Horizontal align center
-  // title column and description column: Horizontal align left
-  firstColumn.setHorizontalAlignment("center");
-  titleColumn.setHorizontalAlignment("left");
-  intermediateColumns.setHorizontalAlignment("center");
-  descriptionColumn.setHorizontalAlignment("left");
 
   // All columns except title column and description column: Resize, Fit to data
   for (var i = 1; i < lastColumnNum; i++) {
@@ -86,16 +75,11 @@ function formatTVsheet() {
     }
   }
 
-  // Title Column: Resize to 300 pixels, Text wrapping - wrap
+  // Title Column: Resize to 300 pixels
   sheet.setColumnWidth(titleColumnNum, 300);
-  titleColumn.setWrap(true);
 
-  // Description Column: Resize to 500 pixels, Text wrapping - wrap
+  // Description Column: Resize to 500 pixels
   sheet.setColumnWidth(descriptionColumnNum, 500);
-  descriptionColumn.setWrap(true);
-
-  // Duration Column: Format Elapsed hours (01):Minute (01):Second (01)
-  durationColumn.setNumberFormat("[hh]:mm:ss")
 
   // View freeze: 1 row, up to title column
   sheet.setFrozenRows(1);
