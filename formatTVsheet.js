@@ -47,17 +47,21 @@ function formatTVsheet() {
 
   // All columns: Vertical align top, Horizontal align center as default to save code
   sheet.getDataRange().setVerticalAlignment("top").setHorizontalAlignment("center");
-  // title column and description column: Horizontal align left, wrap text
+
+  // Title column and description column: Horizontal align left, wrap text
   sheet.getRange(2, titleColumnNum, dataColumnLength).setHorizontalAlignment("left").setWrap(true);
   sheet.getRange(2, descriptionColumnNum, dataColumnLength).setHorizontalAlignment("left").setWrap(true);
+
   // Duration Column: Format Elapsed hours (01):Minute (01):Second (01)
   sheet.getRange(2, durationColumnNum, dataColumnLength).setNumberFormat("[hh]:mm:ss");
+
+  // Create Named Range ‘Shows’ from all data except last two rows
+  ss.setNamedRange("Shows", sheet.getRange(1, 1, dataColumnLength + 1, lastColumnNum));
 
   // Row 1: Bold
   sheet.getRange(1, 1, 1, lastColumnNum).setFontWeight("bold");
 
   // Define Ranges
-  var showsData = sheet.getRange(1, 1, dataColumnLength + 1, lastColumnNum);
   if (totalsTitleValue.toString().match('Total ') == 'Total ') {
     var totalsRow = sheet.getRange(lastRowNum, 1, 1, lastColumnNum);
     var totalsDuration = totalsRow.getCell(1, durationColumnNum);
@@ -84,9 +88,6 @@ function formatTVsheet() {
   // View freeze: 1 row, up to title column
   sheet.setFrozenRows(1);
   sheet.setFrozenColumns(titleColumnNum);
-
-  // All data except last two rows: Data, Named Ranges - create ‘Shows’
-  ss.setNamedRange("Shows", showsData);
 
   if (totalsTitleValue.toString().match('Total ') == 'Total ') {
     // Borders on counts row: Top
