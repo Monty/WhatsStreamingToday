@@ -142,6 +142,8 @@
 }
 
 # Extract the seasonNumber
+# Note that Acorn "season" numbers may not correspond to actual season numbers.
+# They simply refer to the number of seasons available on Acorn.
 /<meta itemprop="seasonNumber" content="/ {
     split ($0,fld,"\"")
     seasonNumber = fld[4]
@@ -229,9 +231,22 @@
     # neither should single episode series
     if (totalEpisodes == 1)
         next
+    # The season number should match that in the URL
+    # Poirot, Rebus, and Vera have kn own problems
+    if (episodeURL ~ \
+           /\/poirot\/series[0-9]{1,2}\/|\/rebus\/series[0-9]{1,2}\/|\/vera\/series[0-9]{1,2}\//) {
+        split (episodeURL, part, "/")
+        URLseasonNumber = part[5]
+        sub (/[[:alpha:]]*/,"",URLseasonNumber)
+        if (URLseasonNumber != seasonNumber) {
+            printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
+               part[4], part[5], seasonNumber) >> ERROR_FILE
+            seasonNumber = URLseasonNumber
+        }
+    }
     printf ("%d\t=HYPERLINK(\"%s\";\"%s, %s%02dE%02d, %s\"\)\t\t\t%s\n", \
         SERIES_NUMBER, episodeURL, seriesTitle, showType, seasonNumber, episodeNumber, \
-        episodeTitle, episodeDuration) >>EPISODE_INFO_FILE
+        episodeTitle, episodeDuration) >> EPISODE_INFO_FILE
     next
 }
 
