@@ -45,11 +45,23 @@ Google Sheets won't depend on the local file being around.
 
 Shows in the spreadsheet are sorted by title. You can sort them in
 the order they are found on the web by using the **-u** switch or
-sorting on the first column. If you want to sort by a different
+by sorting on the first column. If you want to sort by a different
 column **_and_** you used the **-t** switch to add column totals
 and row counts you should either create a Named Range to sort on
 or delete the added rows. Otherwise those rows will wind up in the
 middle of your spreadsheet.
+
+#### To format the spreadsheets:
+
+Manual formatting is tedious, but you can automate it. Upload your
+spreadheets to [Google Sheets](https://docs.google.com/spreadsheets/u/0/),
+modify **formatSpreadsheet.js** to include URLs for your spreadsheets,
+paste it into a [Google Apps Script](https://script.google.com) and
+run it.  *You'll have to authorize it the first time it's run*. If
+you ever create new spreadsheets, you can copy and paste the .csv
+files into your existing [Google
+Sheets](https://docs.google.com/spreadsheets/u/0/) so the URLs don't
+change. Then rerun the formatting script.
 
 #### To see what has changed since a previous run:
 
