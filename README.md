@@ -20,6 +20,7 @@ columns: (*Titles are hyperlinks to the series on the web*)
 | Country | Language | Rating | Description
 
 I know of no way to incorporate formatting such as column width,
-horizontal centering, etc. into a .csv file. I doubt it would be
-worth the effort because that's so easy to do with Open Office or
-Google Sheets.
+horizontal centering, etc. into a .csv file. However, 
+[Google Apps Script](https://developers.google.com/apps-script/overview)
+enables you to automate formatting spreadsheets uploaded to [Google
+Sheets](https://docs.google.com/spreadsheets/u/0/).
