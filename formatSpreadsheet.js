@@ -1,8 +1,15 @@
-// Format Acorn TV or MHz TV Spreadsheets that have been uploaded to Google Sheets
-//
-// For information on how to use this code, see:
-//   https://developers.google.com/apps-script/guides/sheets
+/**
+ * Format Acorn TV or MHz TV Spreadsheets after uploading them to Google Sheets
+ * @author Monty Williams
+ *
+ * For information on how to use this code, see:
+ *   https://developers.google.com/apps-script/guides/sheets
+ */
 
+/* Keep eslint from complaining about classes provided by Google App Script */
+/* global SpreadsheetApp Logger */
+
+// eslint-disable-next-line no-unused-vars
 function format_All_TV_Spreadsheets() {
   format_Acorn_TV_Shows();
   format_Acorn_TV_ShowsEpisodes();
@@ -12,39 +19,41 @@ function format_All_TV_Spreadsheets() {
 
 function format_Acorn_TV_Shows() {
   var ss = SpreadsheetApp.openByUrl(
-    "https://docs.google.com/spreadsheets/d/abc1234567/edit"
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
   );
   format_a_TV_Spreadsheet(ss);
 }
 
 function format_Acorn_TV_ShowsEpisodes() {
   var ss = SpreadsheetApp.openByUrl(
-    "https://docs.google.com/spreadsheets/d/abc1234567/edit"
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
   );
   format_a_TV_Spreadsheet(ss);
 }
 
 function format_MHz_TV_Shows() {
   var ss = SpreadsheetApp.openByUrl(
-    "https://docs.google.com/spreadsheets/d/abc1234567/edit"
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
   );
   format_a_TV_Spreadsheet(ss);
 }
 
 function format_MHz_TV_ShowsEpisodes() {
   var ss = SpreadsheetApp.openByUrl(
-    "https://docs.google.com/spreadsheets/d/abc1234567/edit"
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
   );
   format_a_TV_Spreadsheet(ss);
 }
 
-// Structure of an Acorn TV Spreadsheet
-// #  Title      Seasons     Episodes    Duration    Description
-// 1  2          3           4           5           6
-//
-// Structure of an MHz TV Spreadsheet
-// #    Title    Seasons     Episodes    Duration    Genre   Country   Language    Rating   Description
-// 1    2        3           4           5           6       7         8           9        10
+/**
+ * Structure of an Acorn TV Spreadsheet
+ * # Title Seasons Episodes Duration Description
+ * 1   2      3       4        5         6
+ *
+ * Structure of an MHz TV Spreadsheet
+ * # Title Seasons Episodes Duration Genre Country Language Rating Description
+ * 1   2      3       4        5       6      7       8       9        10
+ */
 
 function format_a_TV_Spreadsheet(ss) {
   var sheet = ss.getSheets()[0];
@@ -53,62 +62,67 @@ function format_a_TV_Spreadsheet(ss) {
   var titleColumnNum = 2;
   var durationColumnNum = 5;
   var descriptionColumnNum = lastColumnNum;
-  Logger.log("Formatting spreadsheet: " + sheet.getName());
-  Logger.log("Last row number: " + lastRowNum);
-  Logger.log("Last column number: " + lastColumnNum);
-
+  var totalsRow = sheet.getRange(lastRowNum, 1, 1, lastColumnNum);
+  var countsRow = sheet.getRange(lastRowNum - 1, 1, 1, lastColumnNum);
   // Make column length adjustments for 'Totals' rows if they exist
   // i.e the bottom Title Row cell contains 'Total ' rather than a link
-  var totalsRowsCount =
-    sheet.getRange(lastRowNum, titleColumnNum).getValue().toString()
-      .match("Total ") == "Total " ? 2 : 0;
-  var dataColumnLength = lastRowNum - totalsRowsCount - 1;
-  Logger.log("Totals row count: " + totalsRowsCount);
-  Logger.log("Data column length: " + dataColumnLength);
+  var footerRowsCount = sheet.getRange(lastRowNum, titleColumnNum).getValue()
+    .toString().match('Total ') == 'Total ' ? 2 : 0;
+  var dataColumnLength = lastRowNum - footerRowsCount - 1;
+  var column;
+  Logger.log('Formatting spreadsheet: ' + sheet.getName());
+  Logger.log('Last row number: ' + lastRowNum);
+  Logger.log('Last column number: ' + lastColumnNum);
+  Logger.log('Totals row count: ' + footerRowsCount);
+  Logger.log('Data column length: ' + dataColumnLength);
 
   // Header Row: Bold
-  sheet.getRange(1, 1, 1, lastColumnNum).setFontWeight("bold");
+  sheet.getRange(1, 1, 1, lastColumnNum).setFontWeight('bold');
 
-  // All columns: Vertical align top, Horizontal align center as default (to save code)
-  sheet.getDataRange().setVerticalAlignment("top").setHorizontalAlignment("center");
+  // All columns: default to Vertical align top, Horizontal align center
+  sheet.getDataRange().setVerticalAlignment('top')
+    .setHorizontalAlignment('center');
 
   // All columns except title column and description column: Resize, Fit to data
-  for (var i = 1; i < lastColumnNum; i++) {
-    if (i != titleColumnNum && i != descriptionColumnNum) {
-      sheet.autoResizeColumn(i);
+  for (column = 1; column < lastColumnNum; column++) {
+    if (column != titleColumnNum && column != descriptionColumnNum) {
+      sheet.autoResizeColumn(column);
     }
   }
 
   // Title Column: Resize to 300 pixels, Horizontal align left, wrap text
   sheet.setColumnWidth(titleColumnNum, 300);
-  // Note: The Title column may appear unwrapped, even though every cell correctly has its
-  // wrap attribute set to true. Clicking on wrap in the GUI will show it correctly.
-  sheet.getRange(2, titleColumnNum, dataColumnLength).setHorizontalAlignment("left").setWrap(true);
+  // Note: The Title column may appear unwrapped, even though every cell has its
+  // wrap attribute set to true. Clicking on wrap in the GUI shows it correctly.
+  sheet.getRange(2, titleColumnNum, dataColumnLength)
+    .setHorizontalAlignment('left').setWrap(true);
 
   // Description Column: Resize to 500 pixels, Horizontal align left, wrap text
   sheet.setColumnWidth(descriptionColumnNum, 500);
-  sheet.getRange(2, descriptionColumnNum, dataColumnLength).setHorizontalAlignment("left")
-    .setWrap(true);
+  sheet.getRange(2, descriptionColumnNum, dataColumnLength)
+    .setHorizontalAlignment('left').setWrap(true);
 
   // Duration Column: Format Elapsed hours (01):Minute (01):Second (01)
-  sheet.getRange(2, durationColumnNum, dataColumnLength).setNumberFormat("[hh]:mm:ss");
+  sheet.getRange(2, durationColumnNum, dataColumnLength)
+    .setNumberFormat('[hh]:mm:ss');
 
   // Formatting for Totals & Counts rows
-  if (totalsRowsCount != 0) {
-    var totalsRow = sheet.getRange(lastRowNum, 1, 1, lastColumnNum).setFontWeight("bold");
-    totalsRow.getCell(1, titleColumnNum).setHorizontalAlignment("right");
-    totalsRow.getCell(1, durationColumnNum).setNumberFormat("[hh]:mm:ss");
-    totalsRow.getCell(1, descriptionColumnNum).setHorizontalAlignment("left");
+  if (footerRowsCount != 0) {
+    totalsRow.setFontWeight('bold');
+    totalsRow.getCell(1, titleColumnNum).setHorizontalAlignment('right');
+    totalsRow.getCell(1, durationColumnNum).setNumberFormat('[hh]:mm:ss');
+    totalsRow.getCell(1, descriptionColumnNum).setHorizontalAlignment('left');
     //
-    var countsRow = sheet.getRange(lastRowNum - 1, 1, 1, lastColumnNum).setFontWeight("bold");
+    countsRow.setFontWeight('bold');
     countsRow.setBorder(true, null, null, null, null, null);
-    countsRow.getCell(1, titleColumnNum).setHorizontalAlignment("right");
-    countsRow.getCell(1, durationColumnNum).setNumberFormat("#####");
-    countsRow.getCell(1, descriptionColumnNum).setHorizontalAlignment("left");
+    countsRow.getCell(1, titleColumnNum).setHorizontalAlignment('right');
+    countsRow.getCell(1, durationColumnNum).setNumberFormat('#####');
+    countsRow.getCell(1, descriptionColumnNum).setHorizontalAlignment('left');
   }
 
   // Create Named Range ‘Shows’ from all data except last two rows
-  ss.setNamedRange("Shows", sheet.getRange(1, 1, dataColumnLength + 1, lastColumnNum));
+  ss.setNamedRange('Shows', sheet.getRange(1, 1, dataColumnLength + 1,
+    lastColumnNum));
 
   // View freeze: 1 row, up to title column
   sheet.setFrozenRows(1);
