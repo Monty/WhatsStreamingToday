@@ -52,7 +52,7 @@ module.exports = {
     ],
     "padded-blocks": [2, "never"],
     "quote-props": [2, "consistent"],
-    "quotes": [2, "double", {allowTemplateLiterals: true}],
+    "quotes": [2, "single", {allowTemplateLiterals: true}],
     "semi": 2,
     "semi-spacing": 2,
     "space-before-blocks": 2,
