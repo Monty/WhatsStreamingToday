@@ -72,7 +72,7 @@ function format_a_TV_Spreadsheet(ss) {
   var footerRowsCount = sheet.getRange(lastRowNum, titleColumnNum).getValue()
     .toString().match('Total ') == 'Total ' ? 2 : 0;
   var dataColumnLength = lastRowNum - footerRowsCount - 1;
-  var column;
+  var columnNum;
   Logger.log('Formatting spreadsheet: ' + sheet.getName());
   Logger.log('Last row number: ' + lastRowNum);
   Logger.log('Last column number: ' + lastColumnNum);
@@ -88,9 +88,9 @@ function format_a_TV_Spreadsheet(ss) {
     .setVerticalAlignment('top').setHorizontalAlignment('center');
 
   // All columns except title column and description column: Resize, Fit to data
-  for (column = 1; column < lastColumnNum; column++) {
-    if (column != titleColumnNum && column != descriptionColumnNum) {
-      sheet.autoResizeColumn(column);
+  for (columnNum = 1; columnNum < lastColumnNum; columnNum++) {
+    if (columnNum != titleColumnNum && columnNum != descriptionColumnNum) {
+      sheet.autoResizeColumn(columnNum);
     }
   }
 
