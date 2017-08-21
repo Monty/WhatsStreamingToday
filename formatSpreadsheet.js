@@ -4,6 +4,9 @@
  *
  * For information on how to use this code, see:
  *   https://developers.google.com/apps-script/guides/sheets
+ *
+ * Change the 4 URL's below to those in your Google Sheets
+ *
  */
 
 /* Keep eslint from complaining about classes provided by Google App Script */
