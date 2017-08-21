@@ -75,13 +75,14 @@ function format_a_TV_Spreadsheet(ss) {
   Logger.log('Last column number: ' + lastColumnNum);
   Logger.log('Totals row count: ' + footerRowsCount);
   Logger.log('Data column length: ' + dataColumnLength);
+  Logger.log('---');
 
   // Header Row: Bold
   sheet.getRange(1, 1, 1, lastColumnNum).setFontWeight('bold');
 
   // All columns: default to Vertical align top, Horizontal align center
-  sheet.getDataRange().setVerticalAlignment('top')
-    .setHorizontalAlignment('center');
+  sheet.getDataRange().clearFormat()
+    .setVerticalAlignment('top').setHorizontalAlignment('center');
 
   // All columns except title column and description column: Resize, Fit to data
   for (column = 1; column < lastColumnNum; column++) {
@@ -94,8 +95,9 @@ function format_a_TV_Spreadsheet(ss) {
   sheet.setColumnWidth(titleColumnNum, 300);
   // Note: The Title column may appear unwrapped, even though every cell has its
   // wrap attribute set to true. Clicking on wrap in the GUI shows it correctly.
-  sheet.getRange(2, titleColumnNum, dataColumnLength)
-    .setHorizontalAlignment('left').setWrap(true);
+  // Create a Named Range to make that easier
+  ss.setNamedRange('Titles', sheet.getRange(2, titleColumnNum, dataColumnLength)
+    .setHorizontalAlignment('left').setWrap(true));
 
   // Description Column: Resize to 500 pixels, Horizontal align left, wrap text
   sheet.setColumnWidth(descriptionColumnNum, 500);
