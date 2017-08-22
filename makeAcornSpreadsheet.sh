@@ -43,7 +43,7 @@ if [ ! -x "$(which curl 2>/dev/null)" ]; then
 fi
 
 # Make sure network is up and the Acorn TV site is reachable
-BROWSE_URL="https://acorn.tv/browse"
+BROWSE_URL="https://acorn.tv/browse/all"
 if ! curl -o /dev/null -Isf $BROWSE_URL; then
     echo "[Error] $BROWSE_URL isn't available, or your network is down."
     echo "        Try accessing $BROWSE_URL in your browser"
