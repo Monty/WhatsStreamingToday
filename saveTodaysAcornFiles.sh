@@ -8,19 +8,19 @@ DATE="$(date +%y%m%d)"
 # Allow user to override DATE
 while getopts ":d:v" opt; do
     case $opt in
-        d)
-            DATE="$OPTARG"
-            ;;
-        v)
-            VERBOSE="-v"
-            ;;
-        \?)
-            echo "Ignoring invalid option: -$OPTARG" >&2
-            ;;
-        :)
-            echo "Option -$OPTARG requires a 'date' argument such as $DATE" >&2
-            exit 1
-            ;;
+    d)
+        DATE="$OPTARG"
+        ;;
+    v)
+        VERBOSE="-v"
+        ;;
+    \?)
+        echo "Ignoring invalid option: -$OPTARG" >&2
+        ;;
+    :)
+        echo "Option -$OPTARG requires a 'date' argument such as $DATE" >&2
+        exit 1
+        ;;
     esac
 done
 

@@ -7,19 +7,19 @@ DATE="$(date +%y%m%d)"
 # Allow user to override DATE
 while getopts ":d:v" opt; do
     case $opt in
-        d)
-            DATE="$OPTARG"
-            ;;
-        v)
-            VERBOSE="-v"
-            ;;
-        \?)
-            echo "Ignoring invalid option: -$OPTARG" >&2
-            ;;
-        :)
-            echo "Option -$OPTARG requires a 'date' argument such as $DATE" >&2
-            exit 1
-            ;;
+    d)
+        DATE="$OPTARG"
+        ;;
+    v)
+        VERBOSE="-v"
+        ;;
+    \?)
+        echo "Ignoring invalid option: -$OPTARG" >&2
+        ;;
+    :)
+        echo "Option -$OPTARG requires a 'date' argument such as $DATE" >&2
+        exit 1
+        ;;
     esac
 done
 shift $((OPTIND - 1))
@@ -44,13 +44,12 @@ awk -v VERBOSE=$VERBOSE \
     -f rebuildAcornBaseline.awk \
     Acorn_TV_ShowsEpisodes-$DATE.csv
 
-for file in $(ls $BASELINE/*.txt); do 
-    sort $file | cut -f 2- > $file.tmp
+for file in $(ls $BASELINE/*.txt); do
+    sort $file | cut -f 2- >$file.tmp
     mv $VERBOSE $file.tmp $file
 done
 
-paste $BASELINE/episodeInfo.txt $BASELINE/episodeDescription.txt > $BASELINE/episodePasted.txt
+paste $BASELINE/episodeInfo.txt $BASELINE/episodeDescription.txt >$BASELINE/episodePasted.txt
 
 cp -p $VERBOSE Acorn_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
 cp -p $VERBOSE Acorn_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
-
