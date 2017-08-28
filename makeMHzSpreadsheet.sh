@@ -145,8 +145,7 @@ paste $URL_FILE $TITLE_FILE |
 totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
 
 # Output header
-echo -e \
-    '#\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription' \
+printf "#\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription\n" \
     >$SPREADSHEET_FILE
 #
 # Output body
@@ -174,12 +173,11 @@ fi
 #
 # Output footer
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    echo -e \
-        "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
-        \t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)\t=COUNTA(I2:I$lastRow)\
-        \t=COUNTA(J2:J$lastRow)" \
-        >>$SPREADSHEET_FILE
-    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime" \
+    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
+    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
+    TOTAL+="\t=COUNTA(I2:I$lastRow)\t=COUNTA(J2:J$lastRow)"
+    printf "$TOTAL\n" >>$SPREADSHEET_FILE
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime\n" \
         >>$SPREADSHEET_FILE
 fi
 

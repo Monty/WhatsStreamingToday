@@ -110,7 +110,7 @@ curl -sS $BROWSE_URL |
         -v MARQUEE_FILE=$MARQUEE_FILE -f getAcornFrom-browsePage.awk
 
 # Print header for possible errors from processing series
-echo -e "### Possible anomalies from processing series are listed below.\n" >$ERROR_FILE
+printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
@@ -169,7 +169,7 @@ paste $URL_FILE $TITLE_FILE |
     sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
 
 # Output header
-echo -e "#\tTitle\tSeasons\tEpisodes\tDuration\tDescription" >$SPREADSHEET_FILE
+printf "#\tTitle\tSeasons\tEpisodes\tDuration\tDescription\n" >$SPREADSHEET_FILE
 #
 # Output body
 if [ "$UNSORTED" = "yes" ]; then
@@ -187,10 +187,10 @@ fi
 #
 # Output footer
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    echo -e \
-        "\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)\
-        \t=COUNTA(F2:F$lastRow)" >>$SPREADSHEET_FILE
-    echo -e "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime" \
+    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)"
+    TOTAL+="\t=COUNTA(E2:E$lastRow)\t=COUNTA(F2:F$lastRow)"
+    printf "$TOTAL\n" >>$SPREADSHEET_FILE
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime\n" \
         >>$SPREADSHEET_FILE
 fi
 
