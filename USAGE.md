@@ -145,3 +145,9 @@ files, secondary spreadsheet files, Acorn anomalies reports, diff
 results, and diff baselines. Answer y to delete them, anything
 else to skip. Deleting them cannot be undone! To see exacly what
 will be deleted, look at the script.
+
+#### To run the scripts on a schedule using MacOS launchd:
+
+Modify **com.example.makeTVspreadsheets.plist** as detailed in it's
+comments. Copy it to **~/Library/LaunchAgents/**. Log out then log
+back in. See **man launchd.plist** for further information. 
