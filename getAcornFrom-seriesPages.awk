@@ -236,9 +236,9 @@
     if (totalEpisodes == 1)
         next
     # The season number should match that in the URL
-    # Doc Martin, Poirot, Rebus, and Vera have known problems
+    # Doc Martin, Murdoch, Poirot, Rebus, and Vera have known problems
     if (episodeURL ~ \
-           /\/docmartin\/series[0-9]{1,2}\/|\/poirot\/series[0-9]{1,2}\/|\/rebus\/series[0-9]{1,2}\/|\/vera\/series[0-9]{1,2}\//) {
+           /\/docmartin\/series[0-9]{1,2}\/|\/murdoch\/series[0-9]{1,2}\/|\/poirot\/series[0-9]{1,2}\/|\/rebus\/series[0-9]{1,2}\/|\/vera\/series[0-9]{1,2}\//) {
         split (episodeURL, part, "/")
         URLseasonNumber = part[5]
         sub (/[[:alpha:]]*/,"",URLseasonNumber)
