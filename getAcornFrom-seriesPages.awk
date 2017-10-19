@@ -69,11 +69,6 @@
 #       $EPISODE_INFO_FILE
 #
 
-# Extract and save whether this is a miniseries
-/<h6>Miniseries:/ || /<h6>Mini Series:/ {
-    showType = "M"
-}
-
 # Extract the series title
 /<title>/ {
     sub (/.*<title>Acorn TV \| /,"")
@@ -220,9 +215,18 @@
 
 # Extract episode number
 /<h6>.*span itemprop="episodeNumber">/ {
+    # If show is a Prequel, use "P"
+    if (episodeURL ~ /\/prequel/)
+        showType = "P"
+    # If show is a Miniseries, use "M"
+    if (episodeURL ~ /\/miniseries/)
+        showType = "M"
     # If we don't know what kind of show it is, use "S"
     if (showType == "")
         showType = "S"
+    # Default episodeType to "E"
+    episodeType = "E"
+    #
     split ($0,fld,"[<>]")
     episodeNumber = fld[5]
     # Feature films don't have episodes
@@ -244,9 +248,10 @@
             seasonNumber = URLseasonNumber
         }
     }
-    printf ("%d\t=HYPERLINK(\"%s\";\"%s, %s%02dE%02d, %s\"\)\t\t\t%s\n", \
-        SERIES_NUMBER, episodeURL, seriesTitle, showType, seasonNumber, episodeNumber, \
+    printf ("%d\t=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)\t\t\t%s\n", \
+        SERIES_NUMBER, episodeURL, seriesTitle, showType, seasonNumber, episodeType, episodeNumber, \
         episodeTitle, episodeDuration) >> EPISODE_INFO_FILE
+    showType = ""
     next
 }
 
@@ -265,7 +270,6 @@
     seriesHrs = 0
     seriesDuration = ""
     #
-    showType = ""
     SERIES_NUMBER += 1
 }
 
