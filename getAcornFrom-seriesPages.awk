@@ -226,6 +226,9 @@
         showType = "S"
     # Default episodeType to "E"
     episodeType = "E"
+    # Default christmasspecial episodeType to "X"
+    if (episodeURL ~ /christmasspecial\//)
+        episodeType = "X"
     #
     split ($0,fld,"[<>]")
     episodeNumber = fld[5]
@@ -236,11 +239,12 @@
     if (totalEpisodes == 1)
         next
     # The season number should match that in the URL
-    # Doc Martin, Murdoch, Poirot, Rebus, and Vera have known problems
+    # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, and Vera have known problems
     if (episodeURL ~ \
-           /\/docmartin\/series[0-9]{1,2}\/|\/murdoch\/series[0-9]{1,2}\/|\/poirot\/series[0-9]{1,2}\/|\/rebus\/series[0-9]{1,2}\/|\/vera\/series[0-9]{1,2}\//) {
+           /\/birdsfeather\/series[0-9]{1,2}\/|\/docmartin\/series[0-9]{1,2}\/|\/murdoch\/season[0-9]{1,2}|\/poirot\/series[0-9]{1,2}\/|\/rebus\/series[0-9]{1,2}\/|\/vera\/series[0-9]{1,2}\//) {
         split (episodeURL, part, "/")
         URLseasonNumber = part[5]
+        sub (/christmasspecial/,"",URLseasonNumber)
         sub (/[[:alpha:]]*/,"",URLseasonNumber)
         if (URLseasonNumber != seasonNumber) {
             printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
