@@ -226,9 +226,11 @@
         showType = "S"
     # Default episodeType to "E"
     episodeType = "E"
-    # Default christmasspecial episodeType to "X"
-    if (episodeURL ~ /christmasspecial\//)
+    # Default christmasspecial episodeType to "X", don't increment seasonNumber
+    if (episodeURL ~ /christmasspecial\//) {
         episodeType = "X"
+        seasonNumber -= 1
+    }
     #
     split ($0,fld,"[<>]")
     episodeNumber = fld[5]
