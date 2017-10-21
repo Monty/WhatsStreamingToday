@@ -226,9 +226,13 @@
         showType = "S"
     # Default episodeType to "E"
     episodeType = "E"
-    # Default christmasspecial episodeType to "X", don't increment seasonNumber
-    if (episodeURL ~ /christmasspecial\//) {
+    # Default bonus episodeType to "X"
+    if (episodeURL ~ /bonus\//) {
         episodeType = "X"
+    }
+    # Default christmasspecial episodeType to "K", don't increment seasonNumber
+    if (episodeURL ~ /christmasspecial\//) {
+        episodeType = "K"
         seasonNumber -= 1
     }
     #
@@ -241,11 +245,14 @@
     if (totalEpisodes == 1)
         next
     # The season number should match that in the URL
-    # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, and Vera have known problems
+    # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, Vera, and others have problems
     if (episodeURL ~ \
-           /\/series[0-9]{1,2}\/|\/murdoch\/season[0-9]{1,2}/) {
+           /\/series[0-9]{1,2}\/|[0-9]{1,2}bonus\/|\/murdoch\/season[0-9]{1,2}/) {
         split (episodeURL, part, "/")
         URLseasonNumber = part[5]
+        sub (/bonus/,"",URLseasonNumber)
+        # Foyle's War has sets: foyleswar/series9set8bonus/
+        sub (/set[0-9]/,"",URLseasonNumber)
         sub (/christmasspecial/,"",URLseasonNumber)
         sub (/[[:alpha:]]*/,"",URLseasonNumber)
         if (URLseasonNumber != seasonNumber) {
