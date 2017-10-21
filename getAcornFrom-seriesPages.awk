@@ -243,7 +243,7 @@
     # The season number should match that in the URL
     # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, and Vera have known problems
     if (episodeURL ~ \
-           /\/birdsfeather\/series[0-9]{1,2}\/|\/docmartin\/series[0-9]{1,2}\/|\/murdoch\/season[0-9]{1,2}|\/poirot\/series[0-9]{1,2}\/|\/rebus\/series[0-9]{1,2}\/|\/vera\/series[0-9]{1,2}\//) {
+           /\/series[0-9]{1,2}\/|\/murdoch\/season[0-9]{1,2}/) {
         split (episodeURL, part, "/")
         URLseasonNumber = part[5]
         sub (/christmasspecial/,"",URLseasonNumber)
