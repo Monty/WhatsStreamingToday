@@ -226,13 +226,15 @@
         showType = "S"
     # Default episodeType to "E"
     episodeType = "E"
-    # Default bonus episodeType to "X"
-    if (episodeURL ~ /bonus\//) {
+    # Default bonus & parttwo episodeType to "X"
+    if (episodeURL ~ /bonus\/|[0-9]{1,2}parttwo\//)
         episodeType = "X"
-    }
-    # Default christmasspecial episodeType to "K", don't increment seasonNumber
-    if (episodeURL ~ /christmasspecial\//) {
-        episodeType = "K"
+    # Default christmasspecial & seriesfinale episodeType to "X" & don't increment seasonNumber
+    if (episodeURL ~ /christmasspecial\/|\/seriesfinale\//) {
+        episodeType = "X"
+        split (episodeURL, part, "/")
+        printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
+               part[4], part[5], seasonNumber) >> ERROR_FILE
         seasonNumber -= 1
     }
     #
@@ -247,12 +249,14 @@
     # The season number should match that in the URL
     # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, Vera, and others have problems
     if (episodeURL ~ \
-           /\/series[0-9]{1,2}\/|[0-9]{1,2}bonus\/|\/murdoch\/season[0-9]{1,2}/) {
+           /\/series[0-9]{1,2}\/|[0-9]{1,2}bonus\/|[0-9]{1,2}parttwo\/|\/murdoch\/season[0-9]{1,2}/) {
         split (episodeURL, part, "/")
         URLseasonNumber = part[5]
         sub (/bonus/,"",URLseasonNumber)
         # Foyle's War has sets: foyleswar/series9set8bonus/
         sub (/set[0-9]/,"",URLseasonNumber)
+        # Midsomer Murders has two parts: midsomermurders/series19parttwo/
+        sub (/parttwo/,"",URLseasonNumber)
         sub (/christmasspecial/,"",URLseasonNumber)
         sub (/[[:alpha:]]*/,"",URLseasonNumber)
         if (URLseasonNumber != seasonNumber) {
