@@ -226,12 +226,18 @@
         showType = "S"
     # Default episodeType to "E"
     episodeType = "E"
-    # Default bonus & parttwo episodeType to "X"
-    if (episodeURL ~ /bonus\/|[0-9]{1,2}parttwo\//)
+    # Default bonus, parttwo, and christmasspecials episodeType to "X"
+    if (episodeURL ~ /bonus\/|[0-9]{1,2}parttwo\/|christmasspecial\//)
         episodeType = "X"
-    # Default christmasspecial & seriesfinale episodeType to "X" & don't increment seasonNumber
-    if (episodeURL ~ /christmasspecial\/|\/seriesfinale\//) {
-        episodeType = "X"
+    # jamaicainn & newworlds bonus seasonNumber should be 1
+    if (episodeURL ~ /\/jamaicainn\/bonus\/|\/newworlds\/bonus\//) {
+        split (episodeURL, part, "/")
+        printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
+               part[4], part[5], seasonNumber) >> ERROR_FILE
+        seasonNumber = 1
+    }
+    # Plain christmasspecial, seriesfinale don't increment seasonNumber
+    if (episodeURL ~ /\/christmasspecial\/|\/seriesfinale\//) {
         split (episodeURL, part, "/")
         printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
                part[4], part[5], seasonNumber) >> ERROR_FILE
