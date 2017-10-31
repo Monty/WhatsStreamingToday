@@ -229,8 +229,8 @@
     # Default bonus, parttwo, and christmasspecials episodeType to "X"
     if (episodeURL ~ /bonus\/|[0-9]{1,2}parttwo\/|christmasspecial\//)
         episodeType = "X"
-    # jamaicainn & newworlds bonus seasonNumber should be 1
-    if (episodeURL ~ /\/jamaicainn\/bonus\/|\/newworlds\/bonus\// && seasonNumber != 1) {
+    # jamaicainn, newworlds & newtonslaw bonus seasonNumber should be 1
+    if (episodeURL ~ /\/jamaicainn\/bonus\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// && seasonNumber != 1) {
         split (episodeURL, part, "/")
         printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
                part[4], part[5], seasonNumber) >> ERROR_FILE
