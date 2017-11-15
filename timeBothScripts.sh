@@ -3,9 +3,9 @@
 # Time the primary variants of shell scripts that make spreadsheets
 
 echo "========================================"
-echo "==> time ./makeMHzSpreadsheet.sh -td"
+echo "==> time ./makeMHzSpreadsheet.sh -t"
 date
-time ./makeMHzSpreadsheet.sh -td
+time ./makeMHzSpreadsheet.sh -t
 echo ""
 echo "----------------------------------------"
 echo "==> time ./makeMHzSpreadsheet.sh -tld"
@@ -14,9 +14,9 @@ time ./makeMHzSpreadsheet.sh -tld
 echo ""
 
 echo "----------------------------------------"
-echo "==> time ./makeAcornSpreadsheet.sh -td"
+echo "==> time ./makeAcornSpreadsheet.sh -t"
 date
-time ./makeAcornSpreadsheet.sh -td
+time ./makeAcornSpreadsheet.sh -t
 echo ""
 echo "----------------------------------------"
 echo "==> time ./makeAcornSpreadsheet.sh -tld"

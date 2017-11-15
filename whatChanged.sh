@@ -8,21 +8,23 @@
 #           added 2 shows after line 98
 #           changed 1 show at line 101
 #
+#     -l long. Output descriptions, too. More detail, but harder to read.
+#
 #     -s summary. Only output the diffstat summary line, e.g.
 #           ==> 10 insertions, 10 deletions, 6 modifications
 #
 #  It's a specialized diff that only looks at lines starting with "=HYPERLINK"
 #  It will likely report no diffs on any files not in "TV spreadsheet" format
 
-# Only keep lines containing "=HYPERLINK" then get rid of leading sequence numbers
-function sanitize() {
-    sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ "$1"
-}
-
-while getopts ":bs" opt; do
+while getopts ":bls" opt; do
     case $opt in
     b)
         BRIEF="yes"
+        ;;
+    l)
+        # Find the field number of the Description (last) field
+        DESCRIPTION=$(head -1 "${@: -1}" | awk '{print NF-1}')
+        LONG=",$DESCRIPTION"
         ;;
     s)
         SUMMARY="yes"
@@ -33,6 +35,12 @@ while getopts ":bs" opt; do
     esac
 done
 shift $((OPTIND - 1))
+
+# Only keep lines containing "=HYPERLINK" then get rid of leading sequence numbers
+# Only keep fields 1-3 unless -l is specified
+function sanitize() {
+    sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ "$1" | cut -f 1-3"${LONG}"
+}
 
 echo "==> changes between $1 and $2:"
 # first the stats
