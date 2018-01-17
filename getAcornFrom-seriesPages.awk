@@ -102,13 +102,13 @@
     split ($0,fld,"\"")
     numSeasons = fld[4]
     if (numSeasons == 0)
-        printf ("==> No seasons: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
+        printf ("==> No seasons: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
     print numSeasons >> NUM_SEASONS_FILE
     next
 }
 
 /Acorn TV is not available in this territory/ {
-    printf ("==> Not available here: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
+    printf ("==> Not available here: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
 }
 
 # Extract the series description
@@ -132,6 +132,13 @@
     sub (/ *$/,"",description)
     # fix funky HTML characters
     gsub (/&#39;/,"'",description)
+    # fix unmatched quotes
+    numQuotes = gsub(/"/,"\"",description)
+    if ((numQuotes % 2) == 1) {
+        printf ("==> Corrected unmatched quote (%d): %d\t%s\n", numQuotes, SERIES_NUMBER, \
+                seriesTitle) >> ERROR_FILE
+        description = description " \""
+    }
     print description >> DESCRIPTION_FILE
     next
 }
@@ -180,7 +187,7 @@
     #
     episodeDuration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
     if (episodeDuration == "00:00:00")
-        printf ("==> No duration: %d\t%s  %s\n", SERIES_NUMBER, seriesTitle, episodeURL)  >> ERROR_FILE
+        printf ("==> No duration: %d\t%s  %s\n", SERIES_NUMBER, seriesTitle, episodeURL) >> ERROR_FILE
     next
 }
 
@@ -281,13 +288,13 @@
 /-- Viewers Also Watched --/ {
     print (episodeLinesFound == 1 ? "=0" : "=" numEpisodesStr) >> NUM_EPISODES_FILE
     if (description == "")
-        printf ("==> No description: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
+        printf ("==> No description: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
     description = ""
     #
     seriesDuration = sprintf ("%02d:%02d:%02d", seriesHrs, seriesMins, seriesSecs)
     print seriesDuration >> DURATION_FILE
     if (seriesDuration == "00:00:00")
-        printf ("==> No duration: %d\t%s\n", SERIES_NUMBER, seriesTitle)  >> ERROR_FILE
+        printf ("==> No duration: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
     seriesSecs = 0
     seriesMins = 0
     seriesHrs = 0
