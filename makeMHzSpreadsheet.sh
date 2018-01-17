@@ -35,7 +35,7 @@ fi
 # Make sure network is up and MHz Choice site is reachable
 # While there are two URLs required at MHz, we only need to check one
 BROWSE_URL="https://mhzchoice.vhx.tv/series"
-BROWSE_URL2="https://mhzchoice.vhx.tv/series?page=2"
+BROWSE_URL2="https://mhzchoice.vhx.tv/series?page=2 https://mhzchoice.vhx.tv/series?page=3"
 if ! curl -o /dev/null -Isf $BROWSE_URL; then
     echo "[Error] $BROWSE_URL isn't available, or your network is down."
     echo "        Try accessing $BROWSE_URL in your browser"
