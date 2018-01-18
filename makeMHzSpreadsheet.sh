@@ -116,7 +116,8 @@ currentSeriesNumber=0
 # loop through the list of episode URLs from $EPISODE_URL_FILE
 while read -r episode_URL; do
     # Control the context of the NUM_EPISODES_FILE when a new series is found
-    if [[ "${episode_URL}" =~ season:1 ]]; then
+    # Special handling for Don Matteo which starts at season 4
+    if [[ "${episode_URL}" =~ season:1 || "${episode_URL}" =~ "don-matteo/season:4" ]]; then
         ((currentSeriesNumber++))
         if [[ -e "$NUM_EPISODES_FILE" ]]; then
             echo >>$NUM_EPISODES_FILE
