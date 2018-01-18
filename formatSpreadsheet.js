@@ -80,12 +80,12 @@ function format_a_TV_Spreadsheet(ss) {
   Logger.log('Data column length: ' + dataColumnLength);
   Logger.log('---');
 
-  // Header Row: Bold
-  sheet.getRange(1, 1, 1, lastColumnNum).setFontWeight('bold');
-
   // All columns: default to Vertical align top, Horizontal align center
   sheet.getDataRange().clearFormat()
     .setVerticalAlignment('top').setHorizontalAlignment('center');
+
+  // Header Row: Bold
+  sheet.getRange(1, 1, 1, lastColumnNum).setFontWeight('bold');
 
   // All columns except title column and description column: Resize, Fit to data
   for (columnNum = 1; columnNum < lastColumnNum; columnNum++) {
