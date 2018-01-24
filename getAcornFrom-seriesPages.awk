@@ -101,7 +101,7 @@
 /itemprop="numberOfSeasons"/ {
     split ($0,fld,"\"")
     numSeasons = fld[4]
-    if (numSeasons == 0)
+    if ((numSeasons + 0) == 0)
         printf ("==> No seasons: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
     print numSeasons >> NUM_SEASONS_FILE
     next
