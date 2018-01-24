@@ -102,6 +102,8 @@
 # Extract the episode description and print the composed info
 /<div class="transparent padding-top-medium"/,/<\/div>/ {
     if ($0 ~ /<div class="transparent padding-top-medium"/) {
+        if ((episodeNumber + 0) == 0)
+            print "==> Episode number is 00: " episodeURL >> ERROR_FILE
         printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \
             SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeNumber, episodeTitle, \
             episodeDuration) >> EPISODE_INFO_FILE
