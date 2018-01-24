@@ -278,6 +278,8 @@
             seasonNumber = URLseasonNumber
         }
     }
+    if (episodeNumber == 0)
+        print "==> Episode number is 00: " episodeURL >> ERROR_FILE
     printf ("%d\t=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)\t\t\t%s\n", \
         SERIES_NUMBER, episodeURL, seriesTitle, showType, seasonNumber, episodeType, episodeNumber, \
         episodeTitle, episodeDuration) >> EPISODE_INFO_FILE

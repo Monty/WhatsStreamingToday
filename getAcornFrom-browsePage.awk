@@ -3,7 +3,7 @@
 # INVOCATION:
 #       curl -s https://acorn.tv/browse \
 #           | awk -v URL_FILE=$URL_FILE -v MARQUEE_FILE=$MARQUEE_FILE \
-#           -f getAcornFrom-browsePage.awk
+#           -v ERROR_FILE=$ERROR_FILE -f getAcornFrom-browsePage.awk
 #
 # INPUT:
 #       <p itemprop="name" class="franchise-title">19-2</p>
