@@ -85,8 +85,9 @@ else
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
 fi
 #
-# Name diffs with both date and time so every run produces a new result
+# Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
+ERROR_FILE="MHz_anomalies-$LONGDATE.txt"
 
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEASONS_FILE \
     $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE \
@@ -95,7 +96,11 @@ rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEAS
 # Generate series URLs, Titles, Number of Seasons from MHz "Browse" page
 curl -sS $BROWSE_URL $BROWSE_URL2 |
     awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
-        -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -f getMHzFrom-browsePage.awk
+        -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -v ERROR_FILE=$ERROR_FILE \
+        -f getMHzFrom-browsePage.awk
+
+# Print header for possible errors from processing series
+printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
@@ -107,7 +112,7 @@ while read -r line; do
     curl -sS "$line" |
         awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
             -v HEADER_FILE=$HEADER_FILE -v EPISODE_URL_FILE=$EPISODE_URL_FILE \
-            -f getMHzFrom-seriesPages.awk
+            -v ERROR_FILE=$ERROR_FILE -f getMHzFrom-seriesPages.awk
     ((lastRow++))
 done <"$URL_FILE"
 
@@ -131,7 +136,8 @@ while read -r episode_URL; do
     # Add to the number of episodes in a series but with no terminating newline
     curl -sS "$episode_URL" |
         awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$currentSeriesNumber \
-            -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE -f getMHzFrom-episodePages.awk
+            -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE -v ERROR_FILE=$ERROR_FILE \
+            -f getMHzFrom-episodePages.awk
 done <"$EPISODE_URL_FILE"
 # Add final newline
 echo >>$NUM_EPISODES_FILE
@@ -151,6 +157,18 @@ printf "#\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\
 #
 # Output body
 if [ "$INCLUDE_EPISODES" = "yes" ]; then
+    # Print  header for possible errors from processing episodes
+    # Don't delete the blank lines!
+    cat >>$ERROR_FILE <<EOF1
+
+### Possible anomalies from processing episodes are listed below.
+### At least one episode may have no description, but if there are many,
+### there could be a temporary problem with the Acorn website.
+### You can check by using your browser to visit the associated URL.
+### You should rerun the script when the problem is cleared up.
+
+EOF1
+
     # pick a second file to include in the spreadsheet
     file2=$EPISODE_INFO_FILE
     ((lastRow += $(sed -n '$=' $file2)))

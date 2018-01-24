@@ -7,7 +7,8 @@
 # INVOCATION:
 #       curl -s https://mhzchoice.vhx.tv/a-french-village/season:1 \
 #           | awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v SERIES_NUMBER=$lastRow \
-#           -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE -f getMHzFrom-episodePages.awk
+#           -v NUM_EPISODES_FILE=$NUM_EPISODES_FILE -v ERROR_FILE=$ERROR_FILE \
+#           -f getMHzFrom-episodePages.awk
 #
 # INPUT:
 #        <title>A French Village - MHz Choice</title>

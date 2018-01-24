@@ -6,7 +6,7 @@
 #       curl -s https://mhzchoice.vhx.tv/a-french-village/ \
 #           | awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
 #           -v HEADER_FILE=$HEADER_FILE -v EPISODE_URL_FILE=$EPISODE_URL_FILE \
-#           -f getMHzFrom-seriesPages.awk
+#           -v ERROR_FILE=$ERROR_FILE -f getMHzFrom-seriesPages.awk
 #
 # INPUT:
 #       <title>A French Village - MHz Choice</title>

@@ -3,7 +3,8 @@
 # INVOCATION: 
 #       curl -s https://mhzchoice.vhx.tv/series https://mhzchoice.vhx.tv/series?page=2 \
 #           | awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
-#           -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -f getMHzFrom-browsePage.awk
+#           -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -v ERROR_FILE=$ERROR_FILE \
+#           -f getMHzFrom-browsePage.awk
 #
 # INPUT:
 #       <a href="https://mhzchoice.vhx.tv/a-french-village"><strong title=\
