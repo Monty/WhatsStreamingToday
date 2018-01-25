@@ -163,7 +163,7 @@ if [ "$INCLUDE_EPISODES" = "yes" ]; then
 
 ### Possible anomalies from processing episodes are listed below.
 ### At least one episode may have no description, but if there are many,
-### there could be a temporary problem with the Acorn website.
+### there could be a temporary problem with the MHz website.
 ### You can check by using your browser to visit the associated URL.
 ### You should rerun the script when the problem is cleared up.
 

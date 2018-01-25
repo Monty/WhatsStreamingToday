@@ -120,6 +120,8 @@
         episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph
     }
     if ($0 ~ /<\/div>/) {
+        if (episodeDescription == "")
+            print "==> No description: " episodeURL >> ERROR_FILE
         print episodeDescription >> EPISODE_INFO_FILE
     }
 }

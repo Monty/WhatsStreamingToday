@@ -33,13 +33,14 @@
 #       
 
 /title>/ {
-    sub (/.*<title>/,"")
-    sub (/ - MHz Choice<.*/,"")
-    gsub (/&#x27;/,"'")
-    if (match ($0, /^The /)) {
-        $0 = substr($0, 5) ", The"
+    seriesTitle = $0
+    sub (/.*<title>/,"",seriesTitle)
+    sub (/ - MHz Choice<.*/,"",seriesTitle)
+    gsub (/&#x27;/,"'",seriesTitle)
+    if (match (seriesTitle, /^The /)) {
+        seriesTitle = substr(seriesTitle, 5) ", The"
     }
-    print >> MARQUEE_FILE
+    print seriesTitle >> MARQUEE_FILE
     next
 }
 
@@ -88,6 +89,7 @@
             print $0 >> DESCRIPTION_FILE
             # if we didn't find a header in this block, print a blank one
             if (headerPrinted == "no")
+                print "==> No genre/country line: " seriesTitle >> ERROR_FILE
                 print "\t\t\t" >> HEADER_FILE
         }
     }
