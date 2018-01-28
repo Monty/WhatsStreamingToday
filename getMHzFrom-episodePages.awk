@@ -82,6 +82,8 @@
     gsub (/&#x27;/,"'")
     split ($0,fld,"\"")
     episodeURL = fld[2]
+    if (episodeURL ~ /-c-[[:digit:]]{5}$/)
+        episodeNumberFromURL = substr (episodeURL, length(episodeURL)-1, 2)
     episodeTitle = fld[4]
     gsub (/&quot;/,"\"\"",episodeTitle)
     sub (/.*season:/,"")
@@ -102,14 +104,23 @@
 # Extract the episode description and print the composed info
 /<div class="transparent padding-top-medium"/,/<\/div>/ {
     if ($0 ~ /<div class="transparent padding-top-medium"/) {
-        if ((episodeNumber + 0) == 0)
-            print "==> Episode number is 00: " episodeURL >> ERROR_FILE
+        if ((episodeNumber + 0) == 0) {
+            if ((episodeNumberFromURL + 0) != 0) {
+                episodeNumber = episodeNumberFromURL
+                print "==> Corrected E00: " episodeURL " to E" episodeNumber >> ERROR_FILE
+            } else {
+                print "==> Episode number is 00: " episodeURL >> ERROR_FILE
+            }
+        }
         printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \
             SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeNumber, episodeTitle, \
             episodeDuration) >> EPISODE_INFO_FILE
         # Need to account for multiple lines of description
         descriptionLinesFound = 0
         episodeDescription = ""
+        # make sure there is no carryforward
+        episodeNumber = ""
+        episodeNumberFromURL = ""
     }
     if ($0 ~ /<p>/) {
         split ($0,fld,"[<>]")
