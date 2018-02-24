@@ -74,8 +74,8 @@
     sub (/.*<title>Acorn TV \| /,"")
     sub (/<.*/,"")
     gsub (/&amp;/,"\\&")
+    gsub (/&quot;/,"\"\"")
     # gsub (/&#x27;/,"'")
-    # gsub (/&quot;/,"\"\"")
     if (match ($0, /^The /)) {
         $0 = substr($0, 5) ", The"
     }

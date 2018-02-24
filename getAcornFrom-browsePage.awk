@@ -18,6 +18,7 @@
     split ($0,fld,"[<>]")
     marquee = fld[3]
     gsub (/&amp;/,"\\&", marquee)
+    gsub (/&quot;/,"\"\"",marquee)
     if (match (marquee, /^The /)) {
         marquee = substr(marquee, 5) ", The"
     }
