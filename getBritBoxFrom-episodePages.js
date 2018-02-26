@@ -40,7 +40,6 @@ app.post('/scrape', function(req, res){
             $ogTitle = $('meta[property="og:title"]').attr('content'),
             $ogImage = $('meta[property="og:image"]').attr('content'),
             $ogkeywords = $('meta[property="og:keywords"]').attr('content'),
-            $images = $('img');
             $url = $(".program-item__block");
             console.log('url: ' + $url.attr("href") + "\n");
             $seriesdesc = $(".program-item__program-description");
@@ -94,14 +93,6 @@ app.post('/scrape', function(req, res){
 
         if ($seriessubtitle && $seriessubtitle.length){
             resObj.seriessubtitle = $seriessubtitle.toString();
-        }
-
-        if ($images && $images.length){
-            resObj.images = [];
-
-            for (var i = 0; i < $images.length; i++) {
-                resObj.images.push($($images[i]).attr('src'));
-            }
         }
 
         //send the response
