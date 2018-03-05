@@ -1,0 +1,21 @@
+{
+  page(url: "https://www.britbox.com/us/show/A_Touch_of_Frost_10008") {
+    # Look through Top Level of a show for Season URLs
+    items: query(selector: "body") {
+      title: text(selector: ".brand-hero-info__title")
+      seasonDescription: text(selector: ".brand-hero-info__description")
+      year: text(selector: "span.programme-metadata__year")
+      seasons: query(selector: ".brand-season-item") {
+        text
+        url: attr(name: "href")
+      }
+    }
+  }
+}
+# https://www.britbox.com/us/show/Vera_13500                Vera top level (2 seasons)
+# https://www.britbox.com/us/show/A_Touch_of_Frost_10008    Frost top level (14 seasons)
+#
+# https://www.britbox.com/us/programmes                     Browse A-Z
+# https://www.britbox.com/us/movie/70_Glorious_Years_13550  Movie (no seasons)
+# https://www.britbox.com/us/show/Alfresco_14118            Alfresco (1 season)
+# https://www.britbox.com/us/show/Superhomes_9006           Superhomes top level (1 season)

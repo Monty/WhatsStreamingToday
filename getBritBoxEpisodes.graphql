@@ -1,0 +1,26 @@
+{
+  page(url: "https://www.britbox.com/us/show/New_Blood_9275") {
+    items: query(selector: "body") {
+      title: text(selector: "h3")
+      shows: query(selector: ".program-item__block"){
+        episodeTitle: text(selector: ".program-item__program-subtitle")
+        url: attr(name: "href")
+        year: text(selector: "span.programme-metadata__year")
+        duration: text(selector: "span.programme-metadata__duration")
+        rating: text(selector: ".programme-metadata__classification")
+        description: text(selector: "p.program-item__program-description")
+      }
+    }
+  }
+}
+# https://www.britbox.com/us/show/Alfresco_14118            Alfresco (1 season)
+# https://www.britbox.com/us/show/Vera_13500                Vera top level (2 seasons)
+# https://www.britbox.com/us/season/Vera_S3_13501           Vera Season 3
+# https://www.britbox.com/us/season/Vera_S8_15720           Vera Season 8
+# https://www.britbox.com/us/episode/Vera_S8_E1_15721       Vera, S08E01, Blood And Bone
+# https://www.britbox.com/us/show/A_Touch_of_Frost_10008    Frost top level (14 seasons)
+#
+# https://www.britbox.com/us/programmes                     Browse A-Z
+# https://www.britbox.com/us/movie/70_Glorious_Years_13550  Movie (no seasons)
+# https://www.britbox.com/us/show/Superhomes_9006           Superhomes top level (1 season)
+# https://www.britbox.com/us/episode/Superhomes_S1_E1_9008  Superhomes, S01E01, Episode 1
