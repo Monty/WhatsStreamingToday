@@ -2,10 +2,6 @@ BEGIN {
     FS = "\t"
 }
 
-/^URL/ {
-    print
-}
-
 /^\/us\/episode\// {
     episodeURL = $1
     seriesTitle = $2

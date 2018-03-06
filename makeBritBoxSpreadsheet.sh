@@ -91,14 +91,18 @@ rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEAS
     $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE \
     $EPISODE_INFO_FILE
 
+# Output header
+printf "#\tTitle\tDuration\tYear\tRating\tDescription\n" \
+    >$SPREADSHEET_FILE
+
 # Generate series URLs, Titles, Number of Seasons from BritBox "Programmes A-Z" page
 scrapy runspider getBritBoxEpisodes_scrapy.py -t csv -o- --nolog \
-    | csvformat -T | sort -fd | awk -f getBritBoxFrom-scrapy.awk > $SPREADSHEET_FILE
+    | csvformat -T | sort -fd | awk -f getBritBoxFrom-scrapy.awk | nl -n ln >> $SPREADSHEET_FILE
+
+exit
 
 # Print header for possible errors from processing series
 printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
-
-exit
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
@@ -149,9 +153,6 @@ paste $URL_FILE $TITLE_FILE |
 # Total the duration of all episodes in every series
 totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
 
-# Output header
-printf "#\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription\n" \
-    >$SPREADSHEET_FILE
 #
 # Output body
 if [ "$INCLUDE_EPISODES" = "yes" ]; then
