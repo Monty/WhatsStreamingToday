@@ -3,7 +3,10 @@
 
 # Output from running any commands
 *.csv
+*.jl
+*.json
 *.txt
+*.xml
 
 # In case you save a spreadsheet
 *.xls
@@ -11,12 +14,9 @@
 
 # Hide temporary versions of files from git
 *[1-9].awk
-*[1-9].jl
 *[1-9].js
-*[1-9].json
 *[1-9].py
 *[1-9].sh
-*[1-9].xml
 
 # Local backups
 *.bak
