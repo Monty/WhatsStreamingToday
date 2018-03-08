@@ -29,11 +29,16 @@ BEGIN {
     episodeRating = $23
     episodeDescription = $27
 
-    nfields = split (URL,fld,"_")
-    seasonNumber = fld[nfields - 2]
+    nflds = split (URL,fld,"_")
+    seasonNumber = fld[nflds - 2]
     sub (/S/,"",seasonNumber)
-    episodeNumber = fld[nfields - 1]
+    episodeNumber = fld[nflds - 1]
     sub (/E/,"",episodeNumber)
+
+    secs = 0
+    mins = episodeDuration % 60
+    hrs = int(episodeDuration / 60) 
+    episode_HMS = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
 
     # Get rid of perfunctory "Season <n>, " from episode title
     episodePrefix = "Season " seasonNumber ", "
@@ -43,7 +48,7 @@ BEGIN {
         printf \
             ("%s S%02dE%02d\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, S%02dE%02d, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
              showTitle, seasonNumber, episodeNumber, URL, showTitle, seasonNumber, episodeNumber, \
-             episodeTitle, episodeDuration, episodeYear, episodeRating, episodeDescription)
+             episodeTitle, episode_HMS, episodeYear, episodeRating, episodeDescription)
     }
 }
 
