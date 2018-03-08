@@ -92,12 +92,12 @@ rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEAS
     $EPISODE_INFO_FILE
 
 # Output header
-printf "#\tTitle\tDuration\tYear\tRating\tDescription\n" \
+printf "#\tSort Key\tTitle\tEpisodes\tDuration\tYear\tRating\tDescription\n" \
     >$SPREADSHEET_FILE
 
 # Generate series URLs, Titles, Number of Seasons from BritBox "Programmes A-Z" page
-scrapy runspider getBritBoxEpisodes_scrapy.py -t csv -o- --nolog \
-    | csvformat -T | sort -fd | awk -f getBritBoxFrom-scrapy.awk | nl -n ln >> $SPREADSHEET_FILE
+scrapy runspider getBritBoxSeasons_scrapy_xml.py -t xml -o- --nolog \
+    | awk -f getBritBoxFrom-scrapy_xml.awk | sort | nl -n ln >> $SPREADSHEET_FILE
 
 exit
 
