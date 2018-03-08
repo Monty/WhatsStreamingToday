@@ -54,6 +54,6 @@ BEGIN {
         printf \
             ("%s S%02d\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, Season %d\"\)\t%s\t\t%s\t%s\t%s\n", \
              seriesTitle, seasonNumber, seasonURL, seriesTitle, seasonNumber, \
-             seasonTitle, seasonEpisodes, seasonYear, seasonRating, seasonDescription)
+             seasonEpisodes, seasonYear, seasonRating, seasonDescription)
     }
 }

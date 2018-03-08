@@ -3,9 +3,13 @@ import scrapy
 
 class BritBoxSpider(scrapy.Spider):
     name = "seasons"
+    # BROKEN - shows with only one season
     start_urls = [
+            'https://www.britbox.com/us/show/A_Touch_of_Frost_10008',
+            'https://www.britbox.com/us/show/New_Blood_9275',
+            'https://www.britbox.com/us/show/Superhomes_9006',
+            'https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810',
             'https://www.britbox.com/us/show/Vera_13500',
-            'https://www.britbox.com/us/season/A_Touch_of_Frost_10008',
             ]
 
     def parse(self, response):
