@@ -23,11 +23,20 @@ BEGIN {
     episodeRating = $23
     episodeDescription = $27
 
+    # Titles starting with "The" should not sort based on "The"
+    if (match (seriesTitle, /^The /)) {
+        seriesTitle = substr(seriesTitle, 5) ", The"
+    }
+
     nfields = split (episodeURL,fld,"_")
     seasonNumber = fld[nfields - 2]
     sub (/S/,"",seasonNumber)
     episodeNumber = fld[nfields - 1]
     sub (/E/,"",episodeNumber)
+
+    # Get rid of perfunctory "Season <n>, " from episode title
+    episodePrefix = "Season " seasonNumber ", "
+    sub (episodePrefix, "", episodeTitle)
 
     if (episodeNumber != "") {
         printf \
@@ -45,6 +54,10 @@ BEGIN {
     seasonTitle = $11
     seasonYear = $15
     seasonEpisodes = $19
+
+    if (match (seriesTitle, /^The /)) {
+        seriesTitle = substr(seriesTitle, 5) ", The"
+    }
 
     nfields = split (seasonURL,fld,"_")
     seasonNumber = fld[nfields - 1]
