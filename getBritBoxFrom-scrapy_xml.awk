@@ -29,12 +29,14 @@ BEGIN {
     episodeRating = $23
     episodeDescription = $27
 
+    # Extract season & episode from URL
     nflds = split (URL,fld,"_")
     seasonNumber = fld[nflds - 2]
     sub (/S/,"",seasonNumber)
     episodeNumber = fld[nflds - 1]
     sub (/E/,"",episodeNumber)
 
+    # Convert minutes to HMS
     secs = 0
     mins = episodeDuration % 60
     hrs = int(episodeDuration / 60) 
