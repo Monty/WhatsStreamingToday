@@ -4,7 +4,6 @@ import scrapy
 class BritBoxSpider(scrapy.Spider):
     name = "seasons"
     # Doesn't handle /us/programme, /us/movie/, or /us/show/ with only one season
-    # BROKEN for /us/show/ with > 1 season where onw is a special (gets S00E00)
     # Works for /us/show/ or /us/episode/ with > 1 seson
     start_urls = [
             'https://www.britbox.com/us/programmes',                             # Top level

@@ -35,6 +35,10 @@ BEGIN {
     sub (/S/,"",seasonNumber)
     episodeNumber = fld[nflds - 1]
     sub (/E/,"",episodeNumber)
+    sortkey = sprintf ("S%02dE%02d", seasonNumber, episodeNumber)
+
+    if (URL ~ /_Special_[[:digit:]]*$/)
+        sortkey = "SP" fld[nflds]
 
     # Convert minutes to HMS
     secs = 0
@@ -48,8 +52,8 @@ BEGIN {
 
     if (episodeNumber != "") {
         printf \
-            ("%s S%02dE%02d\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, S%02dE%02d, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
-             showTitle, seasonNumber, episodeNumber, URL, showTitle, seasonNumber, episodeNumber, \
+            ("%s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
+             showTitle, sortkey, URL, showTitle, sortkey, \
              episodeTitle, episode_HMS, episodeYear, episodeRating, episodeDescription)
     }
 }
