@@ -20,6 +20,25 @@ BEGIN {
     }
 }
 
+# <URL>/us/movie/70_Glorious_Years_13550</URL><Title>70 Glorious Years</Title>\
+# <Subtitle></Subtitle><Duration>60 min</Duration><Year>1996</Year><Rating>TV-PG</Rating>
+/\/us\/movie\// {
+    movieDuration = $15
+    movieYear = $19
+    movieRating = $23
+    movieDescription = $27
+
+    nflds = split (URL,fld,"_")
+    if (URL ~ /_[[:digit:]]*$/) {
+        sortkey = sprintf ("M%05d", fld[nflds])
+        printf \
+            ("%s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s\"\)\t\t\t%s\t%s\t%s\n", \
+             showTitle, sortkey, URL, showTitle, sortkey, \
+             episodeYear, episodeRating, episodeDescription)
+    }
+}
+
+
 # <URL>/us/episode/Vera_S3_E1_13502</URL><Title>Vera</Title><Subtitle>Season 3, Castles in The Air</Subtitle>\
 # <Duration>88 min</Duration><Year>2013</Year><Rating>TV-MA</Rating>
 /\/us\/episode\// {
@@ -38,7 +57,7 @@ BEGIN {
     sortkey = sprintf ("S%02dE%02d", seasonNumber, episodeNumber)
 
     if (URL ~ /_Special_[[:digit:]]*$/)
-        sortkey = "SP" fld[nflds]
+        sortkey = sprintf ("X%05d", fld[nflds])
 
     # Convert minutes to HMS
     secs = 0
@@ -68,7 +87,7 @@ BEGIN {
     if (seasonNumber != "") {
         printf \
             ("%s S%02d\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, Season %d\"\)\t%s\t\t%s\t%s\t%s\n", \
-             showTitle, seasonNumber, URL, showTitle, seasonNumber, \
-             seasonEpisodes, seasonYear, seasonRating, seasonDescription)
+                 showTitle, seasonNumber, URL, showTitle, seasonNumber, \
+                 seasonEpisodes, seasonYear, seasonRating, seasonDescription)
     }
 }
