@@ -177,11 +177,11 @@ if [ "$UNSORTED" = "yes" ]; then
     # sort key 4 sorts by title
     # both sort $file2 by season then episode (if one is provided)
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $file2 |
+        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
         sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 else
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $file2 |
+        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
         sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
 #
