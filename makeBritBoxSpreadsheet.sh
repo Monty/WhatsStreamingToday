@@ -97,7 +97,7 @@ printf "#\tSort Key\tTitle\tEpisodes\tDuration\tYear\tRating\tDescription\n" \
 
 # Generate series URLs, Titles, Number of Seasons from BritBox "Programmes A-Z" page
 scrapy runspider getBritBoxSeasons-scrapy_xml.py -t xml -o- --nolog \
-    | awk -f getBritBoxFrom-scrapy_xml.awk | sort | nl -n ln >> $SPREADSHEET_FILE
+    | awk -f getBritBoxFrom-scrapy_xml.awk | sort | awk '/H/{print NR"\t"$0}' >> $SPREADSHEET_FILE
 
 exit
 
