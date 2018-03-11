@@ -5,6 +5,8 @@ class BritBoxSpider(scrapy.Spider):
     name = "seasons"
     # Doesn't handle /us/programme, /us/movie/, or /us/show/ with only one season
     # Works for /us/show/ or /us/episode/ with > 1 seson
+    # Don't pass a season, pass the show contaning the season or an episode. Otherwise it 
+    #   gets all seasons, but only the episodes from the first season
     start_urls = [
             'https://www.britbox.com/us/programmes',                             # Top level
             'https://www.britbox.com/us/movie/70_Glorious_Years_13550',          # Movie
@@ -20,6 +22,13 @@ class BritBoxSpider(scrapy.Spider):
             ]
 
     def parse(self, response):
+        for page in self.start_urls:
+            if "/movie/" in page:
+                yield scrapy.Request(page, callback=self.parseEpisode)
+            else:
+                yield scrapy.Request(page, callback=self.parseSeason)
+
+    def parseSeason(self, response):
         # for season in response.css('a.brand-season-item'):
         title = response.css('h1.brand-hero-info__title::text').extract()
 

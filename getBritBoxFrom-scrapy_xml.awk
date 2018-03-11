@@ -2,13 +2,24 @@ BEGIN {
     FS="[<>]"
 }
 
-# Eliminate unneeded constant fields
+# Eliminate unneeded constant fields from XML
 /^<item>/ {
     sub (/^<item>/,"")
     sub (/<\/item>$/,"")
     gsub (/<value>/,"")
     gsub (/<\/value>/,"")
 }
+
+# Example input lines
+#
+# <URL>/us/movie/70_Glorious_Years_13550</URL><Title>70 Glorious Years</Title><Subtitle></Subtitle>i\
+# <Duration>60</Duration><Year>1996</Year><Rating>TV-PG</Rating>
+#
+# <URL>/us/episode/Vera_S3_E1_13502</URL><Title>Vera</Title><Subtitle>Season 3, Castles in The Air</Subtitle>\
+# <Duration>88 min</Duration><Year>2013</Year><Rating>TV-MA</Rating>
+#
+# <URL>/us/season/Vera_S8_15720</URL><Title>Vera</Title><SeasonNumber>8</SeasonNumber>\
+# <Year>2018</Year><NumEpisodes>4</NumEpisodes>
 
 /\/us\// {
     URL = $3
@@ -20,35 +31,35 @@ BEGIN {
     }
 }
 
-# <URL>/us/movie/70_Glorious_Years_13550</URL><Title>70 Glorious Years</Title>\
-# <Subtitle></Subtitle><Duration>60 min</Duration><Year>1996</Year><Rating>TV-PG</Rating>
-/\/us\/movie\// {
-    movieDuration = $15
-    movieYear = $19
-    movieRating = $23
-    movieDescription = $27
+/\/us\/episode\/|\/us\/movie\// {
+    Title = $11
+    Duration = $15
+    Year = $19
+    Rating = $23
+    Description = $27
 
+    # Convert duration from minutes to HMS
+    secs = 0
+    mins = Duration % 60
+    hrs = int(Duration / 60)
+    HMS = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+}
+
+/\/us\/movie\// {
+    # Extract movie sortkey from URL
     nflds = split (URL,fld,"_")
     if (URL ~ /_[[:digit:]]*$/) {
         sortkey = sprintf ("M%05d", fld[nflds])
         printf \
-            ("%s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s\"\)\t\t\t%s\t%s\t%s\n", \
+            ("%s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
              showTitle, sortkey, URL, showTitle, sortkey, \
-             episodeYear, episodeRating, episodeDescription)
+             Title, HMS, Year, Rating, Description)
     }
 }
 
 
-# <URL>/us/episode/Vera_S3_E1_13502</URL><Title>Vera</Title><Subtitle>Season 3, Castles in The Air</Subtitle>\
-# <Duration>88 min</Duration><Year>2013</Year><Rating>TV-MA</Rating>
 /\/us\/episode\// {
-    episodeTitle = $11
-    episodeDuration = $15
-    episodeYear = $19
-    episodeRating = $23
-    episodeDescription = $27
-
-    # Extract season & episode from URL
+    # Extract episode sortkey from URL
     nflds = split (URL,fld,"_")
     seasonNumber = fld[nflds - 2]
     sub (/S/,"",seasonNumber)
@@ -56,29 +67,22 @@ BEGIN {
     sub (/E/,"",episodeNumber)
     sortkey = sprintf ("S%02dE%02d", seasonNumber, episodeNumber)
 
+    # Use X plus shownumber as sortkey for specials
     if (URL ~ /_Special_[[:digit:]]*$/)
         sortkey = sprintf ("X%05d", fld[nflds])
 
-    # Convert minutes to HMS
-    secs = 0
-    mins = episodeDuration % 60
-    hrs = int(episodeDuration / 60) 
-    episode_HMS = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
-
     # Get rid of perfunctory "Season <n>, " from episode title
-    episodePrefix = "Season " seasonNumber ", "
-    sub (episodePrefix, "", episodeTitle)
+    episodePrefix = "^Season " seasonNumber ", "
+    sub (episodePrefix, "", Title)
 
     if (episodeNumber != "") {
         printf \
             ("%s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
              showTitle, sortkey, URL, showTitle, sortkey, \
-             episodeTitle, episode_HMS, episodeYear, episodeRating, episodeDescription)
+             Title, HMS, Year, Rating, Description)
     }
 }
 
-# <URL>/us/season/Vera_S8_15720</URL><Title>Vera</Title><SeasonNumber>8</SeasonNumber>\
-# <Year>2018</Year><NumEpisodes>4</NumEpisodes>
 /\/us\/season\// {
     seasonNumber = $11
     seasonYear = $15
