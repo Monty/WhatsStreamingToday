@@ -9,6 +9,8 @@
 # Luxury Travel Show: Season 1: "Chiang Mai & Eze"
 # https://www.netflix.com/title/80217826
 # Kavin Jay: Everybody Calm Down!
+#
+# Paste them in the same order they are in the Netflix "viewing activity" page
 
 /^https:/ {
     link = $0
