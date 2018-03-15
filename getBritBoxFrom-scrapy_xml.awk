@@ -12,7 +12,7 @@ BEGIN {
 
 # Example input lines
 #
-# <URL>/us/movie/70_Glorious_Years_13550</URL><Title>70 Glorious Years</Title><Subtitle></Subtitle>i\
+# <URL>/us/movie/70_Glorious_Years_13550</URL><Title>70 Glorious Years</Title><Subtitle></Subtitle>\
 # <Duration>60</Duration><Year>1996</Year><Rating>TV-PG</Rating>
 #
 # <URL>/us/episode/Vera_S3_E1_13502</URL><Title>Vera</Title><Subtitle>Season 3, Castles in The Air</Subtitle>\
