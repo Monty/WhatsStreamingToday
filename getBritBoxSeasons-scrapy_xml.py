@@ -48,22 +48,6 @@ class BritBoxSpider(scrapy.Spider):
                 'Description': show.css('p.program-item__program-description::text').extract(),
             }
 
-    def parse2Seasons(self, response):
-        # for season in response.css('a.brand-season-item'):
-        title = response.css('h1.brand-hero-info__title::text').extract()
-
-        for season in response.css('a.brand-season-item'):
-            yield {
-                'URL': season.css('a.brand-season-item::attr(href)').extract(),
-                'Title': title,
-                'SeasonNumber': season.css('h2.program-item__program-title::text').re(r'Season (\d+)'),
-                'Year': season.css('p.season-metadata::text').extract(),
-                'NumEpisodes': season.css('p.season-metadata span::text')[2].re(r'(\d+)'),
-            }
-
-            for href in response.css('a.brand-season-item::attr(href)'):
-                yield response.follow(href, self.parseEpisode)
-
     def parse1Episode(self, response):
         shortURL = "/" + response.url.split('/', 3)[3]
         URLs = (response.css('div.program-item a.program-item__block::attr(href)').extract())
@@ -89,3 +73,19 @@ class BritBoxSpider(scrapy.Spider):
                     'Rating': Rating,
                     # 'Description': response.css('div.program-item p.program-item__program-description::text')[i].extract(),
                 }
+
+    def parse2Seasons(self, response):
+        # for season in response.css('a.brand-season-item'):
+        title = response.css('h1.brand-hero-info__title::text').extract()
+
+        for season in response.css('a.brand-season-item'):
+            yield {
+                'URL': season.css('a.brand-season-item::attr(href)').extract(),
+                'Title': title,
+                'SeasonNumber': season.css('h2.program-item__program-title::text').re(r'Season (\d+)'),
+                'Year': season.css('p.season-metadata::text').extract(),
+                'NumEpisodes': season.css('p.season-metadata span::text')[2].re(r'(\d+)'),
+            }
+
+            for href in response.css('a.brand-season-item::attr(href)'):
+                yield response.follow(href, self.parseEpisode)
