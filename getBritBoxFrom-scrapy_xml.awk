@@ -97,6 +97,7 @@ BEGIN {
     seasonNumber = $11
     seasonYear = $15
     seasonEpisodes = $19
+    seasonDescription = $23
 
     if (seasonNumber != "") {
         printf \
