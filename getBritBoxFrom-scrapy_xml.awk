@@ -10,6 +10,16 @@ BEGIN {
     gsub (/<\/value>/,"")
 }
 
+# if needed for debugging record placment, replace "/nosuchrecord/" below
+/nosuchrecord/ {
+    print ""
+    print NR " - " $0
+    for ( i = 1; i <= NF; i++ ) {
+        if ($i ~ /\/us\// )
+            print "field " i " = " $i
+    }
+}
+
 # Example input lines
 #
 # <URL>/us/movie/70_Glorious_Years_13550</URL><Title>70 Glorious Years</Title><Subtitle></Subtitle>\
@@ -21,7 +31,7 @@ BEGIN {
 # <URL>/us/season/Vera_S8_15720</URL><Title>Vera</Title><SeasonNumber>8</SeasonNumber>\
 # <Year>2018</Year><NumEpisodes>4</NumEpisodes>
 
-/\/us\// {
+/^<URL>\/us\// {
     URL = $3
     showTitle = $7
 
@@ -31,7 +41,7 @@ BEGIN {
     }
 }
 
-/\/us\/episode\/|\/us\/movie\// {
+/^<URL>\/us\/episode\/|^<URL>\/us\/movie\// {
     Title = $11
     Duration = $15
     Year = $19
@@ -45,20 +55,20 @@ BEGIN {
     HMS = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
 }
 
-/\/us\/movie\// {
+/^<URL>\/us\/movie\// {
     # Extract movie sortkey from URL
     nflds = split (URL,fld,"_")
     if (URL ~ /_[[:digit:]]*$/) {
         sortkey = sprintf ("M%05d", fld[nflds])
         printf \
-            ("%s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
+            ("%s %s - mv\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
              showTitle, sortkey, URL, showTitle, sortkey, \
              Title, HMS, Year, Rating, Description)
     }
 }
 
 
-/\/us\/episode\// {
+/^<URL>\/us\/episode\// {
     # Extract episode sortkey from URL
     nflds = split (URL,fld,"_")
     seasonNumber = fld[nflds - 2]
@@ -77,20 +87,20 @@ BEGIN {
 
     if (episodeNumber != "") {
         printf \
-            ("%s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
+            ("%s %s - ep\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\n", \
              showTitle, sortkey, URL, showTitle, sortkey, \
              Title, HMS, Year, Rating, Description)
     }
 }
 
-/\/us\/season\// {
+/^<URL>\/us\/season\// {
     seasonNumber = $11
     seasonYear = $15
     seasonEpisodes = $19
 
     if (seasonNumber != "") {
         printf \
-            ("%s S%02d\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, Season %d\"\)\t%s\t\t%s\t%s\t%s\n", \
+            ("%s S%02d - sn\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, Season %d\"\)\t%s\t\t%s\t%s\t%s\n", \
                  showTitle, seasonNumber, URL, showTitle, seasonNumber, \
                  seasonEpisodes, seasonYear, seasonRating, seasonDescription)
     }

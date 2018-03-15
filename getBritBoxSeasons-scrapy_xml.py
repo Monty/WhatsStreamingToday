@@ -35,6 +35,7 @@ class BritBoxSpider(scrapy.Spider):
                         yield scrapy.Request(page, callback=self.parse2Seasons)
 
     def parseEpisode(self, response):
+        shortURL = "/" + response.url.split('/', 3)[3]
         for show in response.css('div.program-item'):
             yield {
                 'URL': show.css('a.program-item__block::attr(href)').extract(),
@@ -43,7 +44,8 @@ class BritBoxSpider(scrapy.Spider):
                 'Duration': show.css('span.programme-metadata__duration::text').re(r'(\d+)'),
                 'Year': show.css('span.programme-metadata__year::text').extract(),
                 'Rating': show.css('span.programme-metadata__classification::text').extract(),
-                'Description': show.css('p.program-item__program-description::text').extract(),
+                # 'Description': show.css('p.program-item__program-description::text').extract(),
+                'shortURL': shortURL,
             }
 
     def parse1Episode(self, response):
@@ -74,11 +76,14 @@ class BritBoxSpider(scrapy.Spider):
                     'Duration': Duration,
                     'Year': Year,
                     'Rating': Rating,
-                    # 'Description': response.css('div.program-item p.program-item__program-description::text')[i].extract(),
+                    # 'Description': response.css(
+                    #     'div.program-item p.program-item__program-description::text')[i].extract(),
+                    'shortURL': shortURL,
                 }
 
     def parse2Seasons(self, response):
         # for season in response.css('a.brand-season-item'):
+        shortURL = "/" + response.url.split('/', 3)[3]
         title = response.css('h1.brand-hero-info__title::text').extract()
 
         for season in response.css('a.brand-season-item'):
@@ -88,6 +93,7 @@ class BritBoxSpider(scrapy.Spider):
                 'SeasonNumber': season.css('h2.program-item__program-title::text').re(r'Season (\d+)'),
                 'Year': season.css('p.season-metadata::text').extract(),
                 'NumEpisodes': season.css('p.season-metadata span::text')[2].re(r'(\d+)'),
+                'shortURL': shortURL,
             }
 
             for href in response.css('a.brand-season-item::attr(href)'):
