@@ -23,10 +23,8 @@ class BritBoxSpider(scrapy.Spider):
 
     def parse(self, response):
         for page in self.start_urls:
-            if "/episode/" in page:
+            if ("/movie/" in page) or ("/episode/" in page):
                 yield scrapy.Request(page, callback=self.parse1Episode)
-            elif "/movie/" in page:
-                yield scrapy.Request(page, callback=self.parseEpisode)
             else:
                 seasons = response.css(
                     'div.program-item__title-wrapper p.program-item__program-subtitle::text'
@@ -56,8 +54,13 @@ class BritBoxSpider(scrapy.Spider):
                 URL = URLs[i]
                 Title = response.css('div.program-item h3.program-item__program-title::text')[
                     i].extract()
-                Subtitle = response.css('div.program-item p.program-item__program-subtitle::text')[
-                    i].extract()
+                if (len(
+                        response.css('div.program-item p.program-item__program-subtitle::text')
+                        .extract()) == 0):
+                    Subtitle = ''
+                else:
+                    Subtitle = response.css('div.program-item p.program-item__program-subtitle::text')[
+                        i].extract()
                 Duration = response.css('div.program-item span.programme-metadata__duration::text')[
                     i].re(r'(\d+)')
                 Year = response.css('div.program-item span.programme-metadata__year::text')[
