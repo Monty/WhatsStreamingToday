@@ -39,6 +39,8 @@ class BritBoxSpider(scrapy.Spider):
                     else:
                         logging.info("No Season in " + seasons + " on " + page)
                         yield scrapy.Request(page, callback=self.parse1Season)
+            elif "/season/" in page:
+                yield scrapy.Request(page, callback=self.parseAllEpisodes)
 
     def parseAllEpisodes(self, response):
         shortURL = "/" + response.url.split('/', 3)[3]
