@@ -38,7 +38,7 @@ class BritBoxSpider(scrapy.Spider):
                         yield scrapy.Request(page, callback=self.parseAllSeasons)
                     else:
                         logging.info("No Season in " + seasons + " on " + page)
-                        yield scrapy.Request(page, callback=self.parse1Season)
+                        yield scrapy.Request(page, callback=self.parseAllEpisodes)
             elif "/season/" in page:
                 yield scrapy.Request(page, callback=self.parseAllEpisodes)
 
@@ -94,26 +94,6 @@ class BritBoxSpider(scrapy.Spider):
                 }
 
     def parseAllSeasons(self, response):
-        # for season in response.css('a.brand-season-item'):
-        shortURL = "/" + response.url.split('/', 3)[3]
-        title = response.css('h1.brand-hero-info__title::text').extract()
-
-        for season in response.css('a.brand-season-item'):
-            yield {
-                'URL': season.css('a.brand-season-item::attr(href)').extract(),
-                'Title': title,
-                'SeasonNumber': season.css('h2.program-item__program-title::text').re(r'Season (\d+)'),
-                'Year': season.css('p.season-metadata::text').extract(),
-                'NumEpisodes': season.css('p.season-metadata span::text')[2].re(r'(\d+)'),
-                'Description': "-desc-",
-                'shortURL': shortURL,
-                'function': sys._getframe().f_code.co_name,
-            }
-
-            for href in response.css('a.brand-season-item::attr(href)'):
-                yield response.follow(href, self.parseAllEpisodes)
-
-    def parse1Season(self, response):
         # for season in response.css('a.brand-season-item'):
         shortURL = "/" + response.url.split('/', 3)[3]
         title = response.css('h1.brand-hero-info__title::text').extract()
