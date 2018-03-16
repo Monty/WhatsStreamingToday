@@ -47,7 +47,8 @@ BEGIN {
     Year = $19
     Rating = $23
     Description = $27
-    functionName = $31
+    topURL = $31
+    functionName = $35
 
     # Convert duration from minutes to HMS
     secs = 0
@@ -62,9 +63,9 @@ BEGIN {
     if (URL ~ /_[[:digit:]]*$/) {
         sortkey = sprintf ("M%05d", fld[nflds])
         printf \
-            ("%s %s - mv\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\t%s\n", \
+            ("%s %s - mv\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\t%s\t%s\n", \
              showTitle, sortkey, URL, showTitle, sortkey, \
-             Title, HMS, Year, Rating, Description, functionName)
+             Title, HMS, Year, Rating, Description, topURL, functionName)
     }
 }
 
@@ -88,9 +89,9 @@ BEGIN {
 
     if (episodeNumber != "") {
         printf \
-            ("%s %s - ep\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\t%s\n", \
+            ("%s %s - ep\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t%s\t%s\t%s\t%s\t%s\t%s\n", \
              showTitle, sortkey, URL, showTitle, sortkey, \
-             Title, HMS, Year, Rating, Description, functionName)
+             Title, HMS, Year, Rating, Description, topURL, functionName)
     }
 }
 
@@ -99,12 +100,13 @@ BEGIN {
     seasonYear = $15
     seasonEpisodes = $19
     seasonDescription = $23
-    functionName = $27
+    topURL = $27
+    functionName = $31
 
     if (seasonNumber != "") {
         printf \
-            ("%s S%02d - sn\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, Season %d\"\)\t%s\t\t%s\t%s\t%s\t%s\n", \
+            ("%s S%02d - sn\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, Season %d\"\)\t%s\t\t%s\t%s\t%s\t%s\t%s\n", \
                  showTitle, seasonNumber, URL, showTitle, seasonNumber, \
-                 seasonEpisodes, seasonYear, seasonRating, seasonDescription, functionName)
+                 seasonEpisodes, seasonYear, seasonRating, seasonDescription, topURL, functionName)
     }
 }
