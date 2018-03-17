@@ -32,12 +32,13 @@ class BritBoxSpider(scrapy.Spider):
                 seasons = response.css(
                     'div.program-item__title-wrapper p.program-item__program-subtitle::text'
                 ).extract_first()
+                shortURL = "/" + response.url.split('/', 3)[3]
                 if seasons is not None:
                     if "Season " in seasons:
-                        # logging.info("Found Season in " + seasons + " on " + page)
+                        logging.info("Found Season in " + seasons + " on " + shortURL)
                         yield scrapy.Request(page, callback=self.parseAllSeasons)
                     else:
-                        # logging.info("No Season in " + seasons + " on " + page)
+                        logging.info("No Season in " + seasons + " on " + shortURL)
                         yield scrapy.Request(page, callback=self.parseAllEpisodes)
             elif "/season/" in page:
                 yield scrapy.Request(page, callback=self.parseAllEpisodes)
