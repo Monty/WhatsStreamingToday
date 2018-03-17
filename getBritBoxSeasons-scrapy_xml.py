@@ -34,10 +34,10 @@ class BritBoxSpider(scrapy.Spider):
                 ).extract_first()
                 if seasons is not None:
                     if "Season " in seasons:
-                        logging.info("Found Season in " + seasons + " on " + page)
+                        # logging.info("Found Season in " + seasons + " on " + page)
                         yield scrapy.Request(page, callback=self.parseAllSeasons)
                     else:
-                        logging.info("No Season in " + seasons + " on " + page)
+                        # logging.info("No Season in " + seasons + " on " + page)
                         yield scrapy.Request(page, callback=self.parseAllEpisodes)
             elif "/season/" in page:
                 yield scrapy.Request(page, callback=self.parseAllEpisodes)
@@ -52,8 +52,8 @@ class BritBoxSpider(scrapy.Spider):
                 'Duration': show.css('span.programme-metadata__duration::text').re(r'(\d+)'),
                 'Year': show.css('span.programme-metadata__year::text').extract(),
                 'Rating': show.css('span.programme-metadata__classification::text').extract(),
-                'Description': "-desc-",
-                # 'Description': show.css('p.program-item__program-description::text').extract(),
+                # 'Description': "-desc-",
+                'Description': show.css('p.program-item__program-description::text').extract(),
                 'shortURL': shortURL,
                 'function': sys._getframe().f_code.co_name,
             }
@@ -80,17 +80,26 @@ class BritBoxSpider(scrapy.Spider):
                 Rating = response.css(
                     'div.program-item span.programme-metadata__classification::text')[i].extract()
                 yield {
-                    'URL': URL,
-                    'Title': Title,
-                    'Subtitle': Subtitle,
-                    'Duration': Duration,
-                    'Year': Year,
-                    'Rating': Rating,
-                    'Description': "-desc-",
-                    # 'Description': response.css(
-                    #     'div.program-item p.program-item__program-description::text')[i].extract(),
-                    'shortURL': shortURL,
-                    'function': sys._getframe().f_code.co_name,
+                    'URL':
+                        URL,
+                    'Title':
+                        Title,
+                    'Subtitle':
+                        Subtitle,
+                    'Duration':
+                        Duration,
+                    'Year':
+                        Year,
+                    'Rating':
+                        Rating,
+                    # 'Description': "-desc-",
+                    'Description':
+                        response.css('div.program-item p.program-item__program-description::text')[i]
+                        .extract(),
+                    'shortURL':
+                        shortURL,
+                    'function':
+                        sys._getframe().f_code.co_name,
                 }
 
     def parseAllSeasons(self, response):
@@ -100,14 +109,24 @@ class BritBoxSpider(scrapy.Spider):
 
         for season in response.css('a.brand-season-item'):
             yield {
-                'URL': season.css('a.brand-season-item::attr(href)').extract(),
-                'Title': title,
-                'SeasonNumber': season.css('h2.program-item__program-title::text').re(r'Season (\d+)'),
-                'Year': season.css('p.season-metadata::text').extract(),
-                'NumEpisodes': season.css('p.season-metadata span::text')[2].re(r'(\d+)'),
-                'Description': "-desc-",
-                'shortURL': shortURL,
-                'function': sys._getframe().f_code.co_name,
+                'URL':
+                    season.css('a.brand-season-item::attr(href)').extract(),
+                'Title':
+                    title,
+                'SeasonNumber':
+                    season.css('h2.program-item__program-title::text').re(r'Season (\d+)'),
+                'Year':
+                    season.css('p.season-metadata::text').extract(),
+                'NumEpisodes':
+                    season.css('p.season-metadata span::text')[2].re(r'(\d+)'),
+                # 'Description': "-desc-",
+                'Description':
+                    response.css('div.program-item p.program-item__program-description::text')
+                    .extract(),
+                'shortURL':
+                    shortURL,
+                'function':
+                    sys._getframe().f_code.co_name,
             }
 
             for href in response.css('a.brand-season-item::attr(href)'):
