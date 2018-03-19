@@ -2,7 +2,9 @@
   "_id": "one_season_show",
   "startUrl": [
     "https://www.britbox.com/us/show/New_Blood_9275",
-    "https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810"
+    "https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810",
+    "https://www.britbox.com/us/movie/70_Glorious_Years_13550",
+    "https://www.britbox.com/us/movie/A_Christmas_Carol_15128"
   ],
   "selectors": [
     {
