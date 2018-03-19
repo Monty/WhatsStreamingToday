@@ -1,0 +1,88 @@
+{
+  "_id": "one_season_show",
+  "startUrl": [
+    "https://www.britbox.com/us/show/New_Blood_9275",
+    "https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810"
+  ],
+  "selectors": [
+    {
+      "id": "Program",
+      "type": "SelectorElement",
+      "selector": "div.program-item",
+      "parentSelectors": ["Carousel"],
+      "multiple": true,
+      "delay": 0
+    },
+    {
+      "id": "Title",
+      "type": "SelectorText",
+      "selector": "h3.program-item__program-title",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Subtitle",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-subtitle",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Duration",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__duration",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Year",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Rating",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__classification",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Description",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-description",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "URLs",
+      "type": "SelectorElementAttribute",
+      "selector": "a.program-item__block",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "extractAttribute": "href",
+      "delay": ""
+    },
+    {
+      "id": "Carousel",
+      "type": "SelectorElement",
+      "selector": "div.episodes-carousel",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "delay": 0
+    }
+  ]
+}
