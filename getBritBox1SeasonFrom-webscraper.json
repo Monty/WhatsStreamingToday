@@ -14,12 +14,29 @@
   ],
   "selectors": [
     {
+      "id": "Carousel",
+      "type": "SelectorElement",
+      "selector": "div.episodes-carousel",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "delay": ""
+    },
+    {
       "id": "Program",
       "type": "SelectorElement",
       "selector": "div.program-item",
       "parentSelectors": ["Carousel"],
       "multiple": true,
-      "delay": 0
+      "delay": ""
+    },
+    {
+      "id": "URL",
+      "type": "SelectorElementAttribute",
+      "selector": "a.program-item__block",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "extractAttribute": "href",
+      "delay": ""
     },
     {
       "id": "Title",
@@ -74,23 +91,6 @@
       "multiple": false,
       "regex": "",
       "delay": ""
-    },
-    {
-      "id": "URL",
-      "type": "SelectorElementAttribute",
-      "selector": "a.program-item__block",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "extractAttribute": "href",
-      "delay": ""
-    },
-    {
-      "id": "Carousel",
-      "type": "SelectorElement",
-      "selector": "div.episodes-carousel",
-      "parentSelectors": ["_root"],
-      "multiple": false,
-      "delay": 0
     }
   ]
 }
