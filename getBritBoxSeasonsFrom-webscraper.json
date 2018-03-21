@@ -1,16 +1,12 @@
 {
-  "_id": "foo5",
+  "_id": "britbox_seasons",
   "startUrl": [
-    "https://www.britbox.com/us/movie/70_Glorious_Years_13550",
-    "https://www.britbox.com/us/movie/A_Christmas_Carol_15128",
-    "https://www.britbox.com/us/show/New_Blood_9275",
-    "https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810",
-    "https://www.britbox.com/us/show/A_History_of_Ancient_Britain_6385",
     "https://www.britbox.com/us/show/A_Bit_of_Fry_and_Laurie_6393",
+    "https://www.britbox.com/us/show/A_History_of_Ancient_Britain_6385",
+    "https://www.britbox.com/us/show/New_Blood_9275",
     "https://www.britbox.com/us/show/The_Jury_9565",
-    "https://www.britbox.com/us/season/Vera_S8_15720",
-    "https://www.britbox.com/us/episode/Superhomes_S1_E1_9008",
-    "https://www.britbox.com/us/episode/Cold_Blood_S2_E2_10298"
+    "https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810",
+    "https://www.britbox.com/us/show/Vera_13500"
   ],
   "selectors": [
     {
@@ -19,7 +15,7 @@
       "selector": "div.brand-hero-info",
       "parentSelectors": ["_root"],
       "multiple": false,
-      "delay": 0
+      "delay": ""
     },
     {
       "id": "ProgramTitle",
@@ -28,7 +24,7 @@
       "parentSelectors": ["ProgramInfo"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
     {
       "id": "SeasonCarousel",
@@ -56,7 +52,7 @@
       "delay": ""
     },
     {
-      "id": "Title",
+      "id": "SeasonTitle",
       "type": "SelectorText",
       "selector": "h2.program-item__program-title",
       "parentSelectors": ["Season"],
@@ -92,10 +88,10 @@
       "delay": ""
     },
     {
-      "id": "Description",
+      "id": "SeasonDescription",
       "type": "SelectorText",
       "selector": "p.brand-hero-info__description",
-      "parentSelectors": ["Season"],
+      "parentSelectors": ["ProgramInfo"],
       "multiple": false,
       "regex": "",
       "delay": ""
