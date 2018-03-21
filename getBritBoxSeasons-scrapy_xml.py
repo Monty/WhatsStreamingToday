@@ -35,10 +35,10 @@ class BritBoxSpider(scrapy.Spider):
                 shortURL = "/" + response.url.split('/', 3)[3]
                 if seasons is not None:
                     if "Season " in seasons:
-                        logging.info("Found Season in " + seasons + " on " + shortURL)
+                        # logging.info("Found Season in " + seasons + " on " + shortURL)
                         yield scrapy.Request(page, callback=self.parseAllSeasons)
                     else:
-                        logging.info("No Season in " + seasons + " on " + shortURL)
+                        # logging.info("No Season in " + seasons + " on " + shortURL)
                         yield scrapy.Request(page, callback=self.parseAllEpisodes)
             elif "/season/" in page:
                 yield scrapy.Request(page, callback=self.parseAllEpisodes)
@@ -46,6 +46,7 @@ class BritBoxSpider(scrapy.Spider):
     def parseAllEpisodes(self, response):
         shortURL = "/" + response.url.split('/', 3)[3]
         for show in response.css('div.program-item'):
+            logging.info("Parsing " + shortURL + " in parseAllEpisodes")
             yield {
                 'URL': show.css('a.program-item__block::attr(href)').extract(),
                 'Title': show.css('h3.program-item__program-title::text').extract(),
@@ -80,6 +81,7 @@ class BritBoxSpider(scrapy.Spider):
                     i].extract()
                 Rating = response.css(
                     'div.program-item span.programme-metadata__classification::text')[i].extract()
+                logging.info("Parsing " + shortURL + " in parse1Episode")
                 yield {
                     'URL':
                         URL,
@@ -109,6 +111,8 @@ class BritBoxSpider(scrapy.Spider):
         title = response.css('h1.brand-hero-info__title::text').extract()
 
         for season in response.css('a.brand-season-item'):
+            description = response.css('p.brand-hero-info__description::text').extract()
+            logging.info("Parsing " + shortURL + " in parseAllSeasons")
             yield {
                 'URL':
                     season.css('a.brand-season-item::attr(href)').extract(),
@@ -122,8 +126,9 @@ class BritBoxSpider(scrapy.Spider):
                     season.css('p.season-metadata span::text')[2].re(r'(\d+)'),
                 # 'Description': "-desc-",
                 'Description':
-                    response.css('div.program-item p.program-item__program-description::text')
-                    .extract(),
+                    description,
+                # 'Description':
+                #     season.css('p.brand-hero-info__description::text').extract(),
                 'shortURL':
                     shortURL,
                 'function':
