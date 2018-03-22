@@ -7,7 +7,7 @@ import logging
 class BritBoxSpider(scrapy.Spider):
     name = "shows"
     #  Doesn't handle /us/programme, or /us/show/ with only one season
-    #  Works for /us/show/ with > 1 seson
+    #  Works for /us/show/ with > 1 season
     # yapf: disable
     start_urls = [
         'https://www.britbox.com/us/programmes',                              # Top level
