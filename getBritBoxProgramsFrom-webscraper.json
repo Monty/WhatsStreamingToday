@@ -1,0 +1,77 @@
+{
+  "_id": "britbox_programs",
+  "startUrl": ["https://www.britbox.com/us/programmes"],
+  "selectors": [
+    {
+      "id": "Program",
+      "type": "SelectorElementScroll",
+      "selector": "div.program-item",
+      "parentSelectors": ["_root"],
+      "multiple": true,
+      "delay": "8000"
+    },
+    {
+      "id": "URL",
+      "type": "SelectorElementAttribute",
+      "selector": "a.program-item__block",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "extractAttribute": "href",
+      "delay": 0
+    },
+    {
+      "id": "Title",
+      "type": "SelectorText",
+      "selector": "h3.program-item__program-title",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+    {
+      "id": "Year",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+    {
+      "id": "NumSeasons",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__count",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+    {
+      "id": "Duration",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__duration",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+    {
+      "id": "Rating",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__classification",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+    {
+      "id": "Description",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-description",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    }
+  ]
+}
