@@ -8,6 +8,7 @@ BEGIN {
     sub (/<\/item>$/,"")
     gsub (/<value>/,"")
     gsub (/<\/value>/,"")
+    gsub (/&amp;/,"\\&")
 }
 
 # if needed for debugging record placment, replace "/nosuchrecord/" below
