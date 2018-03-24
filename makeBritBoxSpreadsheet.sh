@@ -85,7 +85,7 @@ fi
 #
 # Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
-ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
+ERROR_FILE="BritBox_stderr-$LONGDATE.txt"
 
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEASONS_FILE \
     $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE \
@@ -96,7 +96,7 @@ printf "#\tSort Key\tTitle\tEpisodes\tDuration\tYear\tRating\tDescription\n" \
     >$SPREADSHEET_FILE
 
 # Generate series URLs, Titles, Number of Seasons from BritBox "Programmes A-Z" page
-scrapy runspider getBritBoxSeasons-scrapy_xml.py -t xml -o- --nolog |
+scrapy runspider getBritBoxSeasons-scrapy_xml.py -t xml 2>$ERROR_FILE -o- |
     awk -f getBritBoxFrom-scrapy_xml.awk | sort -df | awk '{print NR"\t"$0}' >>$SPREADSHEET_FILE
 
 exit
