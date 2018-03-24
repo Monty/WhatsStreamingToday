@@ -10,17 +10,14 @@ class BritBoxSpider(scrapy.Spider):
     #  Works for /us/show/ with > 1 season
     # yapf: disable
     start_urls = [
-        'https://www.britbox.com/us/programmes',                              # Top level
         'https://www.britbox.com/us/movie/70_Glorious_Years_13550',           # Movie
         'https://www.britbox.com/us/movie/A_Christmas_Carol_15128',           # Movie
-        'https://www.britbox.com/us/show/New_Blood_9275',                     # Show (1 season)
-        'https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810',        # Show (1 season)
-        'https://www.britbox.com/us/show/A_History_of_Ancient_Britain_6385',  # Show (1+ seasons)
         'https://www.britbox.com/us/show/A_Bit_of_Fry_and_Laurie_6393',       # Show (+1 seasons)
+        'https://www.britbox.com/us/show/A_History_of_Ancient_Britain_6385',  # Show (1+ seasons)
+        'https://www.britbox.com/us/show/New_Blood_9275',                     # Show (1 season)
         'https://www.britbox.com/us/show/The_Jury_9565',                      # Show (2 seasons)
-        'https://www.britbox.com/us/season/Vera_S8_15720',                    # Season (2 seasons)
-        'https://www.britbox.com/us/episode/Superhomes_S1_E1_9008',           # Episode (1 season)
-        'https://www.britbox.com/us/episode/Cold_Blood_S2_E2_10298',          # Episode (2 seasons)
+        'https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810',        # Show (1 season)
+        'https://www.britbox.com/us/show/Vera_13500'                          # Show (2 seasons)
     ]
     # yapf: enable
 
@@ -106,13 +103,14 @@ class BritBoxSpider(scrapy.Spider):
                 }
 
     def parseAllSeasons(self, response):
-        # for season in response.css('a.brand-season-item'):
         shortURL = "/" + response.url.split('/', 3)[3]
         title = response.css('h1.brand-hero-info__title::text').extract()
 
         for season in response.css('a.brand-season-item'):
             description = response.css('p.brand-hero-info__description::text').extract()
+            url = response.css('a.brand-season-item::attr(href)').extract()
             logging.info("Parsing " + shortURL + " in parseAllSeasons")
+            logging.info("URL = " + str(url) + "DESCR = " + str(description))
             yield {
                 'URL':
                     season.css('a.brand-season-item::attr(href)').extract(),
