@@ -1,26 +1,54 @@
 {
-  "_id": "britbox_programs",
+  "_id": "programs_short-7",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
       "id": "Program",
-      "type": "SelectorElementScroll",
+      "type": "SelectorElement",
       "selector": "div.program-item",
       "parentSelectors": ["_root"],
       "multiple": true,
       "delay": "8000"
     },
+
     {
-      "id": "URL",
-      "type": "SelectorElementAttribute",
-      "selector": "a.program-item__block",
+      "id": "PgmURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/show/'].program-item__block",
       "parentSelectors": ["Program"],
       "multiple": false,
-      "extractAttribute": "href",
       "delay": 0
     },
+
     {
-      "id": "Title",
+      "id": "SsnURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/season/'].brand-season-item",
+      "parentSelectors": ["PgmURL"],
+      "multiple": true,
+      "delay": 0
+    },
+
+    {
+      "id": "Carousel",
+      "type": "SelectorElement",
+      "selector": "div.episodes-carousel",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "delay": 0
+    },
+
+    {
+      "id": "Episodes",
+      "type": "SelectorElement",
+      "selector": "div.program-item",
+      "parentSelectors": ["Carousel"],
+      "multiple": true,
+      "delay": 0
+    },
+
+    {
+      "id": "PgmTitle",
       "type": "SelectorText",
       "selector": "h3.program-item__program-title",
       "parentSelectors": ["Program"],
@@ -28,8 +56,39 @@
       "regex": "",
       "delay": 0
     },
+
     {
-      "id": "Year",
+      "id": "SsnTitle",
+      "type": "SelectorText",
+      "selector": "h2.program-item__program-title",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+
+    {
+      "id": "Title",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-subtitle",
+      "parentSelectors": ["Episodes"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+
+    {
+      "id": "MovYear",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+
+    {
+      "id": "SsnsYears",
       "type": "SelectorText",
       "selector": "span.programme-season-metadata__year",
       "parentSelectors": ["Program"],
@@ -37,17 +96,49 @@
       "regex": "",
       "delay": 0
     },
+
     {
-      "id": "NumSeasons",
+      "id": "EpisYear",
       "type": "SelectorText",
-      "selector": "span.programme-season-metadata__count",
-      "parentSelectors": ["Program"],
+      "selector": "span.programme-metadata__year",
+      "parentSelectors": ["SsnURL"],
       "multiple": false,
       "regex": "",
       "delay": 0
     },
+
     {
-      "id": "Duration",
+      "id": "Year",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+
+    {
+      "id": "NumSsns",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__count",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "\\d+ Seasons?",
+      "delay": 0
+    },
+
+    {
+      "id": "NumEpis",
+      "type": "SelectorText",
+      "selector": "p.season-metadata",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "\\d+ Episodes?",
+      "delay": 0
+    },
+
+    {
+      "id": "MovDuration",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
       "parentSelectors": ["Program"],
@@ -55,8 +146,19 @@
       "regex": "",
       "delay": 0
     },
+
     {
-      "id": "Rating",
+      "id": "Duration",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__duration",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+
+    {
+      "id": "MovRating",
       "type": "SelectorText",
       "selector": "span.programme-metadata__classification",
       "parentSelectors": ["Program"],
@@ -64,11 +166,42 @@
       "regex": "",
       "delay": 0
     },
+
+    {
+      "id": "Rating",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__classification",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+
+    {
+      "id": "PgmDescription",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-description",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+
+    {
+      "id": "SsnDescription",
+      "type": "SelectorText",
+      "selector": "p.brand-hero-info__description",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+
     {
       "id": "Description",
       "type": "SelectorText",
       "selector": "p.program-item__program-description",
-      "parentSelectors": ["Program"],
+      "parentSelectors": ["SsnURL"],
       "multiple": false,
       "regex": "",
       "delay": 0
