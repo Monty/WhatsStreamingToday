@@ -10,7 +10,6 @@
       "multiple": true,
       "delay": "8000"
     },
-
     {
       "id": "PgmURL",
       "type": "SelectorLink",
@@ -19,7 +18,6 @@
       "multiple": false,
       "delay": ""
     },
-
     {
       "id": "SsnURL",
       "type": "SelectorLink",
@@ -28,7 +26,6 @@
       "multiple": true,
       "delay": ""
     },
-
     {
       "id": "Carousel",
       "type": "SelectorElement",
@@ -37,7 +34,6 @@
       "multiple": false,
       "delay": ""
     },
-
     {
       "id": "Episodes",
       "type": "SelectorElement",
@@ -46,7 +42,6 @@
       "multiple": true,
       "delay": ""
     },
-
     {
       "id": "PgmTitle",
       "type": "SelectorText",
@@ -56,27 +51,6 @@
       "regex": "",
       "delay": ""
     },
-
-    {
-      "id": "SsnTitle",
-      "type": "SelectorText",
-      "selector": "h2.program-item__program-title",
-      "parentSelectors": ["SsnURL"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-
-    {
-      "id": "Title",
-      "type": "SelectorText",
-      "selector": "p.program-item__program-subtitle",
-      "parentSelectors": ["Episodes"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-
     {
       "id": "MovYear",
       "type": "SelectorText",
@@ -86,47 +60,6 @@
       "regex": "",
       "delay": ""
     },
-
-    {
-      "id": "SsnsYears",
-      "type": "SelectorText",
-      "selector": "span.programme-season-metadata__year",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-
-    {
-      "id": "Year",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__year",
-      "parentSelectors": ["Episodes"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-
-    {
-      "id": "NumSsns",
-      "type": "SelectorText",
-      "selector": "span.programme-season-metadata__count",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "\\d+ Seasons?",
-      "delay": ""
-    },
-
-    {
-      "id": "NumEpis",
-      "type": "SelectorText",
-      "selector": "p.season-metadata",
-      "parentSelectors": ["SsnURL"],
-      "multiple": false,
-      "regex": "\\d+ Episodes?",
-      "delay": ""
-    },
-
     {
       "id": "MovDuration",
       "type": "SelectorText",
@@ -136,17 +69,6 @@
       "regex": "",
       "delay": ""
     },
-
-    {
-      "id": "Duration",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__duration",
-      "parentSelectors": ["Episodes"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-
     {
       "id": "MovRating",
       "type": "SelectorText",
@@ -156,17 +78,6 @@
       "regex": "",
       "delay": ""
     },
-
-    {
-      "id": "Rating",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__classification",
-      "parentSelectors": ["Episodes"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-
     {
       "id": "PgmDescription",
       "type": "SelectorText",
@@ -176,7 +87,42 @@
       "regex": "",
       "delay": ""
     },
-
+    {
+      "id": "SsnTitle",
+      "type": "SelectorText",
+      "selector": "h2.program-item__program-title",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "NumSsns",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__count",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "\\d+ Seasons?",
+      "delay": ""
+    },
+    {
+      "id": "SsnsYears",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "NumEpis",
+      "type": "SelectorText",
+      "selector": "p.season-metadata",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "\\d+ Episodes?",
+      "delay": ""
+    },
     {
       "id": "SsnDescription",
       "type": "SelectorText",
@@ -186,7 +132,42 @@
       "regex": "",
       "delay": ""
     },
-
+    {
+      "id": "Title",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-subtitle",
+      "parentSelectors": ["Episodes"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Year",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__year",
+      "parentSelectors": ["Episodes"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Duration",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__duration",
+      "parentSelectors": ["Episodes"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Rating",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__classification",
+      "parentSelectors": ["Episodes"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
     {
       "id": "Description",
       "type": "SelectorText",
