@@ -201,7 +201,7 @@
       "id": "Description",
       "type": "SelectorText",
       "selector": "p.program-item__program-description",
-      "parentSelectors": ["SsnURL"],
+      "parentSelectors": ["Episodes"],
       "multiple": false,
       "regex": "",
       "delay": 0
