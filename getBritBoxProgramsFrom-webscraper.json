@@ -17,7 +17,7 @@
       "selector": "a[href*='/us/show/'].program-item__block",
       "parentSelectors": ["Program"],
       "multiple": false,
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -26,7 +26,7 @@
       "selector": "a[href*='/us/season/'].brand-season-item",
       "parentSelectors": ["PgmURL"],
       "multiple": true,
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -35,7 +35,7 @@
       "selector": "div.episodes-carousel",
       "parentSelectors": ["SsnURL"],
       "multiple": false,
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -44,7 +44,7 @@
       "selector": "div.program-item",
       "parentSelectors": ["Carousel"],
       "multiple": true,
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -54,7 +54,7 @@
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -64,7 +64,7 @@
       "parentSelectors": ["SsnURL"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -74,7 +74,7 @@
       "parentSelectors": ["Episodes"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -84,7 +84,7 @@
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -94,24 +94,14 @@
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
-      "delay": 0
-    },
-
-    {
-      "id": "EpisYear",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__year",
-      "parentSelectors": ["SsnURL"],
-      "multiple": false,
-      "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
       "id": "Year",
       "type": "SelectorText",
       "selector": "span.programme-metadata__year",
-      "parentSelectors": ["Program"],
+      "parentSelectors": ["Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -124,7 +114,7 @@
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "\\d+ Seasons?",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -134,7 +124,7 @@
       "parentSelectors": ["SsnURL"],
       "multiple": false,
       "regex": "\\d+ Episodes?",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -144,17 +134,17 @@
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
       "id": "Duration",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
-      "parentSelectors": ["SsnURL"],
+      "parentSelectors": ["Episodes"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -164,17 +154,17 @@
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
       "id": "Rating",
       "type": "SelectorText",
       "selector": "span.programme-metadata__classification",
-      "parentSelectors": ["SsnURL"],
+      "parentSelectors": ["Episodes"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -184,7 +174,7 @@
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -194,7 +184,7 @@
       "parentSelectors": ["SsnURL"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     },
 
     {
@@ -204,7 +194,7 @@
       "parentSelectors": ["Episodes"],
       "multiple": false,
       "regex": "",
-      "delay": 0
+      "delay": ""
     }
   ]
 }
