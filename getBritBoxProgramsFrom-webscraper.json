@@ -1,5 +1,5 @@
 {
-  "_id": "programs_short-7",
+  "_id": "programs_short-8",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
@@ -43,6 +43,33 @@
       "delay": ""
     },
     {
+      "id": "Mv_URL",
+      "type": "SelectorElementAttribute",
+      "selector": "a[href*='/us/movie/'].program-item__block",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "extractAttribute": "href",
+      "delay": ""
+    },
+    {
+      "id": "Sh_URL",
+      "type": "SelectorElementAttribute",
+      "selector": "a[href*='/us/show/'].program-item__block",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "extractAttribute": "href",
+      "delay": ""
+    },
+    {
+      "id": "Ep_URL",
+      "type": "SelectorElementAttribute",
+      "selector": "a[href*='/us/episode/'].program-item__block",
+      "parentSelectors": ["Episodes"],
+      "multiple": false,
+      "extractAttribute": "href",
+      "delay": ""
+    },
+    {
       "id": "PgmTitle",
       "type": "SelectorText",
       "selector": "h3.program-item__program-title",
@@ -52,7 +79,7 @@
       "delay": ""
     },
     {
-      "id": "MovYear",
+      "id": "Mv_Yr",
       "type": "SelectorText",
       "selector": "span.programme-metadata__year",
       "parentSelectors": ["Program"],
@@ -61,7 +88,7 @@
       "delay": ""
     },
     {
-      "id": "MovDuration",
+      "id": "Mv_Len",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
       "parentSelectors": ["Program"],
@@ -70,7 +97,7 @@
       "delay": ""
     },
     {
-      "id": "MovRating",
+      "id": "Mv_Rating",
       "type": "SelectorText",
       "selector": "span.programme-metadata__classification",
       "parentSelectors": ["Program"],
@@ -79,7 +106,7 @@
       "delay": ""
     },
     {
-      "id": "PgmDescription",
+      "id": "Mv_Description",
       "type": "SelectorText",
       "selector": "p.program-item__program-description",
       "parentSelectors": ["Program"],
@@ -88,7 +115,7 @@
       "delay": ""
     },
     {
-      "id": "SsnTitle",
+      "id": "Sn_Title",
       "type": "SelectorText",
       "selector": "h2.program-item__program-title",
       "parentSelectors": ["SsnURL"],
@@ -97,25 +124,7 @@
       "delay": ""
     },
     {
-      "id": "NumSsns",
-      "type": "SelectorText",
-      "selector": "span.programme-season-metadata__count",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "\\d+ Seasons?",
-      "delay": ""
-    },
-    {
-      "id": "SsnsYears",
-      "type": "SelectorText",
-      "selector": "span.programme-season-metadata__year",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "NumEpis",
+      "id": "Sn_Epis",
       "type": "SelectorText",
       "selector": "p.season-metadata",
       "parentSelectors": ["SsnURL"],
@@ -124,7 +133,7 @@
       "delay": ""
     },
     {
-      "id": "SsnDescription",
+      "id": "Sn_Description",
       "type": "SelectorText",
       "selector": "p.brand-hero-info__description",
       "parentSelectors": ["SsnURL"],
@@ -133,7 +142,25 @@
       "delay": ""
     },
     {
-      "id": "Title",
+      "id": "Sh_Ssns",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__count",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "\\d+ Seasons?",
+      "delay": ""
+    },
+    {
+      "id": "Sh_Yrs",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Ep_Title",
       "type": "SelectorText",
       "selector": "p.program-item__program-subtitle",
       "parentSelectors": ["Episodes"],
@@ -142,7 +169,7 @@
       "delay": ""
     },
     {
-      "id": "Year",
+      "id": "Ep_Year",
       "type": "SelectorText",
       "selector": "span.programme-metadata__year",
       "parentSelectors": ["Episodes"],
@@ -151,7 +178,7 @@
       "delay": ""
     },
     {
-      "id": "Duration",
+      "id": "Ep_Len",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
       "parentSelectors": ["Episodes"],
@@ -160,7 +187,7 @@
       "delay": ""
     },
     {
-      "id": "Rating",
+      "id": "Ep_Rating",
       "type": "SelectorText",
       "selector": "span.programme-metadata__classification",
       "parentSelectors": ["Episodes"],
@@ -169,7 +196,7 @@
       "delay": ""
     },
     {
-      "id": "Description",
+      "id": "Ep_Description",
       "type": "SelectorText",
       "selector": "p.program-item__program-description",
       "parentSelectors": ["Episodes"],
