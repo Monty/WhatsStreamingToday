@@ -1,5 +1,5 @@
 {
-  "_id": "programs_short-8",
+  "_id": "programs_short-9",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
@@ -22,6 +22,14 @@
       "id": "SsnURL",
       "type": "SelectorLink",
       "selector": "a[href*='/us/season/'].brand-season-item",
+      "parentSelectors": ["PgmURL"],
+      "multiple": true,
+      "delay": ""
+    },
+    {
+      "id": "EpiURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/episode/'].program-item__block",
       "parentSelectors": ["PgmURL"],
       "multiple": true,
       "delay": ""
@@ -163,7 +171,7 @@
       "id": "Ep_Title",
       "type": "SelectorText",
       "selector": "p.program-item__program-subtitle",
-      "parentSelectors": ["Episodes"],
+      "parentSelectors": ["EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -172,7 +180,7 @@
       "id": "Ep_Year",
       "type": "SelectorText",
       "selector": "span.programme-metadata__year",
-      "parentSelectors": ["Episodes"],
+      "parentSelectors": ["EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -181,7 +189,7 @@
       "id": "Ep_Len",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
-      "parentSelectors": ["Episodes"],
+      "parentSelectors": ["EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -190,7 +198,7 @@
       "id": "Ep_Rating",
       "type": "SelectorText",
       "selector": "span.programme-metadata__classification",
-      "parentSelectors": ["Episodes"],
+      "parentSelectors": ["EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -199,7 +207,7 @@
       "id": "Ep_Description",
       "type": "SelectorText",
       "selector": "p.program-item__program-description",
-      "parentSelectors": ["Episodes"],
+      "parentSelectors": ["EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
