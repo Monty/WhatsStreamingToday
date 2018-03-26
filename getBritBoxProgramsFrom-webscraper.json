@@ -1,5 +1,5 @@
 {
-  "_id": "programs_short-9",
+  "_id": "programs_short-a2",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
@@ -87,42 +87,6 @@
       "delay": ""
     },
     {
-      "id": "Mv_Yr",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__year",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "Mv_Len",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__duration",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "Mv_Rating",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__classification",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "Mv_Description",
-      "type": "SelectorText",
-      "selector": "p.program-item__program-description",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
       "id": "Sn_Title",
       "type": "SelectorText",
       "selector": "h2.program-item__program-title",
@@ -168,46 +132,46 @@
       "delay": ""
     },
     {
-      "id": "Ep_Title",
+      "id": "Title",
       "type": "SelectorText",
       "selector": "p.program-item__program-subtitle",
-      "parentSelectors": ["EpiURL", "Episodes"],
+      "parentSelectors": ["Program", "EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
     },
     {
-      "id": "Ep_Year",
+      "id": "Year",
       "type": "SelectorText",
       "selector": "span.programme-metadata__year",
-      "parentSelectors": ["EpiURL", "Episodes"],
+      "parentSelectors": ["Program", "EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
     },
     {
-      "id": "Ep_Len",
+      "id": "Len",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
-      "parentSelectors": ["EpiURL", "Episodes"],
+      "parentSelectors": ["Program", "EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
     },
     {
-      "id": "Ep_Rating",
+      "id": "Rating",
       "type": "SelectorText",
       "selector": "span.programme-metadata__classification",
-      "parentSelectors": ["EpiURL", "Episodes"],
+      "parentSelectors": ["Program", "EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
     },
     {
-      "id": "Ep_Description",
+      "id": "Description",
       "type": "SelectorText",
       "selector": "p.program-item__program-description",
-      "parentSelectors": ["EpiURL", "Episodes"],
+      "parentSelectors": ["Program", "EpiURL", "Episodes"],
       "multiple": false,
       "regex": "",
       "delay": ""
