@@ -1,5 +1,5 @@
 {
-  "_id": "programs_short-a3",
+  "_id": "programs_short-a4",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
@@ -60,7 +60,7 @@
       "delay": ""
     },
     {
-      "id": "PgmTitle",
+      "id": "Program_Title",
       "type": "SelectorText",
       "selector": "h3.program-item__program-title",
       "parentSelectors": ["Program"],
@@ -96,7 +96,7 @@
       "delay": ""
     },
     {
-      "id": "Sh_Ssns",
+      "id": "Seasons",
       "type": "SelectorText",
       "selector": "span.programme-season-metadata__count",
       "parentSelectors": ["Program"],
@@ -105,7 +105,7 @@
       "delay": ""
     },
     {
-      "id": "Sh_Yrs",
+      "id": "Years",
       "type": "SelectorText",
       "selector": "span.programme-season-metadata__year",
       "parentSelectors": ["Program"],
@@ -114,7 +114,7 @@
       "delay": ""
     },
     {
-      "id": "Title",
+      "id": "Episode_Title",
       "type": "SelectorText",
       "selector": "p.program-item__program-subtitle",
       "parentSelectors": ["Program", "EpiURL", "Episodes"],
@@ -132,7 +132,7 @@
       "delay": ""
     },
     {
-      "id": "Len",
+      "id": "Duration",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
       "parentSelectors": ["Program", "EpiURL", "Episodes"],
