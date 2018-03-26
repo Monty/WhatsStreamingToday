@@ -1,5 +1,5 @@
 {
-  "_id": "programs_short-a2",
+  "_id": "programs_short-a3",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
@@ -51,28 +51,10 @@
       "delay": ""
     },
     {
-      "id": "Mv_URL",
+      "id": "URL",
       "type": "SelectorElementAttribute",
-      "selector": "a[href*='/us/movie/'].program-item__block",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "extractAttribute": "href",
-      "delay": ""
-    },
-    {
-      "id": "Sh_URL",
-      "type": "SelectorElementAttribute",
-      "selector": "a[href*='/us/show/'].program-item__block",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "extractAttribute": "href",
-      "delay": ""
-    },
-    {
-      "id": "Ep_URL",
-      "type": "SelectorElementAttribute",
-      "selector": "a[href*='/us/episode/'].program-item__block",
-      "parentSelectors": ["Episodes"],
+      "selector": "a[href*='/us/'].program-item__block",
+      "parentSelectors": ["Program", "Episodes"],
       "multiple": false,
       "extractAttribute": "href",
       "delay": ""
