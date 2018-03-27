@@ -1,5 +1,5 @@
 {
-  "_id": "test_shows",
+  "_id": "test_shows-2",
   "startUrl": [
     "https://www.britbox.com/us/show/_The_Queens_Christmas_Message_15091",
     "https://www.britbox.com/us/show/A_Bit_of_Fry_and_Laurie_6393",
@@ -29,14 +29,14 @@
     {
       "id": "URL",
       "type": "SelectorElementAttribute",
-      "selector": "a.program-item__block",
+      "selector": "a[href*='/us/'].program-item__block",
       "parentSelectors": ["Program"],
       "multiple": false,
       "extractAttribute": "href",
       "delay": ""
     },
     {
-      "id": "Title",
+      "id": "Program_Title",
       "type": "SelectorText",
       "selector": "h3.program-item__program-title",
       "parentSelectors": ["Program"],
@@ -45,18 +45,9 @@
       "delay": ""
     },
     {
-      "id": "Subtitle",
+      "id": "Episode_Title",
       "type": "SelectorText",
       "selector": "p.program-item__program-subtitle",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "Duration",
-      "type": "SelectorText",
-      "selector": "span.programme-metadata__duration",
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
@@ -66,6 +57,15 @@
       "id": "Year",
       "type": "SelectorText",
       "selector": "span.programme-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Duration",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__duration",
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
