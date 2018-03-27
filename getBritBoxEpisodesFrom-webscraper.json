@@ -1,6 +1,8 @@
 {
-  "_id": "test_shows-2",
+  "_id": "single_season+movie",
   "startUrl": [
+    "https://www.britbox.com/us/movie/70_Glorious_Years_13550",
+    "https://www.britbox.com/us/movie/A_Christmas_Carol_15128",
     "https://www.britbox.com/us/show/_The_Queens_Christmas_Message_15091",
     "https://www.britbox.com/us/show/A_Bit_of_Fry_and_Laurie_6393",
     "https://www.britbox.com/us/show/A_History_of_Ancient_Britain_6385",
@@ -13,7 +15,7 @@
     {
       "id": "Carousel",
       "type": "SelectorElement",
-      "selector": "div.episodes-carousel",
+      "selector": "div.carousel__content",
       "parentSelectors": ["_root"],
       "multiple": false,
       "delay": ""
