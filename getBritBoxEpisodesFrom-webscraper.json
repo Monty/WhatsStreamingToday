@@ -1,22 +1,20 @@
 {
   "_id": "single-multi_season-movie",
-  "startUrl": [
-    "https://www.britbox.com/us/movie/70_Glorious_Years_13550",
-    "https://www.britbox.com/us/movie/A_Christmas_Carol_15128",
-    "https://www.britbox.com/us/show/_The_Queens_Christmas_Message_15091",
-    "https://www.britbox.com/us/show/A_Bit_of_Fry_and_Laurie_6393",
-    "https://www.britbox.com/us/show/A_History_of_Ancient_Britain_6385",
-    "https://www.britbox.com/us/show/New_Blood_9275",
-    "https://www.britbox.com/us/show/The_Jury_9565",
-    "https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810",
-    "https://www.britbox.com/us/show/Vera_13500"
-  ],
+  "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
+      {
+      "id": "PgmURL",
+      "type": "SelectorLink",
+      "selector": "div.program-item a[href*='/us/'].program-item__block",
+      "parentSelectors": ["_root"],
+      "multiple": true,
+      "delay": "8000"
+    },
     {
       "id": "SsnURL",
       "type": "SelectorLink",
       "selector": "a[href*='/us/season/'].brand-season-item",
-      "parentSelectors": ["_root"],
+      "parentSelectors": ["PgmURL"],
       "multiple": true,
       "delay": ""
     },
@@ -32,7 +30,7 @@
       "id": "EpiCarousel",
       "type": "SelectorElement",
       "selector": "div.carousel__content",
-      "parentSelectors": ["_root"],
+      "parentSelectors": ["PgmURL"],
       "multiple": false,
       "delay": ""
     },
