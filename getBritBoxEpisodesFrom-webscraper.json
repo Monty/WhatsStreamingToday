@@ -1,5 +1,5 @@
 {
-  "_id": "single-multi_season-movie",
+  "_id": "BritBoxEpisodes",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
       {

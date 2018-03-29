@@ -1,5 +1,5 @@
 {
-  "_id": "programs_short-a4",
+  "_id": "BritBoxPrograms",
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
@@ -11,50 +11,10 @@
       "delay": "8000"
     },
     {
-      "id": "PgmURL",
-      "type": "SelectorLink",
-      "selector": "a[href*='/us/show/'].program-item__block",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "delay": ""
-    },
-    {
-      "id": "SsnURL",
-      "type": "SelectorLink",
-      "selector": "a[href*='/us/season/'].brand-season-item",
-      "parentSelectors": ["PgmURL"],
-      "multiple": true,
-      "delay": ""
-    },
-    {
-      "id": "EpiURL",
-      "type": "SelectorLink",
-      "selector": "a[href*='/us/episode/'].program-item__block",
-      "parentSelectors": ["PgmURL"],
-      "multiple": true,
-      "delay": ""
-    },
-    {
-      "id": "Carousel",
-      "type": "SelectorElement",
-      "selector": "div.episodes-carousel",
-      "parentSelectors": ["SsnURL"],
-      "multiple": false,
-      "delay": ""
-    },
-    {
-      "id": "Episodes",
-      "type": "SelectorElement",
-      "selector": "div.program-item",
-      "parentSelectors": ["Carousel"],
-      "multiple": true,
-      "delay": ""
-    },
-    {
       "id": "URL",
       "type": "SelectorElementAttribute",
       "selector": "a[href*='/us/'].program-item__block",
-      "parentSelectors": ["Program", "Episodes"],
+      "parentSelectors": ["Program"],
       "multiple": false,
       "extractAttribute": "href",
       "delay": ""
@@ -69,28 +29,10 @@
       "delay": ""
     },
     {
-      "id": "Sn_Title",
+      "id": "Sn_Years",
       "type": "SelectorText",
-      "selector": "h2.program-item__program-title",
-      "parentSelectors": ["SsnURL"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "Sn_Epis",
-      "type": "SelectorText",
-      "selector": "p.season-metadata",
-      "parentSelectors": ["SsnURL"],
-      "multiple": false,
-      "regex": "\\d+ Episodes?",
-      "delay": ""
-    },
-    {
-      "id": "Sn_Description",
-      "type": "SelectorText",
-      "selector": "p.brand-hero-info__description",
-      "parentSelectors": ["SsnURL"],
+      "selector": ".programme-season-metadata__year",
+      "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -98,35 +40,17 @@
     {
       "id": "Seasons",
       "type": "SelectorText",
-      "selector": "span.programme-season-metadata__count",
+      "selector": ".programme-season-metadata__count",
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "\\d+ Seasons?",
       "delay": ""
     },
     {
-      "id": "Years",
-      "type": "SelectorText",
-      "selector": "span.programme-season-metadata__year",
-      "parentSelectors": ["Program"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "Episode_Title",
-      "type": "SelectorText",
-      "selector": "p.program-item__program-subtitle",
-      "parentSelectors": ["Program", "EpiURL", "Episodes"],
-      "multiple": false,
-      "regex": "",
-      "delay": ""
-    },
-    {
-      "id": "Year",
+      "id": "Mv_Year",
       "type": "SelectorText",
       "selector": "span.programme-metadata__year",
-      "parentSelectors": ["Program", "EpiURL", "Episodes"],
+      "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -135,7 +59,7 @@
       "id": "Duration",
       "type": "SelectorText",
       "selector": "span.programme-metadata__duration",
-      "parentSelectors": ["Program", "EpiURL", "Episodes"],
+      "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -144,7 +68,7 @@
       "id": "Rating",
       "type": "SelectorText",
       "selector": "span.programme-metadata__classification",
-      "parentSelectors": ["Program", "EpiURL", "Episodes"],
+      "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -153,7 +77,7 @@
       "id": "Description",
       "type": "SelectorText",
       "selector": "p.program-item__program-description",
-      "parentSelectors": ["Program", "EpiURL", "Episodes"],
+      "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
       "delay": ""
