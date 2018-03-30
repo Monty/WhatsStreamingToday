@@ -76,7 +76,7 @@
       "clickElementUniquenessType": "uniqueText"
     },
     {
-      "id": "More_Descriptiom",
+      "id": "More_Description",
       "type": "SelectorText",
       "selector": "p.item-details-modal__description",
       "parentSelectors": ["Read_More"],
