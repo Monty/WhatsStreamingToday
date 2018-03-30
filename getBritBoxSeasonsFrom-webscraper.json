@@ -62,6 +62,27 @@
       "multiple": false,
       "regex": "",
       "delay": ""
+    },
+    {
+      "id": "Read_More",
+      "type": "SelectorElementClick",
+      "selector": "div.item-details-overlay",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "delay": "3000",
+      "clickElementSelector": "span.brand-hero-info__read-more",
+      "clickType": "clickMore",
+      "discardInitialElements": false,
+      "clickElementUniquenessType": "uniqueText"
+    },
+    {
+      "id": "More_Descriptiom",
+      "type": "SelectorText",
+      "selector": "p.item-details-modal__description",
+      "parentSelectors": ["Read_More"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
     }
   ]
 }
