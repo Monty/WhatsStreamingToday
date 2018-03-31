@@ -69,7 +69,7 @@
       "selector": "div.item-details-overlay",
       "parentSelectors": ["SsnURL"],
       "multiple": false,
-      "delay": "3000",
+      "delay": "1000",
       "clickElementSelector": "span.brand-hero-info__read-more",
       "clickType": "clickMore",
       "discardInitialElements": false,
