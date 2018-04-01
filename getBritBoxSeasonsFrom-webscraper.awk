@@ -1,4 +1,4 @@
-# Print only the valid "Seasons" lines from a WebScraper csv file saved in tsv format
+# Print the processed "Season" lines from a WebScraper csv file saved in tsv format
 
 # Field numbers
 #    1 web-scraper-order  2 web-scraper-start-url  3 PgmURL            4 PgmURL-href       5 SsnURL
@@ -7,7 +7,7 @@
 
 BEGIN {
     FS="\t"
-    print "Sortkey\tURL\tYears\tEpisodes\tDescription"
+    print "Sortkey\tURL\tYear(s)\tEpisodes\tDescription"
 }
 
 # Only print the preceding line if the current line has a different Program_Title
@@ -29,11 +29,14 @@ NR > 1 {
     showTitle = $9
     $10 == "" ? seasonTitle = "Season 1" : seasonTitle = $10
     Years = $11
-    Episodes = $12
-    $14 != "" ? Description = $14 : Description = $13
+    NumEpisodes = $12
+    $14 == "" ? Description = $13 : Description = $14
+
+    sub (/ Episodes?/,"",NumEpisodes)
+
     savedLine = sprintf \
         ("%s - %s\t=HYPERLINK(\"%s\";\"%s, %s\"\)\t%s\t%s\t%s",\
-         showTitle, sortkey, URL, showTitle, seasonTitle, Years, Episodes, Description)
+         showTitle, sortkey, URL, showTitle, seasonTitle, Years, NumEpisodes, Description)
 
     next
 }

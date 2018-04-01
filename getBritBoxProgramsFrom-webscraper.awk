@@ -1,15 +1,12 @@
+# Print processed "Program" lines from a WebScraper csv file saved in tsv format
+
+# Field numbers
+#    1 web-scraper-order  2 web-scraper-start-url  3 URL        4 Program_Title   5 Sn_Years
+#    6 Seasons            7  Mv_Year               8  Duration  9  Rating        10  Description
+
 BEGIN {
     FS="\t"
-    print "Sortkey\tTitle\tSeasons\tDuration\tYear\tRating\tDescription"
-}
-
-# if needed for debugging record placment, replace "/nosuchrecord/" below
-/nosuchrecord/ {
-    print ""
-    print NR " - " $0
-    for ( i = 1; i <= NF; i++ ) {
-        print "field " i " = " $i
-    }
+    print "Sortkey\tTitle\tSeasons\tDuration\tYear(s)\tRating\tDescription"
 }
 
 {
@@ -22,11 +19,11 @@ BEGIN {
 /\/us\/movie\/|\/us\/show\//{
     URL = $3
     showTitle = $4
-    Year = $5
+    $7  == "" ? Year = $5 : Year = $7
     NumSeasons = $6
-    Duration = $7
-    Rating = $8
-    Description = $9
+    Duration = $8
+    Rating = $9
+    Description = $10
 
     sub (/ Seasons?/,"",NumSeasons)
     sub( / min/,"",Duration)
@@ -44,9 +41,7 @@ BEGIN {
         showTitle = substr(showTitle, 5) ", The"
 
     # Indicate different types of programs
-    showtype = "S"
-    if (URL ~ /^\/us\/movie\//)
-        showtype = "M"
+    URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "S"
 
     # Extract sortkey from URL
     nflds = split (URL,fld,"_")
