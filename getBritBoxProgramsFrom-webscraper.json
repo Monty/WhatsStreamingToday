@@ -31,7 +31,7 @@
     {
       "id": "Sn_Years",
       "type": "SelectorText",
-      "selector": ".programme-season-metadata__year",
+      "selector": "span.programme-season-metadata__year",
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "",
@@ -40,7 +40,7 @@
     {
       "id": "Seasons",
       "type": "SelectorText",
-      "selector": ".programme-season-metadata__count",
+      "selector": "span.programme-season-metadata__count",
       "parentSelectors": ["Program"],
       "multiple": false,
       "regex": "\\d+ Seasons?",
