@@ -19,10 +19,18 @@
       "delay": ""
     },
     {
+      "id": "EpiURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/episode/']",
+      "parentSelectors": ["PgmURL"],
+      "multiple": false,
+      "delay": 0
+    },
+    {
       "id": "Program_Title",
       "type": "SelectorText",
-      "selector": "h3.program-item__program-title",
-      "parentSelectors": ["PgmURL"],
+      "selector": "h1.brand-hero-info__title",
+      "parentSelectors": ["SsnURL", "EpiURL"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -58,7 +66,7 @@
       "id": "Sn_Description",
       "type": "SelectorText",
       "selector": "p.brand-hero-info__description",
-      "parentSelectors": ["SsnURL"],
+      "parentSelectors": ["SsnURL", "EpiURL"],
       "multiple": false,
       "regex": "",
       "delay": ""
@@ -67,9 +75,9 @@
       "id": "Read_More",
       "type": "SelectorElementClick",
       "selector": "div.item-details-overlay",
-      "parentSelectors": ["SsnURL"],
+      "parentSelectors": ["SsnURL", "EpiURL"],
       "multiple": false,
-      "delay": "1000",
+      "delay": "3000",
       "clickElementSelector": "span.brand-hero-info__read-more",
       "clickType": "clickMore",
       "discardInitialElements": false,
