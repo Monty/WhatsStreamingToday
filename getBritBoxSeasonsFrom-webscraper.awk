@@ -7,25 +7,37 @@
 
 BEGIN {
     FS="\t"
+    print "Sortkey\tURL\tYears\tEpisodes\tDescription"
 }
 
-# Only print the preceding line if the current line has a new Program_Title
+# Only print the preceding line if the current line has a different Program_Title
 # or the preceding line had a non-blank SsnURL-href 
 NR > 1 {
-    SsnURL_href =$6
-    Program_Title = $9
-    if (Program_Title != oldProgram_Title || oldSsnURL_href != "")
-        print oldline
+    if (oldProgram_Title != $9 || oldSsnURL_href != "")
+        print savedLine
 }
 
-# Always save the current line so it can be printed after chaecking the following line
+# Save fields from the current line so they can be printed after checking the following line
 {
-    oldline = $0
+    # Raw fields for comparison
     oldSsnURL_href = $6
     oldProgram_Title = $9
+
+    # Fields to print from current line
+    sortkey = NR
+    $6  == "" ? URL = $4 : URL = $6
+    showTitle = $9
+    $10 == "" ? seasonTitle = "Season 1" : seasonTitle = $10
+    Years = $11
+    Episodes = $12
+    $14 != "" ? Description = $14 : Description = $13
+    savedLine = sprintf \
+        ("%s - %s\t=HYPERLINK(\"%s\";\"%s, %s\"\)\t%s\t%s\t%s",\
+         showTitle, sortkey, URL, showTitle, seasonTitle, Years, Episodes, Description)
+
     next
 }
 
 END {
-    print NR-1 " - "oldline
+    print savedLine
 }
