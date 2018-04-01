@@ -53,6 +53,12 @@ mkdir -p $COLUMNS $BASELINE
 # in one day will only generate one set of results
 URL_FILE="$COLUMNS/urls-$DATE.csv"
 PUBLISHED_URLS="$BASELINE/urls.txt"
+PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BritBoxPrograms-$DATE.csv"
+SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
+EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
+PROGRAMS_FILE="$COLUMNS/BritBoxPrograms.csv"
+SEASONS_FILE="$COLUMNS/BritBoxSeasons.csv"
+EPISODES_FILE="$COLUMNS/BritBoxEpisodes.csv"
 MARQUEE_FILE="$COLUMNS/marquees-$DATE.csv"
 PUBLISHED_MARQUEES="$BASELINE/marquees.txt"
 TITLE_FILE="$COLUMNS/titles-$DATE.csv"
@@ -89,15 +95,13 @@ ERROR_FILE="BritBox_stderr-$LONGDATE.txt"
 
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEASONS_FILE \
     $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE \
-    $EPISODE_INFO_FILE
+    $EPISODE_INFO_FILE $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
-# Output header
-printf "#\tSort Key\tTitle\tEpisodes\tDuration\tYear\tRating\tDescription\n" \
-    >$SPREADSHEET_FILE
-
-# Generate series URLs, Titles, Number of Seasons from BritBox "Programmes A-Z" page
-scrapy runspider getBritBoxSeasons-scrapy_xml.py -t xml 2>$ERROR_FILE -o- |
-    awk -f getBritBoxFrom-scrapy_xml.awk | sort -df | awk '{print NR"\t"$0}' >>$SPREADSHEET_FILE
+# Generate spreadsheets from BritBox "Programmes A-Z" page
+csvformat -T $PROGRAMS_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
+    awk -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
+csvformat -T $SEASONS_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
+    awk -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
 
 exit
 
