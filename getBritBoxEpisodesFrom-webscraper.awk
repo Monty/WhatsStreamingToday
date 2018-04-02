@@ -19,7 +19,6 @@ BEGIN {
 }
 
 /\/us\/episode\// {
-    sortkey = NR
     URL = $7
     showTitle = $8
     episodeTitle = $9
@@ -27,6 +26,17 @@ BEGIN {
     Duration = $11
     Rating = $12
     Description = $13
+
+    # Extract sortkey from URL
+    URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "S"
+    nflds = split (URL,fld,"_")
+    if (URL ~ /_S[[:digit:]]_E[[:digit:]]_[[:digit:]]*$/) {
+        seasonNumber = substr(fld[nflds-2], 2)
+        episodeNumber = substr(fld[nflds-1], 2)
+        sortkey = sprintf ("S%02dE%02d", seasonNumber, episodeNumber)
+    } else {
+        sortkey = sprintf ("E%05d", fld[nflds])
+    }
 
     sub( / min/,"",Duration)
 
@@ -43,6 +53,6 @@ BEGIN {
         showTitle = substr(showTitle, 5) ", The"
 
     printf \
-        ("%s - %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s\"\)\t\t%s\t%s\t%s\t%s\n",\
-         showTitle, sortkey, URL, showTitle, episodeTitle, HMS, Years, Rating, Description)
+        ("%s - %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t%s\t%s\t%s\t%s\n",\
+         showTitle, sortkey, URL, showTitle, sortkey, episodeTitle, HMS, Years, Rating, Description)
 }

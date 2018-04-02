@@ -24,7 +24,6 @@ NR > 1 {
     oldProgram_Title = $9
 
     # Fields to print from current line
-    sortkey = NR
     $6  == "" ? URL = $4 : URL = $6
     showTitle = $9
     $10 == "" ? seasonTitle = "Season 1" : seasonTitle = $10
@@ -32,11 +31,25 @@ NR > 1 {
     NumEpisodes = $12
     $14 == "" ? Description = $13 : Description = $14
 
+    # Titles starting with "The" should not sort based on "The"
+    if (match (showTitle, /^The /))
+        showTitle = substr(showTitle, 5) ", The"
+
+
+    # Extract sortkey from URL
+    nflds = split (URL,fld,"_")
+    if (URL ~ /_S[[:digit:]]_[[:digit:]]*$/) {
+        seasonNumber = substr(fld[nflds-1], 2)
+        sortkey = sprintf ("S%02d", seasonNumber)
+    } else {
+        sortkey = sprintf ("S%05d", fld[nflds])
+    }
+
     sub (/ Episodes?/,"",NumEpisodes)
 
     savedLine = sprintf \
-        ("%s - %s\t=HYPERLINK(\"%s\";\"%s, %s\"\)\t%s\t%s\t%s",\
-         showTitle, sortkey, URL, showTitle, seasonTitle, Years, NumEpisodes, Description)
+        ("%s - %s\t=HYPERLINK(\"%s\";\"%s, %s, %s\"\)\t%s\t%s\t%s",\
+         showTitle, sortkey, URL, showTitle, sortkey, seasonTitle, Years, NumEpisodes, Description)
 
     next
 }
