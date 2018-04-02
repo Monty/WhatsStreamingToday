@@ -7,7 +7,7 @@
 
 BEGIN {
     FS="\t"
-    print "Sortkey\tURL\tYear(s)\tEpisodes\tDescription"
+    print "Sortkey\tTitle\tYear(s)\tEpisodes\tDescription"
 }
 
 # Only print the preceding line if the current line has a different Program_Title

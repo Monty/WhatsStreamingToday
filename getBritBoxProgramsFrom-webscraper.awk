@@ -16,7 +16,7 @@ BEGIN {
     }
 }
 
-/\/us\/movie\/|\/us\/show\//{
+/\/us\/movie\/|\/us\/show\// {
     URL = $3
     showTitle = $4
     $7  == "" ? Year = $5 : Year = $7

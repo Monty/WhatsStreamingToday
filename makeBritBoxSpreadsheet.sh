@@ -102,6 +102,8 @@ csvformat -T $PROGRAMS_FILE | grep "^1" | sort -df --field-separator=$'\t' --key
     awk -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
 csvformat -T $SEASONS_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
     awk -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
+csvformat -T $EPISODES_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
+    awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
 
 exit
 
