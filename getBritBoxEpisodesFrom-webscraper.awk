@@ -8,7 +8,7 @@
 
 BEGIN {
     FS="\t"
-    print "Sortkey\tTitle\t\tDuration\tYear(s)\tRating\tDescription"
+    print "Sortkey\tTitle\tSeasons\tDuration\tYear(s)\tRating\tDescription"
 }
 
 {
