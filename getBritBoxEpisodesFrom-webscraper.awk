@@ -53,6 +53,6 @@ BEGIN {
         showTitle = substr(showTitle, 5) ", The"
 
     printf \
-        ("%s - %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t%s\t%s\t%s\t%s\n",\
+        ("%s (2) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t%s\t%s\t%s\t%s\n",\
          showTitle, sortkey, URL, showTitle, sortkey, episodeTitle, HMS, Years, Rating, Description)
 }

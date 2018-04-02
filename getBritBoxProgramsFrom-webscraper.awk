@@ -48,7 +48,7 @@ BEGIN {
     if (URL ~ /_[[:digit:]]*$/) {
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
         printf \
-            ("%s - %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\n",\
+            ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\n",\
              showTitle, sortkey, URL, showTitle, NumSeasons, HMS, Year, Rating, Description)
     }
 }

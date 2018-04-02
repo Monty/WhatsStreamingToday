@@ -70,9 +70,11 @@ PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 if [ "$INCLUDE_EPISODES" = "yes" ]; then
     SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+    file2="$EPISODES_SPREADSHEET_FILE"
 else
     SPREADSHEET_FILE="BritBox_TV_Shows-$DATE.csv"
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+    file2=""
 fi
 #
 # Name diffs and errors with both date and time so every run produces a new result
@@ -89,6 +91,9 @@ csvformat -T $SEASONS_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=
     awk -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
 csvformat -T $EPISODES_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
     awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
+
+head -1 $PROGRAMS_SPREADSHEET_FILE > $SPREADSHEET_FILE
+grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -df >> $SPREADSHEET_FILE
 
 exit
 
