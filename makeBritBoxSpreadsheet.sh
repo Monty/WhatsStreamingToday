@@ -85,15 +85,18 @@ rm -f $DESCRIPTION_FILE $DURATION_FILE $HEADER_FILE $EPISODE_INFO_FILE \
     $SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
 # Generate spreadsheets from BritBox "Programmes A-Z" page
-csvformat -T $PROGRAMS_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
+awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
+    csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
     awk -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
-csvformat -T $SEASONS_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
+awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE |
+    csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
     awk -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
-csvformat -T $EPISODES_FILE | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
+awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
+    csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
     awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
 
-head -1 $PROGRAMS_SPREADSHEET_FILE > $SPREADSHEET_FILE
-grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >> $SPREADSHEET_FILE
+head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
+grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FILE
 
 exit
 
