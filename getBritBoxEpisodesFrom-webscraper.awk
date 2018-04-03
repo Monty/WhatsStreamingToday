@@ -28,9 +28,8 @@ BEGIN {
     Description = $13
 
     # Extract sortkey from URL
-    URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "S"
     nflds = split (URL,fld,"_")
-    if (URL ~ /_S[[:digit:]]_E[[:digit:]]_[[:digit:]]*$/) {
+    if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
         seasonNumber = substr(fld[nflds-2], 2)
         episodeNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("S%02dE%02d", seasonNumber, episodeNumber)
