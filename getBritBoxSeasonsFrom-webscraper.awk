@@ -38,7 +38,7 @@ NR > 1 {
 
     # Extract sortkey from URL
     nflds = split (URL,fld,"_")
-    if (URL ~ /_S[[:digit:]]_[[:digit:]]*$/) {
+    if (URL ~ /_S[[:digit:]]*_[[:digit:]]*$/) {
         seasonNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("S%02d", seasonNumber)
     } else {
