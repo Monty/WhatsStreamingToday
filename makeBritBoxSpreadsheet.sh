@@ -93,7 +93,7 @@ csvformat -T $EPISODES_FILE | grep "^1" | sort -df --field-separator=$'\t' --key
     awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
 
 head -1 $PROGRAMS_SPREADSHEET_FILE > $SPREADSHEET_FILE
-grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -df >> $SPREADSHEET_FILE
+grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >> $SPREADSHEET_FILE
 
 exit
 
