@@ -3,12 +3,20 @@
   "startUrl": ["https://www.britbox.com/us/programmes"],
   "selectors": [
     {
-      "id": "PgmURL",
-      "type": "SelectorLink",
-      "selector": "div.program-item a[href*='/us/show/'].program-item__block",
+      "id": "Pgm",
+      "type": "SelectorElementScroll",
+      "selector": "div.program-item",
       "parentSelectors": ["_root"],
       "multiple": true,
       "delay": "8000"
+    },
+    {
+      "id": "PgmURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/show/'].program-item__block",
+      "parentSelectors": ["Pgm"],
+      "multiple": false,
+      "delay": "0"
     },
     {
       "id": "SsnURL",

@@ -4,7 +4,7 @@
   "selectors": [
     {
       "id": "Program",
-      "type": "SelectorElement",
+      "type": "SelectorElementScroll",
       "selector": "div.program-item",
       "parentSelectors": ["_root"],
       "multiple": true,
