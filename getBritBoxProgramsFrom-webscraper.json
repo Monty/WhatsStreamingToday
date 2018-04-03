@@ -6,6 +6,7 @@
       "id": "Program",
       "type": "SelectorElementScroll",
       "selector": "div.program-item",
+      "scrollElementSelector": "html",
       "parentSelectors": ["_root"],
       "multiple": true,
       "delay": "8000"
