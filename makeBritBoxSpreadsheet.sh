@@ -102,6 +102,16 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FIL
 head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE_SORTED
 grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SPREADSHEET_FILE_SORTED
 
+# Output footer
+((lastRow = $(sed -n '$=' $SPREADSHEET_FILE)))
+if [ "$PRINT_TOTALS" = "yes" ]; then
+    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
+    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
+    printf "$TOTAL\n" >>$SPREADSHEET_FILE
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" \
+        >>$SPREADSHEET_FILE
+fi
+
 exit
 
 # Print header for possible errors from processing series
@@ -145,17 +155,6 @@ else
         $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
         sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
-#
-# Output footer
-if [ "$PRINT_TOTALS" = "yes" ]; then
-    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
-    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
-    TOTAL+="\t=COUNTA(I2:I$lastRow)\t=COUNTA(J2:J$lastRow)"
-    printf "$TOTAL\n" >>$SPREADSHEET_FILE
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime\n" \
-        >>$SPREADSHEET_FILE
-fi
-
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     exit
