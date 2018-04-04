@@ -88,7 +88,7 @@ rm -f $DESCRIPTION_FILE $DURATION_FILE $HEADER_FILE $EPISODE_INFO_FILE \
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
     awk -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
-awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE |
+grep -v '"null","","","",' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
     awk -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
 awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
