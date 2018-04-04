@@ -53,7 +53,7 @@ mkdir -p $COLUMNS $BASELINE
 # in one day will only generate one set of results
 PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BritBoxPrograms-$DATE.csv"
 SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
-SEASONS_SPREADSHEET_FILE_SORTED="$COLUMNS/BritBoxSeasons-sorted-$DATE.csv"
+SEASONS_SPREADSHEET_FILE_SORTED="BritBoxSeasons-sorted-$DATE.csv"
 EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
 PROGRAMS_FILE="$COLUMNS/BritBoxPrograms.csv"
 SEASONS_FILE="$COLUMNS/BritBoxSeasons.csv"
