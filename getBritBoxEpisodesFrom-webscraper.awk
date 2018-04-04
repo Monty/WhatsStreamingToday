@@ -8,7 +8,7 @@
 
 BEGIN {
     FS="\t"
-    print "Sortkey\tTitle\tSeasons\tDuration\tYear(s)\tRating\tDescription"
+    print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
 }
 
 {
@@ -52,7 +52,7 @@ BEGIN {
         showTitle = substr(showTitle, 5) ", The"
 
     savedLine = sprintf \
-        ("%s (2) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t%s\t%s\t%s\t%s",\
+        ("%s (2) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t\t%s\t%s\t%s\t%s",\
          showTitle, Years, sortkey, URL, showTitle, sortkey, episodeTitle, HMS, Years, \
          Rating, Description)
 

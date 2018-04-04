@@ -6,7 +6,7 @@
 
 BEGIN {
     FS="\t"
-    print "Sortkey\tTitle\tSeasons\tDuration\tYear(s)\tRating\tDescription"
+    print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
 }
 
 {
@@ -48,7 +48,7 @@ BEGIN {
     if (URL ~ /_[[:digit:]]*$/) {
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
         savedLine = sprintf \
-            ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s",\
+            ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t\t%s\t%s\t%s\t%s",\
              showTitle, sortkey, URL, showTitle, NumSeasons, HMS, Year, Rating, Description)
 
         # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
