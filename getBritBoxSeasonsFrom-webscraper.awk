@@ -48,8 +48,9 @@ NR > 1 {
     sub (/ Episodes?/,"",NumEpisodes)
 
     savedLine = sprintf \
-        ("%s - %s\t=HYPERLINK(\"%s\";\"%s, %s, %s\"\)\t%s\t%s\t%s",\
-         showTitle, sortkey, URL, showTitle, sortkey, seasonTitle, Years, NumEpisodes, Description)
+        ("%s - %s %s\t=HYPERLINK(\"%s\";\"%s, %s, %s\"\)\t%s\t%s\t%s",\
+         showTitle, Years, sortkey, URL, showTitle, sortkey, seasonTitle, Years,\
+         NumEpisodes, Description)
 
     # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
     sub (/^'/,"",savedLine)
