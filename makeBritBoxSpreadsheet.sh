@@ -53,6 +53,7 @@ mkdir -p $COLUMNS $BASELINE
 # in one day will only generate one set of results
 PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BritBoxPrograms-$DATE.csv"
 SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
+SEASONS_SPREADSHEET_FILE_SORTED="$COLUMNS/BritBoxSeasons-sorted-$DATE.csv"
 EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
 PROGRAMS_FILE="$COLUMNS/BritBoxPrograms.csv"
 SEASONS_FILE="$COLUMNS/BritBoxSeasons.csv"
@@ -97,6 +98,9 @@ awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
 
 head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
 grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FILE
+
+head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE_SORTED
+grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SPREADSHEET_FILE_SORTED
 
 exit
 
