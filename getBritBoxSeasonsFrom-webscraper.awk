@@ -26,7 +26,7 @@ NR > 1 {
     # Fields to print from current line
     $6  == "" ? URL = $4 : URL = $6
     showTitle = $9
-    $10 == "" ? seasonTitle = "Season 1" : seasonTitle = $10
+    $10 == "" ? seasonTitle = "(Only season)" : seasonTitle = $10
     Years = $11
     NumEpisodes = $12
     $14 == "" ? Description = $13 : Description = $14
