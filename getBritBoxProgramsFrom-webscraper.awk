@@ -47,8 +47,13 @@ BEGIN {
     nflds = split (URL,fld,"_")
     if (URL ~ /_[[:digit:]]*$/) {
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
-        printf \
-            ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\n",\
+        savedLine = sprintf \
+            ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s",\
              showTitle, sortkey, URL, showTitle, NumSeasons, HMS, Year, Rating, Description)
+
+        # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
+        sub (/^'/,"",savedLine)
+
+        print savedLine
     }
 }

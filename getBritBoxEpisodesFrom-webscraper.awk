@@ -51,8 +51,13 @@ BEGIN {
     if (match (showTitle, /^The /))
         showTitle = substr(showTitle, 5) ", The"
 
-    printf \
-        ("%s (2) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t%s\t%s\t%s\t%s\n",\
+    savedLine = sprintf \
+        ("%s (2) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t%s\t%s\t%s\t%s",\
          showTitle, Years, sortkey, URL, showTitle, sortkey, episodeTitle, HMS, Years, \
          Rating, Description)
+
+    # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
+    sub (/^'/,"",savedLine)
+
+    print savedLine
 }

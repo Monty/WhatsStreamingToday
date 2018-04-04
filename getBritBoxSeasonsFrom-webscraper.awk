@@ -51,7 +51,8 @@ NR > 1 {
         ("%s - %s\t=HYPERLINK(\"%s\";\"%s, %s, %s\"\)\t%s\t%s\t%s",\
          showTitle, sortkey, URL, showTitle, sortkey, seasonTitle, Years, NumEpisodes, Description)
 
-    next
+    # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
+    sub (/^'/,"",savedLine)
 }
 
 END {
