@@ -71,21 +71,19 @@ PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 if [ "$INCLUDE_EPISODES" = "yes" ]; then
     SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
-    file2="$EPISODES_SPREADSHEET_FILE"
 else
     SPREADSHEET_FILE="BritBox_TV_Shows-$DATE.csv"
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
-    file2=""
 fi
 #
 # Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
-ERROR_FILE="BritBox_stderr-$LONGDATE.txt"
+ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
 
 rm -f $DESCRIPTION_FILE $DURATION_FILE $HEADER_FILE $EPISODE_INFO_FILE \
     $SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
-# Generate spreadsheets from BritBox "Programmes A-Z" page
+# Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
     awk -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
@@ -96,29 +94,18 @@ awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
     awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
 
-head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
-grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FILE
-
-head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE_SORTED
-grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SPREADSHEET_FILE_SORTED
-
-# Output footer
-((lastRow = $(sed -n '$=' $SPREADSHEET_FILE)))
-if [ "$PRINT_TOTALS" = "yes" ]; then
-    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
-    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
-    printf "$TOTAL\n" >>$SPREADSHEET_FILE
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" \
-        >>$SPREADSHEET_FILE
-fi
-
-exit
-
 # Print header for possible errors from processing series
 printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
-
-# Total the duration of all episodes in every series
-totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
+#
+printf "==>Number of Movies\n" >>$ERROR_FILE
+grep -H -c /us/movie/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
+    $EPISODES_SPREADSHEET_FILE >>$ERROR_FILE
+printf "\n==>Number of Shows\n" >>$ERROR_FILE
+grep -H -c /us/show/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
+    $EPISODES_SPREADSHEET_FILE >>$ERROR_FILE
+printf "\n==>Number of Episodes\n" >>$ERROR_FILE
+grep -H -c /us//episode/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
+    $EPISODES_SPREADSHEET_FILE >>$ERROR_FILE
 
 #
 # Output body
@@ -136,25 +123,39 @@ if [ "$INCLUDE_EPISODES" = "yes" ]; then
 EOF1
 
     # pick a second file to include in the spreadsheet
-    file2=$EPISODE_INFO_FILE
-    ((lastRow += $(sed -n '$=' $file2)))
+    file2="$EPISODES_SPREADSHEET_FILE"
 else
     # null out included file
     file2=""
 fi
+
+# Generate _final_ spreadsheets from BritBox "Programmes A-Z" page
+head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
+grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FILE
 #
-if [ "$UNSORTED" = "yes" ]; then
-    # sort key 1 sorts in the order found on the web
-    # sort key 4 sorts by title
-    # both sort $file2 by season then episode (if one is provided)
-    paste $DURATION_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
-        sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
-else
-    paste $DURATION_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
-        sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
+head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE_SORTED
+grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SPREADSHEET_FILE_SORTED
+
+# totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
+
+# Total the duration of all episodes in every series
+# Output spreadsheet footer
+if [ "$PRINT_TOTALS" = "yes" ]; then
+    ((lastRow = $(sed -n '$=' $SPREADSHEET_FILE)))
+    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
+    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
+    printf "$TOTAL\n" >>$SPREADSHEET_FILE
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" \
+        >>$SPREADSHEET_FILE
 fi
+
+printf "==>Number of Movies\n" >>$ERROR_FILE
+grep -H -c /us/movie/ $SPREADSHEET_FILE >>$ERROR_FILE
+printf "\n==>Number of Shows\n" >>$ERROR_FILE
+grep -H -c /us/show/ $SPREADSHEET_FILE >>$ERROR_FILE
+printf "\n==>Number of Episodes\n" >>$ERROR_FILE
+grep -H -c /us/episode/ $SPREADSHEET_FILE >>$ERROR_FILE
+
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     exit
@@ -191,6 +192,8 @@ function checkdiffs() {
         fi
     fi
 }
+
+exit
 
 # Preserve any possible errors for debugging
 cat >>$POSSIBLE_DIFFS <<EOF
