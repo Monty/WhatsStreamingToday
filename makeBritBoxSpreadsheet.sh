@@ -71,9 +71,13 @@ PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 if [ "$INCLUDE_EPISODES" = "yes" ]; then
     SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+    # pick a second file to include in the spreadsheet
+    file2="$EPISODES_SPREADSHEET_FILE"
 else
     SPREADSHEET_FILE="BritBox_TV_Shows-$DATE.csv"
     PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
+    # null out included file
+    file2=""
 fi
 #
 # Name diffs and errors with both date and time so every run produces a new result
@@ -94,41 +98,6 @@ awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
     awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
 
-# Print header for possible errors from processing series
-printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
-#
-printf "==>Number of Movies\n" >>$ERROR_FILE
-grep -H -c /us/movie/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
-    $EPISODES_SPREADSHEET_FILE >>$ERROR_FILE
-printf "\n==>Number of Shows\n" >>$ERROR_FILE
-grep -H -c /us/show/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
-    $EPISODES_SPREADSHEET_FILE >>$ERROR_FILE
-printf "\n==>Number of Episodes\n" >>$ERROR_FILE
-grep -H -c /us//episode/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
-    $EPISODES_SPREADSHEET_FILE >>$ERROR_FILE
-
-#
-# Output body
-if [ "$INCLUDE_EPISODES" = "yes" ]; then
-    # Print  header for possible errors from processing episodes
-    # Don't delete the blank lines!
-    cat >>$ERROR_FILE <<EOF1
-
-### Possible anomalies from processing episodes are listed below.
-### At least one episode may have no description, but if there are many,
-### there could be a temporary problem with the BritBox website.
-### You can check by using your browser to visit the associated URL.
-### You should rerun the script when the problem is cleared up.
-
-EOF1
-
-    # pick a second file to include in the spreadsheet
-    file2="$EPISODES_SPREADSHEET_FILE"
-else
-    # null out included file
-    file2=""
-fi
-
 # Generate _final_ spreadsheets from BritBox "Programmes A-Z" page
 head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
 grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FILE
@@ -136,10 +105,10 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FIL
 head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE_SORTED
 grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SPREADSHEET_FILE_SORTED
 
+# Total the duration of all episodes in every series
 # totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
 
-# Total the duration of all episodes in every series
-# Output spreadsheet footer
+# Output spreadsheet footer if totals requested
 if [ "$PRINT_TOTALS" = "yes" ]; then
     ((lastRow = $(sed -n '$=' $SPREADSHEET_FILE)))
     TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
@@ -149,12 +118,19 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
         >>$SPREADSHEET_FILE
 fi
 
+#
+# Print header then possible errors from processing initial series
+printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
+#
 printf "==>Number of Movies\n" >>$ERROR_FILE
-grep -H -c /us/movie/ $SPREADSHEET_FILE >>$ERROR_FILE
+grep -H -c /us/movie/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
+    $EPISODES_SPREADSHEET_FILE $SPREADSHEET_FILE >>$ERROR_FILE
 printf "\n==>Number of Shows\n" >>$ERROR_FILE
-grep -H -c /us/show/ $SPREADSHEET_FILE >>$ERROR_FILE
+grep -H -c /us/show/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
+    $EPISODES_SPREADSHEET_FILE $SPREADSHEET_FILE >>$ERROR_FILE
 printf "\n==>Number of Episodes\n" >>$ERROR_FILE
-grep -H -c /us/episode/ $SPREADSHEET_FILE >>$ERROR_FILE
+grep -H -c /us/episode/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
+    $EPISODES_SPREADSHEET_FILE $SPREADSHEET_FILE >>$ERROR_FILE
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
@@ -194,6 +170,23 @@ function checkdiffs() {
 }
 
 exit
+
+#
+# Output body
+if [ "$INCLUDE_EPISODES" = "yes" ]; then
+    # Print  header for possible errors from processing episodes
+    # Don't delete the blank lines!
+    cat >>$ERROR_FILE <<EOF1
+
+### Possible anomalies from processing episodes are listed below.
+### At least one episode may have no description, but if there are many,
+### there could be a temporary problem with the BritBox website.
+### You can check by using your browser to visit the associated URL.
+### You should rerun the script when the problem is cleared up.
+
+EOF1
+
+fi
 
 # Preserve any possible errors for debugging
 cat >>$POSSIBLE_DIFFS <<EOF
