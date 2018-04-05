@@ -122,7 +122,7 @@ fi
 
 #
 # Print header then possible errors from processing initial series
-printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
+printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERROR_FILE
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
@@ -132,7 +132,7 @@ fi
 # Shortcut for counting occurrences of a string in all spreadsheets
 # countOccurrences string
 function countOccurrences() {
-    grep -H -c "$1" $ALL_SPREADSHEETS | grep -v ":0$"
+    grep -H -c "$1" $ALL_SPREADSHEETS
 }
 
 # Shortcut for checking differences between two files.
@@ -188,27 +188,27 @@ fi
 cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
-### Check the diffs to see if the changes are meaningful
+### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_PROGRAMS_SPREADSHEET $PROGRAMS_SPREADSHEET_FILE)
 $(checkdiffs $PUBLISHED_SEASONS_SPREADSHEET $SEASONS_SPREADSHEET_FILE)
 $(checkdiffs $PUBLISHED_EPISODES_SPREADSHEET $EPISODES_SPREADSHEET_FILE)
 $(checkdiffs $PUBLISHED_SEASONS_SORTED_SPREADSHEET $SEASONS_SORTED_SPREADSHEET_FILE)
 
+### These counts should not vary much over time
+### if they do, the earlier scraping operation may have failed
+
+==> Number of Movies
+$(countOccurrences "/us/movie/")
+
+==> Number of Shows
+$(countOccurrences "/us/show/")
+
+==> Number of Episodes
+$(countOccurrences "/us/episode/")
+
 ### Any funny stuff with file lengths?
 
 $(wc $ALL_SPREADSHEETS)
-
-### These counts should not vary considerably over time
-### if they do, the earlier scraping operation may have failed
-
-==>Number of Movies
-$(countOccurrences "/us/movie/")
-
-==>Number of Shows
-$(countOccurrences "/us/show/")
-
-==>Number of Episodes
-$(countOccurrences "/us/episode/")
 
 EOF
 
