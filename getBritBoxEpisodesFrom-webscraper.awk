@@ -37,9 +37,12 @@ BEGIN {
         sortkey = sprintf ("E%05d", fld[nflds])
     }
 
-    sub( / min/,"",Duration)
+    # Get rid of redundant "Series #" or "Series #" from episodeTitle
+    if (match (episodeTitle, /^Season [[:digit:]]*, |^Series [[:digit:]]*, /))
+        episodeTitle = substr(episodeTitle,RLENGTH+1)
 
     # Convert duration from minutes to HMS
+    sub( / min/,"",Duration)
     secs = 0
     mins = Duration % 60
     hrs = int(Duration / 60)
@@ -52,7 +55,7 @@ BEGIN {
         showTitle = substr(showTitle, 5) ", The"
 
     savedLine = sprintf \
-        ("%s (2) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s,  %s\"\)\t\t\t%s\t%s\t%s\t%s",\
+        ("%s (2) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t\t%s\t%s\t%s\t%s",\
          showTitle, Years, sortkey, URL, showTitle, sortkey, episodeTitle, HMS, Years, \
          Rating, Description)
 
