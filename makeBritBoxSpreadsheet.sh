@@ -51,22 +51,21 @@ mkdir -p $COLUMNS $BASELINE
 # so if you change them here, change them there as well
 # they are named with today's date so running them twice
 # in one day will only generate one set of results
-PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BritBoxPrograms-$DATE.csv"
-SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
-SEASONS_SPREADSHEET_FILE_SORTED="BritBoxSeasons-sorted-$DATE.csv"
-EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
 PROGRAMS_FILE="$COLUMNS/BritBoxPrograms.csv"
+PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BritBoxPrograms-$DATE.csv"
+PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BritBoxPrograms.txt"
 SEASONS_FILE="$COLUMNS/BritBoxSeasons.csv"
+SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
+PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BritBoxSeasons.txt"
 EPISODES_FILE="$COLUMNS/BritBoxEpisodes.csv"
+EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
+PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BritBoxEpisodes.txt"
+# Temporarily create a sorted seasons spreadsheet for debugging
+SEASONS_SORTED_SPREADSHEET_FILE="BritBoxSeasons-sorted-$DATE.csv"
+PUBLISHED_SEASONS_SORTED_SPREADSHEET="$BASELINE/seasons-sorted.txt"
 # Probably obsolete
-DESCRIPTION_FILE="$COLUMNS/descriptions-$DATE.csv"
-PUBLISHED_DESCRIPTIONS="$BASELINE/descriptions.txt"
 DURATION_FILE="$COLUMNS/durations-$DATE.csv"
 PUBLISHED_DURATIONS="$BASELINE/durations.txt"
-HEADER_FILE="$COLUMNS/headers-$DATE.csv"
-PUBLISHED_HEADERS="$BASELINE/headers.txt"
-EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.csv"
-PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 #
 if [ "$INCLUDE_EPISODES" = "yes" ]; then
     SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
@@ -83,9 +82,12 @@ fi
 # Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
 ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
+#
+ALL_SPREADSHEETS="$SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
+ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
 
-rm -f $DESCRIPTION_FILE $DURATION_FILE $HEADER_FILE $EPISODE_INFO_FILE \
-    $SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
+rm -f $DURATION_FILE $SPREADSHEET_FILE \
+    $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
@@ -102,8 +104,8 @@ awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
 head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
 grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FILE
 #
-head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE_SORTED
-grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SPREADSHEET_FILE_SORTED
+head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SORTED_SPREADSHEET_FILE
+grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SORTED_SPREADSHEET_FILE
 
 # Total the duration of all episodes in every series
 # totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
@@ -121,21 +123,17 @@ fi
 #
 # Print header then possible errors from processing initial series
 printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
-#
-printf "==>Number of Movies\n" >>$ERROR_FILE
-grep -H -c /us/movie/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
-    $EPISODES_SPREADSHEET_FILE $SPREADSHEET_FILE >>$ERROR_FILE
-printf "\n==>Number of Shows\n" >>$ERROR_FILE
-grep -H -c /us/show/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
-    $EPISODES_SPREADSHEET_FILE $SPREADSHEET_FILE >>$ERROR_FILE
-printf "\n==>Number of Episodes\n" >>$ERROR_FILE
-grep -H -c /us/episode/ $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE \
-    $EPISODES_SPREADSHEET_FILE $SPREADSHEET_FILE >>$ERROR_FILE
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     exit
 fi
+
+# Shortcut for counting occurrences of a string in all spreadsheets
+# countOccurrences string
+function countOccurrences() {
+    grep -H -c "$1" $ALL_SPREADSHEETS | grep -v ":0$"
+}
 
 # Shortcut for checking differences between two files.
 # checkdiffs basefile newfile
@@ -169,8 +167,6 @@ function checkdiffs() {
     fi
 }
 
-exit
-
 #
 # Output body
 if [ "$INCLUDE_EPISODES" = "yes" ]; then
@@ -192,19 +188,27 @@ fi
 cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
+### Check the diffs to see if the changes are meaningful
+$(checkdiffs $PUBLISHED_PROGRAMS_SPREADSHEET $PROGRAMS_SPREADSHEET_FILE)
+$(checkdiffs $PUBLISHED_SEASONS_SPREADSHEET $SEASONS_SPREADSHEET_FILE)
+$(checkdiffs $PUBLISHED_EPISODES_SPREADSHEET $EPISODES_SPREADSHEET_FILE)
+$(checkdiffs $PUBLISHED_SEASONS_SORTED_SPREADSHEET $SEASONS_SORTED_SPREADSHEET_FILE)
 
-### MHz shows on the web are not sorted by title. When shows are
-### rearranged, the individual column diffs may look significant.
-### Check the "titles" column diffs to see if the changes are only
-### from identical titles being deleted and re-inserted.
-$(checkdiffs $PUBLISHED_DURATIONS $DURATION_FILE)
+### Any funny stuff with file lengths?
 
+$(wc $ALL_SPREADSHEETS)
 
-### Any funny stuff with file lengths? Any differences in
-### number of lines indicates the website was updated in the
-### middle of processing. You should rerun the script!
+### These counts should not vary considerably over time
+### if they do, the earlier scraping operation may have failed
 
-$(wc $COLUMNS/*$DATE.csv)
+==>Number of Movies
+$(countOccurrences "/us/movie/")
+
+==>Number of Shows
+$(countOccurrences "/us/show/")
+
+==>Number of Episodes
+$(countOccurrences "/us/episode/")
 
 EOF
 

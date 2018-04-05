@@ -34,4 +34,4 @@ cp -p $VERBOSE $COLUMNS/BritBoxEpisodes-$DATE.csv $BASELINE/BritBoxEpisodes.txt
 
 cp -p $VERBOSE BritBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
 cp -p $VERBOSE BritBox_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
-cp -p $VERBOSE BritBoxSeasons-sorted-$DATE.csv $BASELINE/spreadsheet-sorted.txt 2>/dev/null
+cp -p $VERBOSE BritBoxSeasons-sorted-$DATE.csv $BASELINE/seasons-sorted.txt 2>/dev/null
