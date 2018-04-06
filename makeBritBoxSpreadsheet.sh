@@ -96,14 +96,22 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -
 #
 grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
-# Output spreadsheet footer if totals requested
-if [ "$PRINT_TOTALS" = "yes" ]; then
-    ((lastRow = $(sed -n '$=' $LONG_SPREADSHEET_FILE)))
+# Shortcut for adding totals to spreadsheets
+function addTotalsToSpreadsheet() {
+    # Grab (the last) totalTime (just in case)
+    totalTime=$(grep : $DURATION_FILE | tail -1)
+    ((lastRow = $(sed -n '$=' $1)))
     TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
     TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
-    printf "$TOTAL\n" >>$LONG_SPREADSHEET_FILE
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" \
-        >>$LONG_SPREADSHEET_FILE
+    printf "$TOTAL\n" >>$1
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime\n" \
+        >>$1
+}
+
+# Output spreadsheet footer if totals requested
+if [ "$PRINT_TOTALS" = "yes" ]; then
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET_FILE
+    addTotalsToSpreadsheet $LONG_SPREADSHEET_FILE
 fi
 
 #

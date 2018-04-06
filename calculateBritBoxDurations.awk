@@ -23,9 +23,13 @@ $1 == "" || $1 == "Sortkey" {
 
 # Accumulate total time on any line that has a valid duration
 $5 != "" {
-    if (split ($5, tm, ":") != 3) {
+    # Check all durations for strict HH:MM:SS format
+    if ($5 !~ /^[[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2}$/) {
         print "==> Bad duration " $5 " in " $0 >> ERROR_FILE
+        print
+        next
     } else {
+        split ($5, tm, ":")
         totalTime[3] += tm[3]
         totalTime[2] += tm[2] + int(totalTime[3] / 60)  
         totalTime[1] += tm[1] + int(totalTime[2] / 60)
@@ -36,16 +40,12 @@ $5 != "" {
 # (2) indicates an episode, which should always have a valid duration
 # Accumulate series time and episode count on any line that has a valid duration
 $1 ~ / \(2\) / {
-    if (split ($5, tm, ":") != 3) {
-        print "==> Bad duration " $5 " in " $0 >> ERROR_FILE
-    } else {
         secs += tm[3]
         mins += tm[2] + int(secs / 60)
         hrs += tm[1] + int(mins / 60)
         secs %= 60; mins %= 60
         episodes += 1
         print
-    }
 }
 
 # (1) indicates a show, which may or may not have a duration
@@ -59,7 +59,6 @@ $1 ~ / \(1\) / {
     }
     print
 }
-
 
 END {
     printf ("%02d:%02d:%02d\n", totalTime[1], totalTime[2], totalTime[3]) >> DURATION_FILE
