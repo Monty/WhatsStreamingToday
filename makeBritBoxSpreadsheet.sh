@@ -65,10 +65,10 @@ PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
 ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
 #
-ALL_SPREADSHEETS="$SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
 ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
 
-rm -f $SPREADSHEET_FILE \
+rm -f $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
     $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
@@ -96,12 +96,12 @@ grep -v ' (2) ' $LONG_SPREADSHEET_FILE > $SHORT_SPREADSHEET_FILE
 
 # Output spreadsheet footer if totals requested
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    ((lastRow = $(sed -n '$=' $SPREADSHEET_FILE)))
+    ((lastRow = $(sed -n '$=' $LONG_SPREADSHEET_FILE)))
     TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
     TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
-    printf "$TOTAL\n" >>$SPREADSHEET_FILE
+    printf "$TOTAL\n" >>$LONG_SPREADSHEET_FILE
     printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" \
-        >>$SPREADSHEET_FILE
+        >>$LONG_SPREADSHEET_FILE
 fi
 
 #
