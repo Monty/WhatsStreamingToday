@@ -42,12 +42,14 @@ function format_BritBox_TV_Shows() {
   );
   format_a_TV_Spreadsheet(ss);
 }
+
 function format_BritBox_TV_ShowsEpisodes() {
   var ss = SpreadsheetApp.openByUrl(
     'https://docs.google.com/spreadsheets/d/abc1234567/edit'
   );
   format_a_TV_Spreadsheet(ss);
 }
+
 function format_MHz_TV_Shows() {
   var ss = SpreadsheetApp.openByUrl(
     'https://docs.google.com/spreadsheets/d/abc1234567/edit'
