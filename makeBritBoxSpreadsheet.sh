@@ -99,16 +99,15 @@ grep -v '"null","","","",' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.a
 awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
     awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
-
-# Generate _final_ spreadsheets from BritBox "Programmes A-Z" page
-head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
-grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f >>$SPREADSHEET_FILE
-#
+# Temporarily save a sorted "seasons file" for easier debugging.
+# Don't sort header line, keep it at the top of the spreadsheet
 head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SORTED_SPREADSHEET_FILE
 grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SORTED_SPREADSHEET_FILE
 
-# Total the duration of all episodes in every series
-# totalTime=$(awk -v DURATION_FILE=$DURATION_FILE -f calculateDurations.awk $EPISODE_INFO_FILE)
+# Generate _final_ spreadsheets from BritBox "Programmes A-Z" page
+head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
+grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f | tail -r |
+    awk -f calculateBritBoxDurations.awk | tail -r >>$SPREADSHEET_FILE
 
 # Output spreadsheet footer if totals requested
 if [ "$PRINT_TOTALS" = "yes" ]; then
