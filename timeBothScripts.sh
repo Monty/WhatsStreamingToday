@@ -23,4 +23,11 @@ echo "==> time ./makeAcornSpreadsheet.sh -tld"
 date
 time ./makeAcornSpreadsheet.sh -tld
 echo ""
+
+echo "----------------------------------------"
+echo "==> time ./makeBritBoxSpreadsheet.sh -td"
+date
+time ./makeAcornSpreadsheet.sh -td
+echo ""
+
 echo "========================================"
