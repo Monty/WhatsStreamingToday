@@ -1,11 +1,11 @@
 /**
- * Format Acorn TV or MHz TV Spreadsheets after uploading them to Google Sheets
+ * Format Acorn TV, MHz TV, or BritBox Spreadsheets after uploading them to Google Sheets
  * @author Monty Williams
  *
  * For information on how to use this code, see:
  *   https://developers.google.com/apps-script/guides/sheets
  *
- * Change the 4 URL's below to those in your Google Sheets
+ * Change the 6 URL's below to those in your Google Sheets
  *
  */
 
@@ -16,6 +16,8 @@
 function format_All_TV_Spreadsheets() {
   format_Acorn_TV_Shows();
   format_Acorn_TV_ShowsEpisodes();
+  format_BritBox_TV_Shows();
+  format_BritBox_TV_ShowsEpisodes();
   format_MHz_TV_Shows();
   format_MHz_TV_ShowsEpisodes();
 }
@@ -34,6 +36,18 @@ function format_Acorn_TV_ShowsEpisodes() {
   format_a_TV_Spreadsheet(ss);
 }
 
+function format_BritBox_TV_Shows() {
+  var ss = SpreadsheetApp.openByUrl(
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
+  );
+  format_a_TV_Spreadsheet(ss);
+}
+function format_BritBox_TV_ShowsEpisodes() {
+  var ss = SpreadsheetApp.openByUrl(
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
+  );
+  format_a_TV_Spreadsheet(ss);
+}
 function format_MHz_TV_Shows() {
   var ss = SpreadsheetApp.openByUrl(
     'https://docs.google.com/spreadsheets/d/abc1234567/edit'
