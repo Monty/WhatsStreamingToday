@@ -2,22 +2,14 @@
 # Create a .csv spreadsheet of shows available on BritBox
 
 # Use "-d" switch to output a "diffs" file useful for debugging
-# Use "-l" switch to include every episode description for each series
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-# Use "-u" switch to leave spreadsheet unsorted, i.e. in the order found on the web
-while getopts ":dltu" opt; do
+while getopts ":dt" opt; do
     case $opt in
     d)
         DEBUG="yes"
         ;;
-    l)
-        INCLUDE_EPISODES="yes"
-        ;;
     t)
         PRINT_TOTALS="yes"
-        ;;
-    u)
-        UNSORTED="yes"
         ;;
     \?)
         echo "Ignoring invalid option: -$OPTARG" >&2
@@ -64,17 +56,10 @@ PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BritBoxEpisodes.txt"
 SEASONS_SORTED_SPREADSHEET_FILE="BritBoxSeasons-sorted-$DATE.csv"
 PUBLISHED_SEASONS_SORTED_SPREADSHEET="$BASELINE/seasons-sorted.txt"
 #
-if [ "$INCLUDE_EPISODES" = "yes" ]; then
-    SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
-    PUBLISHED_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
-    # pick a second file to include in the spreadsheet
-    file2="$EPISODES_SPREADSHEET_FILE"
-else
-    SPREADSHEET_FILE="BritBox_TV_Shows-$DATE.csv"
-    PUBLISHED_SPREADSHEET="$BASELINE/spreadsheet.txt"
-    # null out included file
-    file2=""
-fi
+SHORT_SPREADSHEET_FILE="BritBox_TV_Shows-$DATE.csv"
+PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
+LONG_SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
+PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 # Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
@@ -102,9 +87,12 @@ head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SORTED_SPREADSHEET_FILE
 grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SORTED_SPREADSHEET_FILE
 
 # Generate _final_ spreadsheets from BritBox "Programmes A-Z" page
-head -1 $PROGRAMS_SPREADSHEET_FILE >$SPREADSHEET_FILE
-grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $file2 | sort -f | tail -r |
-    awk -f calculateBritBoxDurations.awk | tail -r >>$SPREADSHEET_FILE
+head -1 $PROGRAMS_SPREADSHEET_FILE >$LONG_SPREADSHEET_FILE
+grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -f |
+    tail -r | awk -v ERROR_FILE=$ERROR_FILE -f calculateBritBoxDurations.awk |
+    tail -r >>$LONG_SPREADSHEET_FILE
+#
+grep -v ' (2) ' $LONG_SPREADSHEET_FILE > $SHORT_SPREADSHEET_FILE
 
 # Output spreadsheet footer if totals requested
 if [ "$PRINT_TOTALS" = "yes" ]; then
@@ -162,23 +150,6 @@ function checkdiffs() {
         fi
     fi
 }
-
-#
-# Output body
-if [ "$INCLUDE_EPISODES" = "yes" ]; then
-    # Print  header for possible errors from processing episodes
-    # Don't delete the blank lines!
-    cat >>$ERROR_FILE <<EOF1
-
-### Possible anomalies from processing episodes are listed below.
-### At least one episode may have no description, but if there are many,
-### there could be a temporary problem with the BritBox website.
-### You can check by using your browser to visit the associated URL.
-### You should rerun the script when the problem is cleared up.
-
-EOF1
-
-fi
 
 # Preserve any possible errors for debugging
 cat >>$POSSIBLE_DIFFS <<EOF

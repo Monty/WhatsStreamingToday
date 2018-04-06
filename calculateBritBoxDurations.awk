@@ -2,6 +2,11 @@
 # Update the number of episodes and the total show duration for any that are missing
 # NOTE: Depends on file being sorted in reverse order
 
+# INVOCATION:
+#        grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -f |
+#        tail -r | awk -v ERROR_FILE=$ERROR_FILE -f calculateBritBoxDurations.awk |
+#        tail -r >>$LONG_SPREADSHEET_FILE
+
 # Field numbers
 #    1 Sortkey    2 Title    3 Seasons    4 Episodes    5 Duration    6 Year(s)    7 Rating
 
@@ -19,7 +24,7 @@ $1 == "" || $1 == "Sortkey" {
 # Accumulate total time on any line that has a valid duration
 $5 != "" {
     if (split ($5, tm, ":") != 3) {
-        print "ERROR: bad duration " $5 " in " $0
+        print "==> Bad duration " $5 " in " $0 >> ERROR_FILE
     } else {
         totalTime[3] += tm[3]
         totalTime[2] += tm[2] + int(totalTime[3] / 60)  
@@ -32,7 +37,7 @@ $5 != "" {
 # Accumulate series time and episode count on any line that has a valid duration
 $1 ~ / \(2\) / {
     if (split ($5, tm, ":") != 3) {
-        print "ERROR: bad duration " $5 " in " $0
+        print "==> Bad duration " $5 " in " $0 >> ERROR_FILE
     } else {
         secs += tm[3]
         mins += tm[2] + int(secs / 60)
