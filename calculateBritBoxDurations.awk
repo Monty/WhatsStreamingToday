@@ -3,9 +3,9 @@
 # NOTE: Depends on file being sorted in reverse order
 
 # INVOCATION:
-#        grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -f |
-#        tail -r | awk -v ERROR_FILE=$ERROR_FILE -f calculateBritBoxDurations.awk |
-#        tail -r >>$LONG_SPREADSHEET_FILE
+#       grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -f |
+#           tail -r | awk -v ERROR_FILE=$ERROR_FILE -v DURATION_FILE=$DURATION_FILE \
+#           -f calculateBritBoxDurations.awk | tail -r >>$LONG_SPREADSHEET_FILE
 
 # Field numbers
 #    1 Sortkey    2 Title    3 Seasons    4 Episodes    5 Duration    6 Year(s)    7 Rating
@@ -62,5 +62,5 @@ $1 ~ / \(1\) / {
 
 
 END {
-    printf ("%02d:%02d:%02d\n", totalTime[1], totalTime[2], totalTime[3])
+    printf ("%02d:%02d:%02d\n", totalTime[1], totalTime[2], totalTime[3]) >> DURATION_FILE
 }
