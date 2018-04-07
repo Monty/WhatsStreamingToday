@@ -39,6 +39,7 @@ COLUMNS="BritBox-columns"
 BASELINE="BritBox-baseline"
 mkdir -p $COLUMNS $BASELINE
 
+
 # File names are used in saveTodaysBritBoxFiles.sh
 # so if you change them here, change them there as well
 # they are named with today's date so running them twice
@@ -63,12 +64,15 @@ PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 LONG_SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
+ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
+#
 # Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
 ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
-#
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
-ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
+
+# Print header for possible errors that occur during processing
+printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERROR_FILE
 
 rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
     $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
@@ -113,10 +117,6 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET_FILE
     addTotalsToSpreadsheet $LONG_SPREADSHEET_FILE
 fi
-
-#
-# Print header then possible errors from processing initial series
-printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERROR_FILE
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
