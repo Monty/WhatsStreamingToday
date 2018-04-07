@@ -76,13 +76,13 @@ rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
-    awk -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
+    awk -v ERROR_FILE=$ERROR_FILE -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
 grep -v '"null","","","",' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
-    awk -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
+    awk -v ERROR_FILE=$ERROR_FILE -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
 awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=8,8 --key=7,7 |
-    awk -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
+    awk -v ERROR_FILE=$ERROR_FILE -f getBritBoxEpisodesFrom-webscraper.awk >$EPISODES_SPREADSHEET_FILE
 # Temporarily save a sorted "seasons file" for easier debugging.
 # Don't sort header line, keep it at the top of the spreadsheet
 head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SORTED_SPREADSHEET_FILE
