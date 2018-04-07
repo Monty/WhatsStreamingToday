@@ -21,6 +21,7 @@ BEGIN {
     showTitle = $4
     $7  == "" ? Year = $5 : Year = $7
     NumSeasons = $6
+    NumEpisodes = ""
     Duration = $8
     Rating = $9
     Description = $10
@@ -45,13 +46,20 @@ BEGIN {
     # Indicate different types of programs
     URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "S"
 
+    # Fill in missing seasons & episodes for movies with 1,1
+    if (showtype == "M") {
+        NumSeasons = 1
+        NumEpisodes = 1
+    }
+
     # Extract sortkey from URL
     nflds = split (URL,fld,"_")
     if (URL ~ /_[[:digit:]]*$/) {
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
         savedLine = sprintf \
-            ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t\t%s\t%s\t%s\t%s",\
-             showTitle, sortkey, URL, showTitle, NumSeasons, HMS, Year, Rating, Description)
+            ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
+             showTitle, sortkey, URL, showTitle, NumSeasons, NumEpisodes, HMS, Year,\
+             Rating, Description)
 
         # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
         sub (/^'/,"",savedLine)
