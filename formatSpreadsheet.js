@@ -69,6 +69,10 @@ function format_MHz_TV_ShowsEpisodes() {
  * # Title Seasons Episodes Duration Description
  * 1   2      3       4        5         6
  *
+ * Structure of a BritBox Spreadsheet
+ * Sortkey Title Seasons Episodes Duration Year(s) Rating Description
+ * 1         2      3       4        5        6      8        9
+ *
  * Structure of an MHz TV Spreadsheet
  * # Title Seasons Episodes Duration Genre Country Language Rating Description
  * 1   2      3       4        5       6      7       8       9        10
