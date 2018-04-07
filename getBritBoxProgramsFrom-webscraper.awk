@@ -37,8 +37,10 @@ BEGIN {
         HMS = ""
 
     # Titles starting with "The" should not sort based on "The"
-    if (match (showTitle, /^The /))
+    if (match (showTitle, /^The /)) {
+        print "==> Rearranging " showTitle >> ERROR_FILE
         showTitle = substr(showTitle, 5) ", The"
+    }
 
     # Indicate different types of programs
     URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "S"
