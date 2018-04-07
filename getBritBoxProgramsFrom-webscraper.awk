@@ -38,7 +38,7 @@ BEGIN {
 
     # Titles starting with "The" should not sort based on "The"
     if (match (showTitle, /^The /)) {
-        print "==> Rearranging " showTitle >> ERROR_FILE
+        print "==> Rearranged: " showTitle >> ERROR_FILE
         showTitle = substr(showTitle, 5) ", The"
     }
 
