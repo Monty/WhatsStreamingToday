@@ -14,7 +14,7 @@ SEASONS_FILE="$COLUMNS/BritBoxSeasons.csv"
 EPISODE_INFO_FILE="checkEpisodeInfo-$LONGDATE.txt"
 ERROR_FILE="checkBritBox_anomalies-$LONGDATE.txt"
 
-# Print header for used for verifying episodes across webscraper downloads
+# Print header for verifying episodes across webscraper downloads
 printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
 
 # Print header for possible errors that occur during processing
