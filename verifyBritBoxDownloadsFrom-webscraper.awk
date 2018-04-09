@@ -1,8 +1,10 @@
 # Verify that every show in BritBoxPrograms is also in BritBoxEpisodes
 
 # INVOCATION:
-#   awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE -v ERROR_FILE=$ERROR_FILE \
-#       -f verifyBritBoxDownloadsFrom-webscraper.awk BritBoxPrograms.csv
+#    awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
+#        awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
+#        -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+#        -f verifyBritBoxDownloadsFrom-webscraper.awk
 
 # Field numbers
 #    1 web-scraper-order  2 web-scraper-start-url  3 URL        4 Program_Title   5 Sn_Years
@@ -28,16 +30,26 @@ BEGIN {
     cmd = "grep -c " target " " EPISODES_FILE
     if ((cmd | getline NumEpisodes) > 0) {
         NumEpisodes == 1 ? epiStr = " episode" : epiStr = " episodes"
-        print "==> " showType spacer target "has " NumEpisodes epiStr
+        print "==> " showType spacer target "has " NumEpisodes epiStr >> EPISODE_INFO_FILE
     }
     close (cmd)
+    if (NumEpisodes == 0) {
+        badEpisodes += 1
+        print "==> " showType spacer target "has " NumEpisodes epiStr >> ERROR_FILE
+    }
     #
     cmd = "grep " target " " SEASONS_FILE
     while ((cmd | getline seasonLine) > 0) {
         split (seasonLine, fields, "\"")
-        if (fields[20] == "")
+        seasonField = fields[20]
+        episodeField = fields[24]
+        if (seasonField == "")
             continue
-        print "          " target fields[20] " has " fields[24]
+        print "          " target seasonField " has "episodeField >> EPISODE_INFO_FILE
     }
     close (cmd)
+}
+
+END {
+    print "==> " badEpisodes " missing episodes"
 }

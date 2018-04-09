@@ -52,6 +52,8 @@ SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
 PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BritBoxSeasons.txt"
 EPISODES_FILE="$COLUMNS/BritBoxEpisodes.csv"
 EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
+EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.txt"
+PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BritBoxEpisodes.txt"
 DURATION_FILE="$COLUMNS/duration-$DATE.csv"
 PUBLISHED_DURATION="$BASELINE/duration.txt"
@@ -71,8 +73,16 @@ ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
 ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
 
+# Print header for used for verifying episodes across webscraper downloads
+printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
+
 # Print header for possible errors that occur during processing
 printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERROR_FILE
+
+awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
+    awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
+    -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+    -f verifyBritBoxDownloadsFrom-webscraper.awk
 
 rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
     $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
@@ -80,7 +90,8 @@ rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
-    awk -v ERROR_FILE=$ERROR_FILE -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
+    awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+    -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
 grep -v '"null","","","",' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
     awk -v ERROR_FILE=$ERROR_FILE -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
