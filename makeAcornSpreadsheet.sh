@@ -100,6 +100,9 @@ fi
 POSSIBLE_DIFFS="Acorn_diffs-$LONGDATE.txt"
 ERROR_FILE="Acorn_anomalies-$LONGDATE.txt"
 
+# Print header for possible errors from processing series
+printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
+
 rm -f $URL_FILE $CURL_CONFIG_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE \
     $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE $SPREADSHEET_FILE \
     $EPISODE_CURL_FILE $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE \
@@ -108,9 +111,6 @@ rm -f $URL_FILE $CURL_CONFIG_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPT
 curl -sS $BROWSE_URL |
     awk -v URL_FILE=$URL_FILE -v CURL_CONFIG_FILE=$CURL_CONFIG_FILE \
         -v MARQUEE_FILE=$MARQUEE_FILE -v ERROR_FILE=$ERROR_FILE -f getAcornFrom-browsePage.awk
-
-# Print header for possible errors from processing series
-printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
@@ -177,11 +177,11 @@ if [ "$UNSORTED" = "yes" ]; then
     # sort key 4 sorts by title
     # both sort $file2 by season then episode (if one is provided)
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $file2 |
+        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
         sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 else
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $file2 |
+        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
         sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
 #

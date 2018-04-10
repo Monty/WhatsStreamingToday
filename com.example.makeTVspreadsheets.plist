@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-    <!-- This plist works with MacOS launchd to run timeBothScripts.sh on a weekly schedule -->
-    <!-- Required: Change all 4 occurences of 'path/to' to the full path of timeBothScripts.sh -->
+    <!-- This plist works with MacOS launchd to run timeAllscripts.sh on a weekly schedule -->
+    <!-- Required: Change all 4 occurences of 'path/to' to the full path of timeAllscripts.sh -->
     <!-- Optional: Change 'example' in both the file name and the plist Label string -->
     <!-- Optional: Change the StartCalendarInterval -->
     <!-- Required: Save the modified plist to ~/Library/LaunchAgents/ -->
@@ -12,7 +12,7 @@
         <string>com.example.makeTVspreadsheets</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/path/to/timeBothScripts.sh</string>
+            <string>/path/to/timeAllscripts.sh</string>
         </array>
         <key>StartCalendarInterval</key>
         <array>
@@ -28,8 +28,8 @@
         <key>WorkingDirectory</key>
         <string>/path/to/WhatsStreamingToday</string>
         <key>StandardOutPath</key>
-        <string>/path/to/timeBothScripts.stdout.txt</string>
+        <string>/path/to/timeAllscripts.stdout.txt</string>
         <key>StandardErrorPath</key>
-        <string>/path/to/timeBothScripts.stderr.txt</string>
+        <string>/path/to/timeAllscripts.stderr.txt</string>
     </dict>
 </plist>

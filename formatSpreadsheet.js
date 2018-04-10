@@ -1,11 +1,11 @@
 /**
- * Format Acorn TV or MHz TV Spreadsheets after uploading them to Google Sheets
+ * Format Acorn TV, MHz TV, or BritBox Spreadsheets after uploading them to Google Sheets
  * @author Monty Williams
  *
  * For information on how to use this code, see:
  *   https://developers.google.com/apps-script/guides/sheets
  *
- * Change the 4 URL's below to those in your Google Sheets
+ * Change the 6 URL's below to those in your Google Sheets
  *
  */
 
@@ -16,6 +16,8 @@
 function format_All_TV_Spreadsheets() {
   format_Acorn_TV_Shows();
   format_Acorn_TV_ShowsEpisodes();
+  format_BritBox_TV_Shows();
+  format_BritBox_TV_ShowsEpisodes();
   format_MHz_TV_Shows();
   format_MHz_TV_ShowsEpisodes();
 }
@@ -28,6 +30,20 @@ function format_Acorn_TV_Shows() {
 }
 
 function format_Acorn_TV_ShowsEpisodes() {
+  var ss = SpreadsheetApp.openByUrl(
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
+  );
+  format_a_TV_Spreadsheet(ss);
+}
+
+function format_BritBox_TV_Shows() {
+  var ss = SpreadsheetApp.openByUrl(
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
+  );
+  format_a_TV_Spreadsheet(ss);
+}
+
+function format_BritBox_TV_ShowsEpisodes() {
   var ss = SpreadsheetApp.openByUrl(
     'https://docs.google.com/spreadsheets/d/abc1234567/edit'
   );
@@ -52,6 +68,10 @@ function format_MHz_TV_ShowsEpisodes() {
  * Structure of an Acorn TV Spreadsheet
  * # Title Seasons Episodes Duration Description
  * 1   2      3       4        5         6
+ *
+ * Structure of a BritBox Spreadsheet
+ * Sortkey Title Seasons Episodes Duration Year(s) Rating Description
+ * 1         2      3       4        5        6      8        9
  *
  * Structure of an MHz TV Spreadsheet
  * # Title Seasons Episodes Duration Genre Country Language Rating Description

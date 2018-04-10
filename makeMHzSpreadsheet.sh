@@ -89,6 +89,9 @@ fi
 POSSIBLE_DIFFS="MHz_diffs-$LONGDATE.txt"
 ERROR_FILE="MHz_anomalies-$LONGDATE.txt"
 
+# Print header for possible errors from processing series
+printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
+
 rm -f $URL_FILE $MARQUEE_FILE $TITLE_FILE $LINK_FILE $DESCRIPTION_FILE $NUM_SEASONS_FILE \
     $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE $SPREADSHEET_FILE $EPISODE_URL_FILE \
     $EPISODE_INFO_FILE
@@ -98,9 +101,6 @@ curl -sS $BROWSE_URL $BROWSE_URL2 |
     awk -v URL_FILE=$URL_FILE -v TITLE_FILE=$TITLE_FILE \
         -v NUM_SEASONS_FILE=$NUM_SEASONS_FILE -v ERROR_FILE=$ERROR_FILE \
         -f getMHzFrom-browsePage.awk
-
-# Print header for possible errors from processing series
-printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
@@ -122,9 +122,9 @@ currentSeriesNumber=0
 while read -r episode_URL; do
     # Control the context of the NUM_EPISODES_FILE when a new series is found
     # Special handling for Don Matteo which starts at season 4
-    if [[ "${episode_URL}" =~ season:1 || "${episode_URL}" =~ "don-matteo/season:4" ]]; then
+    if [[ ${episode_URL} =~ season:1 || ${episode_URL} =~ "don-matteo/season:4" ]]; then
         ((currentSeriesNumber++))
-        if [[ -e "$NUM_EPISODES_FILE" ]]; then
+        if [[ -e $NUM_EPISODES_FILE ]]; then
             echo >>$NUM_EPISODES_FILE
         fi
         echo -n "=" >>$NUM_EPISODES_FILE
@@ -182,11 +182,11 @@ if [ "$UNSORTED" = "yes" ]; then
     # sort key 4 sorts by title
     # both sort $file2 by season then episode (if one is provided)
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $file2 |
+        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
         sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 else
     paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE $HEADER_FILE \
-        $DESCRIPTION_FILE | nl -n ln | cat - $file2 |
+        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
         sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
 fi
 #
