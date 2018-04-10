@@ -32,10 +32,11 @@
 }
 
 /h4 class="transparent.*media-count/ {
-    sub (/.*media-count'>/,"")
-    sub (/ season.*$/,"")
+    numSeasons = $0
+    sub (/.*media-count'>/,"",numSeasons)
+    sub (/ season.*$/,"",numSeasons)
     if ((numSeasons + 0) == 0)
         print "==> No seasons: " TITLE >> ERROR_FILE
-    print $0 >> NUM_SEASONS_FILE
+    print numSeasons >> NUM_SEASONS_FILE
 }
 
