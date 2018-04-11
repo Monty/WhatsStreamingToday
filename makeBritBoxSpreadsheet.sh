@@ -37,23 +37,23 @@ LONGDATE="$(date +%y%m%d.%H%M%S)"
 
 COLUMNS="BritBox-columns"
 BASELINE="BritBox-baseline"
-mkdir -p $COLUMNS $BASELINE
+SCRAPES="BritBox-scrapes"
+
+mkdir -p $COLUMNS $BASELINE $SCRAPES
 
 # File names are used in saveTodaysBritBoxFiles.sh
 # so if you change them here, change them there as well
 # They are named with today's date so running them twice
 # in one day will only generate one set of results
-PROGRAMS_FILE="$COLUMNS/BritBoxPrograms.csv"
+PROGRAMS_FILE="$SCRAPES/BritBoxPrograms.csv"
 PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BritBoxPrograms-$DATE.csv"
 PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BritBoxPrograms.txt"
-SEASONS_FILE="$COLUMNS/BritBoxSeasons.csv"
+SEASONS_FILE="$SCRAPES/BritBoxSeasons.csv"
 SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
 PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BritBoxSeasons.txt"
-EPISODES_FILE="$COLUMNS/BritBoxEpisodes.csv"
+EPISODES_FILE="$SCRAPES/BritBoxEpisodes.csv"
 EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BritBoxEpisodes.txt"
-EPISODE_INFO_FILE="$COLUMNS/episodeInfo-$DATE.txt"
-PUBLISHED_EPISODE_INFO="$BASELINE/episodeInfo.txt"
 DURATION_FILE="$COLUMNS/duration-$DATE.csv"
 PUBLISHED_DURATION="$BASELINE/duration.txt"
 # Temporarily create a sorted seasons spreadsheet for debugging
@@ -71,6 +71,7 @@ ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
 # Name diffs and errors with both date and time so every run produces a new result
 POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
 ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
+EPISODE_INFO_FILE="BritBox_episodeInfo-$LONGDATE.txt"
 
 # Print header for verifying episodes across webscraper downloads
 printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
@@ -185,7 +186,6 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(checkdiffs $PUBLISHED_PROGRAMS_SPREADSHEET $PROGRAMS_SPREADSHEET_FILE)
 $(checkdiffs $PUBLISHED_SEASONS_SPREADSHEET $SEASONS_SPREADSHEET_FILE)
 $(checkdiffs $PUBLISHED_EPISODES_SPREADSHEET $EPISODES_SPREADSHEET_FILE)
-$(checkdiffs $PUBLISHED_EPISODE_INFO $EPISODE_INFO_FILE)
 $(checkdiffs $PUBLISHED_SEASONS_SORTED_SPREADSHEET $SEASONS_SORTED_SPREADSHEET_FILE)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET_FILE)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET_FILE)

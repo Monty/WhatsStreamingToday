@@ -5,11 +5,11 @@
 DATE="$(date +%y%m%d)"
 LONGDATE="$(date +%y%m%d.%H%M%S)"
 
-COLUMNS="BritBox-columns"
+SCRAPES="BritBox-scrapes"
 
-PROGRAMS_FILE="$COLUMNS/BritBoxPrograms.csv"
-EPISODES_FILE="$COLUMNS/BritBoxEpisodes.csv"
-SEASONS_FILE="$COLUMNS/BritBoxSeasons.csv"
+PROGRAMS_FILE="$SCRAPES/BritBoxPrograms.csv"
+EPISODES_FILE="$SCRAPES/BritBoxEpisodes.csv"
+SEASONS_FILE="$SCRAPES/BritBoxSeasons.csv"
 #
 EPISODE_INFO_FILE="checkEpisodeInfo-$LONGDATE.txt"
 ERROR_FILE="checkBritBox_anomalies-$LONGDATE.txt"

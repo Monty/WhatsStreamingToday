@@ -31,7 +31,6 @@ mkdir -p $COLUMNS $BASELINE
 cp -p $VERBOSE $COLUMNS/BritBoxPrograms-$DATE.csv $BASELINE/BritBoxPrograms.txt
 cp -p $VERBOSE $COLUMNS/BritBoxSeasons-$DATE.csv $BASELINE/BritBoxSeasons.txt
 cp -p $VERBOSE $COLUMNS/BritBoxEpisodes-$DATE.csv $BASELINE/BritBoxEpisodes.txt
-cp -p $VERBOSE $COLUMNS/episodeInfo-$DATE.txt $BASELINE/episodeInfo.txt
 cp -p $VERBOSE $COLUMNS/duration-$DATE.csv $BASELINE/duration.txt
 
 cp -p $VERBOSE BritBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
