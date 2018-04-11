@@ -87,10 +87,16 @@ awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separa
 rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
     $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
-# Print header about information obtained during processing of shows
+# Add header about crosschecking inconsistencies found so far in $EPISODE_INFO_FILE
+printf "\n\n### Inconsistencies from crosschecking $EPISODE_INFO_FILE are listed below.\n\n" \
+    >> $ERROR_FILE
+
+awk -f verifyBritBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE >> $ERROR_FILE
+
+# Add header about info obtained during processing of shows
 printf "\n\n### Information from processing shows is listed below.\n\n" >>$EPISODE_INFO_FILE
 #
-# Print header for possible errors that occur during processing
+# Add header for possible errors that occur during processing
 printf "\n\n### Possible anomalies from processing shows are listed below.\n\n" >>$ERROR_FILE
 
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
