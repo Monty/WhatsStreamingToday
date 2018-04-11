@@ -91,7 +91,7 @@ rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
 printf "\n\n### Inconsistencies from crosschecking $EPISODE_INFO_FILE are listed below.\n\n" \
     >> $ERROR_FILE
 
-awk -f verifyBritBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE >> $ERROR_FILE
+awk -f verifyBritBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE | grep -v ' movie ' >> $ERROR_FILE
 
 # Add header about info obtained during processing of shows
 printf "\n\n### Information from processing shows is listed below.\n\n" >>$EPISODE_INFO_FILE
