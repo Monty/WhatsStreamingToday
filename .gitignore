@@ -12,11 +12,11 @@
 *.ods
 
 # Hide temporary versions of files from git
-*[1-9].awk
-*[1-9].js
-*[1-9].json
-*[1-9].py
-*[1-9].sh
+*[0-9].awk
+*[0-9].js
+*[0-9].json
+*[0-9].py
+*[0-9].sh
 
 # Local backups
 *.bak

@@ -1,0 +1,54 @@
+{
+  "_id": "BritBoxMovies",
+    "startUrl": [
+    "https://www.britbox.com/us/movie/300_Years_of_French_and_Saunders_16103",
+    "https://www.britbox.com/us/movie/70_Glorious_Years_13550"
+  ],
+  "selectors": [
+    {
+      "id": "Program_Title",
+      "type": "SelectorText",
+      "selector": "h3.program-item__program-title",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Year",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__year",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Duration",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__duration",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Rating",
+      "type": "SelectorText",
+      "selector": "span.programme-metadata__classification",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Description",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-description",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    }
+  ]
+}
