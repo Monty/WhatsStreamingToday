@@ -7,12 +7,11 @@
 DATE="$(date +%y%m%d)"
 LONGDATE="$(date +%y%m%d.%H%M%S)"
 
-COLUMNS="BritBox-columns"
 SCRAPES="BritBox-scrapes"
 
 PROGRAMS_FILE="$SCRAPES/BritBoxPrograms.csv"
-MOVIES_JSON_FILE="$COLUMNS/BritBoxMovies-$LONGDATE.json"
-SHOWS_JSON_FILE="$COLUMNS/BritBoxShows-$LONGDATE.json"
+MOVIES_JSON_FILE="BritBoxMovies-$LONGDATE.json"
+SHOWS_JSON_FILE="BritBoxShows-$LONGDATE.json"
 
 grep -B4 startUrl movieTemplate.json > $MOVIES_JSON_FILE
 grep -B4 startUrl showTemplate.json > $SHOWS_JSON_FILE
