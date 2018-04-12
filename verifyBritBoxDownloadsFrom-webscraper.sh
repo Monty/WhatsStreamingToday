@@ -22,5 +22,5 @@ printf "### Possible missing episodes are listed below.\n\n" >$ERROR_FILE
 
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
     awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
-    -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f verifyBritBoxDownloadsFrom-webscraper.awk
+        -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+        -f verifyBritBoxDownloadsFrom-webscraper.awk

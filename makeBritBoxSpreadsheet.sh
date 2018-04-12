@@ -81,17 +81,17 @@ printf "### Possible missing episodes are listed below.\n\n" >$ERROR_FILE
 
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
     awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
-    -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f verifyBritBoxDownloadsFrom-webscraper.awk
+        -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+        -f verifyBritBoxDownloadsFrom-webscraper.awk
 
 rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
     $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
 # Add header about crosschecking inconsistencies found so far in $EPISODE_INFO_FILE
 printf "\n\n### Inconsistencies from crosschecking $EPISODE_INFO_FILE are listed below.\n\n" \
-    >> $ERROR_FILE
+    >>$ERROR_FILE
 
-awk -f verifyBritBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE | grep -v ' movie ' >> $ERROR_FILE
+awk -f verifyBritBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE | grep -v ' movie ' >>$ERROR_FILE
 
 # Add header about info obtained during processing of shows
 printf "\n\n### Information from processing shows is listed below.\n\n" >>$EPISODE_INFO_FILE
@@ -103,7 +103,7 @@ printf "\n\n### Possible anomalies from processing shows are listed below.\n\n" 
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
     awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
+        -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
 grep -v '"null","","","",' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
     awk -v ERROR_FILE=$ERROR_FILE -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE

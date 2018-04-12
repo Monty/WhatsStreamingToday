@@ -2,7 +2,7 @@
 # Use the URLs output by getBritBoxProgramsFrom-webscraper.json to generate json scrapers
 # with a per show startUrl instead of the top level "https://www.britbox.com/us/programmes"
 #
-# Then use the resulting json files to scrape current movies and shows 
+# Then use the resulting json files to scrape current movies and shows
 
 DATE="$(date +%y%m%d)"
 LONGDATE="$(date +%y%m%d.%H%M%S)"
@@ -13,11 +13,11 @@ PROGRAMS_FILE="$SCRAPES/BritBoxPrograms.csv"
 MOVIES_JSON_FILE="BBoxMovies-$LONGDATE.json"
 SHOWS_JSON_FILE="BBoxEpisodes-$LONGDATE.json"
 
-grep -B4 startUrl movieTemplate.json > $MOVIES_JSON_FILE
-grep -B4 startUrl episodeTemplate.json > $SHOWS_JSON_FILE
+grep -B4 startUrl movieTemplate.json >$MOVIES_JSON_FILE
+grep -B4 startUrl episodeTemplate.json >$SHOWS_JSON_FILE
 
 awk -v MOVIES_JSON_FILE=$MOVIES_JSON_FILE -v SHOWS_JSON_FILE=$SHOWS_JSON_FILE \
     -f buildBBoxScrapersFrom-webscraper.awk $PROGRAMS_FILE
 
-grep -B1 -A99 selectors movieTemplate.json >> $MOVIES_JSON_FILE
-grep -B1 -A99 selectors episodeTemplate.json >> $SHOWS_JSON_FILE
+grep -B1 -A99 selectors movieTemplate.json >>$MOVIES_JSON_FILE
+grep -B1 -A99 selectors episodeTemplate.json >>$SHOWS_JSON_FILE
