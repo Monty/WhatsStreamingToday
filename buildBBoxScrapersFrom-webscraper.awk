@@ -12,13 +12,13 @@ BEGIN {
 /\/us\/show\// {
     numShows += 1
     shortURL = $6
-    printf ("%s    \"https://www.britbox.com%s\"", trailingShowComma, shortURL) >> SHOWS_JSON_FILE
+    printf ("%s    \"https://www.britbox.com%s\"", trailingShowComma, shortURL) >> EPISODES_JSON_FILE
     trailingShowComma = ",\n"
 }
 
 END {
     print "" >> MOVIES_JSON_FILE
-    print "" >> SHOWS_JSON_FILE
+    print "" >> EPISODES_JSON_FILE
     print "==> Found " numMovies " movies"
     print "==> Found " numShows " shows"
 }
