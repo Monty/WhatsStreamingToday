@@ -10,14 +10,14 @@ LONGDATE="$(date +%y%m%d.%H%M%S)"
 SCRAPES="BritBox-scrapes"
 
 PROGRAMS_FILE="$SCRAPES/BritBoxPrograms.csv"
-MOVIES_JSON_FILE="BritBoxMovies-$LONGDATE.json"
-SHOWS_JSON_FILE="BritBoxShows-$LONGDATE.json"
+MOVIES_JSON_FILE="BBoxMovies-$LONGDATE.json"
+SHOWS_JSON_FILE="BBoxShows-$LONGDATE.json"
 
 grep -B4 startUrl movieTemplate.json > $MOVIES_JSON_FILE
 grep -B4 startUrl showTemplate.json > $SHOWS_JSON_FILE
 
 awk -v MOVIES_JSON_FILE=$MOVIES_JSON_FILE -v SHOWS_JSON_FILE=$SHOWS_JSON_FILE \
-    -f buildBritBoxScrapersFrom-webscraper.awk $PROGRAMS_FILE
+    -f buildBBoxScrapersFrom-webscraper.awk $PROGRAMS_FILE
 
 grep -B1 -A99 selectors movieTemplate.json >> $MOVIES_JSON_FILE
 grep -B1 -A99 selectors showTemplate.json >> $SHOWS_JSON_FILE
