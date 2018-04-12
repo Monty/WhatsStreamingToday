@@ -11,7 +11,7 @@ SCRAPES="BritBox-scrapes"
 
 PROGRAMS_FILE="$SCRAPES/BritBoxPrograms.csv"
 MOVIES_JSON_FILE="BBoxMovies-$LONGDATE.json"
-SHOWS_JSON_FILE="BBoxShows-$LONGDATE.json"
+SHOWS_JSON_FILE="BBoxEpisodes-$LONGDATE.json"
 
 grep -B4 startUrl movieTemplate.json > $MOVIES_JSON_FILE
 grep -B4 startUrl episodeTemplate.json > $SHOWS_JSON_FILE

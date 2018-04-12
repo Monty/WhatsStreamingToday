@@ -1,0 +1,105 @@
+{
+  "_id": "BBoxSeasons",
+  "startUrl": ["https://www.britbox.com/us/programmes"],
+  "selectors": [
+    {
+      "id": "Pgm",
+      "type": "SelectorElementScroll",
+      "selector": "div.program-item",
+      "scrollElementSelector": "html",
+      "parentSelectors": ["_root"],
+      "multiple": true,
+      "delay": "8000"
+    },
+    {
+      "id": "PgmURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/show/'].program-item__block",
+      "parentSelectors": ["Pgm"],
+      "multiple": false,
+      "delay": "0"
+    },
+    {
+      "id": "SsnURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/season/'].brand-season-item",
+      "parentSelectors": ["PgmURL"],
+      "multiple": true,
+      "delay": ""
+    },
+    {
+      "id": "EpiURL",
+      "type": "SelectorLink",
+      "selector": "a[href*='/us/episode/']",
+      "parentSelectors": ["PgmURL"],
+      "multiple": false,
+      "delay": 0
+    },
+    {
+      "id": "Program_Title",
+      "type": "SelectorText",
+      "selector": "h1.brand-hero-info__title",
+      "parentSelectors": ["SsnURL", "EpiURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Sn_Title",
+      "type": "SelectorText",
+      "selector": "a.brand-season-item.active h2.program-item__program-title",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Sn_Years",
+      "type": "SelectorText",
+      "selector": "a.brand-season-item.active p.season-metadata.hero-text",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "^\\d+",
+      "delay": ""
+    },
+    {
+      "id": "Sn_Epis",
+      "type": "SelectorText",
+      "selector": "p.season-metadata",
+      "parentSelectors": ["SsnURL"],
+      "multiple": false,
+      "regex": "\\d+ Episodes?",
+      "delay": ""
+    },
+    {
+      "id": "Sn_Description",
+      "type": "SelectorText",
+      "selector": "p.brand-hero-info__description",
+      "parentSelectors": ["SsnURL", "EpiURL"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Read_More",
+      "type": "SelectorElementClick",
+      "selector": "div.item-details-overlay",
+      "parentSelectors": ["SsnURL", "EpiURL"],
+      "multiple": false,
+      "delay": "3000",
+      "clickElementSelector": "span.brand-hero-info__read-more",
+      "clickType": "clickMore",
+      "discardInitialElements": false,
+      "clickElementUniquenessType": "uniqueText"
+    },
+    {
+      "id": "More_Description",
+      "type": "SelectorText",
+      "selector": "p.item-details-modal__description",
+      "parentSelectors": ["Read_More"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    }
+  ]
+}
