@@ -1,21 +1,18 @@
 {
   "_id": "BBoxSeasons",
-  "startUrl": ["https://www.britbox.com/us/programmes"],
+  "startUrl": [
+    "https://www.britbox.com/us/show/A_Bit_of_Fry_and_Laurie_6393",
+    "https://www.britbox.com/us/show/A_History_of_Ancient_Britain_6385",
+    "https://www.britbox.com/us/show/A_Touch_of_Frost_10008",
+    "https://www.britbox.com/us/show/Till_Death_Us_Do_Part_15810",
+    "https://www.britbox.com/us/show/_The_Queens_Christmas_Message_15091"
+  ],
   "selectors": [
-    {
-      "id": "Pgm",
-      "type": "SelectorElementScroll",
-      "selector": "div.program-item",
-      "scrollElementSelector": "html",
-      "parentSelectors": ["_root"],
-      "multiple": true,
-      "delay": "8000"
-    },
     {
       "id": "PgmURL",
       "type": "SelectorLink",
       "selector": "a[href*='/us/show/'].program-item__block",
-      "parentSelectors": ["Pgm"],
+      "parentSelectors": ["_root"],
       "multiple": false,
       "delay": "0"
     },
