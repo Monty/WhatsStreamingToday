@@ -9,18 +9,10 @@
   ],
   "selectors": [
     {
-      "id": "PgmURL",
-      "type": "SelectorLink",
-      "selector": "a[href*='/us/show/'].program-item__block",
-      "parentSelectors": ["_root"],
-      "multiple": false,
-      "delay": "0"
-    },
-    {
       "id": "SsnURL",
       "type": "SelectorLink",
       "selector": "a[href*='/us/season/'].brand-season-item",
-      "parentSelectors": ["PgmURL"],
+      "parentSelectors": ["_root"],
       "multiple": true,
       "delay": ""
     },
@@ -28,7 +20,7 @@
       "id": "EpiURL",
       "type": "SelectorLink",
       "selector": "a[href*='/us/episode/']",
-      "parentSelectors": ["PgmURL"],
+      "parentSelectors": ["_root"],
       "multiple": false,
       "delay": 0
     },
