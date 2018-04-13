@@ -1,5 +1,5 @@
 #! /bin/bash
-# Use the URLs output by getBritBoxProgramsFrom-webscraper.json to generate json scrapers
+# Use the URLs output by getBBoxProgramsFrom-webscraper.json to generate json scrapers
 # with a per show startUrl instead of the top level "https://www.britbox.com/us/programmes"
 #
 # Then use the resulting json files to scrape current movies and episodes
