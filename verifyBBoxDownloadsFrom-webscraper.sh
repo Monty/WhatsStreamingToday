@@ -35,21 +35,21 @@ SEASONS_FILE="$SCRAPES/BBoxSeasons$NEWDATE.csv"
 EPISODE_INFO_FILE="checkEpisodeInfo-$LONGDATE.txt"
 ERROR_FILE="checkBBox_anomalies-$LONGDATE.txt"
 
-if [ "$VERBOSE" != "" ]; then
-    echo "PROGRAMS_FILE = $PROGRAMS_FILE"
-    echo "EPISODES_FILE = $EPISODES_FILE"
-    echo "SEASONS_FILE = $SEASONS_FILE"
-    echo ""
-    echo "EPISODE_INFO_FILE = $EPISODE_INFO_FILE"
-    echo "ERROR_FILE = $ERROR_FILE"
-    echo ""
-fi
-
 # Print header for verifying episodes across webscraper downloads
 printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
 
 # Print header for possible errors that occur during processing
 printf "### Possible missing episodes are listed below.\n\n" >$ERROR_FILE
+
+if [ "$VERBOSE" != "" ]; then
+    echo "PROGRAMS_FILE = $PROGRAMS_FILE" >>$ERROR_FILE
+    echo "EPISODES_FILE = $EPISODES_FILE" >>$ERROR_FILE
+    echo "SEASONS_FILE = $SEASONS_FILE" >>$ERROR_FILE
+    echo "" >>$ERROR_FILE
+    echo "EPISODE_INFO_FILE = $EPISODE_INFO_FILE" >>$ERROR_FILE
+    echo "ERROR_FILE = $ERROR_FILE" >>$ERROR_FILE
+    echo "" >>$ERROR_FILE
+fi
 
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
     awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
