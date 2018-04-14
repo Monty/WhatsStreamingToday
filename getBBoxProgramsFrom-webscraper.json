@@ -28,6 +28,24 @@
       "multiple": false,
       "regex": "",
       "delay": ""
+    },
+    {
+      "id": "Sn_Years",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__year",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
+    },
+    {
+      "id": "Seasons",
+      "type": "SelectorText",
+      "selector": "span.programme-season-metadata__count",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "\\d+ Seasons?",
+      "delay": ""
     }
   ]
 }
