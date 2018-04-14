@@ -41,11 +41,14 @@ BEGIN {
     cmd = "grep " target " " SEASONS_FILE
     while ((cmd | getline seasonLine) > 0) {
         split (seasonLine, fields, "\"")
-        seasonField = fields[20]
-        episodeField = fields[24]
+        seasonField = fields[16]
+        # print "seasonField = " seasonField
+        episodeField = fields[20]
+        # print "episodeField = " episodeField
         if (seasonField == "")
             continue
         print "          " target seasonField " has "episodeField >> EPISODE_INFO_FILE
+        # print "          " target seasonField " has "episodeField
     }
     close (cmd)
 }
