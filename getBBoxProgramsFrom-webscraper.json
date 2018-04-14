@@ -46,6 +46,15 @@
       "multiple": false,
       "regex": "\\d+ Seasons?",
       "delay": ""
+    },
+    {
+      "id": "Description",
+      "type": "SelectorText",
+      "selector": "p.program-item__program-description",
+      "parentSelectors": ["Program"],
+      "multiple": false,
+      "regex": "",
+      "delay": ""
     }
   ]
 }
