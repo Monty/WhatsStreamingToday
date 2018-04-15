@@ -34,6 +34,7 @@ mkdir -p $SCRAPES $COLUMNS
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
 EPISODES_FILE="$SCRAPES/BBoxEpisodes$NEWDATE.csv"
 SEASONS_FILE="$SCRAPES/BBoxSeasons$NEWDATE.csv"
+SEASONS_SORTED_FILE="$SCRAPES/BBoxSeasons-sorted$NEWDATE.csv"
 #
 PROGRAMS_TITLE_FILE="$COLUMNS/UniqTitle-BBoxPrograms.csv"
 EPISODES_TITLE_FILE="$COLUMNS/UniqTitle-BBoxEpisodes$NEWDATE.csv"
@@ -41,6 +42,9 @@ EPISODES_TITLE_FILE="$COLUMNS/UniqTitle-BBoxEpisodes$NEWDATE.csv"
 EPISODE_INFO_FILE="checkEpisodeInfo-$LONGDATE.txt"
 ERROR_FILE="checkBBox_anomalies-$LONGDATE.txt"
 rm -f $ERROR_FILE
+
+awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE | grep 'www.britbox.com' | 
+    sort -df --field-separator=$'"' --key=4,4 --key=18 >$SEASONS_SORTED_FILE 
 
 if [ "$VERBOSE" != "" ]; then
     echo "PROGRAMS_FILE = $PROGRAMS_FILE" >>$ERROR_FILE
@@ -70,5 +74,5 @@ echo "==> $missingTitles Program titles not found in $EPISODES_FILE" >&2
 printf "\n### Program URLs not found in $EPISODES_FILE are listed below.\n\n" >>$ERROR_FILE
 
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
-    awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
+    awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_SORTED_FILE \
         -v ERROR_FILE=$ERROR_FILE -f verifyBBoxDownloadsFrom-webscraper.awk >>$EPISODE_INFO_FILE
