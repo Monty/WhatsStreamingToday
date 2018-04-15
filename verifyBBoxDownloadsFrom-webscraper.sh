@@ -27,10 +27,16 @@ done
 shift $((OPTIND - 1))
 
 SCRAPES="BritBox-scrapes"
+COLUMNS="$SCRAPES/columns"
+
+mkdir -p $SCRAPES $COLUMNS
 
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
 EPISODES_FILE="$SCRAPES/BBoxEpisodes$NEWDATE.csv"
 SEASONS_FILE="$SCRAPES/BBoxSeasons$NEWDATE.csv"
+#
+PROGRAMS_TITLE_FILE="$COLUMNS/UniqTitle-BBoxPrograms.csv"
+EPISODES_TITLE_FILE="$COLUMNS/UniqTitle-BBoxEpisodes$NEWDATE.csv"
 #
 EPISODE_INFO_FILE="checkEpisodeInfo-$LONGDATE.txt"
 ERROR_FILE="checkBBox_anomalies-$LONGDATE.txt"
@@ -39,17 +45,28 @@ ERROR_FILE="checkBBox_anomalies-$LONGDATE.txt"
 printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
 
 # Print header for possible errors that occur during processing
-printf "### Possible missing episodes are listed below.\n\n" >$ERROR_FILE
+printf "### Program Titles not found in $EPISODES_FILE are listed below.\n\n" >$ERROR_FILE
 
 if [ "$VERBOSE" != "" ]; then
     echo "PROGRAMS_FILE = $PROGRAMS_FILE" >>$ERROR_FILE
     echo "EPISODES_FILE = $EPISODES_FILE" >>$ERROR_FILE
     echo "SEASONS_FILE = $SEASONS_FILE" >>$ERROR_FILE
     echo "" >>$ERROR_FILE
-    echo "EPISODE_INFO_FILE = $EPISODE_INFO_FILE" >>$ERROR_FILE
-    echo "ERROR_FILE = $ERROR_FILE" >>$ERROR_FILE
+    echo "PROGRAMS_TITLE_FILE = " $PROGRAMS_TITLE_FILE >>$ERROR_FILE
+    echo "EPISODES_TITLE_FILE = " $EPISODES_TITLE_FILE >>$ERROR_FILE
     echo "" >>$ERROR_FILE
 fi
+
+awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | grep 'www.britbox.com' |
+    sort -df --field-separator=$',' --key=3 | cut -f 4 -d "," | sort -u >$PROGRAMS_TITLE_FILE 
+awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE | grep 'www.britbox.com' |
+    sort -df --field-separator=$',' --key=3 | cut -f 6 -d "," | sort -u >$EPISODES_TITLE_FILE
+comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE >>$ERROR_FILE
+missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$=')
+echo "==> $missingTitles Program titles not found in $EPISODES_FILE"
+
+# Print header for possible errors that occur during processing
+printf "\n### Program URLs not found in $EPISODES_FILE are listed below.\n\n" >>$ERROR_FILE
 
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
     awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \

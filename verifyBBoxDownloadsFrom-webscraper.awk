@@ -25,34 +25,32 @@ BEGIN {
     nflds = split (programURL,fld,"/") 
     showType = fld[3]
     showType == "show" ? spacer = "  " : spacer = " "
-    target = sprintf ("'%s' ",fld[nflds])
+    target = sprintf ("'%s'",fld[nflds])
     #
     cmd = "grep -c " target " " EPISODES_FILE
     if ((cmd | getline NumEpisodes) > 0) {
         NumEpisodes == 1 ? epiStr = " episode" : epiStr = " episodes"
-        print "==> " showType spacer target "has " NumEpisodes epiStr >> EPISODE_INFO_FILE
+        print "==> " showType spacer target " has " NumEpisodes epiStr >> EPISODE_INFO_FILE
     }
     close (cmd)
     if (NumEpisodes == 0) {
         badEpisodes += 1
-        print "==> " showType spacer target "has " NumEpisodes epiStr >> ERROR_FILE
+        print target >> ERROR_FILE
     }
     #
     cmd = "grep " target " " SEASONS_FILE
     while ((cmd | getline seasonLine) > 0) {
         split (seasonLine, fields, "\"")
         seasonField = fields[16]
-        # print "seasonField = " seasonField
         episodeField = fields[20]
-        # print "episodeField = " episodeField
         if (seasonField == "")
             continue
-        print "          " target seasonField " has "episodeField >> EPISODE_INFO_FILE
-        # print "          " target seasonField " has "episodeField
+        print "          " target " " seasonField " has "episodeField >> EPISODE_INFO_FILE
+
     }
     close (cmd)
 }
 
 END {
-    print "==> " badEpisodes " missing episodes"
+    print "==> " badEpisodes " Program URLs not found in " EPISODES_FILE
 }
