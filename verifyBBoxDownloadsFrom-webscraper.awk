@@ -3,8 +3,7 @@
 # INVOCATION:
 #    awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
 #        awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
-#        -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-#        -f verifyBBoxDownloadsFrom-webscraper.awk
+#        -v ERROR_FILE=$ERROR_FILE -f verifyBBoxDownloadsFrom-webscraper.awk
 
 # Field numbers
 #    1 web-scraper-order  2 web-scraper-start-url  3 URL        4 Program_Title   5 Sn_Years
@@ -30,12 +29,13 @@ BEGIN {
     cmd = "grep -c " target " " EPISODES_FILE
     if ((cmd | getline NumEpisodes) > 0) {
         NumEpisodes == 1 ? epiStr = " episode" : epiStr = " episodes"
-        print "==> " showType spacer target " has " NumEpisodes epiStr >> EPISODE_INFO_FILE
+        print "==> " showType spacer target " has " NumEpisodes epiStr
     }
     close (cmd)
     if (NumEpisodes == 0) {
         badEpisodes += 1
-        print target >> ERROR_FILE
+        unquotedTarget = substr(target,2,length(target)-2)
+        print "    " unquotedTarget >> ERROR_FILE
     }
     #
     cmd = "grep " target " " SEASONS_FILE
@@ -45,12 +45,12 @@ BEGIN {
         episodeField = fields[20]
         if (seasonField == "")
             continue
-        print "          " target " " seasonField " has "episodeField >> EPISODE_INFO_FILE
+        print "          " target " " seasonField " has " episodeField
 
     }
     close (cmd)
 }
 
 END {
-    print "==> " badEpisodes " Program URLs not found in " EPISODES_FILE
+    print "==> " badEpisodes " Program URLs not found in " EPISODES_FILE  > "/dev/stderr"
 }
