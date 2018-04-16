@@ -33,6 +33,9 @@ COLUMNS="$SCRAPES/columns"
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
 EPISODES_FILE="$SCRAPES/BBoxEpisodes$NEWDATE.csv"
 SEASONS_FILE="$SCRAPES/BBoxSeasons$NEWDATE.csv"
+if [ ! -e "$SEASONS_FILE" ]; then
+    SEASONS_FILE="/dev/null"
+fi
 #
 PROGRAMS_SORTED_FILE="$SCRAPES/BBoxPrograms-sorted$NEWDATE.csv"
 EPISODES_SORTED_FILE="$SCRAPES/BBoxEpisodes-sorted$NEWDATE.csv"
