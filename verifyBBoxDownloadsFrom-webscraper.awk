@@ -1,32 +1,27 @@
 # Verify that every show in BBoxPrograms is also in BBoxEpisodes
 
 # INVOCATION:
-#    awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | sort -df --field-separator=$',' --key=3 |
-#        awk -v EPISODES_FILE=$EPISODES_FILE -v SEASONS_FILE=$SEASONS_FILE \
-#        -v ERROR_FILE=$ERROR_FILE -f verifyBBoxDownloadsFrom-webscraper.awk
+#   awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
+#       -v ERROR_FILE=$ERROR_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
+#       >>$EPISODE_INFO_FILE
 
 # Field numbers
-#    1 web-scraper-order  2 web-scraper-start-url  3 URL        4 Program_Title   5 Sn_Years
-#    6 Seasons            7  Mv_Year               8  Duration  9  Rating        10  Description
-
-# Example input from scraping with getBBoxProgramsFrom-webscraper.json
-# "1523123734-54","https://www.britbox.com/us/programmes","/us/movie/Christmas_Lights_15512",\
-#      "Christmas Lights"
-# "1523201776-3607","https://www.britbox.com/us/programmes","/us/show/Are_You_Being_Served_6429",\
-#      "Are You Being Served?"
+#    1 web-scraper-start-url    2 URL    3 Program_Title    4 Sn_Years    5 Seasons    9  Description
 
 BEGIN {
-    FS="\""
+    FS="\t"
 }
 
-/^"/ {
-    programURL = $6
+/^https:/ {
+    programURL = $2
     nflds = split (programURL,fld,"/") 
     showType = fld[3]
     showType == "show" ? spacer = "  " : spacer = " "
+    # Must have single quotes to handle special charaters in targets
     target = sprintf ("'%s'",fld[nflds])
+    unquotedTarget = substr(target,2,length(target)-2)
     #
-    cmd = "grep -c " target " " EPISODES_FILE
+    cmd = "grep -c " target " " EPISODES_SORTED_FILE
     if ((cmd | getline NumEpisodes) > 0) {
         NumEpisodes == 1 ? epiStr = " episode" : epiStr = " episodes"
         print "==> " showType spacer target " has " NumEpisodes epiStr
@@ -34,17 +29,21 @@ BEGIN {
     close (cmd)
     if (NumEpisodes == 0) {
         badEpisodes += 1
-        unquotedTarget = substr(target,2,length(target)-2)
         print "    " unquotedTarget >> ERROR_FILE
     }
     #
-    cmd = "grep " target " " SEASONS_FILE
+    cmd = "grep " target " " SEASONS_SORTED_FILE
     while ((cmd | getline seasonLine) > 0) {
-        split (seasonLine, fields, "\"")
-        seasonField = fields[16]
-        episodeField = fields[20]
-        if (seasonField == "")
+        split (seasonLine, fields, "\t")
+        seasonField = fields[7]
+        episodeField = fields[9]
+        if (seasonField == "") {
+            print "==> Blank Seasons field for " target " in " SEASONS_SORTED_FILE \
+                > "/dev/stderr"
+            print "    ==> Blank Seasons field for " unquotedTarget " in " SEASONS_SORTED_FILE \
+                >> ERROR_FILE
             continue
+        }
         print "          " target " " seasonField " has " episodeField
 
     }
@@ -52,5 +51,6 @@ BEGIN {
 }
 
 END {
-    print "==> " badEpisodes " Program URLs not found in " EPISODES_FILE  > "/dev/stderr"
+    print "" >> ERROR_FILE
+    print "==> " badEpisodes " Program URLs not found in " EPISODES_SORTED_FILE  > "/dev/stderr"
 }
