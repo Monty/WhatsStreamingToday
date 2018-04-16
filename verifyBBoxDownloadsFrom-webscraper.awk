@@ -2,7 +2,7 @@
 
 # INVOCATION:
 #   awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
-#       -v ERROR_FILE=$ERROR_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
+#       -v TEMP_FILE=$TEMP_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
 #       >>$EPISODE_INFO_FILE
 
 # Field numbers
@@ -29,7 +29,7 @@ BEGIN {
     close (cmd)
     if (NumEpisodes == 0) {
         badEpisodes += 1
-        print "    " unquotedTarget >> ERROR_FILE
+        print "    " unquotedTarget >> TEMP_FILE
     }
     #
     cmd = "grep " target " " SEASONS_SORTED_FILE
@@ -38,10 +38,10 @@ BEGIN {
         seasonField = fields[7]
         episodeField = fields[9]
         if (seasonField == "") {
-            print "==> Blank Seasons field for " target " in " SEASONS_SORTED_FILE \
+            print "==> " target " missing Seasons field in " SEASONS_SORTED_FILE \
                 > "/dev/stderr"
-            print "    ==> Blank Seasons field for " unquotedTarget " in " SEASONS_SORTED_FILE \
-                >> ERROR_FILE
+            print "    " unquotedTarget " missing Seasons field in " SEASONS_SORTED_FILE \
+                >> TEMP_FILE
             continue
         }
         print "          " target " " seasonField " has " episodeField
@@ -51,6 +51,5 @@ BEGIN {
 }
 
 END {
-    print "" >> ERROR_FILE
     print "==> " badEpisodes " Program URLs not found in " EPISODES_SORTED_FILE  > "/dev/stderr"
 }

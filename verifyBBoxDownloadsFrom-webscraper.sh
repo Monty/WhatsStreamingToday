@@ -103,8 +103,11 @@ echo "==> $missingTitles Program titles not found in $EPISODES_SORTED_FILE" >&2
 # Print header for possible errors that occur during processing
 printf "\n### Program URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
 
+rm -f $TEMP_FILE
 awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
-    -v ERROR_FILE=$ERROR_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
+    -v TEMP_FILE=$TEMP_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
     >>$EPISODE_INFO_FILE
+sort -df $TEMP_FILE >>$ERROR_FILE
+echo "" >>$ERROR_FILE
 
 exit
