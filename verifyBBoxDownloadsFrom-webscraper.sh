@@ -70,19 +70,19 @@ fi
 
 # Join broken lines, get rid of useless 'web-scraper-order' field, change comma-separated to
 # tab separated, sort into useful order
-awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
+awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | cut -f 3- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$PROGRAMS_SORTED_FILE
-grep 'www.britbox.com' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 \
+grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 \
     >>$PROGRAMS_SORTED_FILE
 #
 awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$EPISODES_SORTED_FILE
-grep 'www.britbox.com' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=8,8 --key=5,5 \
+grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=8,8 --key=5,5 \
     >>$EPISODES_SORTED_FILE
 #
 awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$SEASONS_SORTED_FILE
-grep 'www.britbox.com' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=9,9 --key=4,4 |
+grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=9,9 --key=4,4 |
     grep -v /us/episode/ >>$SEASONS_SORTED_FILE
 #
 rm -f $TEMP_FILE
@@ -93,8 +93,8 @@ printf "### Information on number of episodes and seasons is listed below.\n\n" 
 # Print header for possible errors that occur during processing
 printf "### Program Titles not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
 
-grep 'www.britbox.com' $PROGRAMS_SORTED_FILE | cut -f 3 -d $'\t' | sort -u >$PROGRAMS_TITLE_FILE
-grep 'www.britbox.com' $EPISODES_SORTED_FILE | cut -f 5 -d $'\t' | sort -u >$EPISODES_TITLE_FILE
+grep '/us/' $PROGRAMS_SORTED_FILE | cut -f 2 -d $'\t' | sort -u >$PROGRAMS_TITLE_FILE
+grep '/us/' $EPISODES_SORTED_FILE | cut -f 5 -d $'\t' | sort -u >$EPISODES_TITLE_FILE
 
 comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
 missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$=')

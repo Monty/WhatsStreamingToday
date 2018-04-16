@@ -12,8 +12,8 @@ BEGIN {
     FS="\t"
 }
 
-/^https:/ {
-    programURL = $2
+/\/us\// {
+    programURL = $1
     nflds = split (programURL,fld,"/") 
     showType = fld[3]
     showType == "show" ? spacer = "  " : spacer = " "
