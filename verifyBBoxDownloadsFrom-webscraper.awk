@@ -38,9 +38,9 @@ BEGIN {
         seasonField = fields[7]
         episodeField = fields[9]
         if (seasonField == "") {
-            print "==> " target " missing Seasons field in " SEASONS_SORTED_FILE \
+            print "==> " target " (blank Seasons field in " SEASONS_SORTED_FILE ")" \
                 > "/dev/stderr"
-            print "    " unquotedTarget " missing Seasons field in " SEASONS_SORTED_FILE \
+            print "    " unquotedTarget " (blank Seasons field in " SEASONS_SORTED_FILE ")" \
                 >> TEMP_FILE
             continue
         }
