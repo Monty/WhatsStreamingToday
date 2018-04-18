@@ -118,7 +118,7 @@ missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$='
 echo "==> $missingTitles Program titles not found in $EPISODES_SORTED_FILE" >&2
 
 # Print header for possible errors that occur during processing
-printf "\n### Program URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
+printf "\n### /program/ URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
 
 rm -f $TEMP_FILE
 awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
@@ -134,7 +134,7 @@ rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
 printf "\n\n### Information from processing shows is listed below.\n\n" >>$EPISODE_INFO_FILE
 #
 # Add header for possible errors that occur during processing
-printf "### Show URLs that shouldn't be in $PROGRAMS_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
+printf "### /show/ URLs that shouldn't be in $PROGRAMS_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
 
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \

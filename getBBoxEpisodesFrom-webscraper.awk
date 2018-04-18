@@ -94,5 +94,5 @@ BEGIN {
 }
 
 END {
-    print "==> " badEpisodes " Show URLs found in " FILENAME  > "/dev/stderr"
+    print "==> " badEpisodes " /show/ URLs found in " FILENAME  > "/dev/stderr"
 }

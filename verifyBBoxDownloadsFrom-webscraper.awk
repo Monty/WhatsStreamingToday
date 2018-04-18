@@ -51,5 +51,5 @@ BEGIN {
 }
 
 END {
-    print "==> " badEpisodes " Program URLs not found in " EPISODES_SORTED_FILE  > "/dev/stderr"
+    print "==> " badEpisodes " /program/ URLs not found in " EPISODES_SORTED_FILE  > "/dev/stderr"
 }
