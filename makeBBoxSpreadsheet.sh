@@ -41,22 +41,22 @@ SCRAPES="BritBox-scrapes"
 
 mkdir -p $COLUMNS $BASELINE $SCRAPES
 
-# File names are used in saveTodaysBritBoxFiles.sh
+# File names are used in saveTodaysBBoxFiles.sh
 # so if you change them here, change them there as well
 # They are named with today's date so running them twice
 # in one day will only generate one set of results
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
-PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BritBoxPrograms-$DATE.csv"
-PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BritBoxPrograms.txt"
+PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BBoxPrograms-$DATE.csv"
+PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms.txt"
 SEASONS_FILE="$SCRAPES/BBoxSeasons.csv"
 if [ ! -e "$SEASONS_FILE" ]; then
     SEASONS_FILE="/dev/null"
 fi
-SEASONS_SPREADSHEET_FILE="$COLUMNS/BritBoxSeasons-$DATE.csv"
-PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BritBoxSeasons.txt"
+SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons-$DATE.csv"
+PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons.txt"
 EPISODES_FILE="$SCRAPES/BBoxEpisodes.csv"
-EPISODES_SPREADSHEET_FILE="$COLUMNS/BritBoxEpisodes-$DATE.csv"
-PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BritBoxEpisodes.txt"
+EPISODES_SPREADSHEET_FILE="$COLUMNS/BBoxEpisodes-$DATE.csv"
+PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
 DURATION_FILE="$COLUMNS/duration-$DATE.csv"
 PUBLISHED_DURATION="$BASELINE/duration.txt"
 #
@@ -67,21 +67,21 @@ SEASONS_SORTED_FILE="$COLUMNS/BBoxSeasons-sorted-$DATE.csv"
 PROGRAMS_TITLE_FILE="$COLUMNS/UniqTitle-BBoxPrograms.csv"
 EPISODES_TITLE_FILE="$COLUMNS/UniqTitle-BBoxEpisodes$NEWDATE.csv"
 # Temporary sorted seasons spreadsheet for debugging
-SEASONS_SORTED_SPREADSHEET_FILE="BritBoxSeasons-sorted-$DATE.csv"
+SEASONS_SORTED_SPREADSHEET_FILE="BBoxSeasons-sorted-$DATE.csv"
 PUBLISHED_SEASONS_SORTED_SPREADSHEET="$BASELINE/seasons-sorted.txt"
 #
-SHORT_SPREADSHEET_FILE="BritBox_TV_Shows-$DATE.csv"
+SHORT_SPREADSHEET_FILE="BBox_TV_Shows-$DATE.csv"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
-LONG_SPREADSHEET_FILE="BritBox_TV_ShowsEpisodes-$DATE.csv"
+LONG_SPREADSHEET_FILE="BBox_TV_ShowsEpisodes-$DATE.csv"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
 ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
 #
 # Name diffs and errors with both date and time so every run produces a new result
-POSSIBLE_DIFFS="BritBox_diffs-$LONGDATE.txt"
-ERROR_FILE="BritBox_anomalies-$LONGDATE.txt"
-EPISODE_INFO_FILE="BritBox_episodeInfo-$LONGDATE.txt"
+POSSIBLE_DIFFS="BBox_diffs-$LONGDATE.txt"
+ERROR_FILE="BBox_anomalies-$LONGDATE.txt"
+EPISODE_INFO_FILE="BBox_episodeInfo-$LONGDATE.txt"
 #
 TEMP_FILE="/tmp/BBoxTemp-$DATE.csv"
 
@@ -147,10 +147,10 @@ exit
 awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
     awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-        -f getBritBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
+        -f getBBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
 grep -v '"null","","","",' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
     csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
-    awk -v ERROR_FILE=$ERROR_FILE -f getBritBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
+    awk -v ERROR_FILE=$ERROR_FILE -f getBBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
 
 # Temporarily save a sorted "seasons file" for easier debugging.
 # Don't sort header line, keep it at the top of the spreadsheet
@@ -161,7 +161,7 @@ grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SORTED_SPREADSH
 head -1 $PROGRAMS_SPREADSHEET_FILE >$LONG_SPREADSHEET_FILE
 grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -f |
     tail -r | awk -v ERROR_FILE=$ERROR_FILE -v DURATION_FILE=$DURATION_FILE \
-        -f calculateBritBoxDurations.awk | tail -r >>$LONG_SPREADSHEET_FILE
+        -f calculateBBoxDurations.awk | tail -r >>$LONG_SPREADSHEET_FILE
 #
 grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
