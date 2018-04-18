@@ -27,7 +27,7 @@ done
 shift $((OPTIND - 1))
 
 # Pick files to be used
-SCRAPES="BritBox-scrapes"
+SCRAPES="BBox-scrapes"
 COLUMNS="$SCRAPES/columns"
 #
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
@@ -41,8 +41,8 @@ PROGRAMS_SORTED_FILE="$SCRAPES/BBoxPrograms-sorted$NEWDATE.csv"
 EPISODES_SORTED_FILE="$SCRAPES/BBoxEpisodes-sorted$NEWDATE.csv"
 SEASONS_SORTED_FILE="$SCRAPES/BBoxSeasons-sorted$NEWDATE.csv"
 #
-PROGRAMS_TITLE_FILE="$COLUMNS/UniqTitle-BBoxPrograms.csv"
-EPISODES_TITLE_FILE="$COLUMNS/UniqTitle-BBoxEpisodes$NEWDATE.csv"
+PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxPrograms$NEWDATE.csv"
+EPISODES_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxEpisodes$NEWDATE.csv"
 #
 EPISODE_INFO_FILE="checkEpisodeInfo-$LONGDATE.txt"
 ERROR_FILE="checkBBox_anomalies-$LONGDATE.txt"

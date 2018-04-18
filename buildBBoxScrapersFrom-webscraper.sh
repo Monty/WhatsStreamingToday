@@ -7,7 +7,7 @@
 DATE="$(date +%y%m%d)"
 LONGDATE="$(date +%y%m%d.%H%M%S)"
 
-SCRAPES="BritBox-scrapes"
+SCRAPES="BBox-scrapes"
 
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
 #

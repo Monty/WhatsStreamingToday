@@ -35,9 +35,9 @@ fi
 DATE="$(date +%y%m%d)"
 LONGDATE="$(date +%y%m%d.%H%M%S)"
 
-COLUMNS="BritBox-columns"
-BASELINE="BritBox-baseline"
-SCRAPES="BritBox-scrapes"
+COLUMNS="BBox-columns"
+BASELINE="BBox-baseline"
+SCRAPES="BBox-scrapes"
 
 mkdir -p $COLUMNS $BASELINE $SCRAPES
 
@@ -64,8 +64,8 @@ PROGRAMS_SORTED_FILE="$COLUMNS/BBoxPrograms-sorted-$DATE.csv"
 EPISODES_SORTED_FILE="$COLUMNS/BBoxEpisodes-sorted-$DATE.csv"
 SEASONS_SORTED_FILE="$COLUMNS/BBoxSeasons-sorted-$DATE.csv"
 #
-PROGRAMS_TITLE_FILE="$COLUMNS/UniqTitle-BBoxPrograms.csv"
-EPISODES_TITLE_FILE="$COLUMNS/UniqTitle-BBoxEpisodes$NEWDATE.csv"
+PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxPrograms$NEWDATE.csv"
+EPISODES_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxEpisodes$NEWDATE.csv"
 # Temporary sorted seasons spreadsheet for debugging
 SEASONS_SORTED_SPREADSHEET_FILE="BBoxSeasons-sorted-$DATE.csv"
 PUBLISHED_SEASONS_SORTED_SPREADSHEET="$BASELINE/seasons-sorted.txt"
