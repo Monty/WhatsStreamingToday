@@ -7,7 +7,7 @@
 
 BEGIN {
     FS="\t"
-    print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
+    # print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
 }
 
 {
@@ -17,7 +17,7 @@ BEGIN {
     }
 }
 
-/\/us\// {
+/\/us\/movie\/|\/us\/episode\// {
     URL = $4
     showTitle = $5
     episodeTitle = $6
@@ -25,6 +25,19 @@ BEGIN {
     Duration = $8
     Rating = $9
     Description = $10
+
+    # Non-existent fields in movies or episodes
+    if (URL ~ /^\/us\/movie\//) {
+        depth = "1"
+        showtype = "M"
+        NumSeasons = 1
+        NumEpisodes = 1
+    } else {
+        depth = "2"
+        showtype = "E"
+        NumSeasons = ""
+        NumEpisodes = ""
+    }
 
     # Convert duration from minutes to HMS
     sub( / min/,"",Duration)
@@ -35,57 +48,33 @@ BEGIN {
     if (HMS == "00:00:00")
         HMS = ""
 
-    # Titles starting with "The" should not sort based on "The"
-    if (match (showTitle, /^The /))
-        showTitle = substr(showTitle, 5) ", The"
-}
-
-
-/\/us\/movie\// {
-    NumSeasons = 1
-    NumEpisodes = 1
-
-    # Extract sortkey from URL
-    nflds = split (URL,fld,"_")
-    if (URL ~ /_[[:digit:]]*$/) {
-        sortkey = sprintf ("M%05d", fld[nflds])
-    } else {
-        sortkey = "XXXX"
-    }
-
-    savedLine = sprintf \
-        ("%s (1) %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
-         showTitle, sortkey, URL, showTitle, NumSeasons, NumEpisodes, HMS, Years,\
-         Rating, Description)
-
-    # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
-    sub (/^'/,"",savedLine)
-
-    print savedLine
-}
-
-/\/us\/episode\// {
     # Extract sortkey from URL
     nflds = split (URL,fld,"_")
     if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
         seasonNumber = substr(fld[nflds-2], 2)
         episodeNumber = substr(fld[nflds-1], 2)
-        sortkey = sprintf ("S%02dE%02d", seasonNumber, episodeNumber)
+        sortkey = sprintf ("%s%02dE%02d", showtype, seasonNumber, episodeNumber)
     } else {
-        sortkey = sprintf ("E%05d", fld[nflds])
+        sortkey = sprintf ("%s%05d", showtype, fld[nflds])
     }
+
+    # Titles starting with "The" should not sort based on "The"
+    if (match (showTitle, /^The /))
+        showTitle = substr(showTitle, 5) ", The"
 
     # Get rid of redundant "Series #" or "Series #" from episodeTitle
     if (match (episodeTitle, /^Season [[:digit:]]*, |^Series [[:digit:]]*, /))
         episodeTitle = substr(episodeTitle,RLENGTH+1)
 
+    # Create spreadsheet row in common format
     savedLine = sprintf \
-        ("%s (2) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s, %s, %s\"\)\t\t\t%s\t%s\t%s\t%s",\
-         showTitle, Years, sortkey, URL, showTitle, sortkey, episodeTitle, HMS, Years, \
-         Rating, Description)
+        ("%s (%s) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
+         showTitle, depth, Years, sortkey, URL, fullTitle, NumSeasons, NumEpisodes, \
+         HMS, Years, Rating, Description)
 
     # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
     sub (/^'/,"",savedLine)
 
     print savedLine
+    next
 }

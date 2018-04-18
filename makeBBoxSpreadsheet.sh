@@ -137,6 +137,7 @@ printf "\n\n### Information from processing shows is listed below.\n\n" >>$EPISO
 printf "### Possible anomalies from processing shows are listed below.\n\n" >>$ERROR_FILE
 
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
+awk -f getBBoxProgramsFrom-webscraper.awk $PROGRAMS_SORTED_FILE >$PROGRAMS_SPREADSHEET_FILE
 awk -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
 
 exit
