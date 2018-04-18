@@ -1,5 +1,9 @@
 # Print the processed "Episode" lines from a WebScraper csv file saved in tsv format
 
+# INVOCATION:
+#       awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+#           -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
+
 # Field numbers
 #    1 web-scraper-start-url  2 SsnURL     3 SsnURL-href    4 URL        5 Program_Title
 #    6 Episode_Title          7 Year       8 Duration       9 Rating    10 Description
@@ -25,18 +29,17 @@ BEGIN {
     Duration = $8
     Rating = $9
     Description = $10
+    showtype = "S"
 
-    # Non-existent fields in movies or episodes
-    if (URL ~ /^\/us\/movie\//) {
-        depth = "1"
-        showtype = "M"
-        NumSeasons = 1
-        NumEpisodes = 1
+    # Extract sortkey from URL
+    nflds = split (URL,fld,"_")
+    if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
+        seasonNumber = substr(fld[nflds-2], 2)
+        episodeNumber = substr(fld[nflds-1], 2)
+        sortkey = sprintf ("%s%02dE%02d", showtype, seasonNumber, episodeNumber)
     } else {
-        depth = "2"
-        showtype = "E"
-        NumSeasons = ""
-        NumEpisodes = ""
+        URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "X"
+        sortkey = sprintf ("%s%05d", showtype, fld[nflds])
     }
 
     # Convert duration from minutes to HMS
@@ -48,16 +51,6 @@ BEGIN {
     if (HMS == "00:00:00")
         HMS = ""
 
-    # Extract sortkey from URL
-    nflds = split (URL,fld,"_")
-    if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
-        seasonNumber = substr(fld[nflds-2], 2)
-        episodeNumber = substr(fld[nflds-1], 2)
-        sortkey = sprintf ("%s%02dE%02d", showtype, seasonNumber, episodeNumber)
-    } else {
-        sortkey = sprintf ("%s%05d", showtype, fld[nflds])
-    }
-
     # Titles starting with "The" should not sort based on "The"
     if (match (showTitle, /^The /))
         showTitle = substr(showTitle, 5) ", The"
@@ -65,6 +58,19 @@ BEGIN {
     # Get rid of redundant "Series #" or "Series #" from episodeTitle
     if (match (episodeTitle, /^Season [[:digit:]]*, |^Series [[:digit:]]*, /))
         episodeTitle = substr(episodeTitle,RLENGTH+1)
+
+    # Non-existent fields in movies or episodes
+    if (URL ~ /^\/us\/movie\//) {
+        depth = "1"
+        NumSeasons = 1
+        NumEpisodes = 1
+        fullTitle = showTitle
+    } else {
+        depth = "2"
+        NumSeasons = ""
+        NumEpisodes = ""
+        fullTitle = showTitle ", " sortkey ", " episodeTitle
+    }
 
     # Create spreadsheet row in common format
     savedLine = sprintf \

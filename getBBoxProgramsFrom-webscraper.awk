@@ -1,5 +1,9 @@
 # Print processed "Program" lines from a WebScraper csv file saved in tsv format
 
+# INVOCATION:
+#       awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+#           -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
+
 # Field numbers
 #    1 URL    2 Program_Title    3 Sn_Years    4 Seasons    5 Description
 
