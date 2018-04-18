@@ -134,7 +134,7 @@ rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
 printf "\n\n### Information from processing shows is listed below.\n\n" >>$EPISODE_INFO_FILE
 #
 # Add header for possible errors that occur during processing
-printf "### Possible anomalies from processing shows are listed below.\n\n" >>$ERROR_FILE
+printf "### Show URLs that shouldn't be in $PROGRAMS_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
 
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \

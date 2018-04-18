@@ -38,7 +38,7 @@ BEGIN {
         episodeNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("%s%02dE%02d", showtype, seasonNumber, episodeNumber)
     } else {
-        URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "X"
+        URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "E"
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
     }
 
@@ -83,4 +83,16 @@ BEGIN {
 
     print savedLine
     next
+}
+
+/\/us\/show\// {
+    # Shouldn't get here
+    badEpisodes += 1
+    URL = $4
+    sub (/\/us\/show\//, "", URL)
+    print "    " URL >> ERROR_FILE
+}
+
+END {
+    print "==> " badEpisodes " Show URLs found in " FILENAME  > "/dev/stderr"
 }
