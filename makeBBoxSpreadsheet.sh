@@ -1,10 +1,15 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on BritBox
 
+# -a ALT picks alternate files to scrape. The triple "BBoxPrograms, BBoxEpisodes, and BBoxSeasons"
+#    are amended with ALT, e.g. BBoxPrograms-$ALT.csv, BBoxEpisodes-$ALT.csv, etc.
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":dt" opt; do
+while getopts ":a:dt" opt; do
     case $opt in
+    a)
+        ALT="-$OPTARG"
+        ;;
     d)
         DEBUG="yes"
         ;;
@@ -13,6 +18,10 @@ while getopts ":dt" opt; do
         ;;
     \?)
         echo "Ignoring invalid option: -$OPTARG" >&2
+        ;;
+    :)
+        echo "Option -$OPTARG requires an argumen" >&2
+        exit 1
         ;;
     esac
 done
@@ -45,16 +54,16 @@ mkdir -p $COLUMNS $BASELINE $SCRAPES
 # so if you change them here, change them there as well
 # They are named with today's date so running them twice
 # in one day will only generate one set of results
-PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
+PROGRAMS_FILE="$SCRAPES/BBoxPrograms$ALT.csv"
 PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BBoxPrograms-$DATE.csv"
 PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms.txt"
-SEASONS_FILE="$SCRAPES/BBoxSeasons.csv"
+SEASONS_FILE="$SCRAPES/BBoxSeasons$ALT.csv"
 if [ ! -e "$SEASONS_FILE" ]; then
     SEASONS_FILE="/dev/null"
 fi
 SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons-$DATE.csv"
 PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons.txt"
-EPISODES_FILE="$SCRAPES/BBoxEpisodes.csv"
+EPISODES_FILE="$SCRAPES/BBoxEpisodes$ALT.csv"
 EPISODES_SPREADSHEET_FILE="$COLUMNS/BBoxEpisodes-$DATE.csv"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
 DURATION_FILE="$COLUMNS/duration-$DATE.csv"
@@ -115,7 +124,9 @@ grep '/us/' $EPISODES_SORTED_FILE | cut -f 5 -d $'\t' | sort -u >$EPISODES_TITLE
 
 comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
 missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$=')
-echo "==> $missingTitles Program titles not found in $EPISODES_SORTED_FILE" >&2
+if [ "$missingTitles" != "" ]; then
+    echo "==> $missingTitles Program titles not found in $EPISODES_SORTED_FILE" >&2
+fi
 
 # Print header for possible errors that occur during processing
 printf "\n### /program/ URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
