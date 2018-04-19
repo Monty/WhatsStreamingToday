@@ -11,11 +11,15 @@ SCRAPES="BBox-scrapes"
 
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
 #
+PROGRAMS_ID="BBoxPrograms-$LONGDATE"
 EPISODES_ID="BBoxEpisodes-$LONGDATE"
 SEASONS_ID="BBoxSeasons-$LONGDATE"
 #
+PROGRAMS_JSON_FILE="$PROGRAMS_ID.json"
 EPISODES_JSON_FILE="$EPISODES_ID.json"
 SEASONS_JSON_FILE="$SEASONS_ID.json"
+
+sed -e "s/BBoxPrograms/$PROGRAMS_ID/" programTemplate.json >$PROGRAMS_JSON_FILE
 
 grep -B4 startUrl episodeTemplate.json | sed -e "s/BBoxEpisodes/$EPISODES_ID/" >$EPISODES_JSON_FILE
 grep -B4 startUrl seasonTemplate.json | sed -e "s/BBoxSeasons/$SEASONS_ID/" >$SEASONS_JSON_FILE
