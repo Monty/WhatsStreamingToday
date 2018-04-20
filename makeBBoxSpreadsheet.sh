@@ -1,6 +1,9 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on BritBox
 
+DATE_ID="-$(date +%y%m%d)"
+LONGDATE="-$(date +%y%m%d.%H%M%S)"
+
 # -a ALT picks alternate files to scrape. The triple "BBoxPrograms, BBoxEpisodes, and BBoxSeasons"
 #    are amended with ALT, e.g. BBoxPrograms-$ALT.csv, BBoxEpisodes-$ALT.csv, etc.
 # Use "-d" switch to output a "diffs" file useful for debugging
@@ -8,7 +11,8 @@
 while getopts ":a:dt" opt; do
     case $opt in
     a)
-        ALT="-$OPTARG"
+        ALT_ID="-$OPTARG"
+        DATE_ID="-$OPTARG"
         ;;
     d)
         DEBUG="yes"
@@ -41,9 +45,6 @@ if ! curl -o /dev/null -Isf $BROWSE_URL; then
     exit 1
 fi
 
-DATE="$(date +%y%m%d)"
-LONGDATE="$(date +%y%m%d.%H%M%S)"
-
 COLUMNS="BBox-columns"
 BASELINE="BBox-baseline"
 SCRAPES="BBox-scrapes"
@@ -54,45 +55,60 @@ mkdir -p $COLUMNS $BASELINE $SCRAPES
 # so if you change them here, change them there as well
 # They are named with today's date so running them twice
 # in one day will only generate one set of results
-PROGRAMS_FILE="$SCRAPES/BBoxPrograms$ALT.csv"
-PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BBoxPrograms-$DATE.csv"
-PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms.txt"
-SEASONS_FILE="$SCRAPES/BBoxSeasons$ALT.csv"
+
+# In the default case -- input, output, and baseline files have no date information.
+#   but intermediate files have today's date $DATE_ID inserted before the file extension.
+# If -a ALT_ID is specified, the $ALT_ID string is instead inserted in ALL of those files,
+#   most commonly a LONGDATE corresponding to the original scrape time, but it could
+#   be any string.
+# Error and debugging files always have a LONGDATE of the execution time inserted.
+
+# The three input files scraped by webscraper
+PROGRAMS_FILE="$SCRAPES/BBoxPrograms$ALT_ID.csv"
+EPISODES_FILE="$SCRAPES/BBoxEpisodes$ALT_ID.csv"
+SEASONS_FILE="$SCRAPES/BBoxSeasons$ALT_ID.csv"
 if [ ! -e "$SEASONS_FILE" ]; then
     SEASONS_FILE="/dev/null"
 fi
-SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons-$DATE.csv"
-PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons.txt"
-EPISODES_FILE="$SCRAPES/BBoxEpisodes$ALT.csv"
-EPISODES_SPREADSHEET_FILE="$COLUMNS/BBoxEpisodes-$DATE.csv"
-PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
-DURATION_FILE="$COLUMNS/duration-$DATE.csv"
-PUBLISHED_DURATION="$BASELINE/duration.txt"
 #
-PROGRAMS_SORTED_FILE="$COLUMNS/BBoxPrograms-sorted-$DATE.csv"
-EPISODES_SORTED_FILE="$COLUMNS/BBoxEpisodes-sorted-$DATE.csv"
-SEASONS_SORTED_FILE="$COLUMNS/BBoxSeasons-sorted-$DATE.csv"
+# Final output spreadsheets
+SHORT_SPREADSHEET_FILE="BBox_TV_Shows$DATE_ID.csv"
+LONG_SPREADSHEET_FILE="BBox_TV_ShowsEpisodes$DATE_ID.csv"
+SEASONS_SORTED_SPREADSHEET_FILE="BBoxSeasons-sorted$DATE_ID.csv"
 #
-PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxPrograms$NEWDATE.csv"
-EPISODES_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxEpisodes$NEWDATE.csv"
-# Temporary sorted seasons spreadsheet for debugging
-SEASONS_SORTED_SPREADSHEET_FILE="BBoxSeasons-sorted-$DATE.csv"
-PUBLISHED_SEASONS_SORTED_SPREADSHEET="$BASELINE/seasons-sorted.txt"
+# Error and debugging info (per run)
+POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
+ERROR_FILE="BBox_anomalies$LONGDATE.txt"
+EPISODE_INFO_FILE="BBox_episodeInfo$LONGDATE.txt"
+
+# Intermediate but useful results
+PROGRAMS_SORTED_FILE="$COLUMNS/BBoxPrograms-sorted$DATE_ID.csv"
+EPISODES_SORTED_FILE="$COLUMNS/BBoxEpisodes-sorted$DATE_ID.csv"
+SEASONS_SORTED_FILE="$COLUMNS/BBoxSeasons-sorted$DATE_ID.csv"
 #
-SHORT_SPREADSHEET_FILE="BBox_TV_Shows-$DATE.csv"
-PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
-LONG_SPREADSHEET_FILE="BBox_TV_ShowsEpisodes-$DATE.csv"
-PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BBoxPrograms$DATE_ID.csv"
+EPISODES_SPREADSHEET_FILE="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
+SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons$DATE_ID.csv"
 #
+# Intermediate working files
+PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxPrograms$DATE_ID.csv"
+EPISODES_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxEpisodes$DATE_ID.csv"
+DURATION_FILE="$COLUMNS/duration$DATE_ID.csv"
+TEMP_FILE="/tmp/BBoxTemp$DATE_ID.csv"
+
+# Saved files used for comparison with current files
+PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
+PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes$ALT_ID.txt"
+PUBLISHED_SEASONS_SORTED_SPREADSHEET="$BASELINE/seasons-sorted$ALT_ID.txt"
+#
+PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms$ALT_ID.txt"
+PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes$ALT_ID.txt"
+PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
+#
+PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
+
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
 ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
-#
-# Name diffs and errors with both date and time so every run produces a new result
-POSSIBLE_DIFFS="BBox_diffs-$LONGDATE.txt"
-ERROR_FILE="BBox_anomalies-$LONGDATE.txt"
-EPISODE_INFO_FILE="BBox_episodeInfo-$LONGDATE.txt"
-#
-TEMP_FILE="/tmp/BBoxTemp-$DATE.csv"
 
 # Join broken lines, get rid of useless 'web-scraper-order' field, change comma-separated to
 # tab separated, sort into useful order
