@@ -52,5 +52,5 @@ BEGIN {
 
 END {
     if (badEpisodes > 0) 
-        print "==> " badEpisodes " /program/ URLs not found in " EPISODES_SORTED_FILE  > "/dev/stderr"
+        printf ("==> %2d missing /program/ URLs in %s\n", badEpisodes, FILENAME) > "/dev/stderr"
 }

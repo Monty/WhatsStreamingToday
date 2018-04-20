@@ -89,11 +89,11 @@ BEGIN {
     # Shouldn't get here
     badEpisodes += 1
     URL = $4
-    sub (/\/us\/show\//, "", URL)
-    print "    " URL >> ERROR_FILE
+    nflds = split (URL,URLflds,"/")
+    print "    " URLflds[nflds]  >> ERROR_FILE
 }
 
 END {
     if (badEpisodes > 0 )
-        print "==> " badEpisodes " /show/ URLs found in " FILENAME  > "/dev/stderr"
+        printf ("==> %2d extra /show/ URLs in %s\n", badEpisodes, FILENAME) > "/dev/stderr"
 }
