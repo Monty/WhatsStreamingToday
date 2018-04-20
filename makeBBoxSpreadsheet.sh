@@ -119,12 +119,12 @@ grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 \
 #
 awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$EPISODES_SORTED_FILE
-grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=8,8 --key=5,5 \
+grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=7,7 --key=4,4 \
     >>$EPISODES_SORTED_FILE
 #
 awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$SEASONS_SORTED_FILE
-grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=9,9 --key=4,4 |
+grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=8,8 --key=3,3 |
     grep -v /us/episode/ >>$SEASONS_SORTED_FILE
 #
 rm -f $TEMP_FILE
