@@ -12,7 +12,7 @@
 BEGIN {
     FS="\t"
     OFS="\t"
-    # print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
+    print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
 }
 
 {

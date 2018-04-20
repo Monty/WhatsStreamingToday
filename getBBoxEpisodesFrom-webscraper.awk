@@ -11,7 +11,8 @@
 
 BEGIN {
     FS="\t"
-    # print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
+    OFS="\t"
+    print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
 }
 
 {

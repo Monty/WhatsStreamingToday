@@ -174,14 +174,6 @@ awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
 
 exit
 
-awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE |
-    csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=4,4 |
-    awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-        -f getBBoxProgramsFrom-webscraper.awk >$PROGRAMS_SPREADSHEET_FILE
-grep -v '"null","","","",' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
-    csvformat -T | grep "^1" | sort -df --field-separator=$'\t' --key=9,9 --key=6,6 |
-    awk -v ERROR_FILE=$ERROR_FILE -f getBBoxSeasonsFrom-webscraper.awk >$SEASONS_SPREADSHEET_FILE
-
 # Temporarily save a sorted "seasons file" for easier debugging.
 # Don't sort header line, keep it at the top of the spreadsheet
 head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SORTED_SPREADSHEET_FILE
