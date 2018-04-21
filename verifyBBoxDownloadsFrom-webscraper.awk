@@ -34,9 +34,9 @@ BEGIN {
     #
     cmd = "grep " target " " SEASONS_SORTED_FILE
     while ((cmd | getline seasonLine) > 0) {
-        split (seasonLine, fields, "\t")
-        seasonField = fields[7]
-        episodeField = fields[9]
+        nfields = split (seasonLine, fields, "\t")
+        seasonField = fields[nfields-4]
+        episodeField = fields[nfields-2]
         if (seasonField == "") {
             print "==> " target " (blank Seasons field in " SEASONS_SORTED_FILE ")" \
                 > "/dev/stderr"

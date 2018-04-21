@@ -24,12 +24,12 @@ BEGIN {
 
 /\/us\/season\// {
     URL = $3
-    showTitle = $6
-    seasonTitle = $7
-    Years = $8
-    NumEpisodes = $9
-    moreDescription = $11
-    moreDescription == "" ? Description = $10 : Description = $11
+    showTitle = $(NF-5)
+    seasonTitle = $(NF-4)
+    Years = $(NF-4)
+    NumEpisodes = $(NF-2)
+    moreDescription = $(NF)
+    moreDescription == "" ? Description = $(NF-1) : Description = moreDescription
 
     # Non-existent fields in Seasons
     NumSeasons = ""
