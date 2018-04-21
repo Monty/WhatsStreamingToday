@@ -102,7 +102,11 @@ grep '/us/' $EPISODES_SORTED_FILE | cut -f 5 -d $'\t' | sort -u >$EPISODES_TITLE
 comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
 missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$=')
 if [ "$missingTitles" != "" ]; then
-    printf "==> %2d missing Program titles in $EPISODES_SORTED_FILE\n" "$missingTitles"  >&2
+    field="title"
+    if [ "$missingTitles" != 1 ]; then
+        field="titles"
+    fi
+    printf "==> %2d missing Program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
 fi
 
 # Print header for possible errors that occur during processing
