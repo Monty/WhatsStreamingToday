@@ -124,7 +124,9 @@ grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=7,7 --
 #
 awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$SEASONS_SORTED_FILE
-grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=8,8 --key=3,3 |
+nfields=$(awk -F\\t '{print NF}' $SEASONS_SORTED_FILE)
+sort2=$((nfields - 3))
+grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=$sort2,$sort2 --key=3,3 |
     grep -v /us/episode/ >>$SEASONS_SORTED_FILE
 #
 rm -f $TEMP_FILE
@@ -171,8 +173,6 @@ awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
 printf "\n### Extra /show/ URLs in $SEASONS_SORTED_FILE\n\n" >>$ERROR_FILE
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
     -f getBBoxSeasonsFrom-webscraper.awk $SEASONS_SORTED_FILE >$SEASONS_SPREADSHEET_FILE
-
-exit
 
 # Temporarily save a sorted "seasons file" for easier debugging.
 # Don't sort header line, keep it at the top of the spreadsheet
