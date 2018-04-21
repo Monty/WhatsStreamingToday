@@ -7,8 +7,9 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # -a ALT picks alternate files to scrape. The triple "BBoxPrograms, BBoxEpisodes, and BBoxSeasons"
 #    are amended with ALT, e.g. BBoxPrograms-$ALT.csv, BBoxEpisodes-$ALT.csv, etc.
 # Use "-d" switch to output a "diffs" file useful for debugging
+# Use "-s" switch to only output a summary. Delete any created files except anaomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":a:dt" opt; do
+while getopts ":a:dst" opt; do
     case $opt in
     a)
         ALT_ID="-$OPTARG"
@@ -16,6 +17,9 @@ while getopts ":a:dt" opt; do
         ;;
     d)
         DEBUG="yes"
+        ;;
+    s)
+        SUMMARY="yes"
         ;;
     t)
         PRINT_TOTALS="yes"
@@ -107,8 +111,12 @@ PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 #
 PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
 
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE "
-ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
+ALL_INTERMEDIATE="$PROGRAMS_SORTED_FILE $EPISODES_SORTED_FILE $SEASONS_SORTED_FILE "
+ALL_INTERMEDIATE+="$PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE $DURATION_FILE "
+ALL_INTERMEDIATE+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
+#
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $SEASONS_SORTED_SPREADSHEET_FILE "
+ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
 
 # Join broken lines, get rid of useless 'web-scraper-order' field, change comma-separated to
 # tab separated, sort into useful order
@@ -211,6 +219,10 @@ fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
+    if [ "$SUMMARY" = "yes" ]; then
+        rm -f $ALL_INTERMEDIATE
+        rm -f $ALL_SPREADSHEETS
+    fi
     exit
 fi
 
@@ -282,6 +294,11 @@ $(countOccurrences "/us/episode/")
 $(wc $ALL_SPREADSHEETS)
 
 EOF
+
+if [ "$SUMMARY" = "yes" ]; then
+    rm -f $ALL_INTERMEDIATE
+    rm -f $ALL_SPREADSHEETS
+fi
 
 echo
 echo "==> ${0##*/} completed: $(date)"
