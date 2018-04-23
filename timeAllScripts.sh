@@ -27,7 +27,7 @@ echo ""
 echo "----------------------------------------"
 echo "==> time ./makeBritBoxSpreadsheet.sh -td"
 date
-time ./makeBritBoxSpreadsheet.sh -td
+time ./makeBBoxSpreadsheet.sh -td
 echo ""
 
 echo "========================================"
