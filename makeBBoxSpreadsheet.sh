@@ -211,6 +211,10 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -
 #
 grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
+# Add header for possible crosscheck errors between EPISODES and SEASONS
+printf "\n### Crosscheck possible errors in $EPISODE_INFO_FILE\n\n" >>$ERROR_FILE
+awk -f verifyBBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE >>$ERROR_FILE
+
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
     # Grab (the last) totalTime (just in case)

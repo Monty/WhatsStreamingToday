@@ -12,13 +12,14 @@
 
 / movie / {
     if (NF < 5) {
-        print "==> Bad input line " NR ":\n          " $0
+        print "    Bad input line " NR ":\n          " $0
         next
     }
     title = $3
     numEpisodes = $5
+    gsub ("'", "", $0)
     if (numEpisodes != 1)
-        print
+        print "    " substr ($0,11)
 }
 
 / show / {
@@ -26,13 +27,17 @@
     title = $3
     numEpisodes = $5
     numSeasons = $8
-    if (numEpisodes == 0)
-        print
     if (NF < 8) {
-        print "==> Bad input line " NR ":\n          " $0
+        print "    Bad input line " NR ":\n          " $0
         next
     }
+    gsub ("'", "", $0)
+    if (numEpisodes == 0) {
+        zeroEpisodes += 1
+        print "    " substr ($0,11)
+    }
 
+    gsub ("'", "", title)
     showTitle[numShows] = title
     seas[numShows] = numSeasons
     shouldHave[numShows] = numEpisodes
@@ -42,17 +47,26 @@
 /^         / {
     epis  = NF-1
     if ($epis !~ /^[[:digit:]]*$/)
-        print "==> Bad input line " NR ":\n" $0
+        print "    Bad input line " NR ":\n" $0
     else
         doesHave[numShows] += $epis
 }
 
 END {
-    print ""
+    if (zeroEpisodes > 0 ) {
+        printf ("==> %2d shows with 0 Episodes in %s\n", zeroEpisodes, FILENAME) > "/dev/stderr"
+        print ""
+    }
     for ( i = 1; i <= numShows; i++ ) {
         if (seas[i] != 1 && shouldHave[i] != doesHave[i]) {
-            print "==> show  "showTitle[i] " has " doesHave[i] " instead of " \
+            badEpisodes += 1
+            print "    "showTitle[i] " has " doesHave[i] " instead of " \
                 shouldHave[i] " episodes."
         }
+    }
+    if (badEpisodes > 0 ) {
+        badEpisodes == 1 ? field = "URL" : field = "URLs"
+        printf ("==> %2d shows with wrong number of Episodes in %s\n", badEpisodes, FILENAME) \
+            > "/dev/stderr"
     }
 }
