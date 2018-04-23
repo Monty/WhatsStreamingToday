@@ -24,11 +24,11 @@ BEGIN {
     URL = $1
     showTitle = $2
     Years = $3
-    NumSeasons = $4
+    numSeasons = $4
     Description = $5
 
     # Non-existent fields in Programs
-    NumEpisodes = ""
+    numEpisodes = ""
     HMS = ""
     Rating = ""
     #
@@ -51,13 +51,13 @@ BEGIN {
     # Build string used in Title URL
     fullTitle = showTitle
 
-    # Get rid of text in NumSeasons
-    sub (/ Seasons?/,"",NumSeasons)
+    # Get rid of text in numSeasons
+    sub (/ Seasons?/,"",numSeasons)
 
     # Create spreadsheet row in common format
     savedLine = sprintf \
         ("%s (%s) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
-         showTitle, depth, Years, sortkey, URL, fullTitle, NumSeasons, NumEpisodes, \
+         showTitle, depth, Years, sortkey, URL, fullTitle, numSeasons, numEpisodes, \
          HMS, Years, Rating, Description)
 
     # Make sure line doesn't start with a single quote so it sorts correctly in Open Office

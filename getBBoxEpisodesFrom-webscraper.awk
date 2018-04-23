@@ -63,20 +63,20 @@ BEGIN {
     # Non-existent fields in movies or episodes
     if (URL ~ /^\/us\/movie\//) {
         depth = "1"
-        NumSeasons = 1
-        NumEpisodes = 1
+        numSeasons = 1
+        numEpisodes = 1
         fullTitle = showTitle
     } else {
         depth = "2"
-        NumSeasons = ""
-        NumEpisodes = ""
+        numSeasons = ""
+        numEpisodes = ""
         fullTitle = showTitle ", " sortkey ", " episodeTitle
     }
 
     # Create spreadsheet row in common format
     savedLine = sprintf \
         ("%s (%s) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
-         showTitle, depth, Years, sortkey, URL, fullTitle, NumSeasons, NumEpisodes, \
+         showTitle, depth, Years, sortkey, URL, fullTitle, numSeasons, numEpisodes, \
          HMS, Years, Rating, Description)
 
     # Make sure line doesn't start with a single quote so it sorts correctly in Open Office

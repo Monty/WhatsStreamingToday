@@ -27,12 +27,12 @@ BEGIN {
     showTitle = $(NF-5)
     seasonTitle = $(NF-4)
     Years = $(NF-4)
-    NumEpisodes = $(NF-2)
+    numEpisodes = $(NF-2)
     moreDescription = $(NF)
     moreDescription == "" ? Description = $(NF-1) : Description = moreDescription
 
     # Non-existent fields in Seasons
-    NumSeasons = ""
+    numSeasons = ""
     HMS = ""
     Rating = ""
     #
@@ -59,7 +59,7 @@ BEGIN {
     # Create spreadsheet row in common format
     savedLine = sprintf \
         ("%s (%s) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
-         showTitle, depth, Years, sortkey, URL, fullTitle, NumSeasons, NumEpisodes, \
+         showTitle, depth, Years, sortkey, URL, fullTitle, numSeasons, numEpisodes, \
          HMS, Years, Rating, Description)
 
     # Make sure line doesn't start with a single quote so it sorts correctly in Open Office
