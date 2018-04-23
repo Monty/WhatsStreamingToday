@@ -11,25 +11,38 @@
 #    awk -f verifyBBoxInfoFrom-webscraper.awk BBox_episodeInfo-180421.123042.txt
 
 / movie / {
+    if (NF < 5) {
+        print "==> Bad input line " NR ":\n          " $0
+        next
+    }
     title = $3
     numEpisodes = $5
-    if (numEpisodes == 0)
+    if (numEpisodes != 1)
         print
 }
 
 / show / {
     numShows += 1
-    showTitle[numShows] = $3 
-    shouldHave[numShows] = $5
-    doesHave[numShows] = 0
+    title = $3
+    numEpisodes = $5
+    numSeasons = $8
     if (numEpisodes == 0)
         print
+    if (NF < 8) {
+        print "==> Bad input line " NR ":\n          " $0
+        next
+    }
+
+    showTitle[numShows] = title
+    seas[numShows] = numSeasons
+    shouldHave[numShows] = numEpisodes
+    doesHave[numShows] = 0
 }
 
 /^         / {
     epis  = NF-1
     if ($epis !~ /^[[:digit:]]*$/)
-        print "==> Bad input line " NR "\n" $0
+        print "==> Bad input line " NR ":\n" $0
     else
         doesHave[numShows] += $epis
 }
@@ -37,7 +50,7 @@
 END {
     print ""
     for ( i = 1; i <= numShows; i++ ) {
-        if (shouldHave[i] != doesHave[i]) {
+        if (seas[i] != 1 && shouldHave[i] != doesHave[i]) {
             print "==> show  "showTitle[i] " has " doesHave[i] " instead of " \
                 shouldHave[i] " episodes."
         }

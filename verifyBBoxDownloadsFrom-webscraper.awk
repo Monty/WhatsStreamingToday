@@ -19,7 +19,7 @@ BEGIN {
     seaStr = ""
     if (numSeasons != "null") {
         sub (/ Seasons?/,"",numSeasons)
-        numSeasons == 1 ? seaStr = " in 1 season" : seaStr = " in " numSeasons " seasons"
+        numSeasons == 1 ? seaStr = " in 1 Season" : seaStr = " in " numSeasons " Seasons"
     }
 
 nflds = split (programURL,fld,"/") 
@@ -31,7 +31,7 @@ unquotedTarget = substr(target,2,length(target)-2)
 #
 cmd = "grep -c " target " " EPISODES_SORTED_FILE
 if ((cmd | getline numEpisodes) > 0) {
-    numEpisodes == 1 ? epiStr = " episode" : epiStr = " episodes"
+    numEpisodes == 1 ? epiStr = " Episode" : epiStr = " Episodes"
     print "==> " showType spacer target " has " numEpisodes epiStr seaStr
 }
 close (cmd)
