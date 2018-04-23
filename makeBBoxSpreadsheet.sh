@@ -25,10 +25,10 @@ while getopts ":a:dst" opt; do
         PRINT_TOTALS="yes"
         ;;
     \?)
-        echo "Ignoring invalid option: -$OPTARG" >&2
+        echo "[Warning] Ignoring invalid option: -$OPTARG" >&2
         ;;
     :)
-        echo "Option -$OPTARG requires an argumen" >&2
+        echo "[Error] Option -$OPTARG requires an argument" >&2
         exit 1
         ;;
     esac
@@ -69,7 +69,19 @@ mkdir -p $COLUMNS $BASELINE $SCRAPES
 
 # The three input files scraped by webscraper
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms$ALT_ID.csv"
+if [[ ! -e "$PROGRAMS_FILE" ]] && [[ $ALT_ID != "" ]]; then
+    echo "[Info] Missing PROGRAMS_FILE $PROGRAMS_FILE, using default instead." >&2
+    PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
+fi
+if [ ! -e "$PROGRAMS_FILE" ]; then
+    echo "[Error] Missing PROGRAMS_FILE $PROGRAMS_FILE" >&2
+    exit 1
+fi
 EPISODES_FILE="$SCRAPES/BBoxEpisodes$ALT_ID.csv"
+if [ ! -e "$EPISODES_FILE" ]; then
+    echo "[Error] Missing EPISODES_FILE $EPISODES_FILE" >&2
+    exit 1
+fi
 SEASONS_FILE="$SCRAPES/BBoxSeasons$ALT_ID.csv"
 if [ ! -e "$SEASONS_FILE" ]; then
     SEASONS_FILE="/dev/null"
