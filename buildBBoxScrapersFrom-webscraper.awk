@@ -1,3 +1,9 @@
+# Build scraper JSON files with a list of individual movies and/or shows to scrape
+
+# INVOCATION
+#    awk -v EPISODES_JSON_FILE=$EPISODES_JSON_FILE -v SEASONS_JSON_FILE=$SEASONS_JSON_FILE \
+#        -f buildBBoxScrapersFrom-webscraper.awk
+
 BEGIN {
     FS = "\""
 }

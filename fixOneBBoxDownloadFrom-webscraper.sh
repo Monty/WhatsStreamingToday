@@ -1,3 +1,4 @@
+#! /bin/bash
 # Create a cannonical form of a webscraper download. Simplifies cutting specific fields.
 # Useful for comparing files. Not useful for many purposes as it only deletes the first field
 # and know nothng about ther useless fields.
