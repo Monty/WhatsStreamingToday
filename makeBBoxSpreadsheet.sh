@@ -123,6 +123,13 @@ PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 #
 PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
 
+# ID for scripts & JSON files used to attempt repair of inconsistencies
+REPAIR_FILE="repairBBox$LONGDATE.txt"
+REPAIR_SCRIPT="repairBBox$LONGDATE.sh"
+REPAIR_EPISODES_ID="BBoxEpisodes-repair$LONGDATE"
+REPAIR_SEASONS_ID="BBoxSeasons-repair$LONGDATE"
+
+# Gather filenames that can be used for cleanup
 ALL_INTERMEDIATE="$PROGRAMS_SORTED_FILE $EPISODES_SORTED_FILE $SEASONS_SORTED_FILE "
 ALL_INTERMEDIATE+="$PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE $DURATION_FILE "
 ALL_INTERMEDIATE+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
@@ -213,7 +220,17 @@ grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
 # Add header for possible crosscheck errors between EPISODES and SEASONS
 printf "\n### Crosscheck possible errors in $EPISODE_INFO_FILE\n\n" >>$ERROR_FILE
-awk -f verifyBBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE >>$ERROR_FILE
+awk -v REPAIR_FILE=$REPAIR_FILE -f verifyBBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE >>$ERROR_FILE
+
+# Build json files that can be used for repair
+grep -B4 startUrl episodeTemplate.json | sed -e "s/BBoxEpisodes/$REPAIR_EPISODES_ID/" \
+    >$REPAIR_EPISODES_ID.json
+grep -B4 startUrl seasonTemplate.json | sed -e "s/BBoxSeasons/$REPAIR_SEASONS_ID/" \
+    >$REPAIR_SEASONS_ID.json
+awk -v REPAIR_EPISODES_FILE=$REPAIR_EPISODES_ID.json -v REPAIR_SEASONS_FILE=$REPAIR_SEASONS_ID.json \
+        -f buildBBoxRepairScrapers.awk $REPAIR_FILE
+grep -B1 -A99 selectors episodeTemplate.json >>$REPAIR_EPISODES_ID.json
+grep -B1 -A99 selectors seasonTemplate.json >>$REPAIR_SEASONS_ID.json
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {

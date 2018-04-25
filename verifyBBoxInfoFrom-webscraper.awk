@@ -7,8 +7,11 @@
 # so it could be these are false positives in generating spreadsheets. 
 # Problems listed in BBox_anomalies files are more likely to be real.
 
+# Generate a list of shows that might assist in repair
+
 # INVOCATION
-#    awk -f verifyBBoxInfoFrom-webscraper.awk BBox_episodeInfo-180421.123042.txt
+#    awk -v REPAIR_FILE=$REPAIR_FILE -f verifyBBoxInfoFrom-webscraper.awk \
+#        $EPISODE_INFO_FILE >>$ERROR_FILE
 
 / movie / {
     if (NF < 5) {
@@ -62,6 +65,7 @@ END {
             badEpisodes += 1
             print "    "showTitle[i] " has " doesHave[i] " instead of " \
                 shouldHave[i] " episodes."
+            print showTitle[i] >> REPAIR_FILE
         }
     }
     if (badEpisodes > 0 ) {
