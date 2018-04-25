@@ -69,7 +69,7 @@ mkdir -p $COLUMNS $BASELINE $SCRAPES
 
 # The three input files scraped by webscraper
 PROGRAMS_FILE="$SCRAPES/BBoxPrograms$ALT_ID.csv"
-if [[ ! -e "$PROGRAMS_FILE" ]] && [[ $ALT_ID != "" ]]; then
+if [[ ! -e $PROGRAMS_FILE ]] && [[ $ALT_ID != "" ]]; then
     echo "[Info] Missing PROGRAMS_FILE $PROGRAMS_FILE, using default instead." >&2
     PROGRAMS_FILE="$SCRAPES/BBoxPrograms.csv"
 fi
@@ -228,9 +228,35 @@ grep -B4 startUrl episodeTemplate.json | sed -e "s/BBoxEpisodes/$REPAIR_EPISODES
 grep -B4 startUrl seasonTemplate.json | sed -e "s/BBoxSeasons/$REPAIR_SEASONS_ID/" \
     >$REPAIR_SEASONS_ID.json
 awk -v REPAIR_EPISODES_FILE=$REPAIR_EPISODES_ID.json -v REPAIR_SEASONS_FILE=$REPAIR_SEASONS_ID.json \
-        -f buildBBoxRepairScrapers.awk $REPAIR_FILE
+    -f buildBBoxRepairScrapers.awk $REPAIR_FILE
 grep -B1 -A99 selectors episodeTemplate.json >>$REPAIR_EPISODES_ID.json
 grep -B1 -A99 selectors seasonTemplate.json >>$REPAIR_SEASONS_ID.json
+
+# Create a shell script that attempts to repair $EPISODES_FILE
+echo "#! /bin/bash" >$REPAIR_SCRIPT
+echo "# Repair $EPISODES_FILE" >>$REPAIR_SCRIPT
+chmod 755 $REPAIR_SCRIPT
+
+# Loop through shown in REPAIR_FILE
+while read -r line; do
+    cat >>$REPAIR_SCRIPT <<EOF
+
+echo "### Count of $line"
+grep -c $line $EPISODES_FILE \
+$SEASONS_FILE
+grep -v $line $EPISODES_FILE >$TEMP_FILE
+wc -l $EPISODES_FILE $TEMP_FILE | head -2
+read -r -p "Attempt repair of $line? [y/N] " YESNO
+if [ "\$YESNO" != "y" ]; then
+    echo "Skipping..."
+else
+    echo "Repairing ..."
+    echo "cat $TEMP_FILE $SCRAPES/$REPAIR_EPISODES_ID.csv >$EPISODES_FILE"
+fi
+rm -f $TEMP_FILE
+echo ""
+EOF
+done <"$REPAIR_FILE"
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
