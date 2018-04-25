@@ -234,29 +234,30 @@ grep -B1 -A99 selectors seasonTemplate.json >>$REPAIR_SEASONS_ID.json
 
 # Create a shell script that attempts to repair $EPISODES_FILE
 echo "#! /bin/bash" >$REPAIR_SCRIPT
-echo "# Repair $EPISODES_FILE" >>$REPAIR_SCRIPT
+echo "# Interactive repair of $EPISODES_FILE" >>$REPAIR_SCRIPT
 chmod 755 $REPAIR_SCRIPT
 
 # Loop through shown in REPAIR_FILE
-while read -r line; do
-    cat >>$REPAIR_SCRIPT <<EOF
+# Use FD 3 so you can prompt on STDIN
+cat >>$REPAIR_SCRIPT <<EOF
 
-echo "### Count of $line"
-grep -c $line $EPISODES_FILE \
-$SEASONS_FILE
-grep -v $line $EPISODES_FILE >$TEMP_FILE
-wc -l $EPISODES_FILE $TEMP_FILE | head -2
-read -r -p "Attempt repair of $line? [y/N] " YESNO
-if [ "\$YESNO" != "y" ]; then
-    echo "Skipping..."
-else
-    echo "Repairing ..."
-    echo "cat $TEMP_FILE $SCRAPES/$REPAIR_EPISODES_ID.csv >$EPISODES_FILE"
-fi
-rm -f $TEMP_FILE
-echo ""
+while read -r -u 3 line; do
+    echo "### Count of \$line"
+    grep -c \$line $EPISODES_FILE $SEASONS_FILE
+    grep -v \$line $EPISODES_FILE >$TEMP_FILE
+    wc -l $EPISODES_FILE $TEMP_FILE | head -2
+    read -r -p "Attempt repair of \$line? [y/N] " YESNO
+    if [ "\$YESNO" != "y" ]; then
+        echo "Skipping..."
+    else
+        echo "Repairing ..."
+        echo "cat $TEMP_FILE $SCRAPES/$REPAIR_EPISODES_ID.csv \\
+            >$EPISODES_FILE"
+    fi
+    rm -f $TEMP_FILE
+    echo ""
+done 3<"$REPAIR_FILE"
 EOF
-done <"$REPAIR_FILE"
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
