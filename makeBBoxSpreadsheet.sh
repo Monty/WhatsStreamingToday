@@ -233,29 +233,66 @@ grep -B1 -A99 selectors episodeTemplate.json >>$REPAIR_EPISODES_ID.json
 grep -B1 -A99 selectors seasonTemplate.json >>$REPAIR_SEASONS_ID.json
 
 # Create a shell script that attempts to repair $EPISODES_FILE
-echo "#! /bin/bash" >$REPAIR_SCRIPT
-echo "# Interactive repair of $EPISODES_FILE" >>$REPAIR_SCRIPT
+touch $REPAIR_SCRIPT
 chmod 755 $REPAIR_SCRIPT
-
-# Loop through shown in REPAIR_FILE
+#
+# Loop through shows in REPAIR_FILE
 # Use FD 3 so you can prompt on STDIN
 cat >>$REPAIR_SCRIPT <<EOF
+#! /bin/bash
+# Interactive repair of $EPISODES_FILE
+
+echo "Attempting to repair shows with possible missing episodes."
+echo "You will be given a chance to repair each show individually"
+echo "based on comparing the show counts on initial and repaired .csv files."
+echo ""
+echo "Backups will be saved as $EPISODES_FILE.bak and $SEASONS_FILE.bak"
+echo ""
+
+if [ ! -e $SCRAPES/$REPAIR_EPISODES_ID.csv ]; then
+    echo "[Error] Can't find $SCRAPES/$REPAIR_EPISODES_ID.csv"
+    echo "Create one by scraping with $REPAIR_EPISODES_ID.json"
+    exit 1
+fi
+if [ ! -e $SCRAPES/$REPAIR_SEASONS_ID.csv ]; then
+    echo "[Error] can't find $SCRAPES/$REPAIR_SEASONS_ID.csv"
+    echo "Create one by scraping with $REPAIR_SEASONS_ID.json"
+    exit 1
+fi
+
+# Save a backup
+cp $EPISODES_FILE $EPISODES_FILE.bak
+cp $SEASONS_FILE $SEASONS_FILE.bak
 
 while read -r -u 3 line; do
-    echo "### Count of \$line"
-    grep -c \$line $EPISODES_FILE $SEASONS_FILE
+    echo "### Differences in counts of \$line episodes"
+    grep -c \$line $EPISODES_FILE $SCRAPES/$REPAIR_EPISODES_ID.csv
     grep -v \$line $EPISODES_FILE >$TEMP_FILE
-    wc -l $EPISODES_FILE $TEMP_FILE | head -2
-    read -r -p "Attempt repair of \$line? [y/N] " YESNO
+    read -r -p "Attempt repair of \$line episodes? [y/N] " YESNO
     if [ "\$YESNO" != "y" ]; then
         echo "Skipping..."
     else
         echo "Repairing ..."
-        echo "cat $TEMP_FILE $SCRAPES/$REPAIR_EPISODES_ID.csv \\
-            >$EPISODES_FILE"
+        cp $TEMP_FILE $EPISODES_FILE
+        grep \$line $SCRAPES/$REPAIR_EPISODES_ID.csv >> $EPISODES_FILE
+    fi
+    rm -f $TEMP_FILE
+    #
+    echo ""
+    echo "### Differences in counts of \$line seasons"
+    grep -c \$line $SEASONS_FILE $SCRAPES/$REPAIR_SEASONS_ID.csv
+    grep -v \$line $SEASONS_FILE >$TEMP_FILE
+    read -r -p "Attempt repair of \$line seasons? [y/N] " YESNO
+    if [ "\$YESNO" != "y" ]; then
+        echo "Skipping..."
+    else
+        echo "Repairing ..."
+        cp $TEMP_FILE $SEASONS_FILE
+        grep \$line $SCRAPES/$REPAIR_SEASONS_ID.csv >> $SEASONS_FILE
     fi
     rm -f $TEMP_FILE
     echo ""
+
 done 3<"$REPAIR_FILE"
 EOF
 
