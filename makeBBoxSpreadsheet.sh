@@ -184,6 +184,8 @@ rm -f $TEMP_FILE
 awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
     -v TEMP_FILE=$TEMP_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
     >>$EPISODE_INFO_FILE
+# $TEMP_FILE could be non-existent
+touch $TEMP_FILE
 sort -df $TEMP_FILE >>$ERROR_FILE
 echo "" >>$ERROR_FILE
 
@@ -246,7 +248,7 @@ cat >>$REPAIR_SCRIPT <<EOF
 
 echo "Attempting to repair shows with possible missing episodes."
 echo "You will be given a chance to repair each show individually"
-echo "based on comparing the show counts on initial and repaired .csv files."
+echo "based on comparing the show counts on original and repaired .csv files."
 echo ""
 echo "Backups will be saved as $EPISODES_FILE$LONGDATE.bak and $SEASONS_FILE$LONGDATE.bak"
 echo ""
