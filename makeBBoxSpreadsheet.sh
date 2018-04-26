@@ -162,7 +162,7 @@ rm -f $TEMP_FILE
 printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
 #
 # Print header for possible missing episode errors
-printf "### Missing Program Titles in $EPISODES_SORTED_FILE\n\n" >$ERROR_FILE
+printf "### Missing program titles in $EPISODES_SORTED_FILE\n\n" >$ERROR_FILE
 
 grep '/us/' $PROGRAMS_SORTED_FILE | cut -f 2 -d $'\t' | sort -u >$PROGRAMS_TITLE_FILE
 grep '/us/' $EPISODES_SORTED_FILE | cut -f 5 -d $'\t' | sort -u >$EPISODES_TITLE_FILE
@@ -174,7 +174,7 @@ if [ "$missingTitles" != "" ]; then
     if [ "$missingTitles" != 1 ]; then
         field="titles"
     fi
-    printf "==> %2d missing Program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
+    printf "==> %2d missing program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
 fi
 
 # Print header for possible errors that occur during processing
@@ -219,8 +219,8 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -
 grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
 # Add header for possible crosscheck errors between EPISODES and SEASONS
-printf "\n### Shows with 0 Episodes in $EPISODES_FILE or mismatched number
-### of episodes between $SEASONS_FILE and $EPISODES_FILE
+printf "\n### Shows with 0 episodes in $EPISODES_FILE or mismatched number of
+### episodes in $SEASONS_FILE and $EPISODES_FILE
 ### as computed from $EPISODE_INFO_FILE\n\n" >>$ERROR_FILE
 awk -v REPAIR_FILE=$REPAIR_FILE -f verifyBBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE >>$ERROR_FILE
 
