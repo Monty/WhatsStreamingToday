@@ -219,7 +219,9 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -
 grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
 # Add header for possible crosscheck errors between EPISODES and SEASONS
-printf "\n### Crosscheck possible errors in $EPISODE_INFO_FILE\n\n" >>$ERROR_FILE
+printf "\n### Shows with 0 Episodes in $EPISODES_FILE or mismatched number
+### of episodes between $SEASONS_FILE and $EPISODES_FILE
+### as computed from $EPISODE_INFO_FILE\n\n" >>$ERROR_FILE
 awk -v REPAIR_FILE=$REPAIR_FILE -f verifyBBoxInfoFrom-webscraper.awk $EPISODE_INFO_FILE >>$ERROR_FILE
 
 # Build json files that can be used for repair
@@ -274,7 +276,7 @@ while read -r -u 3 line; do
     else
         echo "Repairing ..."
         cp $TEMP_FILE $EPISODES_FILE
-        grep \$line $SCRAPES/$REPAIR_EPISODES_ID.csv >> $EPISODES_FILE
+        grep \$line $SCRAPES/$REPAIR_EPISODES_ID.csv >>$EPISODES_FILE
     fi
     rm -f $TEMP_FILE
     #
@@ -288,7 +290,7 @@ while read -r -u 3 line; do
     else
         echo "Repairing ..."
         cp $TEMP_FILE $SEASONS_FILE
-        grep \$line $SCRAPES/$REPAIR_SEASONS_ID.csv >> $SEASONS_FILE
+        grep \$line $SCRAPES/$REPAIR_SEASONS_ID.csv >>$SEASONS_FILE
     fi
     rm -f $TEMP_FILE
     echo ""
