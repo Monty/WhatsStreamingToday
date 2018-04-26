@@ -246,7 +246,7 @@ echo "Attempting to repair shows with possible missing episodes."
 echo "You will be given a chance to repair each show individually"
 echo "based on comparing the show counts on initial and repaired .csv files."
 echo ""
-echo "Backups will be saved as $EPISODES_FILE-$LONGDATE.bak and $SEASONS_FILE-$LONGDATE.bak"
+echo "Backups will be saved as $EPISODES_FILE$LONGDATE.bak and $SEASONS_FILE$LONGDATE.bak"
 echo ""
 
 if [ ! -e $SCRAPES/$REPAIR_EPISODES_ID.csv ]; then
@@ -261,8 +261,8 @@ if [ ! -e $SCRAPES/$REPAIR_SEASONS_ID.csv ]; then
 fi
 
 # Save a backup
-cp $EPISODES_FILE $EPISODES_FILE-$LONGDATE.bak
-cp $SEASONS_FILE $SEASONS_FILE-$LONGDATE.bak
+cp $EPISODES_FILE $EPISODES_FILE$LONGDATE.bak
+cp $SEASONS_FILE $SEASONS_FILE$LONGDATE.bak
 
 while read -r -u 3 line; do
     echo "### Differences in counts of \$line episodes"
