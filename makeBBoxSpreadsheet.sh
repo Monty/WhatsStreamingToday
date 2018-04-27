@@ -240,74 +240,28 @@ grep -B1 -A99 selectors seasonTemplate.json >>$REPAIR_SEASONS_ID.json
 touch $REPAIR_SCRIPT
 chmod 755 $REPAIR_SCRIPT
 #
-# Loop through shows in REPAIR_FILE
-# Use FD 3 so you can prompt on STDIN
 cat >>$REPAIR_SCRIPT <<EOF
 #! /bin/bash
 # Interactive repair of $EPISODES_FILE
 
-echo "Attempting to repair shows with possible missing episodes."
-echo "You will be given a chance to repair each show individually"
-echo "based on comparing the show counts on original and repaired .csv files."
-echo ""
-echo "Backups will be saved as $EPISODES_FILE$LONGDATE.bak"
-echo "and $SEASONS_FILE$LONGDATE.bak"
-echo ""
+# Variables assigned by makeBBoxSpreadsheet.sh
+EPISODES_FILE=$EPISODES_FILE
+SEASONS_FILE=$SEASONS_FILE
+#
+EPISODES_BACKUP_FILE=$EPISODES_FILE$LONGDATE.bak
+SEASONS_BACKUP_FILE=$SEASONS_FILE$LONGDATE.bak
+#
+TEMP_FILE=$TEMP_FILE
+#
+REPAIR_FILE=$REPAIR_FILE
+REPAIR_EPISODES_CSV=$SCRAPES/$REPAIR_EPISODES_ID.csv
+REPAIR_EPISODES_JSON=$REPAIR_EPISODES_ID.json
+REPAIR_SEASONS_CSV=$SCRAPES/$REPAIR_SEASONS_ID.csv
+REPAIR_SEASONS_JSON=$REPAIR_SEASONS_ID.json
 
-if [ ! -e $SCRAPES/$REPAIR_EPISODES_ID.csv ]; then
-    echo "[Error] Can't find $SCRAPES/$REPAIR_EPISODES_ID.csv"
-    echo "Create one by scraping with $REPAIR_EPISODES_ID.json"
-    exit 1
-fi
-if [ ! -e $SCRAPES/$REPAIR_SEASONS_ID.csv ]; then
-    echo "[Error] can't find $SCRAPES/$REPAIR_SEASONS_ID.csv"
-    echo "Create one by scraping with $REPAIR_SEASONS_ID.json"
-    exit 1
-fi
-
-# Save a backup
-cp $EPISODES_FILE \\
-    $EPISODES_FILE$LONGDATE.bak
-cp $SEASONS_FILE \\
-    $SEASONS_FILE$LONGDATE.bak
-
-while read -r -u 3 line; do
-    echo "### Differences in counts of \$line episodes"
-    grep -c \$line $EPISODES_FILE \\
-        $SCRAPES/$REPAIR_EPISODES_ID.csv
-    awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
-        grep -v \$line >$TEMP_FILE
-    read -r -p "Attempt repair of \$line episodes? [y/N] " YESNO
-    if [ "\$YESNO" != "y" ]; then
-        echo "Skipping..."
-    else
-        echo "Repairing ..."
-        cp $TEMP_FILE $EPISODES_FILE
-        awk -f fixExtraLinesFrom-webscraper.awk $SCRAPES/$REPAIR_EPISODES_ID.csv |
-            grep \$line >>$EPISODES_FILE
-    fi
-    rm -f $TEMP_FILE
-    #
-    echo ""
-    echo "### Differences in counts of \$line seasons"
-    grep -c \$line $SEASONS_FILE \\
-        $SCRAPES/$REPAIR_SEASONS_ID.csv
-    awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE |
-        grep -v \$line >$TEMP_FILE
-    read -r -p "Attempt repair of \$line seasons? [y/N] " YESNO
-    if [ "\$YESNO" != "y" ]; then
-        echo "Skipping..."
-    else
-        echo "Repairing ..."
-        cp $TEMP_FILE $SEASONS_FILE
-        awk -f fixExtraLinesFrom-webscraper.awk $SCRAPES/$REPAIR_SEASONS_ID.csv |
-            grep \$line >>$SEASONS_FILE
-    fi
-    rm -f $TEMP_FILE
-    echo ""
-
-done 3<"$REPAIR_FILE"
 EOF
+# Grab the rest from repairBBoxTemplate.sh
+grep -A99 repairBBoxTemplate.sh repairBBoxTemplate.sh >>$REPAIR_SCRIPT
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
