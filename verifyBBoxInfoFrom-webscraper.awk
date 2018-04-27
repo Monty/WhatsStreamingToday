@@ -18,15 +18,16 @@
         print "    Bad input line " NR ":\n          " $0
         next
     }
+    gsub ("'", "", $3)
     title = $3
     numEpisodes = $5
-    gsub ("'", "", $0)
     if (numEpisodes != 1)
         print "    " substr ($0,11)
 }
 
 / show / {
     numShows += 1
+    gsub ("'", "", $3)
     title = $3
     numEpisodes = $5
     numSeasons = $8
@@ -34,13 +35,13 @@
         print "    Bad input line " NR ":\n          " $0
         next
     }
-    gsub ("'", "", $0)
+
     if (numEpisodes == 0) {
         zeroEpisodes += 1
         print "    " substr ($0,11)
+        print title >> REPAIR_FILE
     }
 
-    gsub ("'", "", title)
     showTitle[numShows] = title
     seas[numShows] = numSeasons
     shouldHave[numShows] = numEpisodes
