@@ -270,29 +270,35 @@ cp $SEASONS_FILE $SEASONS_FILE$LONGDATE.bak
 
 while read -r -u 3 line; do
     echo "### Differences in counts of \$line episodes"
-    grep -c \$line $EPISODES_FILE $SCRAPES/$REPAIR_EPISODES_ID.csv
-    grep -v \$line $EPISODES_FILE >$TEMP_FILE
+    grep -c \$line $EPISODES_FILE \\
+        $SCRAPES/$REPAIR_EPISODES_ID.csv
+    awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE |
+        grep -v \$line >$TEMP_FILE
     read -r -p "Attempt repair of \$line episodes? [y/N] " YESNO
     if [ "\$YESNO" != "y" ]; then
         echo "Skipping..."
     else
         echo "Repairing ..."
         cp $TEMP_FILE $EPISODES_FILE
-        grep \$line $SCRAPES/$REPAIR_EPISODES_ID.csv >>$EPISODES_FILE
+        awk -f fixExtraLinesFrom-webscraper.awk $SCRAPES/$REPAIR_EPISODES_ID.csv |
+            grep \$line >>$EPISODES_FILE
     fi
     rm -f $TEMP_FILE
     #
     echo ""
     echo "### Differences in counts of \$line seasons"
-    grep -c \$line $SEASONS_FILE $SCRAPES/$REPAIR_SEASONS_ID.csv
-    grep -v \$line $SEASONS_FILE >$TEMP_FILE
+    grep -c \$line $SEASONS_FILE \\
+        $SCRAPES/$REPAIR_SEASONS_ID.csv
+    awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE |
+        grep -v \$line >$TEMP_FILE
     read -r -p "Attempt repair of \$line seasons? [y/N] " YESNO
     if [ "\$YESNO" != "y" ]; then
         echo "Skipping..."
     else
         echo "Repairing ..."
         cp $TEMP_FILE $SEASONS_FILE
-        grep \$line $SCRAPES/$REPAIR_SEASONS_ID.csv >>$SEASONS_FILE
+        awk -f fixExtraLinesFrom-webscraper.awk $SCRAPES/$REPAIR_SEASONS_ID.csv |
+            grep \$line >>$SEASONS_FILE
     fi
     rm -f $TEMP_FILE
     echo ""
