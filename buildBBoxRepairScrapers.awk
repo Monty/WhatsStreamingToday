@@ -2,8 +2,8 @@
 # that are derived from error info
 
 # INVOCATION
-#    REPAIR_EPISODES_FILE=$REPAIR_EPISODES_ID.json -v REPAIR_SEASONS_FILE=$REPAIR_SEASONS_ID.json \
-#        -f buildBBoxRepairScrapers.awk $REPAIR_FILE
+#    awk -v REPAIR_EPISODES_FILE=$REPAIR_EPISODES_FILE -v REPAIR_SEASONS_FILE=$REPAIR_SEASONS_FILE \
+#        -f buildBBoxRepairScrapers.awk $REPAIR_SHOWS
 
 {
     numShows += 1

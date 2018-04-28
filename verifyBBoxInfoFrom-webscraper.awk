@@ -10,7 +10,7 @@
 # Generate a list of shows that might assist in repair
 
 # INVOCATION
-#    awk -v REPAIR_FILE=$REPAIR_FILE -f verifyBBoxInfoFrom-webscraper.awk \
+#    awk -v REPAIR_SHOWS=$REPAIR_SHOWS -f verifyBBoxInfoFrom-webscraper.awk \
 #        $EPISODE_INFO_FILE >>$ERROR_FILE
 
 / movie / {
@@ -22,7 +22,7 @@
     title = $3
     numEpisodes = $5
     if (numEpisodes != 1)
-        print "    " substr ($0,11)
+        print "    " substr ($0,10)
 }
 
 / show / {
@@ -38,8 +38,8 @@
 
     if (numEpisodes == 0) {
         zeroEpisodes += 1
-        print "    " substr ($0,11)
-        print title >> REPAIR_FILE
+        print "    " substr ($0,10)
+        print title >> REPAIR_SHOWS
     }
 
     showTitle[numShows] = title
@@ -66,7 +66,7 @@ END {
             badEpisodes += 1
             print "    "showTitle[i] " has " doesHave[i] " instead of " \
                 shouldHave[i] " episodes."
-            print showTitle[i] >> REPAIR_FILE
+            print showTitle[i] >> REPAIR_SHOWS
         }
     }
     if (badEpisodes > 0 ) {
