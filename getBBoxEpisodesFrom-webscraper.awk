@@ -23,6 +23,7 @@ BEGIN {
 }
 
 /\/us\/movie\/|\/us\/episode\// {
+    baseURL = $1
     URL = $4
     showTitle = $5
     episodeTitle = $6
@@ -55,6 +56,17 @@ BEGIN {
     # Titles starting with "The" should not sort based on "The"
     if (match (showTitle, /^The /))
         showTitle = substr(showTitle, 5) ", The"
+
+    # Some shows that need special processing
+    if (baseURL ~ /Maigret_15974$/) {
+        showTitle = "Maigret (2016)"
+    }
+    if (baseURL ~ /Porridge_9509$/) {
+        showTitle = "Porridge (1974-1977)"
+    }
+    if (baseURL ~ /Porridge_14747$/) {
+        showTitle = "Porridge (2016-2017)"
+    }
 
     # Get rid of redundant "Series #" or "Series #" from episodeTitle
     if (match (episodeTitle, /^Season [[:digit:]]*, |^Series [[:digit:]]*, /))

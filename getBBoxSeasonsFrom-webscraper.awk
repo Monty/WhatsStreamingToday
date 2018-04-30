@@ -23,6 +23,7 @@ BEGIN {
 }
 
 /\/us\/season\// {
+    baseURL = $1
     URL = $3
     showTitle = $(NF-5)
     seasonTitle = $(NF-4)
@@ -51,6 +52,17 @@ BEGIN {
     # Titles starting with "The" should not sort based on "The"
     if (match (showTitle, /^The /)) {
         showTitle = substr(showTitle, 5) ", The"
+    }
+
+    # Some shows that need special processing
+    if (baseURL ~ /Maigret_15974$/) {
+        showTitle = "Maigret (2016)"
+    }
+    if (baseURL ~ /Porridge_9509$/) {
+        showTitle = "Porridge (1974-1977)"
+    }
+    if (baseURL ~ /Porridge_14747$/) {
+        showTitle = "Porridge (2016-2017)"
     }
 
     # Build string used in Title URL

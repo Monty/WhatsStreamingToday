@@ -47,6 +47,23 @@ BEGIN {
     if (match (showTitle, /^The /)) {
         showTitle = substr(showTitle, 5) ", The"
     }
+
+    # Some shows that need special processing
+    if (URL ~ /Maigret_15974$/) {
+        revisedTitles += 1
+        print "    Maigret_15974 title changed from '" showTitle "' to 'Maigret (2016)'" >> ERROR_FILE
+        showTitle = "Maigret (2016)"
+    }
+    if (URL ~ /Porridge_9509$/) {
+        revisedTitles += 1
+        print "    Porridge_9509 title changed from '" showTitle "' to 'Porridge (1974-1977)'" >> ERROR_FILE
+        showTitle = "Porridge (1974-1977)"
+    }
+    if (URL ~ /Porridge_14747$/) {
+        revisedTitles += 1
+        print "    Porridge_14747 title changed from '" showTitle "' to 'Porridge (2016-2017)'" >> ERROR_FILE
+        showTitle = "Porridge (2016-2017)"
+    }
     
     # Build string used in Title URL
     fullTitle = showTitle
@@ -64,4 +81,12 @@ BEGIN {
     sub (/^'/,"",savedLine)
 
     print savedLine
+}
+
+END {
+    if (revisedTitles > 0 ) {
+        revisedTitles == 1 ? field = "title" : field = "titles"
+        printf ("==> %2d show %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
+        print "" >> ERROR_FILE
+    }
 }
