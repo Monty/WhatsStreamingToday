@@ -3,13 +3,33 @@
 
 # Script copied from repairBBoxTemplate.sh
 
-echo "Attempting to repair shows with possible missing episodes."
-echo "You will be given a chance to repair each show individually"
-echo "based on comparing the show counts on original and repaired .csv files."
-echo ""
-echo "Backups will be saved as $EPISODES_BACKUP_FILE"
-echo "and $SEASONS_BACKUP_FILE"
-echo ""
+# trap ctrl-c and call cleanup
+trap cleanup INT
+#
+function cleanup() {
+    rm -f $TEMP_FILE
+    echo ""
+    exit 130
+}
+
+cat <<EOF
+Attempting to repair shows with possible missing episodes.
+You will be given a chance to repair each show individually
+based on comparing the show counts on original and repaired .csv files.
+
+Original files:
+$EPISODES_FILE
+$SEASONS_FILE
+
+Revised files:
+$REVISED_EPISODES_FILE
+$REVISED_SEASONS_FILE
+
+Backup files:
+$EPISODES_BACKUP_FILE
+$SEASONS_BACKUP_FILE
+
+EOF
 
 if [ ! -e $REVISED_EPISODES_FILE ]; then
     echo "[Error] Can't find $REVISED_EPISODES_FILE"
@@ -30,7 +50,8 @@ cp $SEASONS_FILE $SEASONS_BACKUP_FILE
 # Use FD 3 so you can prompt on STDIN
 while read -r -u 3 line; do
     echo "### Differences in counts of $line episodes"
-    grep -c $line $EPISODES_FILE $REVISED_EPISODES_FILE
+    printf "Original: %3d\n" "$(grep -c $line $EPISODES_FILE)"
+    printf "Revised:  %3d\n" "$(grep -c $line $REVISED_EPISODES_FILE)"
     awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE | grep -v $line >$TEMP_FILE
     read -r -p "Attempt repair of $line episodes? [y/N] " YESNO
     if [ "$YESNO" != "y" ]; then
@@ -44,7 +65,8 @@ while read -r -u 3 line; do
     #
     echo ""
     echo "### Differences in counts of $line seasons"
-    grep -c $line $SEASONS_FILE $REVISED_SEASONS_FILE
+    printf "Original: %3d\n" "$(grep -c $line $SEASONS_FILE)"
+    printf "Revised:  %3d\n" "$(grep -c $line $REVISED_SEASONS_FILE)"
     awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE | grep -v $line >$TEMP_FILE
     read -r -p "Attempt repair of $line seasons? [y/N] " YESNO
     if [ "$YESNO" != "y" ]; then

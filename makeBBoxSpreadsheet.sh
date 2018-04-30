@@ -1,6 +1,15 @@
 #! /bin/bash
 # Create a .csv spreadsheet of shows available on BritBox
 
+# trap ctrl-c and call cleanup
+trap cleanup INT
+#
+function cleanup() {
+    rm -f $TEMP_FILE
+    echo ""
+    exit 130
+}
+
 DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
