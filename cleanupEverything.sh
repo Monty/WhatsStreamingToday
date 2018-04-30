@@ -44,4 +44,5 @@ yesnodelete "all anomalies reports" "Acorn_anomalies*.txt" "MHz_anomalies*.txt" 
     "BBox_episodeInfo*.txt"
 yesnodelete "all diff results" "Acorn_diffs*.txt" "MHz_diffs*.txt" "BBox_diffs*.txt"
 yesnodelete "all diff baselines" "Acorn-baseline" "MHz-baseline" "BBox-baseline"
-yesnodelete "all repair files" "BBox*_repair*" "BBox-scrapes/BBox*_repair.csv" "BBox-scrapes/BBox*.bak"
+yesnodelete "all repair files" "BBox*-repair*" "BBox-scrapes/BBox*-revised*.csv" \
+    "BBox-scrapes/BBox*.bak"
