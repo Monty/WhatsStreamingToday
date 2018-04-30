@@ -124,15 +124,15 @@ PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
 
 # ID for scripts & JSON files used to attempt repair of inconsistencies
-REPAIR_SHOWS="BBoxShows-repair$LONGDATE.txt"
-REPAIR_SCRIPT="BBoxScript-repair$LONGDATE.sh"
-REPAIR_EPISODES_FILE="BBoxEpisodes-repair$LONGDATE.json"
-REPAIR_SEASONS_FILE="BBoxSeasons-repair$LONGDATE.json"
+REPAIR_SHOWS="BBoxShows_repair$LONGDATE.txt"
+REPAIR_SCRIPT="BBoxScript_repair$LONGDATE.sh"
+REPAIR_EPISODES_FILE="BBoxEpisodes_repair$LONGDATE.json"
+REPAIR_SEASONS_FILE="BBoxSeasons_repair$LONGDATE.json"
 #
-REVISED_EPISODES_ID="BBoxEpisodes-repair$LONGDATE"
-REVISED_SEASONS_ID="BBoxSeasons-repair$LONGDATE"
-REVISED_EPISODES_FILE="$SCRAPES/BBoxEpisodes-repair$LONGDATE.csv"
-REVISED_SEASONS_FILE="$SCRAPES/BBoxSeasons-repair$LONGDATE.csv"
+REVISED_EPISODES_ID="BBoxEpisodes_repair$LONGDATE"
+REVISED_SEASONS_ID="BBoxSeasons_repair$LONGDATE"
+REVISED_EPISODES_FILE="$SCRAPES/BBoxEpisodes_repair$LONGDATE.csv"
+REVISED_SEASONS_FILE="$SCRAPES/BBoxSeasons_repair$LONGDATE.csv"
 
 # Gather filenames that can be used for cleanup
 ALL_INTERMEDIATE="$PROGRAMS_SORTED_FILE $EPISODES_SORTED_FILE $SEASONS_SORTED_FILE "
