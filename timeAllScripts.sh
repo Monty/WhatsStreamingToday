@@ -24,6 +24,14 @@ date
 time ./makeAcornSpreadsheet.sh -tld
 echo ""
 
+# csvformat breaks in scripts run by a launchd.plist 
+# It can't find csvformat and can't deal with UTF-8
+if [ ! -e "$(which csvformat 2>/dev/null)" ]; then
+    PATH=${PATH}:/usr/local/bin
+fi
+#
+export LC_ALL=en_US.UTF-8
+#
 echo "----------------------------------------"
 echo "==> time ./makeBritBoxSpreadsheet.sh -td"
 date
