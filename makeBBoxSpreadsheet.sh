@@ -201,19 +201,19 @@ awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASON
 # $TEMP_FILE could be non-existent
 touch $TEMP_FILE
 sort -df $TEMP_FILE >>$ERROR_FILE
-echo "" >>$ERROR_FILE
+rm -f $TEMP_FILE
 
 rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
     $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
 # Add header about info obtained during processing of shows
-printf "\n\n### Information from processing shows is listed below.\n\n" >>$EPISODE_INFO_FILE
+printf "\n### Anomalies from processing shows\n\n" >>$ERROR_FILE
 
 # Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
     -f getBBoxProgramsFrom-webscraper.awk $PROGRAMS_SORTED_FILE >$PROGRAMS_SPREADSHEET_FILE
 # Add header for possible errors that occur during processing EPISODES_SORTED_FILE
-printf "### Extra /show/ URLs in $EPISODES_SORTED_FILE\n\n" >>$ERROR_FILE
+printf "\n### Extra /show/ URLs in $EPISODES_SORTED_FILE\n\n" >>$ERROR_FILE
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
     -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
 # Add header for possible errors that occur during processing SEASONS_SORTED_FILE

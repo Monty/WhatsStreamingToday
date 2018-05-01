@@ -22,7 +22,7 @@
     title = $3
     numEpisodes = $5
     if (numEpisodes != 1)
-        print "    " substr ($0,10)
+        print "    " substr ($0,11)
 }
 
 / show / {

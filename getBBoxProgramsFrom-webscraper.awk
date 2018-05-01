@@ -87,6 +87,5 @@ END {
     if (revisedTitles > 0 ) {
         revisedTitles == 1 ? field = "title" : field = "titles"
         printf ("==> %2d show %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
-        print "" >> ERROR_FILE
     }
 }
