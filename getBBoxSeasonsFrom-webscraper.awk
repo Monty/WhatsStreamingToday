@@ -27,7 +27,7 @@ BEGIN {
     URL = $3
     showTitle = $(NF-5)
     seasonTitle = $(NF-4)
-    Years = $(NF-4)
+    Years = $(NF-3)
     numEpisodes = $(NF-2)
     moreDescription = $(NF)
     moreDescription == "" ? Description = $(NF-1) : Description = moreDescription
@@ -70,7 +70,7 @@ BEGIN {
 
     # Create spreadsheet row in common format
     savedLine = sprintf \
-        ("%s (%s) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
+        ("%s (%s) %s %s\t=HYPERLINK(\"%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
          showTitle, depth, Years, sortkey, URL, fullTitle, numSeasons, numEpisodes, \
          HMS, Years, Rating, Description)
 
