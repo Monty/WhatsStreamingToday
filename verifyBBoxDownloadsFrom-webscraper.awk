@@ -25,7 +25,7 @@ BEGIN {
 nflds = split (programURL,fld,"/") 
 showType = fld[3]
 showType == "show" ? spacer = "  " : spacer = " "
-# Must have single quotes to handle special charaters in targets
+# Must have single quotes to handle special characters in targets
 target = sprintf ("'%s'",fld[nflds])
 unquotedTarget = substr(target,2,length(target)-2)
 #

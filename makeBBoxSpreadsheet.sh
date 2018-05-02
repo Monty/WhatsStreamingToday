@@ -16,7 +16,7 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # -a ALT picks alternate files to scrape. The triple "BBoxPrograms, BBoxEpisodes, and BBoxSeasons"
 #    are amended with ALT, e.g. BBoxPrograms-$ALT.csv, BBoxEpisodes-$ALT.csv, etc.
 # Use "-d" switch to output a "diffs" file useful for debugging
-# Use "-s" switch to only output a summary. Delete any created files except anaomalies and info
+# Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
 while getopts ":a:dst" opt; do
     case $opt in
@@ -223,6 +223,7 @@ awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
 
 # Temporarily save a sorted "seasons file" for easier debugging.
 # Don't sort header line, keep it at the top of the spreadsheet
+# The only difference between the two is the sort order
 head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SORTED_SPREADSHEET_FILE
 grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SORTED_SPREADSHEET_FILE
 

@@ -1,7 +1,7 @@
 #! /bin/bash
-# Create a cannonical form of a webscraper download. Simplifies cutting specific fields.
+# Create a canonical form of a webscraper download. Simplifies cutting specific fields.
 # Useful for comparing files. Not useful for many purposes as it only deletes the first field
-# and know nothng about ther useless fields.
+# and know nothing about their useless fields.
 
 # Join broken lines, get rid of useless 'web-scraper-order' field, change comma-separated to
 # tab separated, sort into useful order
