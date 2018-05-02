@@ -16,9 +16,10 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # -a ALT picks alternate files to scrape. The triple "BBoxPrograms, BBoxEpisodes, and BBoxSeasons"
 #    are amended with ALT, e.g. BBoxPrograms-$ALT.csv, BBoxEpisodes-$ALT.csv, etc.
 # Use "-d" switch to output a "diffs" file useful for debugging
+# Use "-r" switch to output files used to repair incomplete scrapes
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":a:dst" opt; do
+while getopts ":a:drst" opt; do
     case $opt in
     a)
         ALT_ID="-$OPTARG"
@@ -26,6 +27,9 @@ while getopts ":a:dst" opt; do
         ;;
     d)
         DEBUG="yes"
+        ;;
+    r)
+        REPAIRS="yes"
         ;;
     s)
         SUMMARY="yes"
@@ -133,7 +137,11 @@ PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
 
 # ID for scripts & JSON files used to attempt repair of inconsistencies
-REPAIR_SHOWS="BBoxShows-repair$LONGDATE.txt"
+if [ "$REPAIRS" = "yes" ]; then
+    REPAIR_SHOWS="BBoxShows-repair$LONGDATE.txt"
+else
+    REPAIR_SHOWS="/dev/null"
+fi
 REPAIR_SCRIPT="BBoxScript-repair$LONGDATE.sh"
 REPAIR_EPISODES_FILE="BBoxEpisodes-repair$LONGDATE.json"
 REPAIR_SEASONS_FILE="BBoxSeasons-repair$LONGDATE.json"
@@ -242,21 +250,22 @@ printf "\n### Shows with 0 episodes in $EPISODES_FILE or mismatched episodes
 awk -v REPAIR_SHOWS=$REPAIR_SHOWS -f verifyBBoxInfoFrom-webscraper.awk \
     $EPISODE_INFO_FILE >>$ERROR_FILE
 
-# Build json files that can be used for repair
-grep -B4 startUrl episodeTemplate.json | sed -e "s/BBoxEpisodes/$REVISED_EPISODES_ID/" \
-    >$REPAIR_EPISODES_FILE
-grep -B4 startUrl seasonTemplate.json | sed -e "s/BBoxSeasons/$REVISED_SEASONS_ID/" \
-    >$REPAIR_SEASONS_FILE
-awk -v REPAIR_EPISODES_FILE=$REPAIR_EPISODES_FILE -v REPAIR_SEASONS_FILE=$REPAIR_SEASONS_FILE \
-    -f buildBBoxRepairScrapers.awk $REPAIR_SHOWS
-grep -B1 -A99 selectors episodeTemplate.json >>$REPAIR_EPISODES_FILE
-grep -B1 -A99 selectors seasonTemplate.json >>$REPAIR_SEASONS_FILE
+if [ "$REPAIRS" = "yes" ]; then
+    # Build json files that can be used for repair
+    grep -B4 startUrl episodeTemplate.json | sed -e "s/BBoxEpisodes/$REVISED_EPISODES_ID/" \
+        >$REPAIR_EPISODES_FILE
+    grep -B4 startUrl seasonTemplate.json | sed -e "s/BBoxSeasons/$REVISED_SEASONS_ID/" \
+        >$REPAIR_SEASONS_FILE
+    awk -v REPAIR_EPISODES_FILE=$REPAIR_EPISODES_FILE -v REPAIR_SEASONS_FILE=$REPAIR_SEASONS_FILE \
+        -f buildBBoxRepairScrapers.awk $REPAIR_SHOWS
+    grep -B1 -A99 selectors episodeTemplate.json >>$REPAIR_EPISODES_FILE
+    grep -B1 -A99 selectors seasonTemplate.json >>$REPAIR_SEASONS_FILE
 
-# Create a shell script that attempts to repair $EPISODES_FILE
-touch $REPAIR_SCRIPT
-chmod 755 $REPAIR_SCRIPT
-#
-cat >>$REPAIR_SCRIPT <<EOF
+    # Create a shell script that attempts to repair $EPISODES_FILE
+    touch $REPAIR_SCRIPT
+    chmod 755 $REPAIR_SCRIPT
+    #
+    cat >>$REPAIR_SCRIPT <<EOF
 #! /bin/bash
 # Interactive repair of $EPISODES_FILE
 
@@ -277,8 +286,9 @@ REPAIR_SEASONS_FILE=$REPAIR_SEASONS_FILE
 TEMP_FILE=$TEMP_FILE
 
 EOF
-# Grab the rest from repairBBoxTemplate.sh
-grep -A99 repairBBoxTemplate.sh repairBBoxTemplate.sh >>$REPAIR_SCRIPT
+    # Grab the rest from repairBBoxTemplate.sh
+    grep -A99 repairBBoxTemplate.sh repairBBoxTemplate.sh >>$REPAIR_SCRIPT
+fi
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
