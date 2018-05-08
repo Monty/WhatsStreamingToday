@@ -16,6 +16,8 @@ echo ""
 echo "----------------------------------------"
 echo "==> time ./makeAcornSpreadsheet.sh -t"
 date
+# The first time this is run, there are missing episodes. Running it twide seem to fix the problem. 
+time ./makeAcornSpreadsheet.sh -t
 time ./makeAcornSpreadsheet.sh -t
 echo ""
 echo "----------------------------------------"
