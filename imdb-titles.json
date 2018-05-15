@@ -1,0 +1,43 @@
+{
+  "_id": "imdb-titles",
+  "startUrl": [
+    "https://www.imdb.com/title/tt0056751/fullcredits",
+    "https://www.imdb.com/title/tt0108967/fullcredits",
+    "https://www.imdb.com/title/tt0178132/fullcredits",
+    "https://www.imdb.com/title/tt1132620/fullcredits",
+    "https://www.imdb.com/title/tt1288631/fullcredits",
+    "https://www.imdb.com/title/tt1568346/fullcredits",
+    "https://www.imdb.com/title/tt1693592/fullcredits",
+    "https://www.imdb.com/title/tt1888075/fullcredits",
+    "https://www.imdb.com/title/tt2249364/fullcredits",
+    "https://www.imdb.com/title/tt2265544/fullcredits",
+    "https://www.imdb.com/title/tt2375720/fullcredits",
+    "https://www.imdb.com/title/tt2396135/fullcredits",
+    "https://www.imdb.com/title/tt2575968/fullcredits",
+    "https://www.imdb.com/title/tt4192812/fullcredits",
+    "https://www.imdb.com/title/tt4380324/fullcredits",
+    "https://www.imdb.com/title/tt4937942/fullcredits",
+    "https://www.imdb.com/title/tt5194410/fullcredits",
+    "https://www.imdb.com/title/tt6658720/fullcredits"
+  ],
+  "selectors": [
+    {
+      "id": "Title",
+      "type": "SelectorText",
+      "selector": "div.parent a",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    },
+    {
+      "id": "Years",
+      "type": "SelectorText",
+      "selector": "h3 span.nobr",
+      "parentSelectors": ["_root"],
+      "multiple": false,
+      "regex": "",
+      "delay": 0
+    }
+  ]
+}
