@@ -24,6 +24,9 @@ BEGIN {
         type = "Actor"
         gsub (/[[:blank:]]{3,99}\(uncredited\)/," (uncredited)",Cast)
         gsub (/[[:blank:]]{3,99}\/ \.\.\./," / ...",Cast)
+        extra = sub (/\(extra\) ?/,"",Cast)
+        if (extra != 0)
+            type = type " (extra)"
         uncredited = sub (/\(uncredited\) ?/,"",Cast)
         if (uncredited != 0)
             type = type " (uncredited)"
@@ -32,11 +35,15 @@ BEGIN {
         role = fld[3]
         sub (/\302\240/,"",role)
         episodes = fld[4]
-        nflds2 = split (episodes,fld,/,/)
-        num_episodes = fld[1]
-        sub (/ episodes?/,"",num_episodes)
-        episode_years = fld[2]
-        sub (/ /,"",episode_years)
+        if (episodes !~ /episodes?/) {
+            person = person " " episodes
+        } else {
+            nflds2 = split (episodes,fld,/,/)
+            num_episodes = fld[1]
+            sub (/ episodes?/,"",num_episodes)
+            episode_years = fld[2]
+            sub (/ /,"",episode_years)
+        }
     }
 
     if (Directors != "") {
@@ -61,10 +68,8 @@ BEGIN {
         person = fld[1]
         parens = fld[3]
         nparens = split (parens,fld,/[()]/)
-        # print "==> parens = " parens > "/dev/stderr"
         for ( i = 2; i < nparens-1; i+=2 ) {
             if (fld[i] != " ") {
-                # print "==> i = " i " - |"fld[i] "|" > "/dev/stderr"
                 type = type " (" fld[i] ")"
             }
         }
@@ -80,6 +85,6 @@ BEGIN {
         }
     }
 
-    printf ("%s %s | %s | %s | %s | %s | %s\n",Title,Years,person,type,role,num_episodes,episode_years)
+    printf ("%s %s\t%s\t%s\t%s\t%s\t%s\n",Title,Years,person,type,role,num_episodes,episode_years)
 
 }
