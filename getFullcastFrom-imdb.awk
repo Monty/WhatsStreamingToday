@@ -9,6 +9,10 @@ BEGIN {
     Cast = $4
     Directors = $5
     Writers = $6
+    person = ""
+    role = ""
+    num_episodes = ""
+    episode_years = ""
 
     if (Cast == "" && Directors == "" && Writers == "")
         next
@@ -17,9 +21,13 @@ BEGIN {
         next
 
     if (Cast != "") {
-        gsub (/[[:blank:]]{3,99}\(uncredited\)/," (uncredited)",Cast)
-        nflds1 = split (Cast,fld,/[[:blank:]]{3,99}/)
         type = "Actor"
+        gsub (/[[:blank:]]{3,99}\(uncredited\)/," (uncredited)",Cast)
+        gsub (/[[:blank:]]{3,99}\/ \.\.\./," / ...",Cast)
+        uncredited = sub (/\(uncredited\) ?/,"",Cast)
+        if (uncredited != 0)
+            type = type " (uncredited)"
+        nflds1 = split (Cast,fld,/[[:blank:]]{3,99}/)
         person = fld[1]
         role = fld[3]
         sub (/\302\240/,"",role)
@@ -32,11 +40,13 @@ BEGIN {
     }
 
     if (Directors != "") {
-        nflds1 = split (Directors,fld,/[[:blank:]]{3,99}/)
         type = "Director"
-        role = ""
+        nflds1 = split (Directors,fld,/[[:blank:]]{3,99}/)
         person = fld[1]
         episodes = fld[3]
+        uncredited = sub (/\(uncredited\) /,"",episodes)
+        if (uncredited != 0)
+            type = type " (uncredited)"
         gsub (/[()]/,"",episodes)
         nflds2 = split (episodes,fld,/,/)
         num_episodes = fld[1]
@@ -46,19 +56,30 @@ BEGIN {
     }
 
     if (Writers != "") {
-        nflds1 = split (Writers,fld,/[[:blank:]]{3,99}/)
         type = "Writer"
-        role = ""
+        nflds1 = split (Writers,fld,/[[:blank:]]{3,99}/)
         person = fld[1]
-        episodes = fld[3]
-        gsub (/[()]/,"",episodes)
-        nflds2 = split (episodes,fld,/,/)
-        num_episodes = fld[1]
-        sub (/ episodes?/,"",num_episodes)
-        episode_years = fld[2]
-        sub (/ /,"",episode_years)
+        parens = fld[3]
+        nparens = split (parens,fld,/[()]/)
+        # print "==> parens = " parens > "/dev/stderr"
+        for ( i = 2; i < nparens-1; i+=2 ) {
+            if (fld[i] != " ") {
+                # print "==> i = " i " - |"fld[i] "|" > "/dev/stderr"
+                type = type " (" fld[i] ")"
+            }
+        }
+        episodes = fld[nparens-1]
+        if (episodes !~ /episodes?/) {
+            type = type " (" episodes ")"
+        } else {
+            nflds2 = split (episodes,fld,/,/)
+            num_episodes = fld[1]
+            sub (/ episodes?/,"",num_episodes)
+            episode_years = fld[2]
+            sub (/ /,"",episode_years)
+        }
     }
 
-    printf ("%d - %s %s\t%s\t%s\t%s\t%s\t%s\n",nflds1,Title,Years,person,type,role,num_episodes,episode_years)
+    printf ("%s %s | %s | %s | %s | %s | %s\n",Title,Years,person,type,role,num_episodes,episode_years)
 
 }
