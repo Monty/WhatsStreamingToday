@@ -1,5 +1,6 @@
 BEGIN {
     FS = "\t"
+    printf ("Title\tPerson\tType\tRole\tEpisodes\tYears\n")
 }
 
 {
@@ -33,6 +34,8 @@ BEGIN {
         nflds1 = split (Cast,fld,/[[:blank:]]{3,99}/)
         person = fld[1]
         role = fld[3]
+        if (role ~ /^'/)
+            role = "'" role
         sub (/\302\240/,"",role)
         episodes = fld[4]
         if (episodes !~ /episodes?/) {
@@ -85,6 +88,7 @@ BEGIN {
         }
     }
 
-    printf ("%s %s\t%s\t%s\t%s\t%s\t%s\n",Title,Years,person,type,role,num_episodes,episode_years)
+    printf ("=HYPERLINK(\"%s\";\"%s %s\"\)\t%s\t%s\t%s\t%s\t%s\n",web_scraper_start_url,Title,Years,person,type,role,\
+                num_episodes,episode_years)
 
 }
