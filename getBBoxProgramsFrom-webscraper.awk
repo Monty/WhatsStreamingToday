@@ -44,9 +44,9 @@ BEGIN {
     }
 
     # Titles starting with "The" should not sort based on "The"
-    if (match (showTitle, /^The /)) {
+    # unless it's never used without the "The" included, such as "The Queen"
+    if (showTitle !~ /^The Queen/ && showTitle !~ /^The Shard/ && match (showTitle, /^The /))
         showTitle = substr(showTitle, 5) ", The"
-    }
 
     # Some shows that need special processing
     if (URL ~ /Maigret_15974$/) {
@@ -64,7 +64,7 @@ BEGIN {
         print "    Porridge_14747 title changed from '" showTitle "' to 'Porridge (2016-2017)'" >> ERROR_FILE
         showTitle = "Porridge (2016-2017)"
     }
-    
+
     # Build string used in Title URL
     fullTitle = showTitle
 
