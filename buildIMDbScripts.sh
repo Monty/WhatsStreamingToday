@@ -20,9 +20,9 @@ shift $((OPTIND - 1))
 DATE="-$(date +%y%m%d)"
 DATE_ID="-$(date +%y%m%d)"
 #
-SCRIPT="getInfoFrom-imdb$DATE.sh"
+SCRIPT="getInfoFrom-IMDb$DATE.sh"
 #
-COLUMNS="imdb-columns"
+COLUMNS="IMDb-columns"
 mkdir -p $COLUMNS
 #
 ACORN_CSV=$(ls -1t Acorn_TV_Shows-*csv | head -1)
@@ -36,13 +36,13 @@ ACORN_TITLES="$COLUMNS/Acorn-titles$DATE_ID.txt"
 BBOX_TITLES="$COLUMNS/BBox-titles$DATE_ID.txt"
 MHZ_TITLES="$COLUMNS/MHz-titles$DATE_ID.txt"
 #
-ACORN_FIRST_SCRIPT="getAcornFrom_first-imdb$DATE_ID.sh"
-BBOX_FIRST_SCRIPT="getBBoxFrom_first-imdb$DATE_ID.sh"
-MHZ_FIRST_SCRIPT="getMHzFrom_first-imdb$DATE_ID.sh"
+ACORN_FIRST_SCRIPT="getIMDbFrom-Acorn_first$DATE_ID.sh"
+BBOX_FIRST_SCRIPT="getIMDbFrom-BBox_first$DATE_ID.sh"
+MHZ_FIRST_SCRIPT="getIMDbFrom-MHz_first$DATE_ID.sh"
 #
-ACORN_SEARCH_SCRIPT="getAcornFrom_search-imdb$DATE_ID.sh"
-BBOX_SEARCH_SCRIPT="getBBoxFrom_search-imdb$DATE_ID.sh"
-MHZ_SEARCH_SCRIPT="getMHzFrom_search-imdb$DATE_ID.sh"
+ACORN_SEARCH_SCRIPT="getIMDbFrom-Acorn_search$DATE_ID.sh"
+BBOX_SEARCH_SCRIPT="getIMDbFrom-BBox_search$DATE_ID.sh"
+MHZ_SEARCH_SCRIPT="getIMDbFrom-MHz_search$DATE_ID.sh"
 #
 ACORN_FIRST_FILE="$COLUMNS/Acorn-first$DATE_ID.txt"
 BBOX_FIRST_FILE="$COLUMNS/BBox-first$DATE_ID.txt"
@@ -60,11 +60,11 @@ grep HYPERLINK $BBOX_CSV | cut -f 2 | sed -e 's/=HYPER.*;//' | sed -e 's/)$//' >
 grep HYPERLINK $MHZ_CSV | cut -f 2 | sed -e 's/=HYPER.*;//' | sed -e 's/)$//' >$MHZ_TITLES
 
 awk -v FIRST_SCRIPT=$ACORN_FIRST_SCRIPT -v SEARCH_SCRIPT=$ACORN_SEARCH_SCRIPT \
-    -f generateScriptsFrom-titles.awk $ACORN_TITLES 
+    -f generateIMDbScriptsFrom-titles.awk $ACORN_TITLES 
 awk -v FIRST_SCRIPT=$BBOX_FIRST_SCRIPT -v SEARCH_SCRIPT=$BBOX_SEARCH_SCRIPT \
-    -f generateScriptsFrom-titles.awk $BBOX_TITLES
+    -f generateIMDbScriptsFrom-titles.awk $BBOX_TITLES
 awk -v FIRST_SCRIPT=$MHZ_FIRST_SCRIPT -v SEARCH_SCRIPT=$MHZ_SEARCH_SCRIPT \
-    -f generateScriptsFrom-titles.awk $MHZ_TITLES
+    -f generateIMDbScriptsFrom-titles.awk $MHZ_TITLES
 
 if [ "$LONG" != "yes" ]; then
     exit
