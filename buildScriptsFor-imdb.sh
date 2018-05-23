@@ -2,12 +2,28 @@
 # Use the titles from various scrapers to compile a list of shows we might want info about.
 # Create a dated shell script to obtain that info
 
+while getopts ":ls" opt; do
+    case $opt in
+    l)
+        LONG="yes"
+        ;;
+   s)
+        SUMMARY="yes"
+        ;;
+    \?)
+        echo "Ignoring invalid option: -$OPTARG" >&2
+        ;;
+    esac
+done
+shift $((OPTIND - 1))
+
 DATE="-$(date +%y%m%d)"
 DATE_ID="-$(date +%y%m%d)"
 #
 SCRIPT="getInfoFrom-imdb$DATE.sh"
 #
 COLUMNS="imdb-columns"
+mkdir -p $COLUMNS
 #
 ACORN_CSV=$(ls -1t Acorn_TV_Shows-*csv | head -1)
 BBOX_CSV=$(ls -1t BBox_TV_Shows-*csv | head -1)
@@ -49,6 +65,10 @@ awk -v FIRST_SCRIPT=$BBOX_FIRST_SCRIPT -v SEARCH_SCRIPT=$BBOX_SEARCH_SCRIPT \
     -f generateScriptsFrom-titles.awk $BBOX_TITLES
 awk -v FIRST_SCRIPT=$MHZ_FIRST_SCRIPT -v SEARCH_SCRIPT=$MHZ_SEARCH_SCRIPT \
     -f generateScriptsFrom-titles.awk $MHZ_TITLES
+
+if [ "$LONG" != "yes" ]; then
+    exit
+fi
 
 bash $ACORN_FIRST_SCRIPT > $ACORN_FIRST_FILE
 bash $BBOX_FIRST_SCRIPT > $BBOX_FIRST_FILE

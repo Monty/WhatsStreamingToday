@@ -9,7 +9,7 @@
     printf ("echo \n\n") >> FIRST_SCRIPT
 
     printf ("echo ==\\> %3d %s\n",NR,title) >> SEARCH_SCRIPT
-    printf ("search_movie.py %s | head -7",title) >> SEARCH_SCRIPT
+    printf ("search_movie.py %s | head -7\n",title) >> SEARCH_SCRIPT
     printf ("echo \n\n") >> SEARCH_SCRIPT
 }
 
