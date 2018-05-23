@@ -50,9 +50,10 @@ BEGIN {
     }
 
     # Titles starting with "The" should not sort based on "The"
-    if (match (showTitle, /^The /)) {
-        showTitle = substr(showTitle, 5) ", The"
-    }
+    # unless it's never used without the "The" included, such as "The Queen"
+    # But since Britbox, unlike others, uses the "The" when sorting ...
+    # if (showTitle !~ /^The Queen/ && showTitle !~ /^The Shard/ && match (showTitle, /^The /))
+    #     showTitle = substr(showTitle, 5) ", The"
 
     # Some shows that need special processing
     if (baseURL ~ /Maigret_15974$/) {
