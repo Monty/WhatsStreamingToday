@@ -2,12 +2,15 @@
 # Use the titles from various scrapers to compile a list of shows we might want info about.
 # Create a dated shell script to obtain that info
 
-while getopts ":ls" opt; do
+while getopts ":dls" opt; do
     case $opt in
+    d)
+        DEBUG="yes"
+        ;;
     l)
         LONG="yes"
         ;;
-   s)
+    s)
         SUMMARY="yes"
         ;;
     \?)
@@ -68,7 +71,7 @@ grep HYPERLINK $MHZ_CSV | cut -f 2 | sed -e 's/=HYPER.*;//' | sed -e 's/)$//' >$
 sed -E -f fixWatched_titles.sed $WATCHED_TXT | sort -u >$WATCHED_TITLES
 
 awk -v FIRST_SCRIPT=$ACORN_FIRST_SCRIPT -v SEARCH_SCRIPT=$ACORN_SEARCH_SCRIPT \
-    -f generateIMDbScriptsFrom-titles.awk $ACORN_TITLES 
+    -f generateIMDbScriptsFrom-titles.awk $ACORN_TITLES
 awk -v FIRST_SCRIPT=$BBOX_FIRST_SCRIPT -v SEARCH_SCRIPT=$BBOX_SEARCH_SCRIPT \
     -f generateIMDbScriptsFrom-titles.awk $BBOX_TITLES
 awk -v FIRST_SCRIPT=$MHZ_FIRST_SCRIPT -v SEARCH_SCRIPT=$MHZ_SEARCH_SCRIPT \
@@ -80,12 +83,12 @@ if [ "$LONG" != "yes" ]; then
     exit
 fi
 
-bash $ACORN_FIRST_SCRIPT > $ACORN_FIRST_FILE
-bash $BBOX_FIRST_SCRIPT > $BBOX_FIRST_FILE
-bash $MHZ_FIRST_SCRIPT > $MHZ_FIRST_FILE
-bash $WATCHED_FIRST_SCRIPT > $WATCHED_FIRST_FILE
+bash $ACORN_FIRST_SCRIPT >$ACORN_FIRST_FILE
+bash $BBOX_FIRST_SCRIPT >$BBOX_FIRST_FILE
+bash $MHZ_FIRST_SCRIPT >$MHZ_FIRST_FILE
+bash $WATCHED_FIRST_SCRIPT >$WATCHED_FIRST_FILE
 
-bash $ACORN_SEARCH_SCRIPT > $ACORN_SEARCH_FILE
-bash $BBOX_SEARCH_SCRIPT > $BBOX_SEARCH_FILE
-bash $MHZ_SEARCH_SCRIPT > $MHZ_SEARCH_FILE
-bash $WATCHED_SEARCH_SCRIPT > $WATCHED_SEARCH_FILE
+bash $ACORN_SEARCH_SCRIPT >$ACORN_SEARCH_FILE
+bash $BBOX_SEARCH_SCRIPT >$BBOX_SEARCH_FILE
+bash $MHZ_SEARCH_SCRIPT >$MHZ_SEARCH_FILE
+bash $WATCHED_SEARCH_SCRIPT >$WATCHED_SEARCH_FILE
