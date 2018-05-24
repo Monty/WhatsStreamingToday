@@ -17,10 +17,9 @@ while getopts ":ls" opt; do
 done
 shift $((OPTIND - 1))
 
-DATE="-$(date +%y%m%d)"
 DATE_ID="-$(date +%y%m%d)"
 #
-SCRIPT="getInfoFrom-IMDb$DATE.sh"
+SCRIPT="getInfoFrom-IMDb$DATE_ID.sh"
 #
 COLUMNS="IMDb-columns"
 mkdir -p $COLUMNS
