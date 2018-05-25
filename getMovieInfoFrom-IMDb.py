@@ -25,9 +25,6 @@ if not results:
     print('No matches for "%s", sorry.' % title)
     sys.exit(0)
 
-# Print only the first result.
-print('    Best match for "%s"' % title)
-
 # This is a Movie instance.
 movie = results[0]
 
@@ -35,10 +32,8 @@ movie = results[0]
 # title and the year; retrieve main information:
 i.update(movie)
 
-print ('==== "%s" / Rating: %s ====' % (movie['title'], movie.get('rating')))
 cast = movie.get('cast')
 if cast:
-    print ('Cast: ')
     for name in cast:
-        print ('      %s (%s)' % (name['name'], name.currentRole))
+        print ('"%s"\t%s' % (movie['title'], name['name']))
 # print(movie.summary())
