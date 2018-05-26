@@ -33,12 +33,12 @@ cp -p $VERBOSE $COLUMNS/BBox-titles$DATE.txt $BASELINE/BBox-titles.txt
 cp -p $VERBOSE $COLUMNS/MHz-titles$DATE.txt $BASELINE/MHz-titles.txt
 cp -p $VERBOSE $COLUMNS/Watched-titles$DATE.txt $BASELINE/Watched-titles.txt
 
-cp -p $VERBOSE $COLUMNS/Acorn-first$DATE.txt $BASELINE/Acorn-first.txt  2>/dev/null
-cp -p $VERBOSE $COLUMNS/BBox-first$DATE.txt $BASELINE/BBox-first.txt  2>/dev/null
-cp -p $VERBOSE $COLUMNS/MHz-first$DATE.txt $BASELINE/MHz-first.txt  2>/dev/null
-cp -p $VERBOSE $COLUMNS/Watched-first$DATE.txt $BASELINE/Watched-first.txt  2>/dev/null
+cp -p $VERBOSE $COLUMNS/Acorn-IMDb_Info$DATE.csv $BASELINE/Acorn-IMDb_Info.csv  2>/dev/null
+cp -p $VERBOSE $COLUMNS/BBox-IMDb_Info$DATE.csv $BASELINE/BBox-IMDb_Info.csv  2>/dev/null
+cp -p $VERBOSE $COLUMNS/MHz-IMDb_Info$DATE.csv $BASELINE/MHz-IMDb_Info.csv  2>/dev/null
+cp -p $VERBOSE $COLUMNS/Watched-IMDb_Info$DATE.csv $BASELINE/Watched-IMDb_Info.csv  2>/dev/null
 
-cp -p $VERBOSE $COLUMNS/Acorn-search$DATE.txt $BASELINE/Acorn-search.txt  2>/dev/null
-cp -p $VERBOSE $COLUMNS/BBox-search$DATE.txt $BASELINE/BBox-search.txt  2>/dev/null
-cp -p $VERBOSE $COLUMNS/MHz-search$DATE.txt $BASELINE/MHz-search.txt  2>/dev/null
-cp -p $VERBOSE $COLUMNS/Watched-search$DATE.txt $BASELINE/Watched-search.txt  2>/dev/null
+cp -p $VERBOSE $COLUMNS/Acorn-IMDb_IDs$DATE.txt $BASELINE/Acorn-IMDb_IDs.txt  2>/dev/null
+cp -p $VERBOSE $COLUMNS/BBox-IMDb_IDs$DATE.txt $BASELINE/BBox-IMDb_IDs.txt  2>/dev/null
+cp -p $VERBOSE $COLUMNS/MHz-IMDb_IDs$DATE.txt $BASELINE/MHz-IMDb_IDs.txt  2>/dev/null
+cp -p $VERBOSE $COLUMNS/Watched-IMDb_IDs$DATE.txt $BASELINE/Watched-IMDb_IDs.txt  2>/dev/null
