@@ -2,7 +2,7 @@
 # Use the titles from various scrapers to compile a list of shows we might want info about.
 # Create a dated shell script to obtain that info
 
-while getopts ":dls" opt; do
+while getopts ":dlsv" opt; do
     case $opt in
     d)
         DEBUG="yes"
@@ -12,6 +12,9 @@ while getopts ":dls" opt; do
         ;;
     s)
         SUMMARY="yes"
+        ;;
+    v)
+        VERBOSE="-v"
         ;;
     \?)
         echo "Ignoring invalid option: -$OPTARG" >&2
@@ -50,15 +53,15 @@ BBOX_ID_SCRIPT="$COLUMNS/getIMDb_IDsFromBBox-titles$DATE_ID.sh"
 MHZ_ID_SCRIPT="$COLUMNS/getIMDb_IDsFromMHz-titles$DATE_ID.sh"
 WATCHED_ID_SCRIPT="$COLUMNS/getIMDb_IDsFromWatched-titles$DATE_ID.sh"
 #
-ACORN_TITLES_FILE="$COLUMNS/Acorn-titles$DATE_ID.txt"
-BBOX_TITLES_FILE="$COLUMNS/BBox-titles$DATE_ID.txt"
-MHZ_TITLES_FILE="$COLUMNS/MHz-titles$DATE_ID.txt"
-WATCHED_TITLES_FILE="$COLUMNS/Watched-titles$DATE_ID.txt"
+ACORN_INFO_FILE="$COLUMNS/Acorn-IMDb_Info$DATE_ID.txt"
+BBOX_INFO_FILE="$COLUMNS/BBox-IMDb_Info$DATE_ID.txt"
+MHZ_INFO_FILE="$COLUMNS/MHz-IMDb_Info$DATE_ID.txt"
+WATCHED_INFO_FILE="$COLUMNS/Watched-IMDb_Info$DATE_ID.txt"
 #
-ACORN_ID_FILE="$COLUMNS/Acorn-IDs$DATE_ID.txt"
-BBOX_ID_FILE="$COLUMNS/BBox-IDs$DATE_ID.txt"
-MHZ_ID_FILE="$COLUMNS/MHz-IDs$DATE_ID.txt"
-WATCHED_ID_FILE="$COLUMNS/Watched-IDs$DATE_ID.txt"
+ACORN_ID_FILE="$COLUMNS/Acorn-IMDb_IDs$DATE_ID.txt"
+BBOX_ID_FILE="$COLUMNS/BBox-IMDb_IDs$DATE_ID.txt"
+MHZ_ID_FILE="$COLUMNS/MHz-IMDb_IDs$DATE_ID.txt"
+WATCHED_ID_FILE="$COLUMNS/Watched-IMDb_IDs$DATE_ID.txt"
 
 rm -f $ACORN_TITLES_SCRIPT $BBOX_TITLES_SCRIPT $MHZ_TITLES_SCRIPT $WATCHED_TITLES_SCRIPT
 rm -f $ACORN_ID_SCRIPT $BBOX_ID_SCRIPT $MHZ_ID_SCRIPT $WATCHED_ID_SCRIPT
@@ -81,12 +84,12 @@ if [ "$LONG" != "yes" ]; then
     exit
 fi
 
-bash $ACORN_TITLES_SCRIPT >$ACORN_TITLES_FILE
-bash $BBOX_TITLES_SCRIPT >$BBOX_TITLES_FILE
-bash $MHZ_TITLES_SCRIPT >$MHZ_TITLES_FILE
-bash $WATCHED_TITLES_SCRIPT >$WATCHED_TITLES_FILE
+bash $VERBOSE $ACORN_TITLES_SCRIPT >$ACORN_INFO_FILE
+bash $VERBOSE $BBOX_TITLES_SCRIPT >$BBOX_INFO_FILE
+bash $VERBOSE $MHZ_TITLES_SCRIPT >$MHZ_INFO_FILE
+bash $VERBOSE $WATCHED_TITLES_SCRIPT >$WATCHED_INFO_FILE
 
-bash $ACORN_ID_SCRIPT >$ACORN_ID_FILE
-bash $BBOX_ID_SCRIPT >$BBOX_ID_FILE
-bash $MHZ_ID_SCRIPT >$MHZ_ID_FILE
-bash $WATCHED_ID_SCRIPT >$WATCHED_ID_FILE
+bash $VERBOSE $ACORN_ID_SCRIPT >$ACORN_ID_FILE
+bash $VERBOSE $BBOX_ID_SCRIPT >$BBOX_ID_FILE
+bash $VERBOSE $MHZ_ID_SCRIPT >$MHZ_ID_FILE
+bash $VERBOSE $WATCHED_ID_SCRIPT >$WATCHED_ID_FILE
