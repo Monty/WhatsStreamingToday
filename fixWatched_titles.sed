@@ -21,7 +21,7 @@ s/Suspicion:.*/Suspicion/
 s/TEDTalks:.*/TEDTalks/
 s/The Grand:.*/The Grand/
 s/The Guilty:.*/The Guilty/
-s/The House of Cards Trilogy \(BBC\):.*/The House of Cards Trilogy (BBC)/
+s/The House of Cards Trilogy \(BBC\):.*/The House of Cards Trilogy/
 s/The Silence:.*/The Silence/
 s/The State Within:.*/The State Within/
 s/Tinker, Tailor, Soldier, Spy:.*/Tinker, Tailor, Soldier, Spy/
