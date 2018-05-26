@@ -27,6 +27,7 @@ if not results:
 
 # This is a Movie instance.
 movie = results[0]
+imdbURL = i.get_imdbURL(movie)
 
 # So far the Movie object only contains basic information like the
 # title and the year; retrieve main information:
@@ -35,5 +36,14 @@ i.update(movie)
 cast = movie.get('cast')
 if cast:
     for name in cast:
-        print ('"%s"\t%s' % (movie['title'], name['name']))
-# print(movie.summary())
+        print ('%s\t"%s"\t%s\tActor' % (imdbURL,movie['title'], name['name']))
+
+director = movie.get('director')
+if director:
+    for name in director:
+        print ('%s\t"%s"\t%s\tDirector' % (imdbURL,movie['title'], name['name']))
+
+writer = movie.get('writer')
+if writer:
+    for name in writer:
+        print ('%s\t"%s"\t%s\tWriter' % (imdbURL,movie['title'], name['name']))
