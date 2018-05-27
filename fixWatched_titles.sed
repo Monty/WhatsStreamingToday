@@ -5,6 +5,7 @@ s/, S[0-9]{2}.*//
 s/: Seasons? [0-9].*//
 s/: Series [0-9].*//
 s/Collateral:.*/Collateral/
+s/Detective Byomkesh Bakshy.*/Detective Byomkesh Bakshy/
 s/Heat of the Sun:.*/Heat of the Sun/
 s/Inspector Alleyn Mysteries:.*/Inspector Alleyn Mysteries/
 s/Jack Whitehall: Travels with My Father:.*/Jack Whitehall: Travels with My Father/
