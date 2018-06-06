@@ -85,6 +85,9 @@
     if (episodeURL ~ /-c-[[:digit:]]{5}$/)
         episodeNumberFromURL = substr (episodeURL, length(episodeURL)-1, 2)
     episodeTitle = fld[4]
+    # kludge for missing episode number in mammon/season:1/videos/the-murder
+    if (episodeTitle ~ /Sn 1 Ep 5/)
+        episodeNumberFromURL = "05"
     gsub (/&quot;/,"\"\"",episodeTitle)
     sub (/.*season:/,"")
     sub (/\/.*/,"")
