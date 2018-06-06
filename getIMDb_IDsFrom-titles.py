@@ -21,6 +21,10 @@ except imdb.IMDbError as e:
     print(e)
     sys.exit(3)
 
+if not results:
+    print('[ERROR] No matches for "%s".' % title)
+    sys.exit(0)
+
 # Print the results.
 print('    %s result%s for "%s":' % (len(results),
                                      ('', 's')[len(results) != 1],

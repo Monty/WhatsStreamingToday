@@ -22,7 +22,7 @@ except imdb.IMDbError as e:
     sys.exit(3)
 
 if not results:
-    print('No matches for "%s", sorry.' % title)
+    print('[ERROR] No matches for "%s".' % title)
     sys.exit(0)
 
 # This is a Movie instance.
