@@ -43,14 +43,17 @@ i.update(movie)
 cast = movie.get('cast')
 if cast:
     for name in cast:
-        print('%s\t"%s"\t%s\tActor' % (imdbURL, movie['title'], name['name']))
+        personURL = i.get_imdbURL(name)
+        print('%s\t"%s"\t%s\t%s\tActor' % (imdbURL, movie['title'], personURL, name['name']))
 
 director = movie.get('director')
 if director:
     for name in director:
-        print('%s\t"%s"\t%s\tDirector' % (imdbURL, movie['title'], name['name']))
+        personURL = i.get_imdbURL(name)
+        print('%s\t"%s"\t%s\t%s\tDirector' % (imdbURL, movie['title'], personURL, name['name']))
 
 writer = movie.get('writer')
 if writer:
     for name in writer:
-        print('%s\t"%s"\t%s\tWriter' % (imdbURL, movie['title'], name['name']))
+        personURL = i.get_imdbURL(name)
+        print('%s\t"%s"\t%s\t%s\tWriter' % (imdbURL, movie['title'], personURL, name['name']))
