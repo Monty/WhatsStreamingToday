@@ -72,13 +72,13 @@ grep HYPERLINK $MHZ_CSV | cut -f 2 | sed -e 's/=HYPER.*;//' | sed -e 's/)$//' >$
 sed -E -f fixWatched_titles.sed $WATCHED_TXT | sort -u >$WATCHED_TITLES
 
 awk -v TITLES_SCRIPT=$ACORN_TITLES_SCRIPT -v ID_SCRIPT=$ACORN_ID_SCRIPT \
-    -f generateIMDbScriptsFrom-titles.awk $ACORN_TITLES
+    -f generateIMDbScriptsFrom-titles_or_IDs.awk $ACORN_TITLES
 awk -v TITLES_SCRIPT=$BBOX_TITLES_SCRIPT -v ID_SCRIPT=$BBOX_ID_SCRIPT \
-    -f generateIMDbScriptsFrom-titles.awk $BBOX_TITLES
+    -f generateIMDbScriptsFrom-titles_or_IDs.awk $BBOX_TITLES
 awk -v TITLES_SCRIPT=$MHZ_TITLES_SCRIPT -v ID_SCRIPT=$MHZ_ID_SCRIPT \
-    -f generateIMDbScriptsFrom-titles.awk $MHZ_TITLES
+    -f generateIMDbScriptsFrom-titles_or_IDs.awk $MHZ_TITLES
 awk -v TITLES_SCRIPT=$WATCHED_TITLES_SCRIPT -v ID_SCRIPT=$WATCHED_ID_SCRIPT \
-    -f generateIMDbScriptsFrom-titles.awk $WATCHED_TITLES
+    -f generateIMDbScriptsFrom-titles_or_IDs.awk $WATCHED_TITLES
 
 if [ "$LONG" != "yes" ]; then
     exit
