@@ -38,7 +38,7 @@ BEGIN {
     if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
         seasonNumber = substr(fld[nflds-2], 2)
         episodeNumber = substr(fld[nflds-1], 2)
-        sortkey = sprintf ("%s%02dE%02d", showtype, seasonNumber, episodeNumber)
+        sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
     } else {
         URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "E"
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
