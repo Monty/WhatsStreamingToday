@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on BritBox
 
 # trap ctrl-c and call cleanup
@@ -266,7 +266,7 @@ if [ "$REPAIRS" = "yes" ]; then
     chmod 755 $REPAIR_SCRIPT
     #
     cat >>$REPAIR_SCRIPT <<EOF
-#! /bin/bash
+#!/usr/bin/env bash
 # Interactive repair of $EPISODES_FILE
 
 # Variables assigned by makeBBoxSpreadsheet.sh

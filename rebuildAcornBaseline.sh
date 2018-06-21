@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Rebuild Acorn-baseline from an Acorn_TV_ShowsEpisodes spreadsheet
 # -d DATE picks a different date
 

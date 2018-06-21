@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Create a human readable diff of any two "TV spreadsheets" from the same streaming service
 #     ./whatsChanged.sh [-b] oldSpreadsheet newSpreadsheet
 #

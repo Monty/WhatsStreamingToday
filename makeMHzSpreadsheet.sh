@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on MHz Networks
 
 # Use "-d" switch to output a "diffs" file useful for debugging

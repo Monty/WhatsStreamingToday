@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Create a canonical form of a webscraper download. Simplifies cutting specific fields.
 # Useful for comparing files. Not useful for many purposes as it only deletes the first field
 # and know nothing about their useless fields.

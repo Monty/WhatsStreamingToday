@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Remove all files and directories created by running scripts
 
 echo "Answer y to delete, anything else to skip. Deletion cannot be undone!"

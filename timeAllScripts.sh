@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 
 # Time the primary variants of shell scripts that make spreadsheets
 

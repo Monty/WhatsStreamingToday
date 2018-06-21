@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Save the current days results as a baseline so we can check for changes in the future
 # -d DATE picks a different date
 # -v does verbose copying

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Use the titles from various scrapers to compile a list of shows we might want info about.
 # Create a dated shell script to obtain that info
 

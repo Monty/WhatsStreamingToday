@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Use the URLs output by getBBoxProgramsFrom-webscraper.json to generate json scrapers
 # with a per show startUrl instead of the top level "https://www.britbox.com/us/programmes"
 #

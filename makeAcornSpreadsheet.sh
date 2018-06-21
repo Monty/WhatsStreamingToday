@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on Acorn TV
 
 # Use "-c" switch to get a Canadian view of descriptions,
