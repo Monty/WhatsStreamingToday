@@ -59,6 +59,7 @@
     sub (/ - MHz Choice<.*/,"")
     gsub (/&#x27;/,"'")
     gsub (/&quot;/,"\"\"")
+    gsub (/&amp;/,"\\&")
     if (match ($0, /^The /)) {
         $0 = substr($0, 5) ", The"
     }
@@ -89,6 +90,7 @@
     if (episodeTitle ~ /Sn 1 Ep 5/)
         episodeNumberFromURL = "05"
     gsub (/&quot;/,"\"\"",episodeTitle)
+    gsub (/&amp;/,"\\&",episodeTitle)
     sub (/.*season:/,"")
     sub (/\/.*/,"")
     seasonNumber = $0
@@ -129,6 +131,7 @@
         split ($0,fld,"[<>]")
         paragraph = fld[3]
         gsub (/&quot;/,"\"",paragraph)
+        gsub (/&amp;/,"\\&",paragraph)
         # Could be in multiple paragraphs
         descriptionLinesFound += 1
         episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph

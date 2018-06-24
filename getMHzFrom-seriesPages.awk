@@ -75,6 +75,7 @@
         gsub (/  */," ")
         gsub (/&#x27;/,"'")
         gsub (/&quot;/,"\"")
+        gsub (/&amp;/,"\\&")
         gsub (/&lsquo;/,"’")
         gsub (/&rsquo;/,"’")
         gsub (/&ldquo;/,"“")
