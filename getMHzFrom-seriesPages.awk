@@ -3,7 +3,7 @@
 # and return the list of Episode URLs for further processing
 #
 # INVOCATION:
-#       curl -s https://mhzchoice.vhx.tv/a-french-village/ \
+#       curl -s https://watch.mhzchoice.com/a-french-village/ \
 #           | awk -v MARQUEE_FILE=$MARQUEE_FILE -v DESCRIPTION_FILE=$DESCRIPTION_FILE \
 #           -v HEADER_FILE=$HEADER_FILE -v EPISODE_URL_FILE=$EPISODE_URL_FILE \
 #           -v ERROR_FILE=$ERROR_FILE -f getMHzFrom-seriesPages.awk
@@ -14,10 +14,10 @@
 #       This acclaimed drama is about the German...all in a day&#x27;s work... its inhabitants.">
 # ---
 #       <select class="js-switch-season btn-dropdown-black margin-right-medium" data-switch-season >
-#           <option value="https://mhzchoice.vhx.tv/a-french-village/season:1" selected>
+#           <option value="https://watch.mhzchoice.com/a-french-village/season:1" selected>
 #             Season 1
 #           </option>
-#           <option value="https://mhzchoice.vhx.tv/a-french-village/season:2">
+#           <option value="https://watch.mhzchoice.com/a-french-village/season:2">
 #             Season 2
 #           </option>
 #       </select>
@@ -108,7 +108,7 @@
 
 # If there is more to load ...
 /class="js-load-more-link/ {
-    sub (/.*href="/,"https://mhzchoice.vhx.tv")
+    sub (/.*href="/,"https://watch.mhzchoice.com")
     sub (/">.*/,"")
     print $0 >> EPISODE_URL_FILE
 }
