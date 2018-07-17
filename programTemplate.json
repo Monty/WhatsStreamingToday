@@ -9,7 +9,7 @@
       "scrollElementSelector": "html",
       "parentSelectors": ["_root"],
       "multiple": true,
-      "delay": "4000"
+      "delay": "2000"
     },
     {
       "id": "URL",
