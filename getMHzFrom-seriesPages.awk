@@ -65,35 +65,37 @@
             # uppercase the first character of any second word
             if (match (fld[i],/ /) > 0)
                 fld[i] = substr(fld[i],1,RSTART) toupper(substr(fld[i],RSTART+1,1)) \
-                   (substr(fld[i],RSTART+2))
+                (substr(fld[i],RSTART+2))
         }
         # print the finalized header
-        print fld[1] "\t" fld[2] "\t" fld[(numFields-1)] "\t" fld[(numFields)] >> HEADER_FILE
-        headerPrinted = "yes"
-    } else {
-        # We found a description, clean it up and print it
-        gsub (/  */," ")
-        gsub (/&#x27;/,"'")
-        gsub (/&quot;/,"\"")
-        gsub (/&amp;/,"\\&")
-        gsub (/&lsquo;/,"’")
-        gsub (/&rsquo;/,"’")
-        gsub (/&ldquo;/,"“")
-        gsub (/&rdquo;/,"”")
-        gsub (/\r/," ")
-        # if it's not the last line of the description, print it without a newline
-        if ($0 !~ /"\>/) {
-            printf ("%s", $0) >> DESCRIPTION_FILE
-        } else {
-            # if it's the last line of the description, print it with a newline
-            sub (/"\>/,"")
-            print $0 >> DESCRIPTION_FILE
-            # if we didn't find a header in this block, print a blank one
-            if (headerPrinted == "no") {
-                print "==> No genre/country line: " seriesTitle >> ERROR_FILE
-                print "\t\t\t" >> HEADER_FILE
-            }
+        if (numFields > 3 ) {
+            print fld[1] "\t" fld[2] "\t" fld[(numFields-1)] "\t" fld[(numFields)] >> HEADER_FILE
+            headerPrinted = "yes"
         }
+    } else {
+    # We found a description, clean it up and print it
+    gsub (/  */," ")
+    gsub (/&#x27;/,"'")
+    gsub (/&quot;/,"\"")
+    gsub (/&amp;/,"\\&")
+    gsub (/&lsquo;/,"’")
+    gsub (/&rsquo;/,"’")
+    gsub (/&ldquo;/,"“")
+    gsub (/&rdquo;/,"”")
+    gsub (/\r/," ")
+    # if it's not the last line of the description, print it without a newline
+    if ($0 !~ /"\>/) {
+        printf ("%s", $0) >> DESCRIPTION_FILE
+    } else {
+    # if it's the last line of the description, print it with a newline
+    sub (/"\>/,"")
+    print $0 >> DESCRIPTION_FILE
+    # if we didn't find a header in this block, print a blank one
+    if (headerPrinted == "no") {
+        print "==> No genre/country line: " seriesTitle >> ERROR_FILE
+        print "\t\t\t" >> HEADER_FILE
+    }
+}
     }
 }
 
