@@ -139,6 +139,7 @@ PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
 # ID for scripts & JSON files used to attempt repair of inconsistencies
 if [ "$REPAIRS" = "yes" ]; then
     REPAIR_SHOWS="BBoxShows-repair$LONGDATE.txt"
+    touch $REPAIR_SHOWS
 else
     REPAIR_SHOWS="/dev/null"
 fi
