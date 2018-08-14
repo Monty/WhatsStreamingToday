@@ -44,8 +44,8 @@
 
     showTitle[numShows] = title
     seas[numShows] = numSeasons
-    shouldHave[numShows] = numEpisodes
-    doesHave[numShows] = 0
+    doesHave[numShows] = numEpisodes
+    shouldHave[numShows] = 0
 }
 
 /^         / {
@@ -53,7 +53,7 @@
     if ($epis !~ /^[[:digit:]]*$/)
         print "    Bad input line " NR ":\n" $0
     else
-        doesHave[numShows] += $epis
+        shouldHave[numShows] += $epis
 }
 
 END {
@@ -62,10 +62,10 @@ END {
         print ""
     }
     for ( i = 1; i <= numShows; i++ ) {
-        if (seas[i] != 1 && shouldHave[i] != doesHave[i]) {
+        if (seas[i] != 1 && doesHave[i] != shouldHave[i]) {
             badEpisodes += 1
-            print "    "showTitle[i] " has " doesHave[i] " instead of " \
-                shouldHave[i] " episodes."
+            print "    "showTitle[i] " should have " shouldHave[i] " instead of " \
+                doesHave[i] " episodes."
             print showTitle[i] >> REPAIR_SHOWS
         }
     }
