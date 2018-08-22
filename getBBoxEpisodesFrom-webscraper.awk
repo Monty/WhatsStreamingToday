@@ -74,6 +74,14 @@ BEGIN {
     if (match (episodeTitle, /^Season [[:digit:]]*, |^Series [[:digit:]]*, /))
         episodeTitle = substr(episodeTitle,RLENGTH+1)
 
+    # Get rid of initial/trailing quotes in showTitle
+    # "BBC Three's ""Murdered By..."" Collection Trailer"
+    if (showTitle ~ /^".*"$/) {
+        print "    Correcting extra quotes in:\n        " showTitle >> ERROR_FILE
+        sub (/^"/,"",showTitle)
+        sub (/"$/,"",showTitle)
+    }
+
     # Non-existent fields in movies or episodes
     if (URL ~ /^\/us\/movie\//) {
         depth = "1"
@@ -86,6 +94,9 @@ BEGIN {
         numEpisodes = ""
         fullTitle = showTitle ", " sortkey ", " episodeTitle
     }
+
+    # Fix two consecutive double quotes in showTitle, but leave in fullTitle 
+    gsub ("\"\"","\"",showTitle)
 
     # Create spreadsheet row in common format
     savedLine = sprintf \
