@@ -44,8 +44,9 @@
 
     showTitle[numShows] = title
     seas[numShows] = numSeasons
-    doesHave[numShows] = numEpisodes
-    shouldHave[numShows] = 0
+    episodesInShow[numShows] = numEpisodes
+    episodesInSeasons[numShows] = 0
+    seasonsFound[numShows] = 0
 }
 
 /^         / {
@@ -53,7 +54,8 @@
     if ($epis !~ /^[[:digit:]]*$/)
         print "    Bad input line " NR ":\n" $0
     else
-        shouldHave[numShows] += $epis
+        seasonsFound[numShows] += 1
+    episodesInSeasons[numShows] += $epis
 }
 
 END {
@@ -62,16 +64,17 @@ END {
         print ""
     }
     for ( i = 1; i <= numShows; i++ ) {
-        if (seas[i] != 1 && doesHave[i] != shouldHave[i]) {
+        if (seas[i] != 1 && episodesInShow[i] != episodesInSeasons[i]) {
             badEpisodes += 1
-            print "    "showTitle[i] " should have " shouldHave[i] " instead of " \
-                doesHave[i] " episodes."
+            print "    "showTitle[i] "'s " seasonsFound[i] " seasons claim "\
+                  episodesInSeasons[i] " episodes, found "\
+                  episodesInShow[i] " in " seas[i] " seasons."
             print showTitle[i] >> REPAIR_SHOWS
         }
     }
     if (badEpisodes > 0 ) {
         badEpisodes == 1 ? field = "URL" : field = "URLs"
         printf ("==> %2d shows with wrong number of episodes in %s\n", badEpisodes, FILENAME) \
-            > "/dev/stderr"
+                > "/dev/stderr"
     }
 }
