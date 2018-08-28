@@ -51,11 +51,12 @@
 
 /^         / {
     epis  = NF-1
-    if ($epis !~ /^[[:digit:]]*$/)
+    if ($epis !~ /^[[:digit:]]*$/) {
         print "    Bad input line " NR ":\n" $0
-    else
+    } else {
         seasonsFound[numShows] += 1
-    episodesInSeasons[numShows] += $epis
+        episodesInSeasons[numShows] += $epis
+    }
 }
 
 END {
