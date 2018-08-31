@@ -91,6 +91,8 @@ function format_a_TV_Spreadsheet(ss) {
   // i.e the bottom Title Row cell contains 'Total ' rather than a link
   var footerRowsCount = sheet.getRange(lastRowNum, titleColumnNum).getValue()
     .toString().match('Total ') == 'Total ' ? 2 : 0;
+  var sortkeyInColumnOne = sheet.getRange(1, 1).getValue()
+    .toString().match('Sortkey') == 'Sortkey' ? 1 : 0;
   var dataColumnLength = lastRowNum - footerRowsCount - 1;
   var columnNum;
   Logger.log('Formatting spreadsheet: ' + sheet.getName());
@@ -130,6 +132,11 @@ function format_a_TV_Spreadsheet(ss) {
   // Duration Column: Format Elapsed hours (01):Minute (01):Second (01)
   sheet.getRange(2, durationColumnNum, dataColumnLength)
     .setNumberFormat('[hh]:mm:ss');
+
+  // Hide Sortkey column
+  if (sortkeyInColumnOne != 0) {
+    sheet.hideColumns(1);
+  }
 
   // Formatting for Totals & Counts rows
   if (footerRowsCount != 0) {
