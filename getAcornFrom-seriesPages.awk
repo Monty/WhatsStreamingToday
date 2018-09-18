@@ -278,6 +278,16 @@
             seasonNumber = URLseasonNumber
         }
     }
+    # Jamaica Inn has wrong episode numbers as of 180918 (may be temporary)
+    if (episodeURL ~ /jamaicainn\/episode-[1-9]/) {
+        split (episodeURL, episode, "-")
+        if (episodeNumber != episode[2]) {
+            printf ("==> Corrected mismatch: %s was episode %d\n", \
+               episodeURL, episodeNumber) >> ERROR_FILE
+            episodeNumber = episode[2]
+        }
+    }
+
     if ((episodeNumber + 0) == 0)
         print "==> Episode number is 00: " episodeURL >> ERROR_FILE
     printf ("%d\t=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)\t\t\t%s\n", \
