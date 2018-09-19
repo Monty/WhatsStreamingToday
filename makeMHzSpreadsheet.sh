@@ -122,7 +122,7 @@ currentSeriesNumber=0
 while read -r episode_URL; do
     # Control the context of the NUM_EPISODES_FILE when a new series is found
     # Special handling for Don Matteo which starts at season 4
-    if [[ ${episode_URL} =~ "season:1" ]] || [[ ${episode_URL} =~ "don-matteo/season:4" ]]; then
+    if [[ ${episode_URL} =~ "season:1"$ ]] || [[ ${episode_URL} =~ "don-matteo/season:4" ]]; then
         ((currentSeriesNumber++))
         if [[ -e $NUM_EPISODES_FILE ]]; then
             echo >>$NUM_EPISODES_FILE
