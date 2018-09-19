@@ -171,11 +171,11 @@
     split ($0,fld,"\"")
     # broken times in Jamaica Inn (may be temporary)
     if (episodeURL ~ /\/jamaicainn\// && fld[4] == "T-1M57S") {
-        printf ("==> Bad duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
+        printf ("==> Corrected duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
         fld[4] = "T59M18S"
     }
     if (episodeURL ~ /\/jamaicainn\/bonus\/cast-and-crew-interviews/ && fld[4] = "T09M08S") {
-            printf ("==> Bad duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
+            printf ("==> Corrected duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
         fld[4] = "T25M54S"
     }
     split (fld[4],tm,/[TMS]/)
