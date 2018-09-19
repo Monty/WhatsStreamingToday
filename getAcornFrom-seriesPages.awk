@@ -169,6 +169,15 @@
 # Extract the episode duration
 /<meta itemprop="timeRequired"/ {
     split ($0,fld,"\"")
+    # broken times in Jamaica Inn (may be temporary)
+    if (episodeURL ~ /\/jamaicainn\// && fld[4] == "T-1M57S") {
+        printf ("==> Bad duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
+        fld[4] = "T59M18S"
+    }
+    if (episodeURL ~ /\/jamaicainn\/bonus\/cast-and-crew-interviews/ && fld[4] = "T09M08S") {
+            printf ("==> Bad duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
+        fld[4] = "T25M54S"
+    }
     split (fld[4],tm,/[TMS]/)
     secs = tm[3]
     mins = tm[2] + int(secs / 60)
@@ -236,8 +245,13 @@
     # Default bonus, parttwo, and christmasspecials episodeType to "X"
     if (episodeURL ~ /bonus\/|[0-9]{1,2}parttwo\/|christmasspecial\//)
         episodeType = "X"
-    # jamaicainn, newworlds & newtonslaw bonus seasonNumber should be 1
-    if (episodeURL ~ /\/jamaicainn\/bonus\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// && seasonNumber != 1) {
+    # If episode is a Trailer, set episodeType to "T"
+    if (episodeURL ~ /\/trailer/)
+        episodeType = "T"
+    # jamaicainn, newworlds & newtonslaw bonus or trailer seasonNumber should be 1
+    if (episodeURL ~ \
+        /\/jamaicainn\/bonus\/|\/jamaicainn\/trailer\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
+        && seasonNumber != 1) {
         split (episodeURL, part, "/")
         printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
                part[4], part[5], seasonNumber) >> ERROR_FILE
