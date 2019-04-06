@@ -69,6 +69,10 @@ BEGIN {
     # Build string used in Title URL
     fullTitle = showTitle ", " sortkey ", " seasonTitle
 
+    # Fix HEX quotes in Description
+    gsub ("\xc2\x91","\"",Description)
+    gsub ("\xc2\x92","\"",Description)
+
     # Create spreadsheet row in common format
     savedLine = sprintf \
         ("%s (%s) %s %s\t=HYPERLINK(\"%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\

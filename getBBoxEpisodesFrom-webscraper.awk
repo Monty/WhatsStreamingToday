@@ -98,6 +98,10 @@ BEGIN {
     # Fix two consecutive double quotes in showTitle, but leave in fullTitle 
     gsub ("\"\"","\"",showTitle)
 
+    # Fix HEX quotes in Description
+    gsub ("\xc2\x91","\"",Description)
+    gsub ("\xc2\x92","\"",Description)
+
     # Create spreadsheet row in common format
     savedLine = sprintf \
         ("%s (%s) %s %s\t=HYPERLINK(\"https://www.britbox.com%s\";\"%s\"\)\t%s\t%s\t%s\t%s\t%s\t%s",\
