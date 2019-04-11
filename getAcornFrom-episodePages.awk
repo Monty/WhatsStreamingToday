@@ -40,7 +40,7 @@
 }
 
 # When we get to the bottom of the episode
-/<div class="container footer"/ {
+/<div class="footer"/ {
     printf ("%s\n", episodeDescription) >> EPISODE_DESCRIPTION_FILE
     #
     # Grab the URL from the EPISODE_CURL_FILE - you can't dig it out from here
