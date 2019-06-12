@@ -162,17 +162,20 @@ ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODE
 
 # Join broken lines, get rid of useless 'web-scraper-order' field, change comma-separated to
 # tab separated, sort into useful order
-awk -f fixExtraLinesFrom-webscraper.awk $PROGRAMS_FILE | cut -f 3- -d "," | csvformat -T >$TEMP_FILE
+perl -pe 'tr/\r//d' $PROGRAMS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
+    cut -f 3- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$PROGRAMS_SORTED_FILE
 grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 \
     >>$PROGRAMS_SORTED_FILE
 #
-awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
+perl -pe 'tr/\r//d' $EPISODES_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
+    cut -f 2- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$EPISODES_SORTED_FILE
 grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=7,7 --key=4,4 \
     >>$EPISODES_SORTED_FILE
 #
-awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE | cut -f 2- -d "," | csvformat -T >$TEMP_FILE
+perl -pe 'tr/\r//d' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
+    cut -f 2- -d "," | csvformat -T >$TEMP_FILE
 head -1 $TEMP_FILE >$SEASONS_SORTED_FILE
 nfields=$(awk -F\\t '{print NF}' $SEASONS_SORTED_FILE)
 sort2=$((nfields - 3))

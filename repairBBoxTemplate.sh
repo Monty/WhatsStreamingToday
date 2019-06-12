@@ -53,14 +53,16 @@ while read -r -u 3 line; do
     echo "### Differences in counts of $line episodes"
     printf "Original: %3d\n" "$(grep -c $line $EPISODES_FILE)"
     printf "Revised:  %3d\n" "$(grep -c $line $REVISED_EPISODES_FILE)"
-    awk -f fixExtraLinesFrom-webscraper.awk $EPISODES_FILE | grep -v $line >$TEMP_FILE
+    perl -pe 'tr/\r//d' $EPISODES_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
+        grep -v $line >$TEMP_FILE
     read -r -p "Attempt repair of $line episodes? [y/N] " YESNO
     if [ "$YESNO" != "y" ]; then
         echo "Skipping..."
     else
         echo "Repairing ..."
         cp $TEMP_FILE $EPISODES_FILE
-        awk -f fixExtraLinesFrom-webscraper.awk $REVISED_EPISODES_FILE | grep $line >>$EPISODES_FILE
+        perl -pe 'tr/\r//d' $REVISED_EPISODES_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
+            grep $line >>$EPISODES_FILE
     fi
     rm -f $TEMP_FILE
     #
@@ -68,14 +70,16 @@ while read -r -u 3 line; do
     echo "### Differences in counts of $line seasons"
     printf "Original: %3d\n" "$(grep -c $line $SEASONS_FILE)"
     printf "Revised:  %3d\n" "$(grep -c $line $REVISED_SEASONS_FILE)"
-    awk -f fixExtraLinesFrom-webscraper.awk $SEASONS_FILE | grep -v $line >$TEMP_FILE
+    perl -pe 'tr/\r//d' $SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
+        grep -v $line >$TEMP_FILE
     read -r -p "Attempt repair of $line seasons? [y/N] " YESNO
     if [ "$YESNO" != "y" ]; then
         echo "Skipping..."
     else
         echo "Repairing ..."
         cp $TEMP_FILE $SEASONS_FILE
-        awk -f fixExtraLinesFrom-webscraper.awk $REVISED_SEASONS_FILE | grep $line >>$SEASONS_FILE
+        perl -pe 'tr/\r//d' $REVISED_SEASONS_FILE | awk -f fixExtraLinesFrom-webscraper.awk |
+            grep $line >>$SEASONS_FILE
     fi
     rm -f $TEMP_FILE
     echo ""
