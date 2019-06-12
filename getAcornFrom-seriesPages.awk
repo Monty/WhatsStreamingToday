@@ -20,9 +20,9 @@
 #           -v DURATION_FILE=$DURATION_FILE -v ERROR_FILE=$ERROR_FILE -f getAcornFrom-seriesPages.awk
 #
 # INPUT:
-#        <title>Acorn TV | 19-2</title>
+#        <title>Empire | Acorn TV</title>
 #  ---
-#        <span itemprop="name">19-2</span>
+#        <span itemprop="name">Empire</span>
 #        <meta itemprop="numberOfEpisodes" content="30" />
 #        <meta itemprop="numberOfSeasons" content="3" />
 #  ---
@@ -71,10 +71,11 @@
 
 # Extract the series title
 /<title>/ {
-    sub (/.*<title>Acorn TV \| /,"")
-    sub (/<.*/,"")
+    sub (/.*<title>/,"")
+    sub (/ \| Acorn TV<.*/,"")
     gsub (/&amp;/,"\\&")
     gsub (/&quot;/,"\"\"")
+    gsub (/&#8217;/,"'")
     # gsub (/&#x27;/,"'")
     if (match ($0, /^The /)) {
         $0 = substr($0, 5) ", The"
@@ -132,6 +133,8 @@
     sub (/ *$/,"",description)
     # fix funky HTML characters
     gsub (/&#39;/,"'",description)
+    gsub (/&#039;/,"'",description)
+    gsub (/&#8217;/,"'",description)
     # fix unmatched quotes
     numQuotes = gsub(/"/,"\"",description)
     if ((numQuotes % 2) == 1) {
