@@ -243,7 +243,7 @@ grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SORTED_SPREADSH
 head -1 $PROGRAMS_SPREADSHEET_FILE >$LONG_SPREADSHEET_FILE
 grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -f |
     tail -r | awk -v ERROR_FILE=$ERROR_FILE -v DURATION_FILE=$DURATION_FILE \
-        -f calculateBBoxDurations.awk | tail -r >>$LONG_SPREADSHEET_FILE
+    -f calculateBBoxDurations.awk | tail -r >>$LONG_SPREADSHEET_FILE
 #
 grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
