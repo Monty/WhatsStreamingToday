@@ -99,6 +99,12 @@
     sub (/.*Episode /,"")
     sub (/<\/span>.*/,"")
     episodeNumber = $0
+    if (seriesTitle == "Detective Montalbano" && page2 == "yes") {
+        oldEpisodeNumber = episodeNumber
+        episodeNumber += 24
+        printf ("==> Corrected E%02d: %s to E%02d\n", oldEpisodeNumber, episodeURL, \
+                episodeNumber) >> ERROR_FILE
+    }
     next
 }
 
