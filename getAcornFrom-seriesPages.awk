@@ -172,15 +172,6 @@
 # Extract the episode duration
 /<meta itemprop="timeRequired"/ {
     split ($0,fld,"\"")
-    # broken times in Jamaica Inn (may be temporary)
-    if (episodeURL ~ /\/jamaicainn\// && fld[4] == "T-1M57S") {
-        printf ("==> Corrected duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
-        fld[4] = "T59M18S"
-    }
-    if (episodeURL ~ /\/jamaicainn\/bonus\/cast-and-crew-interviews/ && fld[4] = "T09M08S") {
-            printf ("==> Corrected duration: %s  %s\n", episodeURL, fld[4]) >> ERROR_FILE
-        fld[4] = "T25M54S"
-    }
     split (fld[4],tm,/[TMS]/)
     secs = tm[3]
     mins = tm[2] + int(secs / 60)
@@ -293,15 +284,6 @@
             printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
                part[4], part[5], seasonNumber) >> ERROR_FILE
             seasonNumber = URLseasonNumber
-        }
-    }
-    # Jamaica Inn has wrong episode numbers as of 180918 (may be temporary)
-    if (episodeURL ~ /jamaicainn\/episode-[1-9]/) {
-        split (episodeURL, episode, "-")
-        if (episodeNumber != episode[2]) {
-            printf ("==> Corrected mismatch: %s was episode %d\n", \
-               episodeURL, episodeNumber) >> ERROR_FILE
-            episodeNumber = episode[2]
         }
     }
 
