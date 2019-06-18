@@ -9,6 +9,8 @@
 #           -v ERROR_FILE=$ERROR_FILE -f getMHzFrom-seriesPages.awk
 #
 # INPUT:
+#       <meta name="apple-itunes-app" content="app-id=1096194231, \
+#           app-argument=https://mhzchoice.vhx.tv/agatha-christie-s-criminal-games">
 #       <title>A French Village - MHz Choice</title>
 #       <meta name="description" content="DRAMA | FRANCE | FRENCH WITH ENGLISH SUBTITLES | TV-MA^M
 #       This acclaimed drama is about the German...all in a day&#x27;s work... its inhabitants.">
@@ -31,6 +33,13 @@
 #       $MARQUEE_FILE, $DESCRIPTION_FILE, $HEADER_FILE,
 #       list of Episode URLs
 #       
+
+/meta name="apple-itunes-app" content=/,/>/ {
+    seriesURL = $0
+    sub (/.*app-argument=/,"",seriesURL)
+    sub (/">/,"",seriesURL)
+    sub (/mhzchoice.vhx.tv/,"watch.mhzchoice.com",seriesURL)
+}
 
 /title>/ {
     seriesTitle = $0
@@ -92,7 +101,7 @@
     print $0 >> DESCRIPTION_FILE
     # if we didn't find a header in this block, print a blank one
     if (headerPrinted == "no") {
-        print "==> No genre/country line: " seriesTitle >> ERROR_FILE
+        print "==> No genre/country line: " seriesTitle " " seriesURL >> ERROR_FILE
         print "\t\t\t" >> HEADER_FILE
     }
 }
