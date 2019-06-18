@@ -247,15 +247,15 @@
         /\/jamaicainn\/bonus\/|\/jamaicainn\/trailer\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
         && seasonNumber != 1) {
         split (episodeURL, part, "/")
-        printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
-               part[4], part[5], seasonNumber) >> ERROR_FILE
+        printf ("==> Corrected S%02d: https://acorn.tv/%s/%s to S01\n", \
+               seasonNumber, part[4], part[5]) >> ERROR_FILE
         seasonNumber = 1
     }
     # Plain christmasspecial, seriesfinale don't increment seasonNumber
     if (episodeURL ~ /\/christmasspecial\/|\/seriesfinale\//) {
         split (episodeURL, part, "/")
-        printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
-               part[4], part[5], seasonNumber) >> ERROR_FILE
+        printf ("==> Corrected S%02d: https://acorn.tv/%s/%s to S%02d\n", \
+               seasonNumber, part[4], part[5], seasonNumber-1) >> ERROR_FILE
         seasonNumber -= 1
     }
     #
@@ -281,8 +281,8 @@
         sub (/christmasspecial/,"",URLseasonNumber)
         sub (/[[:alpha:]]*/,"",URLseasonNumber)
         if (URLseasonNumber != seasonNumber) {
-            printf ("==> Corrected mismatch: https://acorn.tv/%s/%s was series %d\n", \
-               part[4], part[5], seasonNumber) >> ERROR_FILE
+            printf ("==> Corrected S%02d: https://acorn.tv/%s/%s to S%02d\n", \
+               seasonNumber, part[4], part[5], URLseasonNumber) >> ERROR_FILE
             seasonNumber = URLseasonNumber
         }
     }
