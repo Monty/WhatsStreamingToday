@@ -75,6 +75,7 @@
     sub (/ \| Acorn TV<.*/,"")
     gsub (/&amp;/,"\\&")
     gsub (/&quot;/,"\"\"")
+    gsub (/&#039;/,"'")
     gsub (/&#8217;/,"'")
     # gsub (/&#x27;/,"'")
     if (match ($0, /^The /)) {
@@ -201,6 +202,7 @@
     split ($0,fld,"[<>]")
     episodeTitle = fld[3]
     gsub (/&amp;/,"\\&", episodeTitle)
+    gsub (/&#039;/,"'",episodeTitle)
     next
 }
 

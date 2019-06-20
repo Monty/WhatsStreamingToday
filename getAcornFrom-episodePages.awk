@@ -30,6 +30,7 @@
     gsub (/&lsquo;/,"’")
     gsub (/&rsquo;/,"’")
     gsub (/&quot;/,"\"\"")
+    gsub (/&#039;/,"'")
     episodeDescription = $0
     next
 }
@@ -45,6 +46,8 @@
     printf ("%s\n", episodeDescription) >> EPISODE_DESCRIPTION_FILE
     #
     # Grab the URL from the EPISODE_CURL_FILE - you can't dig it out from here
+    # cat -n episodeCurls-190619.csv | grep ' 297\t'
+    # url = "https://acorn.tv/frenchfields/series1/whos-been-eating-my-porridge"
     cmd = "cat -n " EPISODE_CURL_FILE " | grep ' " EPISODE_NUMBER "\t'"
     #
     # Warn about empty descriptions
