@@ -132,6 +132,7 @@
     sub (/^ */,"",description)
     sub (/ *$/,"",description)
     # fix funky HTML characters
+    gsub (/&quot;/,"\"\"",description)
     gsub (/&#39;/,"'",description)
     gsub (/&#039;/,"'",description)
     gsub (/&#8217;/,"'",description)
@@ -159,6 +160,7 @@
 /<a itemprop="url"/ {
     split ($0,fld,"\"")
     episodeURL = fld[4]
+    sub (/\/$/,"",episodeURL)
     # Feature films don't have episodes
     if (episodeURL ~ /\/featurefilm\//)
         next
@@ -190,7 +192,7 @@
     #
     episodeDuration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
     if (episodeDuration == "00:00:00")
-        printf ("==> No duration: %d\t%s  %s\n", SERIES_NUMBER, seriesTitle, episodeURL) >> ERROR_FILE
+        printf ("==> No duration: %s  %s\n", episodeURL, seriesTitle) >> ERROR_FILE
     next
 }
 
@@ -247,15 +249,15 @@
         /\/jamaicainn\/bonus\/|\/jamaicainn\/trailer\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
         && seasonNumber != 1) {
         split (episodeURL, part, "/")
-        printf ("==> Corrected S%02d: https://acorn.tv/%s/%s to S01\n", \
+        printf ("==> Corrected S%02d to S01: https://acorn.tv/%s/%s\n", \
                seasonNumber, part[4], part[5]) >> ERROR_FILE
         seasonNumber = 1
     }
     # Plain christmasspecial, seriesfinale don't increment seasonNumber
     if (episodeURL ~ /\/christmasspecial\/|\/seriesfinale\//) {
         split (episodeURL, part, "/")
-        printf ("==> Corrected S%02d: https://acorn.tv/%s/%s to S%02d\n", \
-               seasonNumber, part[4], part[5], seasonNumber-1) >> ERROR_FILE
+        printf ("==> Corrected S%02d to S%02d: https://acorn.tv/%s/%s\n", \
+               seasonNumber, seasonNumber-1, part[4], part[5]) >> ERROR_FILE
         seasonNumber -= 1
     }
     #
@@ -281,8 +283,8 @@
         sub (/christmasspecial/,"",URLseasonNumber)
         sub (/[[:alpha:]]*/,"",URLseasonNumber)
         if (URLseasonNumber != seasonNumber) {
-            printf ("==> Corrected S%02d: https://acorn.tv/%s/%s to S%02d\n", \
-               seasonNumber, part[4], part[5], URLseasonNumber) >> ERROR_FILE
+            printf ("==> Corrected S%02d to S%02d: https://acorn.tv/%s/%s\n", \
+               seasonNumber, URLseasonNumber, part[4], part[5]) >> ERROR_FILE
             seasonNumber = URLseasonNumber
         }
     }
@@ -299,13 +301,15 @@
 /-- Viewers Also Watched --/ {
     print (episodeLinesFound == 1 ? "=0" : "=" numEpisodesStr) >> NUM_EPISODES_FILE
     if (description == "")
-        printf ("==> No description: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
+        printf ("==> No description: %d\t%s  %s\n", SERIES_NUMBER, episodeURL, \
+                seriesTitle) >> ERROR_FILE
     description = ""
     #
     seriesDuration = sprintf ("%02d:%02d:%02d", seriesHrs, seriesMins, seriesSecs)
     print seriesDuration >> DURATION_FILE
     if (seriesDuration == "00:00:00")
-        printf ("==> No duration: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
+        printf ("==> No duration: %d\t%s  %s\n", SERIES_NUMBER, episodeURL, \
+                seriesTitle) >> ERROR_FILE
     seriesSecs = 0
     seriesMins = 0
     seriesHrs = 0

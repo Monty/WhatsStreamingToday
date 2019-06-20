@@ -29,6 +29,7 @@
     # fix funky HTML characters
     gsub (/&lsquo;/,"’")
     gsub (/&rsquo;/,"’")
+    gsub (/&quot;/,"\"\"")
     episodeDescription = $0
     next
 }

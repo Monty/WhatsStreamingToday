@@ -102,8 +102,8 @@
     if (seriesTitle == "Detective Montalbano" && page2 == "yes") {
         oldEpisodeNumber = episodeNumber
         episodeNumber += 24
-        printf ("==> Corrected E%02d: %s to E%02d\n", oldEpisodeNumber, episodeURL, \
-                episodeNumber) >> ERROR_FILE
+        printf ("==> Corrected E%02d to E%02d: %s\n", oldEpisodeNumber, episodeNumber, \
+                episodeURL) >> ERROR_FILE
     }
     next
 }
@@ -115,9 +115,9 @@
         if ((episodeNumber + 0) == 0) {
             if ((episodeNumberFromURL + 0) != 0) {
                 episodeNumber = episodeNumberFromURL
-                print "==> Corrected E00: " episodeURL " to E" episodeNumber >> ERROR_FILE
+                printf ("==> Corrected E00 to E%02d: %s\n", episodeNumber, episodeURL) >> ERROR_FILE
             } else {
-                print "==> Episode number is 00: " episodeURL >> ERROR_FILE
+                printf ("==> Episode number is 00: %s\n", episodeURL) >> ERROR_FILE
             }
         }
         printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \

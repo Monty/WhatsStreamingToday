@@ -101,7 +101,7 @@
     print $0 >> DESCRIPTION_FILE
     # if we didn't find a header in this block, print a blank one
     if (headerPrinted == "no") {
-        print "==> No genre/country line: " seriesTitle " " seriesURL >> ERROR_FILE
+        print "==> No genre/country line: " seriesURL "  " seriesTitle >> ERROR_FILE
         print "\t\t\t" >> HEADER_FILE
     }
 }
