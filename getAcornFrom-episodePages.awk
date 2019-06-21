@@ -52,16 +52,20 @@
     #
     # Warn about empty descriptions
     if (episodeDescription == "") {
-        while ((cmd | getline url) > 0)
+        while ((cmd | getline url) > 0) {
+            sub (/.*acorn\.tv/,"acorn.tv",url)
             print "==> No description: " url >> ERROR_FILE
+        }
         close (cmd)
     }
     episodeDescription = ""
     #
     # Warn about series with only one episode
     if (singleEpisode != "") {
-        while ((cmd | getline url) > 0)
+        while ((cmd | getline url) > 0) {
+            sub (/.*acorn\.tv/,"acorn.tv",url)
             print "==> Only one episode: " url >> ERROR_FILE
+        }
         close (cmd)
     }
     singleEpisode = ""
