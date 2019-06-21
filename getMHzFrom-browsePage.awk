@@ -19,6 +19,8 @@
     split ($0,fld,"\"")
     URL = fld[2]
     TITLE = fld[4]
+    shortURL = URL
+    sub (/.*watch/,"watch",shortURL)
     print URL >> URL_FILE
 
     # Canonicalize Title
@@ -37,7 +39,7 @@
     sub (/.*media-count'>/,"",numSeasons)
     sub (/ season.*$/,"",numSeasons)
     if ((numSeasons + 0) == 0)
-        print "==> No seasons: " TITLE >> ERROR_FILE
+        print "==> No seasons: " shortURL "  " TITLE >> ERROR_FILE
     print numSeasons >> NUM_SEASONS_FILE
 }
 

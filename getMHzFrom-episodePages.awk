@@ -83,6 +83,8 @@
     gsub (/&#x27;/,"'")
     split ($0,fld,"\"")
     episodeURL = fld[2]
+    shortURL = episodeURL
+    sub (/.*watch/,"watch",shortURL)
     if (episodeURL ~ /-c-[[:digit:]]{5}$/)
         episodeNumberFromURL = substr (episodeURL, length(episodeURL)-1, 2)
     episodeTitle = fld[4]
@@ -103,7 +105,7 @@
         oldEpisodeNumber = episodeNumber
         episodeNumber += 24
         printf ("==> Corrected E%02d to E%02d: %s\n", oldEpisodeNumber, episodeNumber, \
-                episodeURL) >> ERROR_FILE
+                shortURL) >> ERROR_FILE
     }
     next
 }
@@ -115,9 +117,9 @@
         if ((episodeNumber + 0) == 0) {
             if ((episodeNumberFromURL + 0) != 0) {
                 episodeNumber = episodeNumberFromURL
-                printf ("==> Corrected E00 to E%02d: %s\n", episodeNumber, episodeURL) >> ERROR_FILE
+                printf ("==> Corrected E00 to E%02d: %s\n", episodeNumber, shortURL) >> ERROR_FILE
             } else {
-                printf ("==> Episode number is 00: %s\n", episodeURL) >> ERROR_FILE
+                printf ("==> Episode number is 00: %s\n", shortURL) >> ERROR_FILE
             }
         }
         printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \
@@ -141,7 +143,7 @@
     }
     if ($0 ~ /<\/div>/) {
         if (episodeDescription == "")
-            print "==> No description: " episodeURL >> ERROR_FILE
+            print "==> No description: " shortURL >> ERROR_FILE
         print episodeDescription >> EPISODE_INFO_FILE
     }
 }

@@ -39,6 +39,8 @@
     sub (/.*app-argument=/,"",seriesURL)
     sub (/">/,"",seriesURL)
     sub (/mhzchoice.vhx.tv/,"watch.mhzchoice.com",seriesURL)
+    shortURL = seriesURL
+    sub (/.*watch/,"watch",shortURL)
 }
 
 /title>/ {
@@ -101,7 +103,7 @@
     print $0 >> DESCRIPTION_FILE
     # if we didn't find a header in this block, print a blank one
     if (headerPrinted == "no") {
-        print "==> No genre/country line: " seriesURL "  " seriesTitle >> ERROR_FILE
+        print "==> No genre/country line: " shortURL "  " seriesTitle >> ERROR_FILE
         print "\t\t\t" >> HEADER_FILE
     }
 }
