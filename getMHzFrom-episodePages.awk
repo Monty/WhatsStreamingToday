@@ -78,15 +78,23 @@
     next
 }
 
-# Extract the episode URL, the episode title, and the seasonNumber
+# Extract the episode URL, the episode type, the episode title, and the seasonNumber
 /<strong title="/ {
     gsub (/&#x27;/,"'")
     split ($0,fld,"\"")
     episodeURL = fld[2]
+    if (episodeURL ~ /-c-.[[:digit:]]{3,4}$/)
+        episodeNumberFromURL = substr (episodeURL, length(episodeURL)-1, 2) + 0
     shortURL = episodeURL
     sub (/.*watch/,"watch",shortURL)
-    if (episodeURL ~ /-c-[[:digit:]]{5}$/)
-        episodeNumberFromURL = substr (episodeURL, length(episodeURL)-1, 2)
+    # Default episodeType to "E"
+    episodeType = "E"
+    # If episode is a Trailer or Finale (i.e. First look), set episodeType to "T"
+    if (episodeURL ~ /-trailer-|-finale-/)
+        episodeType = "T"
+    # If episode is a BONUS:, set episodeType to "X"
+    if (episodeURL ~ /-c-x[[:digit:]]{3,4}$/)
+        episodeType = "X"
     episodeTitle = fld[4]
     gsub (/&quot;/,"\"\"",episodeTitle)
     gsub (/&amp;/,"\\&",episodeTitle)
@@ -96,16 +104,20 @@
     next
 }
 
-# Extract the episode number
+# Extract the episode number, and correct if necessary
 /<h4 class="/ {
     sub (/.*Episode /,"")
     sub (/<\/span>.*/,"")
-    episodeNumber = $0
-    if (seriesTitle == "Detective Montalbano" && page2 == "yes") {
-        oldEpisodeNumber = episodeNumber
-        episodeNumber += 24
-        printf ("==> Corrected E%02d to E%02d: %s\n", oldEpisodeNumber, episodeNumber, \
+    episodeNumber = $0 + 0
+    if (episodeType == "T") {
+        printf ("==> Corrected %s%02d to T01: %s\n", episodeType, episodeNumber, \
                 shortURL) >> ERROR_FILE
+        episodeNumber = 1
+    }
+    if ((episodeURL ~ /-c-.[[:digit:]]{3,4}$/) && episodeNumber != episodeNumberFromURL) {
+        printf ("==> Corrected %s%02d to %s%02d: %s\n", episodeType, episodeNumber, episodeType, \
+                episodeNumberFromURL, shortURL) >> ERROR_FILE
+        episodeNumber = episodeNumberFromURL
     }
     next
 }
@@ -114,17 +126,18 @@
 # Extract the episode description and print the composed info
 /<div class="transparent padding-top-medium"/,/<\/div>/ {
     if ($0 ~ /<div class="transparent padding-top-medium"/) {
-        if ((episodeNumber + 0) == 0) {
-            if ((episodeNumberFromURL + 0) != 0) {
+        if (episodeNumber == 0) {
+            if (episodeNumberFromURL != 0) {
+                printf ("==> Corrected %s00 to %s%02d: %s\n", episodeType, episodeType, 
+                        episodeNumberFromURL, shortURL) >> ERROR_FILE
                 episodeNumber = episodeNumberFromURL
-                printf ("==> Corrected E00 to E%02d: %s\n", episodeNumber, shortURL) >> ERROR_FILE
             } else {
                 printf ("==> Episode number is 00: %s\n", shortURL) >> ERROR_FILE
             }
         }
-        printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02dE%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \
-            SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeNumber, episodeTitle, \
-            episodeDuration) >> EPISODE_INFO_FILE
+        printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \
+                SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeType, episodeNumber, \
+                episodeTitle, episodeDuration) >> EPISODE_INFO_FILE
         # Need to account for multiple lines of description
         descriptionLinesFound = 0
         episodeDescription = ""
