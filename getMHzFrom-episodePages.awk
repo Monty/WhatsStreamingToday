@@ -93,7 +93,7 @@
     if (episodeURL ~ /-trailer-|-finale-/)
         episodeType = "T"
     # If episode is a BONUS:, set episodeType to "X"
-    if (episodeURL ~ /-c-x[[:digit:]]{3,4}$/)
+    if (episodeURL ~ /-c-x[[:digit:]]{3,4}$|montme-c-01001/)
         episodeType = "X"
     episodeTitle = fld[4]
     gsub (/&quot;/,"\"\"",episodeTitle)
@@ -105,14 +105,16 @@
 }
 
 # Extract the episode number, and correct if necessary
+# Detective Montalbano requires special processing for page 2 episodeNumber
 /<h4 class="/ {
     sub (/.*Episode /,"")
     sub (/<\/span>.*/,"")
     episodeNumber = $0 + 0
-    if ((episodeURL ~ /-c-.[[:digit:]]{3,4}$/) && episodeNumber != episodeNumberFromURL) {
-        printf ("==> Corrected %s%02d to %s%02d: %s\n", episodeType, episodeNumber, episodeType, \
-                episodeNumberFromURL, shortURL) >> ERROR_FILE
-        episodeNumber = episodeNumberFromURL
+    if (seriesTitle == "Detective Montalbano" && page2 == "yes") {
+        oldEpisodeNumber = episodeNumber
+        episodeNumber += 24
+        printf ("==> Corrected E%02d to %s%02d: %s\n", oldEpisodeNumber, episodeType, \
+                episodeNumber, shortURL) >> ERROR_FILE
     }
     next
 }
