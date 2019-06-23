@@ -243,8 +243,8 @@
         showType = "S"
     # Default episodeType to "E"
     episodeType = "E"
-    # Default bonus, parttwo, and christmasspecials episodeType to "X"
-    if (episodeURL ~ /bonus\/|[0-9]{1,2}parttwo\/|christmasspecial\//)
+    # Default bonus, parttwo, and christmas specials episodeType to "X"
+    if (episodeURL ~ /\/bonus|[0-9]{1,2}parttwo\/|christmas[-]?special/)
         episodeType = "X"
     # If episode is a Trailer, set episodeType to "T"
     if (episodeURL ~ /\/trailer/)
