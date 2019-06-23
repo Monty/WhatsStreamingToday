@@ -109,11 +109,6 @@
     sub (/.*Episode /,"")
     sub (/<\/span>.*/,"")
     episodeNumber = $0 + 0
-    if (episodeType == "T") {
-        printf ("==> Corrected %s%02d to T01: %s\n", episodeType, episodeNumber, \
-                shortURL) >> ERROR_FILE
-        episodeNumber = 1
-    }
     if ((episodeURL ~ /-c-.[[:digit:]]{3,4}$/) && episodeNumber != episodeNumberFromURL) {
         printf ("==> Corrected %s%02d to %s%02d: %s\n", episodeType, episodeNumber, episodeType, \
                 episodeNumberFromURL, shortURL) >> ERROR_FILE
