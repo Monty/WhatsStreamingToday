@@ -140,7 +140,7 @@
     # fix unmatched quotes
     numQuotes = gsub(/"/,"\"",description)
     if ((numQuotes % 2) == 1) {
-        printf ("==> Corrected unmatched quote (%d): %d\t%s\n", numQuotes, SERIES_NUMBER, \
+        printf ("==> Changed unmatched quote (%d): %d\t%s\n", numQuotes, SERIES_NUMBER, \
                 seriesTitle) >> ERROR_FILE
         description = description " \""
     }
@@ -254,14 +254,14 @@
         /\/jamaicainn\/bonus\/|\/jamaicainn\/trailer\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
         && seasonNumber != 1) {
         split (episodeURL, part, "/")
-        printf ("==> Corrected S%02d to S01: acorn.tv/%s/%s\n", \
+        printf ("==> Changed S%02d to S01: acorn.tv/%s/%s\n", \
                seasonNumber, part[4], part[5]) >> ERROR_FILE
         seasonNumber = 1
     }
     # Plain christmasspecial, seriesfinale don't increment seasonNumber
     if (episodeURL ~ /\/christmasspecial\/|\/seriesfinale\//) {
         split (episodeURL, part, "/")
-        printf ("==> Corrected S%02d to S%02d: acorn.tv/%s/%s\n", \
+        printf ("==> Changed S%02d to S%02d: acorn.tv/%s/%s\n", \
                seasonNumber, seasonNumber-1, part[4], part[5]) >> ERROR_FILE
         seasonNumber -= 1
     }
@@ -288,7 +288,7 @@
         sub (/christmasspecial/,"",URLseasonNumber)
         sub (/[[:alpha:]]*/,"",URLseasonNumber)
         if (URLseasonNumber != seasonNumber) {
-            printf ("==> Corrected S%02d to S%02d: acorn.tv/%s/%s\n", \
+            printf ("==> Changed S%02d to S%02d: acorn.tv/%s/%s\n", \
                seasonNumber, URLseasonNumber, part[4], part[5]) >> ERROR_FILE
             seasonNumber = URLseasonNumber
         }

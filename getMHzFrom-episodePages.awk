@@ -113,7 +113,7 @@
     if (seriesTitle == "Detective Montalbano" && page2 == "yes") {
         oldEpisodeNumber = episodeNumber
         episodeNumber += 24
-        printf ("==> Corrected E%02d to %s%02d: %s\n", oldEpisodeNumber, episodeType, \
+        printf ("==> Changed E%02d to %s%02d: %s\n", oldEpisodeNumber, episodeType, \
                 episodeNumber, shortURL) >> ERROR_FILE
     }
     next
@@ -125,7 +125,7 @@
     if ($0 ~ /<div class="transparent padding-top-medium"/) {
         if (episodeNumber == 0) {
             if (episodeNumberFromURL != 0) {
-                printf ("==> Corrected %s00 to %s%02d: %s\n", episodeType, episodeType, 
+                printf ("==> Changed %s00 to %s%02d: %s\n", episodeType, episodeType, 
                         episodeNumberFromURL, shortURL) >> ERROR_FILE
                 episodeNumber = episodeNumberFromURL
             } else {
