@@ -93,7 +93,7 @@
     if (episodeURL ~ /-trailer-|-finale-/)
         episodeType = "T"
     # If episode is a BONUS:, set episodeType to "X"
-    if (episodeURL ~ /-c-x[[:digit:]]{3,4}$|montme-c-01001/)
+    if (episodeURL ~ /-c-x[[:digit:]]{3,4}$|montme-c-01001|richard-sammel-inetrview/)
         episodeType = "X"
     episodeTitle = fld[4]
     gsub (/&quot;/,"\"\"",episodeTitle)
