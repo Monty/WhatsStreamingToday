@@ -55,9 +55,9 @@ BEGIN {
     # if (showTitle !~ /^The Queen/ && showTitle !~ /^The Shard/ && match (showTitle, /^The /))
     #     showTitle = substr(showTitle, 5) ", The"
 
-    # Some shows that need special processing
+    # Some shows that need special processing (duplicated in all getBBox*From-webscraper.awk scripts)
     if (baseURL ~ /Maigret_15974$/) {
-        showTitle = "Maigret (2016)"
+        showTitle = "Maigret (2016-2017)"
     }
     if (baseURL ~ /Porridge_9509$/) {
         showTitle = "Porridge (1974-1977)"

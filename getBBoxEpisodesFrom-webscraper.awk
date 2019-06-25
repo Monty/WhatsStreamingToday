@@ -59,9 +59,9 @@ BEGIN {
     # if (showTitle !~ /^The Queen/ && showTitle !~ /^The Shard/ && match (showTitle, /^The /))
     #     showTitle = substr(showTitle, 5) ", The"
 
-    # Some shows that need special processing
+    # Some shows that need special processing (duplicated in all getBBox*From-webscraper.awk scripts)
     if (baseURL ~ /Maigret_15974$/) {
-        showTitle = "Maigret (2016)"
+        showTitle = "Maigret (2016-2017)"
     }
     if (baseURL ~ /Porridge_9509$/) {
         showTitle = "Porridge (1974-1977)"
@@ -77,7 +77,7 @@ BEGIN {
     # Get rid of initial/trailing quotes in showTitle
     # "BBC Three's ""Murdered By..."" Collection Trailer"
     if (showTitle ~ /^".*"$/) {
-        print "==> Corrected extra quotes in: " showTitle >> ERROR_FILE
+        printf "==> Corrected extra quotes: www.britbox.com%s\n", URL >> ERROR_FILE
         sub (/^"/,"",showTitle)
         sub (/"$/,"",showTitle)
     }

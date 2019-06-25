@@ -49,20 +49,20 @@ BEGIN {
     # if (showTitle !~ /^The Queen/ && showTitle !~ /^The Shard/ && match (showTitle, /^The /))
     #     showTitle = substr(showTitle, 5) ", The"
 
-    # Some shows that need special processing
+    # Some shows that need special processing (duplicated in all getBBox*From-webscraper.awk scripts)
     if (URL ~ /Maigret_15974$/) {
         revisedTitles += 1
-        printf ("==> Changed '%s' to 'Maigret (2016)': Maigret_15974\n", showTitle) >> ERROR_FILE
-        showTitle = "Maigret (2016)"
+        printf ("==> Changed '%s' to 'Maigret (2016–2017)': www.britbox.com%s\n", showTitle, URL) >> ERROR_FILE
+        showTitle = "Maigret (2016–2017)"
     }
     if (URL ~ /Porridge_14747$/) {
         revisedTitles += 1
-        printf ("==> Changed '%s' to 'Porridge (2016-2017)': Porridge_14747\n", showTitle) >> ERROR_FILE
+        printf ("==> Changed '%s' to 'Porridge (2016-2017)': www.britbox.com%s\n", showTitle, URL) >> ERROR_FILE
         showTitle = "Porridge (2016-2017)"
     }
     if (URL ~ /Porridge_9509$/) {
         revisedTitles += 1
-        printf ("==> Changed '%s' to 'Porridge (1974-1977)': Porridge_9509\n", showTitle) >> ERROR_FILE
+        printf ("==> Changed '%s' to 'Porridge (1974-1977)': www.britbox.com%s\n", showTitle, URL) >> ERROR_FILE
         showTitle = "Porridge (1974-1977)"
     }
 
