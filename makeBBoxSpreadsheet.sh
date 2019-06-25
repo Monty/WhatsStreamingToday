@@ -5,7 +5,7 @@
 trap cleanup INT
 #
 function cleanup() {
-    rm -f $TEMP_FILE
+    rm -f $TEMP_FILE $TEMP_MISSING_FILE
     echo ""
     exit 130
 }
@@ -123,7 +123,8 @@ SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons$DATE_ID.csv"
 PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxPrograms$DATE_ID.csv"
 EPISODES_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxEpisodes$DATE_ID.csv"
 DURATION_FILE="$COLUMNS/duration$DATE_ID.csv"
-TEMP_FILE="/tmp/BBoxTemp$DATE_ID.csv"
+TEMP_FILE="/tmp/BBoxTemp-$DATE_ID.csv"
+TEMP_MISSING_FILE="/tmp/BBoxTemp-missing-$DATE_ID.csv"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
@@ -181,19 +182,35 @@ nfields=$(awk -F\\t '{print NF}' $SEASONS_SORTED_FILE)
 sort2=$((nfields - 3))
 grep '/us/' $TEMP_FILE | sort -df --field-separator=$'\t' --key=1,1 --key=$sort2,$sort2 --key=3,3 |
     grep -v /us/episode/ >>$SEASONS_SORTED_FILE
-#
-rm -f $TEMP_FILE
 
-# Print header for verifying episodes across webscraper downloads
-printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
-#
-# Print header for possible missing episode errors
-printf "### Missing program titles in $EPISODES_SORTED_FILE\n\n" >$ERROR_FILE
+# Cleanup any possible leftover files
+rm -f $TEMP_FILE $TEMP_MISSING_FILE $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
+    $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
 
+# Generate title files
 grep '/us/' $PROGRAMS_SORTED_FILE | cut -f 2 -d $'\t' | sort -u >$PROGRAMS_TITLE_FILE
 grep '/us/' $EPISODES_SORTED_FILE | cut -f 5 -d $'\t' | sort -u >$EPISODES_TITLE_FILE
 
-comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
+# Print header for verifying episodes across webscraper downloads
+# Also prints badEpisodes to TEMP_MISSING_FILE which is used later on
+printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
+#
+awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
+    -v TEMP_FILE=$TEMP_MISSING_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
+    >>$EPISODE_INFO_FILE
+
+# Print header about info obtained during processing of shows
+printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
+
+# Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
+awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+    -f getBBoxProgramsFrom-webscraper.awk $PROGRAMS_SORTED_FILE >$PROGRAMS_SPREADSHEET_FILE
+awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+    -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
+awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
+    -f getBBoxSeasonsFrom-webscraper.awk $SEASONS_SORTED_FILE >$SEASONS_SPREADSHEET_FILE
+
+# Check for missing titles
 missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$=')
 if [ "$missingTitles" != "" ]; then
     field="title"
@@ -201,37 +218,18 @@ if [ "$missingTitles" != "" ]; then
         field="titles"
     fi
     printf "==> %2d missing program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
+    # Print header for missing episode errors
+    printf "\n### Missing program titles in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
+    comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
 fi
 
-# Print header for possible errors that occur during processing
-printf "\n### /program/ URLs not found in $EPISODES_SORTED_FILE\n\n" >>$ERROR_FILE
-
-rm -f $TEMP_FILE
-awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
-    -v TEMP_FILE=$TEMP_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
-    >>$EPISODE_INFO_FILE
-# $TEMP_FILE could be non-existent
-touch $TEMP_FILE
-sort -df $TEMP_FILE >>$ERROR_FILE
-rm -f $TEMP_FILE
-
-rm -f $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
-    $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE
-
-# Add header about info obtained during processing of shows
-printf "\n### Anomalies from processing shows\n\n" >>$ERROR_FILE
-
-# Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
-awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f getBBoxProgramsFrom-webscraper.awk $PROGRAMS_SORTED_FILE >$PROGRAMS_SPREADSHEET_FILE
-# Add header for possible errors that occur during processing EPISODES_SORTED_FILE
-printf "\n### Extra /show/ URLs in $EPISODES_SORTED_FILE\n\n" >>$ERROR_FILE
-awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
-# Add header for possible errors that occur during processing SEASONS_SORTED_FILE
-printf "\n### Extra /show/ URLs in $SEASONS_SORTED_FILE\n\n" >>$ERROR_FILE
-awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f getBBoxSeasonsFrom-webscraper.awk $SEASONS_SORTED_FILE >$SEASONS_SPREADSHEET_FILE
+# badEpisodes were saved in TEMP_MISSING_FILE, if there were none, TEMP_MISSING_FILE won't exist
+if [ -e "$TEMP_MISSING_FILE" ]; then
+    # Print header for possible errors that occur during processing
+    printf "\n### Any /program/ URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
+    sort -df $TEMP_MISSING_FILE >>$ERROR_FILE
+    rm -f $TEMP_MISSING_FILE
+fi
 
 # Temporarily save a sorted "seasons file" for easier debugging.
 # Don't sort header line, keep it at the top of the spreadsheet
@@ -248,9 +246,9 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -
 grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
 # Add header for possible crosscheck errors between EPISODES and SEASONS
-printf "\n### Shows with 0 episodes in $EPISODES_FILE or mismatched episodes
+printf "\n### Any shows with 0 episodes in $EPISODES_FILE or mismatched episodes
 ### between $SEASONS_FILE and $EPISODES_FILE
-### as computed from $EPISODE_INFO_FILE\n\n" >>$ERROR_FILE
+### as computed from $EPISODE_INFO_FILE are listed below.\n\n" >>$ERROR_FILE
 awk -v REPAIR_SHOWS=$REPAIR_SHOWS -f verifyBBoxInfoFrom-webscraper.awk \
     $EPISODE_INFO_FILE >>$ERROR_FILE
 

@@ -91,6 +91,7 @@ BEGIN {
     badEpisodes += 1
     URL = $1
     nflds = split (URL,URLflds,"/")
+    printf ("==> Upstream error in %s\n", FILENAME)  >> ERROR_FILE 
     print "    " URLflds[nflds]  >> ERROR_FILE
 }
 

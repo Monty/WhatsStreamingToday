@@ -52,18 +52,18 @@ BEGIN {
     # Some shows that need special processing
     if (URL ~ /Maigret_15974$/) {
         revisedTitles += 1
-        print "    Maigret_15974 title changed from '" showTitle "' to 'Maigret (2016)'" >> ERROR_FILE
+        printf ("==> Changed '%s' to 'Maigret (2016)': Maigret_15974\n", showTitle) >> ERROR_FILE
         showTitle = "Maigret (2016)"
-    }
-    if (URL ~ /Porridge_9509$/) {
-        revisedTitles += 1
-        print "    Porridge_9509 title changed from '" showTitle "' to 'Porridge (1974-1977)'" >> ERROR_FILE
-        showTitle = "Porridge (1974-1977)"
     }
     if (URL ~ /Porridge_14747$/) {
         revisedTitles += 1
-        print "    Porridge_14747 title changed from '" showTitle "' to 'Porridge (2016-2017)'" >> ERROR_FILE
+        printf ("==> Changed '%s' to 'Porridge (2016-2017)': Porridge_14747\n", showTitle) >> ERROR_FILE
         showTitle = "Porridge (2016-2017)"
+    }
+    if (URL ~ /Porridge_9509$/) {
+        revisedTitles += 1
+        printf ("==> Changed '%s' to 'Porridge (1974-1977)': Porridge_9509\n", showTitle) >> ERROR_FILE
+        showTitle = "Porridge (1974-1977)"
     }
 
     # Build string used in Title URL

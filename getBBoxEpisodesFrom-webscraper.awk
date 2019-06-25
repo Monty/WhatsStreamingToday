@@ -77,7 +77,7 @@ BEGIN {
     # Get rid of initial/trailing quotes in showTitle
     # "BBC Three's ""Murdered By..."" Collection Trailer"
     if (showTitle ~ /^".*"$/) {
-        print "    Correcting extra quotes in:\n        " showTitle >> ERROR_FILE
+        print "==> Corrected extra quotes in: " showTitle >> ERROR_FILE
         sub (/^"/,"",showTitle)
         sub (/"$/,"",showTitle)
     }
@@ -120,7 +120,8 @@ BEGIN {
     badEpisodes += 1
     URL = $4
     nflds = split (URL,URLflds,"/")
-    print "    " URLflds[nflds]  >> ERROR_FILE
+    printf ("==> Upstream error in %s\n", FILENAME)  >> ERROR_FILE 
+    print "==> Found /us/show/ in episodes: " URLflds[nflds]  >> ERROR_FILE
 }
 
 END {

@@ -46,8 +46,7 @@ while ((cmd | getline seasonLine) > 0) {
     seasonField = fields[nfields-4]
     episodeField = fields[nfields-2]
     if (seasonField == "") {
-        print "==> " target " (blank Seasons field in " SEASONS_SORTED_FILE ")" \
-            > "/dev/stderr"
+        print "==> " target " (blank Seasons field in " SEASONS_SORTED_FILE ")" > "/dev/stderr"
         print "    " unquotedTarget " (blank Seasons field in " SEASONS_SORTED_FILE ")" \
             >> TEMP_FILE
         continue

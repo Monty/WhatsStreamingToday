@@ -61,7 +61,8 @@
 
 END {
     if (zeroEpisodes > 0 ) {
-        printf ("==> %2d shows with 0 episodes in %s\n", zeroEpisodes, FILENAME) > "/dev/stderr"
+        zeroEpisodes == 1 ? field = "show" : field = "shows"
+        printf ("==> %2d %s with 0 episodes in %s\n", zeroEpisodes, field, FILENAME) > "/dev/stderr"
         print ""
     }
     for ( i = 1; i <= numShows; i++ ) {
@@ -74,8 +75,8 @@ END {
         }
     }
     if (badEpisodes > 0 ) {
-        badEpisodes == 1 ? field = "URL" : field = "URLs"
-        printf ("==> %2d shows with wrong number of episodes in %s\n", badEpisodes, FILENAME) \
+        badEpisodes == 1 ? field = "show" : field = "shows"
+        printf ("==> %2d %s with wrong number of episodes in %s\n", badEpisodes, field, FILENAME) \
                 > "/dev/stderr"
     }
 }
