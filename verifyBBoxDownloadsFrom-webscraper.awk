@@ -58,9 +58,6 @@ close (cmd)
 }
 
 END {
-    # To debug error messages
-    badEpisodes == 1 ? field = "URL" : field = "URLs"
-    printf ("==> Debug: %2d extra /program/ %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
     if (badEpisodes > 0 ) {
         badEpisodes == 1 ? field = "URL" : field = "URLs"
         printf ("==> %2d extra /program/ %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
