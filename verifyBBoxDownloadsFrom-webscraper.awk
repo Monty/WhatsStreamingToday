@@ -37,7 +37,7 @@ if ((cmd | getline numEpisodes) > 0) {
 close (cmd)
 if (numEpisodes == 0) {
     badEpisodes += 1
-    print "    " unquotedTarget >> TEMP_FILE
+    print "    " unquotedTarget " " showType " " programURL >> TEMP_FILE
 }
 #
 cmd = "grep " target " " SEASONS_SORTED_FILE
@@ -57,6 +57,8 @@ close (cmd)
 }
 
 END {
+    badEpisodes == 1 ? field = "URL" : field = "URLs"
+    printf ("==> Debug verifyBBoxDownloadsFrom-webscraper.awk: %2d extra /program/ %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
     if (badEpisodes > 0 ) {
         badEpisodes == 1 ? field = "URL" : field = "URLs"
         printf ("==> %2d extra /program/ %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
