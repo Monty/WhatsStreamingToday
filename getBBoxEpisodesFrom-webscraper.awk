@@ -59,7 +59,7 @@ BEGIN {
     # if (showTitle !~ /^The Queen/ && showTitle !~ /^The Shard/ && match (showTitle, /^The /))
     #     showTitle = substr(showTitle, 5) ", The"
 
-    # Some shows that need special processing (duplicated in all getBBox*From-webscraper.awk scripts)
+    # Shows that need special processing (duplicated in all getBBox*From-webscraper.awk scripts)
     if (baseURL ~ /Maigret_15974$/) {
         showTitle = "Maigret (2016-2017)"
     }
@@ -77,6 +77,7 @@ BEGIN {
     # Get rid of initial/trailing quotes in showTitle
     # "BBC Three's ""Murdered By..."" Collection Trailer"
     if (showTitle ~ /^".*"$/) {
+        revisedTitles += 1
         printf "==> Corrected extra quotes: www.britbox.com%s\n", URL >> ERROR_FILE
         sub (/^"/,"",showTitle)
         sub (/"$/,"",showTitle)
@@ -126,8 +127,17 @@ BEGIN {
 
 END {
     # Debugging printout
+    revisedTitles == 1 ? field = "title" : field = "titles"
+    printf ("==> Debug getBBoxEpisodesFrom-webscraper.awk: %2d show %s revised in %s\n", \
+            revisedTitles, field, FILENAME) > "/dev/stderr"
+    if (revisedTitles > 0 ) {
+        revisedTitles == 1 ? field = "title" : field = "titles"
+        printf ("==> %2d show %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
+    }
+    # Debugging printout
     badEpisodes == 1 ? field = "URL" : field = "URLs"
-    printf ("==> Debug getBBoxEpisodesFrom-webscraper.awk: %2d extra /show/ %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
+    printf ("==> Debug getBBoxEpisodesFrom-webscraper.awk: %2d extra /show/ %s in %s\n", \
+            badEpisodes, field, FILENAME) > "/dev/stderr"
     if (badEpisodes > 0 ) {
         badEpisodes == 1 ? field = "URL" : field = "URLs"
         printf ("==> %2d extra /show/ %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"

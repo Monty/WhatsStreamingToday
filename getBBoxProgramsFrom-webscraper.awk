@@ -50,19 +50,23 @@ BEGIN {
     #     showTitle = substr(showTitle, 5) ", The"
 
     # Some shows that need special processing (duplicated in all getBBox*From-webscraper.awk scripts)
+    # but "Changed" error message and revisedTitles count message are only in this file
     if (URL ~ /Maigret_15974$/) {
         revisedTitles += 1
-        printf ("==> Changed '%s' to 'Maigret (2016–2017)': www.britbox.com%s\n", showTitle, URL) >> ERROR_FILE
+        printf ("==> Changed title '%s' to 'Maigret (2016–2017)': www.britbox.com%s\n", \
+                showTitle, URL) >> ERROR_FILE
         showTitle = "Maigret (2016–2017)"
     }
     if (URL ~ /Porridge_14747$/) {
         revisedTitles += 1
-        printf ("==> Changed '%s' to 'Porridge (2016-2017)': www.britbox.com%s\n", showTitle, URL) >> ERROR_FILE
+        printf ("==> Changed title '%s' to 'Porridge (2016-2017)': www.britbox.com%s\n", \
+                showTitle, URL) >> ERROR_FILE
         showTitle = "Porridge (2016-2017)"
     }
     if (URL ~ /Porridge_9509$/) {
         revisedTitles += 1
-        printf ("==> Changed '%s' to 'Porridge (1974-1977)': www.britbox.com%s\n", showTitle, URL) >> ERROR_FILE
+        printf ("==> Changed title '%s' to 'Porridge (1974-1977)': www.britbox.com%s\n", \
+                showTitle, URL) >> ERROR_FILE
         showTitle = "Porridge (1974-1977)"
     }
 
