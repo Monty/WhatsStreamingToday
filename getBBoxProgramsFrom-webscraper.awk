@@ -43,14 +43,9 @@ BEGIN {
         sortkey = "XXXX"
     }
 
-    # Titles starting with "The" should not sort based on "The"
-    # unless it's never used without the "The" included, such as "The Queen"
-    # But since Britbox, unlike others, uses the "The" when sorting ...
-    # if (showTitle !~ /^The Queen/ && showTitle !~ /^The Shard/ && match (showTitle, /^The /))
-    #     showTitle = substr(showTitle, 5) ", The"
-
-    # Some shows that need special processing (duplicated in all getBBox*From-webscraper.awk scripts)
-    # but "Changed" error message and revisedTitles count message are only in this file
+    # Special processing for some shows is needed in all getBBox*From-webscraper.awk scripts.
+    # "Changed" message and counting revisedTitles are only in getBBoxProgramsFrom-webscraper.awk
+    # so they are not repeated for each episode and each season.
     if (URL ~ /Maigret_15974$/) {
         revisedTitles += 1
         printf ("==> Changed title '%s' to 'Maigret (2016–2017)': www.britbox.com%s\n", \
