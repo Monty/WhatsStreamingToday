@@ -60,6 +60,6 @@ END {
     printf ("In verifyBBoxDownloadsFrom-webscraper.awk\n") > "/dev/stderr"
     if (badEpisodes > 0 ) {
         badEpisodes == 1 ? field = "URL" : field = "URLs"
-        printf ("==> %2d extra program %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
+        printf ("    %2d extra program %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
     }
 }

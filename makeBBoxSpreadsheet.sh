@@ -218,7 +218,7 @@ if [ "$missingTitles" != "" ]; then
     if [ "$missingTitles" != 1 ]; then
         field="titles"
     fi
-    printf "==> %2d missing program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
+    printf "    %2d missing program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
     # Print header for missing episode errors
     printf "\n### Missing program titles in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
     comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
