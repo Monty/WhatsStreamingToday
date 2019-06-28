@@ -125,9 +125,9 @@ BEGIN {
 
 END {
     # Debugging printout
-    revisedTitles == 1 ? field = "title" : field = "titles"
-    printf ("==> Debug getBBoxEpisodesFrom-webscraper.awk: %2d show %s revised in %s\n", \
-            revisedTitles, field, FILENAME) > "/dev/stderr"
+    # revisedTitles == 1 ? field = "title" : field = "titles"
+    # printf ("==> Debug getBBoxEpisodesFrom-webscraper.awk: %2d show %s revised in %s\n", \
+    #         revisedTitles, field, FILENAME) > "/dev/stderr"
     if (revisedTitles > 0 ) {
         revisedTitles == 1 ? field = "title" : field = "titles"
         printf ("==> %2d show %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
