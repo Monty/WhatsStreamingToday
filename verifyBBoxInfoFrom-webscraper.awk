@@ -61,8 +61,9 @@
 
 END {
     # Debugging printout
-    zeroEpisodes == 1 ? field = "show" : field = "shows"
-    printf ("==> Debug verifyBBoxInfoFrom-webscraper.awk: %2d %s with 0 episodes in %s\n", zeroEpisodes, field, FILENAME) > "/dev/stderr"
+    printf ("Debug verifyBBoxInfoFrom-webscraper.awk\n") > "/dev/stderr"
+    # zeroEpisodes == 1 ? field = "show" : field = "shows"
+    # printf ("*** %2d %s with 0 episodes in %s\n", zeroEpisodes, field, FILENAME) > "/dev/stderr"
     if (zeroEpisodes > 0 ) {
         zeroEpisodes == 1 ? field = "show" : field = "shows"
         printf ("==> %2d %s with 0 episodes in %s\n", zeroEpisodes, field, FILENAME) > "/dev/stderr"
@@ -78,8 +79,9 @@ END {
         }
     }
     # Debugging printout
-    badEpisodes == 1 ? field = "show" : field = "shows"
-    printf ("==> Debug verifyBBoxInfoFrom-webscraper.awk: %2d %s with wrong number of episodes in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
+    # badEpisodes == 1 ? field = "show" : field = "shows"
+    # printf ("*** %2d %s with wrong number of episodes in %s\n", badEpisodes, field, FILENAME) \
+    #         > "/dev/stderr"
     if (badEpisodes > 0 ) {
         badEpisodes == 1 ? field = "show" : field = "shows"
         printf ("==> %2d %s with wrong number of episodes in %s\n", badEpisodes, field, FILENAME) \

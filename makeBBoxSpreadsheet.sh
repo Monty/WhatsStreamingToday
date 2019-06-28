@@ -211,12 +211,15 @@ awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
     -f getBBoxSeasonsFrom-webscraper.awk $SEASONS_SORTED_FILE >$SEASONS_SPREADSHEET_FILE
 
 # Check for missing titles
+printf "Debug makeBBoxSpreadsheet.sh\n" >&2
+printf "***  1 missing program titles in $EPISODES_SORTED_FILE\n" >&2
 missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$=')
 if [ "$missingTitles" != "" ]; then
     field="title"
     if [ "$missingTitles" != 1 ]; then
         field="titles"
     fi
+    # Debugging printout
     printf "==> %2d missing program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
     # Print header for missing episode errors
     printf "\n### Missing program titles in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
