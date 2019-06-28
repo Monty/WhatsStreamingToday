@@ -37,7 +37,7 @@ if ((cmd | getline numEpisodes) > 0) {
 close (cmd)
 if (numEpisodes == 0) {
     badEpisodes += 1
-    print "    " unquotedTarget " " showType " " programURL >> TEMP_FILE
+    print "    www.britbox.com" programURL >> TEMP_FILE
 }
 #
 cmd = "grep " target " " SEASONS_SORTED_FILE

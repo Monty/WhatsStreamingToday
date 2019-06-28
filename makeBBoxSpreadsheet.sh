@@ -227,7 +227,7 @@ fi
 # badEpisodes were saved in TEMP_MISSING_FILE, if there were none, TEMP_MISSING_FILE won't exist
 if [ -e "$TEMP_MISSING_FILE" ]; then
     # Print header for possible errors that occur during processing
-    printf "\n### Any program URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
+    printf "\n### Program URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
     sort -df $TEMP_MISSING_FILE >>$ERROR_FILE
     rm -f $TEMP_MISSING_FILE
 fi
