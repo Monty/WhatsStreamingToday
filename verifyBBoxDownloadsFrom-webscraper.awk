@@ -57,9 +57,12 @@ close (cmd)
 }
 
 END {
+    episodeFile = FILENAME
+    sub (/BBoxPrograms/,"BBoxEpisodes",episodeFile)
     printf ("In verifyBBoxDownloadsFrom-webscraper.awk\n") > "/dev/stderr"
     if (badEpisodes > 0 ) {
-        badEpisodes == 1 ? field = "URL" : field = "URLs"
-        printf ("    %2d extra program %s in %s\n", badEpisodes, field, FILENAME) > "/dev/stderr"
+        badEpisodes == 1 ? field = "program" : field = "programs"
+        printf ("    %2d missing %s in %s\n", badEpisodes, \
+                field, episodeFile) > "/dev/stderr"
     }
 }

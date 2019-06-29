@@ -218,16 +218,16 @@ if [ "$missingTitles" != "" ]; then
     if [ "$missingTitles" != 1 ]; then
         field="titles"
     fi
-    printf "    %2d missing program %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
+    printf "    %2d missing %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
     # Print header for missing episode errors
-    printf "\n### Missing program titles in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
+    printf "\n### Missing titles in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
     comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
 fi
 
 # badEpisodes were saved in TEMP_MISSING_FILE, if there were none, TEMP_MISSING_FILE won't exist
 if [ -e "$TEMP_MISSING_FILE" ]; then
     # Print header for possible errors that occur during processing
-    printf "\n### Program URLs not found in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
+    printf "\n### Missing programs in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
     sort -df $TEMP_MISSING_FILE >>$ERROR_FILE
     rm -f $TEMP_MISSING_FILE
 fi

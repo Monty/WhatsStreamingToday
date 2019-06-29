@@ -91,6 +91,6 @@ END {
     printf ("In getBBoxProgramsFrom-webscraper.awk\n") > "/dev/stderr"
     if (revisedTitles > 0 ) {
         revisedTitles == 1 ? field = "title" : field = "titles"
-        printf ("    %2d show %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
+        printf ("    %2d %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
     }
 }
