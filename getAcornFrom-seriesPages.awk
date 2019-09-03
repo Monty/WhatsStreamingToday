@@ -303,7 +303,7 @@
     next
 }
 
-/-- Viewers Also Watched --/ {
+/<footer>/ {
     print (episodeLinesFound == 1 ? "=0" : "=" numEpisodesStr) >> NUM_EPISODES_FILE
     if (description == "")
         printf ("==> No description: %d\t%s  %s\n", SERIES_NUMBER, shortURL, seriesTitle) >> ERROR_FILE
