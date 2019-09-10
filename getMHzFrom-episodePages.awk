@@ -96,6 +96,10 @@
     if (episodeURL ~ /-c-x[[:digit:]]{3,4}$|montme-c-01001|richard-sammel-inetrview/)
         episodeType = "X"
     episodeTitle = fld[4]
+    # If start of episodeTitle == seriesTitle ": ", remove the redundant part.
+    if ((match (episodeTitle, seriesTitle ": ")) == 1) {
+        episodeTitle = substr(episodeTitle, RLENGTH + 1)
+    }
     gsub (/&quot;/,"\"\"",episodeTitle)
     gsub (/&amp;/,"\\&",episodeTitle)
     sub (/.*season:/,"")
