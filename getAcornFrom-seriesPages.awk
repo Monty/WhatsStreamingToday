@@ -82,6 +82,9 @@
         $0 = substr($0, 5) ", The"
     }
     episodeLinesFound = 0
+    seasonLinesFound = 0
+    descriptionLinesFound = 0
+    durationLinesFound = 0
     numEpisodesStr = ""
     seriesTitle = $0
     print seriesTitle >> TITLE_FILE
@@ -90,8 +93,8 @@
 
 # Extract the number of episodes in the series
 /itemprop="numberOfEpisodes"/ {
-    split ($0,fld,"\"")
     episodeLinesFound += 1
+    split ($0,fld,"\"")
     if (episodeLinesFound == 1)
         totalEpisodes = fld[4]
     if (episodeLinesFound != 1)
@@ -101,6 +104,7 @@
 
 # Extract the number of seasons in the series
 /itemprop="numberOfSeasons"/ {
+    seasonLinesFound += 1
     split ($0,fld,"\"")
     numSeasons = fld[4]
     if ((numSeasons + 0) == 0)
@@ -115,6 +119,7 @@
 
 # Extract the series description
 /id="franchise-description"/ {
+    descriptionLinesFound += 1
     # get rid of boilerplate
     split ($0,fld,"[<>]")
     description = fld[3]
@@ -177,6 +182,7 @@
 
 # Extract the episode duration
 /<meta itemprop="timeRequired"/ {
+    durationLinesFound += 1
     split ($0,fld,"\"")
     split (fld[4],tm,/[TMS]/)
     secs = tm[3]
@@ -304,15 +310,38 @@
 }
 
 /<footer>/ {
-    print (episodeLinesFound == 1 ? "=0" : "=" numEpisodesStr) >> NUM_EPISODES_FILE
-    if (description == "")
-        printf ("==> No description: %d\t%s  %s\n", SERIES_NUMBER, shortURL, seriesTitle) >> ERROR_FILE
+    if (episodeLinesFound == 0) {
+        print 0  >> NUM_EPISODES_FILE
+        printf ("==> No numberOfEpisodes: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
+    } else {
+        print (episodeLinesFound == 1 ? "=0" : "=" numEpisodesStr) >> NUM_EPISODES_FILE
+    }
+    #
+    if (seasonLinesFound == 0) {
+        print seasonLinesFound >> NUM_SEASONS_FILE
+        printf ("==> No numberOfSeasons: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
+    }
+    #
+    if (descriptionLinesFound == 0) {
+        print "-- No Description --" >> DESCRIPTION_FILE
+        printf ("==> No franchise-description: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
+    } else {
+        if (description == "")
+            printf ("==> No description: %d\t%s  %s\n", SERIES_NUMBER, shortURL, \
+                    seriesTitle) >> ERROR_FILE
+    }
     description = ""
     #
-    seriesDuration = sprintf ("%02d:%02d:%02d", seriesHrs, seriesMins, seriesSecs)
-    print seriesDuration >> DURATION_FILE
-    if (seriesDuration == "00:00:00")
-        printf ("==> No duration: %d\t%s  %s\n", SERIES_NUMBER, shortURL, seriesTitle) >> ERROR_FILE
+    if (durationLinesFound == 0) {
+        print "00:00:00"  >> DURATION_FILE
+        printf ("==> No timeRequired: %d\t%s\n", SERIES_NUMBER, seriesTitle) >> ERROR_FILE
+    } else {
+        seriesDuration = sprintf ("%02d:%02d:%02d", seriesHrs, seriesMins, seriesSecs)
+        print seriesDuration >> DURATION_FILE
+        if (seriesDuration == "00:00:00")
+            printf ("==> No duration: %d\t%s  %s\n", SERIES_NUMBER, shortURL, i\
+                    seriesTitle) >> ERROR_FILE
+   }
     seriesSecs = 0
     seriesMins = 0
     seriesHrs = 0
