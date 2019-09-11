@@ -62,11 +62,11 @@
         sub (/.*name="description" content="/,"")
     }
     # If we find a header, clean it up and print it
-    if ($0 ~ /\| TV/) {
+    if ($0 ~ /\| {1,2}TV/) {
         sub (/WITH ENGLISH SUBTITLES /,"")
         sub (/SCANDINAVIAN CRIME FICTION/,"Sweden")
         sub (/NONFICTION - DOCUMENTARY/,"Documentary")
-        gsub (/ \| /,"|")
+        gsub (/ \| {1,2}/,"|")
         sub (/\r/,"")
         # Split out header fields
         numFields = split ($0,fld,"\|")
