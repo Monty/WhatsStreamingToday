@@ -27,7 +27,7 @@ BEGIN {
     split ($0,fld,"\"")
     URL = fld[2]
     gsub (/&quot;/,"",title)
-    printf ("=HYPERLINK(\"https://www.netflix.com/%s\";\"%s\")\t%s\tNetflix Streaming\n",\
+    printf ("=HYPERLINK(\"https://www.netflix.com%s\";\"%s\")\t%s\tNetflix Streaming\n",\
         URL,title,date)
     recordsPrinted += 1
     if (recordsPrinted >= maxRecordsToPrint)
