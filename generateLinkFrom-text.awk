@@ -14,6 +14,10 @@
 #
 # Paste them in the same order they are in the Netflix "viewing activity" page
 
+# https://www.amazon.com/gp/video/detail/B07XZ8G9WJ/ref=stream_prime_hd_ep?autoplay=1&t=0
+/ref=stream_prime/ {
+    sub (/\/ref=stream.*/,"")
+}
 /^https:/ {
     link = $0
     if ((getline title) > 0) {
