@@ -18,6 +18,7 @@
 /ref=stream_prime/ {
     sub (/\/ref=stream.*/,"")
 }
+
 /^https:/ {
     link = $0
     if ((getline title) > 0) {
