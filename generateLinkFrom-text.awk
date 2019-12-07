@@ -12,9 +12,14 @@
 # https://www.netflix.com/title/80203122
 # Luxury Travel Show: Season 1: "Chiang Mai & Eze"
 #
-# Paste them in the same order they are in the Netflix "viewing activity" page
+# https://www.amazon.com/gp/video/detail/B07QBFM357/ref=stream_prime_hd_ep?autoplay=1&t=3128
+# Silent Witness, S16E001, Change, Part One
+#
+# Paste them in the same order they are in the Netflix or Amazon "viewing activity" page
+#
+# INVOCATION:
+#    awk -f generateLinkFrom-text.awk watched.txt
 
-# https://www.amazon.com/gp/video/detail/B07XZ8G9WJ/ref=stream_prime_hd_ep?autoplay=1&t=0
 /ref=stream_prime/ {
     sub (/\/ref=stream.*/,"")
 }
