@@ -24,6 +24,10 @@
     sub (/\/ref=stream.*/,"")
 }
 
+/ref=pd_/ {
+    sub (/\/ref=pd_.*/,"")
+}
+
 /^https:/ {
     link = $0
     if ((getline title) > 0) {
