@@ -18,7 +18,11 @@
 /https:\/\/watch.mhzchoice.com\/.*strong title/ {
     split ($0,fld,"\"")
     URL = fld[2]
-    TITLE = fld[4]
+    # Take care of extra fields introduced in February 2020
+    titleString = substr ($0, match ($0, /strong title/))
+    split (titleString,fld,"\"")
+    TITLE = fld[2]
+    #
     shortURL = URL
     sub (/.*watch/,"watch",shortURL)
     print URL >> URL_FILE

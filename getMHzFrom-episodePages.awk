@@ -95,7 +95,11 @@
     # If episode is a BONUS:, set episodeType to "X"
     if (episodeURL ~ /-c-x[[:digit:]]{3,4}$|montme-c-01001|richard-sammel-inetrview/)
         episodeType = "X"
-    episodeTitle = fld[4]
+    # Take care of extra fields introduced in February 2020
+    titleString = substr ($0, match ($0, /strong title/))
+    split (titleString,fld,"\"")
+    episodeTitle = fld[2]
+    #
     # If start of episodeTitle == seriesTitle ": ", remove the redundant part.
     if ((match (episodeTitle, seriesTitle ": ")) == 1) {
         episodeTitle = substr(episodeTitle, RLENGTH + 1)
