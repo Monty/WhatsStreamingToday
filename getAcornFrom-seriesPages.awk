@@ -70,24 +70,24 @@
 #
 
 # Extract the series title
-/<title>/ {
-    sub (/.*<title>/,"")
-    sub (/ \| Acorn TV<.*/,"")
-    gsub (/&amp;/,"\\&")
-    gsub (/&quot;/,"\"\"")
-    gsub (/&#039;/,"'")
-    gsub (/&#8217;/,"'")
-    gsub (/&#8211;/,"-")
-    # gsub (/&#x27;/,"'")
-    if (match ($0, /^The /)) {
-        $0 = substr($0, 5) ", The"
+/span itemprop="name"/ {
+    split ($0,fld,"[<>]")
+    seriesTitle = fld[3]
+    gsub (/&amp;/,"\\&",seriesTitle)
+    gsub (/&quot;/,"\"\"",seriesTitle)
+    gsub (/"/,"\"\"",seriesTitle)
+    gsub (/&#039;/,"'",seriesTitle)
+    gsub (/&#8217;/,"'",seriesTitle)
+    gsub (/&#8211;/,"-",seriesTitle)
+    # gsub (/&#x27;/,"'",seriesTitle)
+    if (match (seriesTitle, /^The /)) {
+        seriesTitle = substr(seriesTitle, 5) ", The"
     }
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound = 0
     durationLinesFound = 0
     numEpisodesStr = ""
-    seriesTitle = $0
     print seriesTitle >> TITLE_FILE
     next
 }
