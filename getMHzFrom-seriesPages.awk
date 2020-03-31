@@ -26,8 +26,8 @@
 # ---
 #       <a data-load-more="infinite_scroll: false;" \
 #       data-load-more-target="js-load-more-items-container" \
-#       class="js-load-more-link btn btn-site-secondary btn-nowrap" \
-#       href="/detective-montalbano?page=2">Show More</a>
+#       class="js-load-more-link btn btn-site-secondary btn-nowrap"
+#       href="/detective-montalbano?html=1&amp;page=2">
 #
 # OUTPUT:
 #       $MARQUEE_FILE, $DESCRIPTION_FILE, $HEADER_FILE,
@@ -120,7 +120,11 @@
 }
 
 # If there is more to load ...
+#       href="/detective-montalbano?html=1&amp;page=2">
 /class="js-load-more-link/ {
+    if (getline <= 0) {
+        print "==> Missing page=2 link: " shortURL "  " seriesTitle >> ERROR_FILE
+    }
     sub (/.*href="/,"https://watch.mhzchoice.com")
     sub (/">.*/,"")
     print $0 >> EPISODE_URL_FILE
