@@ -99,6 +99,10 @@
     titleString = substr ($0, match ($0, /strong title/))
     split (titleString,fld,"\"")
     episodeTitle = fld[2]
+    if (episodeTitle ~ /^PR \|/) {
+        print episodeTitle "\t" shortURL >> ERROR_FILE
+        printf ("-1") >> NUM_EPISODES_FILE
+    }
     #
     # If start of episodeTitle == seriesTitle ": ", remove the redundant part.
     if ((match (episodeTitle, seriesTitle ": ")) == 1) {
