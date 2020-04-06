@@ -99,8 +99,8 @@
     if (episodeTitle ~ /^PR \|/) {
         # Episode is a Trailer (i.e. First look), set episodeType to "T"
         episodeType = "T"
-        print episodeTitle "\t" shortURL >> ERROR_FILE
         printf ("-1") >> NUM_EPISODES_FILE
+        # print episodeTitle "\t" shortURL >> ERROR_FILE
     }
     #
     # If start of episodeTitle == seriesTitle ": ", remove the redundant part.
