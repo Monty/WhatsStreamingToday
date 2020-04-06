@@ -167,7 +167,7 @@
             if (episodeType == "T") {
                 episodeDescription = episodeTitle
             } else {
-            print "==> No description: " shortURL >> ERROR_FILE
+                print "==> No description: " shortURL >> ERROR_FILE
             }
         }
         sub (/^PR \| /,"",episodeDescription)
