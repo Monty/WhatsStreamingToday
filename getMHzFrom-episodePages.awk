@@ -89,9 +89,6 @@
     sub (/.*watch/,"watch",shortURL)
     # Default episodeType to "E"
     episodeType = "E"
-    # If episode is a Trailer or Finale (i.e. First look), set episodeType to "T"
-    if (episodeURL ~ /-trailer-|-finale-/)
-        episodeType = "T"
     # If episode is a BONUS:, set episodeType to "X"
     if (episodeURL ~ /-c-x[[:digit:]]{3,4}$|montme-c-01001|richard-sammel-inetrview/)
         episodeType = "X"
@@ -100,6 +97,8 @@
     split (titleString,fld,"\"")
     episodeTitle = fld[2]
     if (episodeTitle ~ /^PR \|/) {
+        # Episode is a Trailer (i.e. First look), set episodeType to "T"
+        episodeType = "T"
         print episodeTitle "\t" shortURL >> ERROR_FILE
         printf ("-1") >> NUM_EPISODES_FILE
     }
@@ -166,6 +165,7 @@
     if ($0 ~ /<\/div>/) {
         if (episodeDescription == "")
             print "==> No description: " shortURL >> ERROR_FILE
+        sub (/^PR \| /,"",episodeDescription)
         print episodeDescription >> EPISODE_INFO_FILE
     }
 }
