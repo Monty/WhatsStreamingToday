@@ -84,29 +84,29 @@
             headerPrinted = "yes"
         }
     } else {
-    # We found a description, clean it up and print it
-    gsub (/  */," ")
-    gsub (/&#x27;/,"'")
-    gsub (/&quot;/,"\"")
-    gsub (/&amp;/,"\\&")
-    gsub (/&lsquo;/,"’")
-    gsub (/&rsquo;/,"’")
-    gsub (/&ldquo;/,"“")
-    gsub (/&rdquo;/,"”")
-    gsub (/\r/," ")
-    # if it's not the last line of the description, print it without a newline
-    if ($0 !~ /"\>/) {
-        printf ("%s", $0) >> DESCRIPTION_FILE
-    } else {
-    # if it's the last line of the description, print it with a newline
-    sub (/"\>/,"")
-    print $0 >> DESCRIPTION_FILE
-    # if we didn't find a header in this block, print a blank one
-    if (headerPrinted == "no") {
-        print "==> No genre/country line: " shortURL "  " seriesTitle >> ERROR_FILE
-        print "\t\t\t" >> HEADER_FILE
-    }
-}
+        # We found a description, clean it up and print it
+        gsub (/  */," ")
+        gsub (/&#x27;/,"'")
+        gsub (/&quot;/,"\"")
+        gsub (/&amp;/,"\\&")
+        gsub (/&lsquo;/,"’")
+        gsub (/&rsquo;/,"’")
+        gsub (/&ldquo;/,"“")
+        gsub (/&rdquo;/,"”")
+        gsub (/\r/," ")
+        # if it's not the last line of the description, print it without a newline
+        if ($0 !~ /"\>/) {
+            printf ("%s", $0) >> DESCRIPTION_FILE
+        } else {
+            # if it's the last line of the description, print it with a newline
+            sub (/"\>/,"")
+            print $0 >> DESCRIPTION_FILE
+            # if we didn't find a header in this block, print a blank one
+            if (headerPrinted == "no") {
+                print "==> No genre/country line: " shortURL "  " seriesTitle >> ERROR_FILE
+                print "\t\t\t" >> HEADER_FILE
+            }
+        }
     }
 }
 
