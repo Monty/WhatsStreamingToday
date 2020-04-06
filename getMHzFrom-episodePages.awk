@@ -119,22 +119,22 @@
 # Extract the episode number, and correct if necessary
 # Detective Montalbano requires special processing for page 2 episodeNumber
 /<h4 class="/ {
-    sub (/.*Episode /,"")
-    sub (/<\/span>.*/,"")
-    episodeNumber = $0 + 0
+    episodeNumber = $0
+    sub (/.*Episode /,"",episodeNumber)
+    sub (/<\/span>.*/,"",episodeNumber)
+    episodeNumber = episodeNumber + 0
     if (seriesTitle == "Detective Montalbano" && page2 == "yes") {
         oldEpisodeNumber = episodeNumber
         episodeNumber += 24
         printf ("==> Changed E%02d to %s%02d: %s\n", oldEpisodeNumber, episodeType, \
                 episodeNumber, shortURL) >> ERROR_FILE
     }
-    next
 }
 
 # WARNING - other scripts depend on the number and order of the fields below
 # Extract the episode description and print the composed info
-/<div class="transparent padding-top-medium"/,/<\/div>/ {
-    if ($0 ~ /<div class="transparent padding-top-medium"/) {
+/<h4 class="transparent"><span class=/,/<\/div>/ {
+    if ($0 ~ /<h4 class="transparent"><span class=/) {
         if (episodeNumber == 0) {
             if (episodeNumberFromURL != 0) {
                 printf ("==> Changed %s00 to %s%02d: %s\n", episodeType, episodeType, 
