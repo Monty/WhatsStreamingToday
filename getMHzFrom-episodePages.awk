@@ -140,37 +140,37 @@
                         episodeNumberFromURL, shortURL) >> ERROR_FILE
                 episodeNumber = episodeNumberFromURL
             } else {
-                printf ("==> Episode number is 00: %s\n", shortURL) >> ERROR_FILE
-            }
+            printf ("==> Episode number is 00: %s\n", shortURL) >> ERROR_FILE
         }
-        printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \
-                SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeType, episodeNumber, \
-                episodeTitle, episodeDuration) >> EPISODE_INFO_FILE
-        # Need to account for multiple lines of description
-        descriptionLinesFound = 0
-        episodeDescription = ""
-        # make sure there is no carryforward
-        episodeNumber = ""
-        episodeNumberFromURL = ""
     }
-    if ($0 ~ /<p>/) {
-        split ($0,fld,"[<>]")
-        paragraph = fld[3]
-        gsub (/&quot;/,"\"",paragraph)
-        gsub (/&amp;/,"\\&",paragraph)
-        # Could be in multiple paragraphs
-        descriptionLinesFound += 1
-        episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph
+    printf ("%d\t=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\"\)\t\t\t%s\t\t\t\t\t", \
+               SERIES_NUMBER, episodeURL, seriesTitle, seasonNumber, episodeType, episodeNumber, \
+               episodeTitle, episodeDuration) >> EPISODE_INFO_FILE
+    # Need to account for multiple lines of description
+    descriptionLinesFound = 0
+    episodeDescription = ""
+    # make sure there is no carryforward
+    episodeNumber = ""
+    episodeNumberFromURL = ""
+}
+if ($0 ~ /<p>/) {
+    split ($0,fld,"[<>]")
+    paragraph = fld[3]
+    gsub (/&quot;/,"\"",paragraph)
+    gsub (/&amp;/,"\\&",paragraph)
+    # Could be in multiple paragraphs
+    descriptionLinesFound += 1
+    episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph
+}
+if ($0 ~ /<\/div>/) {
+    if (episodeDescription == "") {
+        if (episodeType == "T") {
+            episodeDescription = episodeTitle
+        } else {
+        print "==> No description: " shortURL >> ERROR_FILE
     }
-    if ($0 ~ /<\/div>/) {
-        if (episodeDescription == "") {
-            if (episodeType == "T") {
-                episodeDescription = episodeTitle
-            } else {
-            print "==> No description: " shortURL >> ERROR_FILE
-            }
-        }
-        sub (/^PR \| /,"",episodeDescription)
-        print episodeDescription >> EPISODE_INFO_FILE
+}
+sub (/^PR \| /,"",episodeDescription)
+print episodeDescription >> EPISODE_INFO_FILE
     }
 }
