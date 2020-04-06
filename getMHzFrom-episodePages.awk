@@ -163,8 +163,13 @@
         episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph
     }
     if ($0 ~ /<\/div>/) {
-        if (episodeDescription == "")
+        if (episodeDescription == "") {
+            if (episodeType == "T") {
+                episodeDescription = episodeTitle
+            } else {
             print "==> No description: " shortURL >> ERROR_FILE
+            }
+        }
         sub (/^PR \| /,"",episodeDescription)
         print episodeDescription >> EPISODE_INFO_FILE
     }
