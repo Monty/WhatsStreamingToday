@@ -69,6 +69,10 @@
 #       $EPISODE_INFO_FILE
 #
 
+BEGIN {
+    SINGLES_FILE = "single_episodes.txt"
+}
+
 # Extract the series title
 /span itemprop="name"/ {
     split ($0,fld,"[<>]")
@@ -171,12 +175,16 @@
     # Create shorter URL by removing https://
     shortURL = episodeURL
     sub (/.*acorn\.tv/,"acorn.tv",shortURL)
-    # Feature films don't have episodes
-    if (episodeURL ~ /\/featurefilm\//)
+    # Feature films and movies don't have episodes
+    if (episodeURL ~ /\/feature\// || episodeURL ~ /\/featurefilm\// || episodeURL ~ /\/movie\//) {
+        print "Feature/Movie-1: " episodeURL >> SINGLES_FILE
         next
+    }
     # neither should single episode series
-    if (totalEpisodes == 1)
+    if (totalEpisodes == 1) {
+        print "SingleEpisode-1: " episodeURL >> SINGLES_FILE
         next
+    }
     print "url = \"" episodeURL "\"" >> EPISODE_CURL_FILE
     next
 }
@@ -254,11 +262,12 @@
     if (episodeURL ~ /\/bonus|[0-9]{1,2}parttwo\/|christmas[-]?special/)
         episodeType = "X"
     # If episode is a Trailer, set episodeType to "T"
-    if (episodeURL ~ /\/trailer/)
+    if (episodeURL ~ /_cs\//)
         episodeType = "T"
-    # jamaicainn, newworlds & newtonslaw bonus or trailer seasonNumber should be 1
+    # cryptoftears, newworlds & newtonslaw bonus seasonNumber should be 1
+    # jamaicainn bonus or trailer has been removed from Acorn TV
     if (episodeURL ~ \
-        /\/jamaicainn\/bonus\/|\/jamaicainn\/trailer\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
+        /\/cryptoftears\/bonus\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
         && seasonNumber != 1) {
         split (episodeURL, part, "/")
         printf ("==> Changed S%02d to S01: acorn.tv/%s/%s\n", \
@@ -275,12 +284,16 @@
     #
     split ($0,fld,"[<>]")
     episodeNumber = fld[5]
-    # Feature films don't have episodes
-    if (episodeURL ~ /\/featurefilm\//)
+    # Feature films and movies don't have episodes
+    if (episodeURL ~ /\/feature\// || episodeURL ~ /\/featurefilm\// || episodeURL ~ /\/movie\//) {
+        print "Feature/Movie-2: " episodeURL >> SINGLES_FILE
         next
+    }
     # neither should single episode series
-    if (totalEpisodes == 1)
+    if (totalEpisodes == 1) {
+        print "SingleEpisode-2: " episodeURL >> SINGLES_FILE
         next
+    }
     # The season number should match that in the URL
     # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, Vera, and others have problems
     if (episodeURL ~ \
