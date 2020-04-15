@@ -70,7 +70,7 @@
 #
 
 BEGIN {
-    SINGLES_FILE = "single_episodes.txt"
+    SINGLES_FILE = "single_episodes.csv"
 }
 
 # Extract the series title
@@ -177,12 +177,12 @@ BEGIN {
     sub (/.*acorn\.tv/,"acorn.tv",shortURL)
     # Feature films and movies don't have episodes
     if (episodeURL ~ /\/feature\// || episodeURL ~ /\/featurefilm\// || episodeURL ~ /\/movie\//) {
-        print "Feature/Movie-1: " episodeURL >> SINGLES_FILE
+        print "Feature/Movie-1:\t" episodeURL >> SINGLES_FILE
         next
     }
     # neither should single episode series
     if (totalEpisodes == 1) {
-        print "SingleEpisode-1: " episodeURL >> SINGLES_FILE
+        print "SingleEpisode-1:\t" episodeURL >> SINGLES_FILE
         next
     }
     print "url = \"" episodeURL "\"" >> EPISODE_CURL_FILE
@@ -286,12 +286,12 @@ BEGIN {
     episodeNumber = fld[5]
     # Feature films and movies don't have episodes
     if (episodeURL ~ /\/feature\// || episodeURL ~ /\/featurefilm\// || episodeURL ~ /\/movie\//) {
-        print "Feature/Movie-2: " episodeURL >> SINGLES_FILE
+        print "Feature/Movie-2:\t" episodeURL >> SINGLES_FILE
         next
     }
     # neither should single episode series
     if (totalEpisodes == 1) {
-        print "SingleEpisode-2: " episodeURL >> SINGLES_FILE
+        print "SingleEpisode-2:\t" episodeURL >> SINGLES_FILE
         next
     }
     # The season number should match that in the URL
