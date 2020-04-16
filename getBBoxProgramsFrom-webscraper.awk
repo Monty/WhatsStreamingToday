@@ -48,9 +48,15 @@ BEGIN {
     # so they are not repeated for each episode and each season.
     if (URL ~ /Maigret_15974$/) {
         revisedTitles += 1
-        printf ("==> Changed title '%s' to 'Maigret (2016–2017)': www.britbox.com%s\n", \
-                showTitle, URL) >> ERROR_FILE
-        showTitle = "Maigret (2016–2017)"
+        printf ("==> Changed title 'Maigret' to 'Maigret (2016)': www.britbox.com%s\n", \
+                URL) >> ERROR_FILE
+        showTitle = "Maigret (2016)"
+    }
+    if (URL ~ /Maigret_\(1992\)_15928$/) {
+        revisedTitles += 1
+        printf ("==> Changed title 'Maigret' to 'Maigret (1992)': www.britbox.com%s\n", \
+                URL) >> ERROR_FILE
+        showTitle = "Maigret (1992)"
     }
     if (URL ~ /Porridge_14747$/) {
         revisedTitles += 1

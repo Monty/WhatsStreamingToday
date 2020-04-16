@@ -53,7 +53,10 @@ BEGIN {
     # "Changed" message and counting revisedTitles are only in getBBoxProgramsFrom-webscraper.awk
     # so they are not repeated for each episode and each season.
     if (baseURL ~ /Maigret_15974$/) {
-        showTitle = "Maigret (2016-2017)"
+        showTitle = "Maigret (2016)"
+    }
+    if (baseURL ~ /Maigret_\(1992\)_15928$/) {
+        showTitle = "Maigret (1992)"
     }
     if (baseURL ~ /Porridge_9509$/) {
         showTitle = "Porridge (1974-1977)"
