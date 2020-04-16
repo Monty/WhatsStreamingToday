@@ -143,6 +143,7 @@ BEGIN {
     sub (/^ */,"",description)
     sub (/ *$/,"",description)
     # fix funky HTML characters
+    gsub (/&amp;/,"\\&",description)
     gsub (/&quot;/,"\"\"",description)
     gsub (/&#39;/,"'",description)
     gsub (/&#039;/,"'",description)

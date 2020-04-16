@@ -27,6 +27,7 @@
     gsub (/  */," ")
     sub (/ *$/,"")
     # fix funky HTML characters
+    gsub (/&amp;/,"\\&")
     gsub (/&lsquo;/,"’")
     gsub (/&rsquo;/,"’")
     gsub (/&quot;/,"\"\"")
