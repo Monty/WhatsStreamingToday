@@ -36,11 +36,27 @@ BEGIN {
     # Extract sortkey from URL
     nflds = split (URL,fld,"_")
     if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
+        # /us/episode/35_Days_S3_E8_23851
+        # Season 3, Episode 8
         seasonNumber = substr(fld[nflds-2], 2)
         episodeNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
+    } else if (URL ~ /_E[[:digit:]]*_[[:digit:]]*$/) {
+        # /us/episode/35_Hours_E1_26129
+        # 35 Hours, Episode 1
+        seasonNumber = "99"
+        episodeNumber = substr(fld[nflds-1], 2)
+        sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
+    } else if (URL ~ /Episode_[[:digit:]]*_[[:digit:]]*$/) {
+        # /us/episode/Episode_5_26089
+        # Season 4, Episode 5
+        seasonNumber = "98"
+        episodeNumber = substr(fld[nflds-1], 1)
+        sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
     } else {
         URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "E"
+        # /us/episode/Orkneys_Stone_Age_Temple_7144
+        # A History of Ancient Britain Special, Orkney's Stone Age Temple
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
     }
 
