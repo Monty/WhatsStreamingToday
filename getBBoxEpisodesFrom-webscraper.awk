@@ -13,7 +13,14 @@ BEGIN {
     FS="\t"
     OFS="\t"
     print "Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription"
-    print "Type\t#\tSortkey\tURL\tshowTitle\tepisodeTitle\tYear(s)" > "debug.csv"
+    # For debugging variations in seasons and episodes format
+    str = "date +%y%m%d.%H%M%S"
+    str | getline longdate
+    close str
+    for ( i = 1; i <= 4; i++ ) {
+        outfile = "BBox-scrapes/c" i "-" longdate ".csv"
+        print "Type\t#\tSortkey\tURL\tshowTitle\tepisodeTitle\tYear(s)" > outfile
+    }
 }
 
 {
@@ -43,7 +50,8 @@ BEGIN {
         episodeNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c1Num += 1
-        printf ("c1\t%d\t%s\t%s\t%s\t%s\t%s\n",c1Num,sortkey,URL,showTitle,episodeTitle,Years) >>"debug.csv"
+        outfile = "BBox-scrapes/c1-" longdate ".csv"
+        printf ("c1\t%d\t%s\t%s\t%s\t%s\t%s\n",c1Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     } else if (URL ~ /_E[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/35_Hours_E1_26129
         # 35 Hours, Episode 1
@@ -51,7 +59,8 @@ BEGIN {
         episodeNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c2Num += 2
-        printf ("c2\t%d\t%s\t%s\t%s\t%s\t%s\n",c2Num,sortkey,URL,showTitle,episodeTitle,Years) >>"debug.csv"
+        outfile = "BBox-scrapes/c2-" longdate ".csv"
+        printf ("c2\t%d\t%s\t%s\t%s\t%s\t%s\n",c2Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     } else if (URL ~ /Episode_[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/Episode_5_26089
         # Season 4, Episode 5
@@ -59,14 +68,16 @@ BEGIN {
         episodeNumber = substr(fld[nflds-1], 1)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c3Num += 3
-        printf ("c3\t%d\t%s\t%s\t%s\t%s\t%s\n",c3Num,sortkey,URL,showTitle,episodeTitle,Years) >>"debug.csv"
+        outfile = "BBox-scrapes/c3-" longdate ".csv"
+        printf ("c3\t%d\t%s\t%s\t%s\t%s\t%s\n",c3Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     } else {
         URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "E"
         # /us/episode/Orkneys_Stone_Age_Temple_7144
         # A History of Ancient Britain Special, Orkney's Stone Age Temple
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
         c4Num += 4
-        printf ("c4\t%d\t%s\t%s\t%s\t%s\t%s\n",c4Num,sortkey,URL,showTitle,episodeTitle,Years) >>"debug.csv"
+        outfile = "BBox-scrapes/c4-" longdate ".csv"
+        printf ("c4\t%d\t%s\t%s\t%s\t%s\t%s\n",c4Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     }
 
     # Convert duration from minutes to HMS
