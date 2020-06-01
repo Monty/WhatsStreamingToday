@@ -42,18 +42,20 @@ BEGIN {
     showtype = "S"
 
     shortURL = URL
+    episodeSeason = ""
+    # Season 3, Episode 8
     if (match (episodeTitle, /^Season [[:digit:]]+|^Series [[:digit:]]+/))
         episodeSeason = substr(episodeTitle,8,RLENGTH-7)
-    else
-        episodeSeason = ""
    
     # Extract sortkey from URL
     nflds = split (URL,fld,"_")
     if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/35_Days_S3_E8_23851
-        # Season 3, Episode 8
         seasonNumber = substr(fld[nflds-2], 2)
         episodeNumber = substr(fld[nflds-1], 2)
+        if (baseURL ~ /The_Edinburgh_Show_23924$/) {
+            episodeSeason = Years
+        }
         # Give precedence to season number in episodeTitle over season number in URL 
         if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
             revisedSeasons1 += 1
@@ -68,7 +70,6 @@ BEGIN {
         printf ("c1\t%d\t%s\t%s\t%s\t%s\t%s\n",c1Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     } else if (URL ~ /_E[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/35_Hours_E1_26129
-        # 35 Hours, Episode 1
         revisedSeasons2 += 1
         episodeSeason = Years
         if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
@@ -83,7 +84,6 @@ BEGIN {
         printf ("c2\t%d\t%s\t%s\t%s\t%s\t%s\n",c2Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     } else if (URL ~ /Episode_[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/Episode_5_26089
-        # Season 4, Episode 5
         revisedSeasons3 += 1
         seasonNumber = "98"
         episodeNumber = substr(fld[nflds-1], 1)
