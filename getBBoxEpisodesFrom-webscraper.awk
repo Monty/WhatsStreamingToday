@@ -41,6 +41,11 @@ BEGIN {
     Description = $10
     showtype = "S"
 
+    if (match (episodeTitle, /^Season [[:digit:]]+|^Series [[:digit:]]+/))
+        episodeSeason = substr(episodeTitle,8,RLENGTH-7)
+    else
+        episodeSeason = ""
+   
     # Extract sortkey from URL
     nflds = split (URL,fld,"_")
     if (URL ~ /_S[[:digit:]]*_E[[:digit:]]*_[[:digit:]]*$/) {
@@ -48,6 +53,15 @@ BEGIN {
         # Season 3, Episode 8
         seasonNumber = substr(fld[nflds-2], 2)
         episodeNumber = substr(fld[nflds-1], 2)
+        # Give precedence to season number in episodeTitle over season number in URL 
+        if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
+            revisedSeasons1 += 1
+            shortURL = URL
+            sub (/^\/us\/episode\//,"",shortURL)
+            printf ("==> Fixed c1 season: %02d-%02d\t%s\t%s\n", \
+                    seasonNumber, episodeSeason, shortURL, episodeTitle) >> ERROR_FILE
+            seasonNumber = episodeSeason
+        }
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c1Num += 1
         outfile = "BBox-scrapes/c1-" longdate ".csv"
@@ -55,27 +69,30 @@ BEGIN {
     } else if (URL ~ /_E[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/35_Hours_E1_26129
         # 35 Hours, Episode 1
+        revisedSeasons2 += 1
         seasonNumber = "99"
         episodeNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
-        c2Num += 2
+        c2Num += 1
         outfile = "BBox-scrapes/c2-" longdate ".csv"
         printf ("c2\t%d\t%s\t%s\t%s\t%s\t%s\n",c2Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     } else if (URL ~ /Episode_[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/Episode_5_26089
         # Season 4, Episode 5
+        revisedSeasons3 += 1
         seasonNumber = "98"
         episodeNumber = substr(fld[nflds-1], 1)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
-        c3Num += 3
+        c3Num += 1
         outfile = "BBox-scrapes/c3-" longdate ".csv"
         printf ("c3\t%d\t%s\t%s\t%s\t%s\t%s\n",c3Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     } else {
+        revisedSeasons4 += 1
         URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "E"
         # /us/episode/Orkneys_Stone_Age_Temple_7144
         # A History of Ancient Britain Special, Orkney's Stone Age Temple
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
-        c4Num += 4
+        c4Num += 1
         outfile = "BBox-scrapes/c4-" longdate ".csv"
         printf ("c4\t%d\t%s\t%s\t%s\t%s\t%s\n",c4Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
     }
@@ -167,6 +184,22 @@ END {
     if (revisedTitles > 0 ) {
         revisedTitles == 1 ? field = "title" : field = "titles"
         printf ("    %2d %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
+    }
+    if (revisedSeasons1 > 0 ) {
+        revisedSeasons1 == 1 ? field = "season" : field = "seasons"
+        printf ("    %3d c1 %s revised in %s\n", revisedSeasons1, field, FILENAME) > "/dev/stderr"
+    }
+    if (revisedSeasons2 > 0 ) {
+        revisedSeasons2 == 1 ? field = "season" : field = "seasons"
+        printf ("    %3d c2 %s revised in %s\n", revisedSeasons2, field, FILENAME) > "/dev/stderr"
+    }
+    if (revisedSeasons3 > 0 ) {
+        revisedSeasons3 == 1 ? field = "season" : field = "seasons"
+        printf ("    %3d c3 %s revised in %s\n", revisedSeasons3, field, FILENAME) > "/dev/stderr"
+    }
+    if (revisedSeasons4 > 0 ) {
+        revisedSeasons4 == 1 ? field = "season" : field = "seasons"
+        printf ("    %3d c4 %s revised in %s\n", revisedSeasons4, field, FILENAME) > "/dev/stderr"
     }
     if (badEpisodes > 0 ) {
         badEpisodes == 1 ? field = "URL" : field = "URLs"
