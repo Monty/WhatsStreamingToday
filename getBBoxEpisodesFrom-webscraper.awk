@@ -85,7 +85,12 @@ BEGIN {
     } else if (URL ~ /Episode_[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/Episode_5_26089
         revisedSeasons3 += 1
-        seasonNumber = "98"
+        seasonNumber = Years
+        if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
+            printf ("==> Fixed c3 season: %02d-%02d\t%s\t%s\n", \
+                    seasonNumber, episodeSeason, shortURL, episodeTitle) >> ERROR_FILE
+            seasonNumber = episodeSeason
+        }
         episodeNumber = substr(fld[nflds-1], 1)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c3Num += 1
