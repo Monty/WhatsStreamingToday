@@ -199,14 +199,15 @@ awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASON
     -v TEMP_FILE=$TEMP_MISSING_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
     >>$EPISODE_INFO_FILE
 
+# Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 # Print header about info obtained during processing of shows
 printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
-
-# Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
     -f getBBoxProgramsFrom-webscraper.awk $PROGRAMS_SORTED_FILE >$PROGRAMS_SPREADSHEET_FILE
+printf "\n### Possible anomalies from processing episodes are listed below.\n\n" >>$ERROR_FILE
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
     -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
+printf "\n### Possible anomalies from processing seasons are listed below.\n\n" >>$ERROR_FILE
 awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
     -f getBBoxSeasonsFrom-webscraper.awk $SEASONS_SORTED_FILE >$SEASONS_SPREADSHEET_FILE
 
