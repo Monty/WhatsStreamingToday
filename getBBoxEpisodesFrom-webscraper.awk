@@ -41,6 +41,7 @@ BEGIN {
     Description = $10
     showtype = "S"
 
+    shortURL = URL
     if (match (episodeTitle, /^Season [[:digit:]]+|^Series [[:digit:]]+/))
         episodeSeason = substr(episodeTitle,8,RLENGTH-7)
     else
@@ -56,7 +57,6 @@ BEGIN {
         # Give precedence to season number in episodeTitle over season number in URL 
         if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
             revisedSeasons1 += 1
-            shortURL = URL
             sub (/^\/us\/episode\//,"",shortURL)
             printf ("==> Fixed c1 season: %02d-%02d\t%s\t%s\n", \
                     seasonNumber, episodeSeason, shortURL, episodeTitle) >> ERROR_FILE
@@ -70,7 +70,12 @@ BEGIN {
         # /us/episode/35_Hours_E1_26129
         # 35 Hours, Episode 1
         revisedSeasons2 += 1
-        seasonNumber = "99"
+        episodeSeason = Years
+        if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
+            printf ("==> Fixed c2 season: %02d-%02d\t%s\t%s\n", \
+                    seasonNumber, episodeSeason, shortURL, episodeTitle) >> ERROR_FILE
+            seasonNumber = episodeSeason
+        }
         episodeNumber = substr(fld[nflds-1], 2)
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c2Num += 1
