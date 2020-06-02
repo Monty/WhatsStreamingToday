@@ -68,7 +68,7 @@ BEGIN {
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c1Num += 1
         outfile = "BBox-scrapes/c1-" longdate ".csv"
-        printf ("c1\t%d\t%s\t%s\t%s\t%s\t%s\n",c1Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
+        printf ("c1\t%d\t%s\t%s\t%s\t%s\t%s\n",c1Num,sortkey,showTitle,shortURL,episodeTitle,Years) >> outfile
     } else if (URL ~ /_E[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/35_Hours_E1_26129
         revisedSeasons2 += 1
@@ -82,7 +82,7 @@ BEGIN {
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c2Num += 1
         outfile = "BBox-scrapes/c2-" longdate ".csv"
-        printf ("c2\t%d\t%s\t%s\t%s\t%s\t%s\n",c2Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
+        printf ("c2\t%d\t%s\t%s\t%s\t%s\t%s\n",c2Num,sortkey,showTitle,shortURL,episodeTitle,Years) >> outfile
     } else if (URL ~ /Episode_[[:digit:]]*_[[:digit:]]*$/) {
         # /us/episode/Episode_5_26089
         revisedSeasons3 += 1
@@ -96,7 +96,7 @@ BEGIN {
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
         c3Num += 1
         outfile = "BBox-scrapes/c3-" longdate ".csv"
-        printf ("c3\t%d\t%s\t%s\t%s\t%s\t%s\n",c3Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
+        printf ("c3\t%d\t%s\t%s\t%s\t%s\t%s\n",c3Num,sortkey,showTitle,shortURL,episodeTitle,Years) >> outfile
     } else {
         revisedSeasons4 += 1
         URL ~ /^\/us\/movie\// ? showtype = "M" : showtype = "E"
@@ -105,13 +105,13 @@ BEGIN {
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
         if (episodeSeason != "") {
             showtype = "S"
-            sortkey = sprintf ("%s%02dE%05d", showtype, episodeSeason, fld[nflds])
+            sortkey = sprintf ("%s%02dE%05d", showtype, episodeSeason, 99999 - fld[nflds])
             printf ("==> Fixed c4 season: null-%02d\t%s\t%s\t%s\n", \
                     episodeSeason, showTitle, shortURL, episodeTitle) >> ERROR_FILE
         }
         c4Num += 1
         outfile = "BBox-scrapes/c4-" longdate ".csv"
-        printf ("c4\t%d\t%s\t%s\t%s\t%s\t%s\n",c4Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
+        printf ("c4\t%d\t%s\t%s\t%s\t%s\t%s\n",c4Num,sortkey,showTitle,shortURL,episodeTitle,Years) >> outfile
     }
 
     # Convert duration from minutes to HMS
