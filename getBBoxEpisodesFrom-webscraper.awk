@@ -42,7 +42,9 @@ BEGIN {
     showtype = "S"
 
     shortURL = URL
+    sub (/^\/us\/episode\//,"",shortURL)
     episodeSeason = ""
+    episodeNumber = ""
     # Season 3, Episode 8
     if (match (episodeTitle, /^Season [[:digit:]]+|^Series [[:digit:]]+/))
         episodeSeason = substr(episodeTitle,8,RLENGTH-7)
@@ -59,9 +61,8 @@ BEGIN {
         # Give precedence to season number in episodeTitle over season number in URL 
         if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
             revisedSeasons1 += 1
-            sub (/^\/us\/episode\//,"",shortURL)
-            printf ("==> Fixed c1 season: %02d-%02d\t%s\t%s\n", \
-                    seasonNumber, episodeSeason, shortURL, episodeTitle) >> ERROR_FILE
+            printf ("==> Fixed c1 season: %02d-%02d\t%s\t%s\t%s\n", \
+                    seasonNumber, episodeSeason, showTitle, shortURL, episodeTitle) >> ERROR_FILE
             seasonNumber = episodeSeason
         }
         sortkey = sprintf ("%s%02dE%03d", showtype, seasonNumber, episodeNumber)
@@ -73,8 +74,8 @@ BEGIN {
         revisedSeasons2 += 1
         episodeSeason = Years
         if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
-            printf ("==> Fixed c2 season: %02d-%02d\t%s\t%s\n", \
-                    seasonNumber, episodeSeason, shortURL, episodeTitle) >> ERROR_FILE
+            printf ("==> Fixed c2 season: %02d-%02d\t%s\t%s\t%s\n", \
+                    seasonNumber, episodeSeason, showTitle, shortURL, episodeTitle) >> ERROR_FILE
             seasonNumber = episodeSeason
         }
         episodeNumber = substr(fld[nflds-1], 2)
@@ -87,8 +88,8 @@ BEGIN {
         revisedSeasons3 += 1
         seasonNumber = Years
         if (episodeSeason != "" && seasonNumber+0 != episodeSeason+0) {
-            printf ("==> Fixed c3 season: %02d-%02d\t%s\t%s\n", \
-                    seasonNumber, episodeSeason, shortURL, episodeTitle) >> ERROR_FILE
+            printf ("==> Fixed c3 season: %02d-%02d\t%s\t%s\t%s\n", \
+                    seasonNumber, episodeSeason, showTitle, shortURL, episodeTitle) >> ERROR_FILE
             seasonNumber = episodeSeason
         }
         episodeNumber = substr(fld[nflds-1], 1)
@@ -102,6 +103,12 @@ BEGIN {
         # /us/episode/Orkneys_Stone_Age_Temple_7144
         # A History of Ancient Britain Special, Orkney's Stone Age Temple
         sortkey = sprintf ("%s%05d", showtype, fld[nflds])
+        if (episodeSeason != "") {
+            showtype = "S"
+            sortkey = sprintf ("%s%02dE%05d", showtype, episodeSeason, fld[nflds])
+            printf ("==> Fixed c4 season: null-%02d\t%s\t%s\t%s\n", \
+                    episodeSeason, showTitle, shortURL, episodeTitle) >> ERROR_FILE
+        }
         c4Num += 1
         outfile = "BBox-scrapes/c4-" longdate ".csv"
         printf ("c4\t%d\t%s\t%s\t%s\t%s\t%s\n",c4Num,sortkey,URL,showTitle,episodeTitle,Years) >> outfile
