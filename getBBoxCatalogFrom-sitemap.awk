@@ -2,7 +2,8 @@
 
 BEGIN {
     # Print header
-    printf ("contentType\tcontentId\tpubDate\ttitle\tEntityId\n")
+    printf ("contentType\tcontentId\tpubDate\ttitle\tEntityId\t")
+    printf ("genre\trating\tdescription\n")
 }
 
 # Don't process credits
@@ -33,6 +34,9 @@ BEGIN {
     pubDate = ""
     title = ""
     EntityId = ""
+    genre = ""
+    rating = ""
+    description = ""
 }
 
 # Grab pubDate
@@ -44,12 +48,37 @@ BEGIN {
     sub (/Z/,"",pubDate)
     # print "pubDate = " pubDate
 }
+
 # Grab title
 # <title locale="en-US">Frequent Flyers</title>
 /<title locale="en-US">/ {
     split ($0,fld,"[<>]")
     title = fld[3]
     # print "title = " title
+}
+
+# Grab genre
+# <genre>drama</genre>
+/<genre>/ {
+    split ($0,fld,"[<>]")
+    genre = fld[3]
+    # print "genre = " genre
+}
+
+# Grab description
+# <description>Set in the beautiful Yorkshire Dales, ...word.</description>
+/<description>/ {
+    split ($0,fld,"[<>]")
+    description = fld[3]
+    # print "description = " description
+}
+
+# Grab rating
+# <rating systemCode="us-tv">TV-PG</rating>
+/<rating systemCode=/ {
+    split ($0,fld,"[<>]")
+    rating = fld[3]
+    # print "rating = " rating
 }
 
 # Grab EntityId from artwork
@@ -72,7 +101,8 @@ BEGIN {
         EntityId = "_23842"
         # print "EntityId = " EntityId
     }
-    printf ("%s\t%s\t%s\t%s\t%s\n", contentType, contentId, pubDate, title, EntityId)
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, pubDate, title, EntityId, \
+            genre, rating, description)
 }
 
 # <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
