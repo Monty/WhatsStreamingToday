@@ -148,20 +148,22 @@ fi
 # Make a spreadsheet of all catalog fields
 awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE > $CATALOG_SPREADSHEET_FILE
 
+function printAdjustedFileInfo() {
+    # Print filename, size, date, number of lines
+    # Subtract lines to account for headers or trailers, 0 for no adjustment
+    #   INVOCATION: printAdjustedFileInfo filename adjustment
+    filesize=$(ls -loh $1 | cut -c 22-26)
+    filedate=$(ls -loh $1 | cut -c 28-39)
+    numlines=$(( $(sed -n '$=' $1) - $2))
+    # printf "$1    $filesize  $filedate\t$numlines lines\n"
+    printf "%-40s%6s%15s%9d lines\n" "$1" "$filesize" "$filedate" "$numlines"
+}
+
 # Output some stats
-echo $SITEMAP_FILE
-filesize=$(ls -loh $SITEMAP_FILE | cut -c 22-26)
-filedate=$(ls -loh $SITEMAP_FILE | cut -c 28-39)
-numlines=$(sed -n '$=' $SITEMAP_FILE)
-printf "  $filesize  $filedate\t$numlines lines\n"
+printAdjustedFileInfo  $SITEMAP_FILE 0
 head -4 $SITEMAP_FILE | tail -2 | awk -F"[<>]" '{print "    " $2 "\t" $3}'
 #
-echo $CATALOG_SPREADSHEET_FILE
-filesize=$(ls -loh $CATALOG_SPREADSHEET_FILE | cut -c 22-26)
-filedate=$(ls -loh $CATALOG_SPREADSHEET_FILE | cut -c 28-39)
-# Subtract 1 to account for header linw
-numlines=$(( $(sed -n '$=' $CATALOG_SPREADSHEET_FILE) - 1))
-printf "  $filesize  $filedate\t$numlines lines\n"
+printAdjustedFileInfo  $CATALOG_SPREADSHEET_FILE 1
 
 echo "==> ${0##*/} completed: $(date)"
 exit
