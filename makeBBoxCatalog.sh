@@ -137,16 +137,31 @@ rm -f $TEMP_FILE $TEMP_MISSING_FILE $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG
     $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE $CATALOG_SPREADSHEET_FILE
 
 # Grab the XML file and get rid of Windows CRs
-curl -s $SITEMAP_URL | perl -pe 'tr/\r//d' > $SITEMAP_FILE
+# Unless we already have one from today
+if [ ! -e "$SITEMAP_FILE" ]; then
+    echo "==> Downloading new $SITEMAP_FILE"
+    curl -s $SITEMAP_URL | perl -pe 'tr/\r//d' > $SITEMAP_FILE
+else
+    echo "==> using existing $SITEMAP_FILE"
+fi
 
 # Make a spreadsheet of all catalog fields
 awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE > $CATALOG_SPREADSHEET_FILE
 
 # Output some stats
-# WARNING - there is a TAB character in the line below
-head -4 $SITEMAP_FILE | tail -2 | sed -e 's+</.*++' -e 's+  <++' -e 's+>+	+'
-wc -cl $SITEMAP_FILE
-wc -cl $CATALOG_SPREADSHEET_FILE
+echo $SITEMAP_FILE
+filesize=$(ls -loh $SITEMAP_FILE | cut -c 22-26)
+filedate=$(ls -loh $SITEMAP_FILE | cut -c 28-39)
+numlines=$(sed -n '$=' $SITEMAP_FILE)
+printf "  $filesize  $filedate\t$numlines lines\n"
+head -4 $SITEMAP_FILE | tail -2 | awk -F"[<>]" '{print "    " $2 "\t" $3}'
+#
+echo $CATALOG_SPREADSHEET_FILE
+filesize=$(ls -loh $CATALOG_SPREADSHEET_FILE | cut -c 22-26)
+filedate=$(ls -loh $CATALOG_SPREADSHEET_FILE | cut -c 28-39)
+# Subtract 1 to account for header linw
+numlines=$(( $(sed -n '$=' $CATALOG_SPREADSHEET_FILE) - 1))
+printf "  $filesize  $filedate\t$numlines lines\n"
 
 echo "==> ${0##*/} completed: $(date)"
 exit
