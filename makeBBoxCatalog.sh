@@ -6,7 +6,7 @@ trap cleanup INT
 #
 function cleanup() {
     rm -f $TEMP_FILE $TEMP_MISSING_FILE
-    echo ""
+    printf "\n"
     exit 130
 }
 
@@ -39,10 +39,10 @@ while getopts ":a:drst" opt; do
         PRINT_TOTALS="yes"
         ;;
     \?)
-        echo "[Warning] Ignoring invalid option: -$OPTARG" >&2
+        printf "[Warning] Ignoring invalid option: -$OPTARG\n" >&2
         ;;
     :)
-        echo "[Error] Option -$OPTARG requires an argument" >&2
+        printf "[Error] Option -$OPTARG requires an argument.\n" >&2
         exit 1
         ;;
     esac
@@ -50,16 +50,16 @@ done
 
 # Make sure we can execute curl.
 if [ ! -x "$(which curl 2>/dev/null)" ]; then
-    echo "[Error] Can't run curl. Install curl and rerun this script."
-    echo "        To test, type:  curl -Is https://github.com/ | head -5"
+    printf "[Error] Can't run curl. Install curl and rerun this script.\n"
+    printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
 fi
 
 # Make sure network is up and BritBox site is reachable
 SITEMAP_URL="https://prod-bbc-catalog.s3.amazonaws.com/apple_catalogue_feed.xml"
 if ! curl -o /dev/null -Isf $SITEMAP_URL; then
-    echo "[Error] $SITEMAP_URL isn't available, or your network is down."
-    echo "        Try accessing $SITEMAP_URL in your browser"
+    printf "[Error] $SITEMAP_URL isn't available, or your network is down.\n"
+    printf "        Try accessing $SITEMAP_URL in your browser.\n"
     exit 1
 fi
 
@@ -139,14 +139,14 @@ rm -f $TEMP_FILE $TEMP_MISSING_FILE $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG
 # Grab the XML file and get rid of Windows CRs
 # Unless we already have one from today
 if [ ! -e "$SITEMAP_FILE" ]; then
-    echo "==> Downloading new $SITEMAP_FILE"
-    curl -s $SITEMAP_URL | perl -pe 'tr/\r//d' > $SITEMAP_FILE
+    printf "==> Downloading new $SITEMAP_FILE\n"
+    curl -s $SITEMAP_URL | perl -pe 'tr/\r//d' >$SITEMAP_FILE
 else
-    echo "==> using existing $SITEMAP_FILE"
+    printf "==> using existing $SITEMAP_FILE\n"
 fi
 
 # Make a spreadsheet of all catalog fields
-awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE > $CATALOG_SPREADSHEET_FILE
+awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -154,18 +154,21 @@ function printAdjustedFileInfo() {
     #   INVOCATION: printAdjustedFileInfo filename adjustment
     filesize=$(ls -loh $1 | cut -c 22-26)
     filedate=$(ls -loh $1 | cut -c 28-39)
-    numlines=$(( $(sed -n '$=' $1) - $2))
-    # printf "$1    $filesize  $filedate\t$numlines lines\n"
-    printf "%-40s%6s%15s%9d lines\n" "$1" "$filesize" "$filedate" "$numlines"
+    numlines=$(($(sed -n '$=' $1) - $2))
+    printf "%-37s%6s%15s%9d lines\n" "$1" "$filesize" "$filedate" "$numlines"
 }
 
 # Output some stats
-printAdjustedFileInfo  $SITEMAP_FILE 0
-head -4 $SITEMAP_FILE | tail -2 | awk -F"[<>]" '{print "    " $2 "\t" $3}'
+printf "\n==> Stats from downloading and processing raw catalog data:\n"
+printAdjustedFileInfo $SITEMAP_FILE 0
+# Details from SITEMAP_FILE
+head -4 $SITEMAP_FILE | tail -2 |
+    awk -F"[<>]" '{printf ("    %s: %s", $2, $3)}'
 #
-printAdjustedFileInfo  $CATALOG_SPREADSHEET_FILE 1
+printf "\n---\n"
+printAdjustedFileInfo $CATALOG_SPREADSHEET_FILE 1
 
-echo "==> ${0##*/} completed: $(date)"
+printf "\n==> ${0##*/} completed: $(date)\n"
 exit
 
 # Generate title files
