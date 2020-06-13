@@ -108,9 +108,12 @@ BEGIN {
 
 # Grab originalDate
 # <originalAirDate>1978-03-25</originalAirDate>
+# <originalPremiereDate>1978-01-08</originalPremiereDate>
+# <originalReleaseDate>2017-12-25</originalReleaseDate>
 /<original.*Date>/ {
     split ($0,fld,"[<>]")
     dateType = fld[2]
+    sub (/original/,"",dateType)
     originalDate = fld[3]
     # print "dateType = " dateType
     # print "originalDate = " originalDate
