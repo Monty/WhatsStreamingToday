@@ -3,7 +3,7 @@
 BEGIN {
     # Print header
     printf ("contentType\tcontentId\tpubDate\ttitle\tEntityId\t")
-    printf ("genre\trating\tdescription\n")
+    printf ("genre\trating\tshowType\tDuration\tdescription\n")
 }
 
 # Don't process credits
@@ -36,6 +36,8 @@ BEGIN {
     EntityId = ""
     genre = ""
     rating = ""
+    showType = ""
+    duration = ""
     description = ""
 }
 
@@ -81,6 +83,22 @@ BEGIN {
     # print "rating = " rating
 }
 
+# Grab type
+# <type>series</type>
+/<type>/ {
+    split ($0,fld,"[<>]")
+    showType = fld[3]
+    # print "showType = " showType
+}
+
+# Grab duration
+# <duration>3000</duration>
+/<duration>/ {
+    split ($0,fld,"[<>]")
+    duration = fld[3]
+    # print "duration = " duration
+}
+
 # Grab EntityId from artwork
 # <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
 /<artwork url=.*EntityId=&apos;/ {
@@ -101,8 +119,8 @@ BEGIN {
         EntityId = "_23842"
         # print "EntityId = " EntityId
     }
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, pubDate, title, EntityId, \
-            genre, rating, description)
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, pubDate, title, EntityId, \
+            genre, rating, showType, duration, description)
 }
 
 # <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
