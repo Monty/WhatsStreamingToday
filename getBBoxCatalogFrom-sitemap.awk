@@ -2,8 +2,9 @@
 
 BEGIN {
     # Print header
-    printf ("contentType\tcontentId\tpubDate\ttitle\tEntityId\t")
-    printf ("genre\trating\tshowType\tDuration\tdescription\n")
+    printf ("contentType\tcontentId\tpubDate\ttitle\tEntityId\tgenre\trating\t")
+    printf ("showType\tduration\tdateType\toriginalDate\tshowContentId\tseasonContentId\t")
+    printf ("seasonNumber\tepisodeNumber\tdescription\n")
 }
 
 # Don't process credits
@@ -38,6 +39,12 @@ BEGIN {
     rating = ""
     showType = ""
     duration = ""
+    dateType = ""
+    originalDate = ""
+    showContentId = ""
+    seasonContentId = ""
+    seasonNumber = ""
+    episodeNumber = ""
     description = ""
 }
 
@@ -99,6 +106,48 @@ BEGIN {
     # print "duration = " duration
 }
 
+# Grab originalDate
+# <originalAirDate>1978-03-25</originalAirDate>
+/<original.*Date>/ {
+    split ($0,fld,"[<>]")
+    dateType = fld[2]
+    originalDate = fld[3]
+    # print "dateType = " dateType
+    # print "originalDate = " originalDate
+}
+
+# Grab showContentId
+# <showContentId>b008yjd9</showContentId>
+/<showContentId>/ {
+    split ($0,fld,"[<>]")
+    showContentId = fld[3]
+    # print "showContentId = " showContentId
+}
+
+# Grab seasonContentId
+# <seasonContentId>p0318ps9</seasonContentId>
+/<seasonContentId>/ {
+    split ($0,fld,"[<>]")
+    seasonContentId = fld[3]
+    # print "seasonContentId = " seasonContentId
+}
+
+# Grab seasonNumber
+# <seasonNumber>1</seasonNumber>
+/<seasonNumber>/ {
+    split ($0,fld,"[<>]")
+    seasonNumber = fld[3]
+    # print "seasonNumber = " seasonNumber
+}
+
+# Grab episodeNumber
+# <episodeNumber>10</episodeNumber>
+/<episodeNumber>/ {
+    split ($0,fld,"[<>]")
+    episodeNumber = fld[3]
+    # print "episodeNumber = " episodeNumber
+}
+
 # Grab EntityId from artwork
 # <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
 /<artwork url=.*EntityId=&apos;/ {
@@ -119,8 +168,9 @@ BEGIN {
         EntityId = "_23842"
         # print "EntityId = " EntityId
     }
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, pubDate, title, EntityId, \
-            genre, rating, showType, duration, description)
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, \
+            pubDate, title, EntityId, genre, rating, showType, duration, dateType, originalDate, \
+            showContentId, seasonContentId, seasonNumber, episodeNumber, description)
 }
 
 # <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
