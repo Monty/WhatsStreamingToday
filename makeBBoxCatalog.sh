@@ -129,8 +129,10 @@ ALL_INTERMEDIATE="$PROGRAMS_SORTED_FILE $EPISODES_SORTED_FILE $SEASONS_SORTED_FI
 ALL_INTERMEDIATE+="$PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE $DURATION_FILE "
 ALL_INTERMEDIATE+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $SEASONS_SORTED_SPREADSHEET_FILE "
-ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
+# ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $SEASONS_SORTED_SPREADSHEET_FILE "
+# ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
+# ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET_FILE"
+ALL_SPREADSHEETS="$CATALOG_SPREADSHEET_FILE"
 
 # Cleanup any possible leftover files
 rm -f $TEMP_FILE $TEMP_MISSING_FILE $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
@@ -168,7 +170,86 @@ head -4 $SITEMAP_FILE | tail -2 |
 printf "\n---\n"
 printAdjustedFileInfo $CATALOG_SPREADSHEET_FILE 1
 
-printf "\n==> ${0##*/} completed: $(date)\n"
+# If we don't want to create a "diffs" file for debugging, exit here
+if [ "$DEBUG" != "yes" ]; then
+    if [ "$SUMMARY" = "yes" ]; then
+        rm -f $ALL_INTERMEDIATE
+        rm -f $ALL_SPREADSHEETS
+    fi
+    exit
+fi
+
+# Shortcut for counting occurrences of a string in all spreadsheets
+# countOccurrences string
+function countOccurrences() {
+    grep -H -c "$1" $ALL_SPREADSHEETS
+}
+
+# Shortcut for checking differences between two files.
+# checkdiffs basefile newfile
+function checkdiffs() {
+    printf "\n"
+    if [ ! -e "$1" ]; then
+        # If the basefile file doesn't yet exist, assume no differences
+        # and copy the newfile to the basefile so it can serve
+        # as a base for diffs in the future.
+        printf "==> $1 does not exist. Creating it, assuming no diffs.\n"
+        cp -p "$2" "$1"
+    else
+        printf "==> what changed between $1 and $2:\n"
+        # first the stats
+        diff -c "$1" "$2" | diffstat -sq \
+            -D $(cd $(dirname "$2") && pwd -P) |
+            sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
+        # then the diffs
+        diff \
+            --unchanged-group-format='' \
+            --old-group-format='==> deleted %dn line%(n=1?:s) at line %df <==
+%<' \
+            --new-group-format='==> added %dN line%(N=1?:s) after line %de <==
+%>' \
+            --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
+%<------ to:
+%>' "$1" "$2"
+        if [ $? == 0 ]; then
+            printf "==> no diffs found.\n"
+        fi
+    fi
+}
+
+# Preserve any possible errors for debugging
+cat >>$POSSIBLE_DIFFS <<EOF
+==> ${0##*/} completed: $(date)
+
+### Check the diffs to see if any changes are meaningful
+$(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET_FILE)
+
+### These counts should not vary significantly over time
+### if they do, the earlier download may have failed.
+
+==> Number of Movies
+$(countOccurrences "tv_movie")
+
+==> Number of Shows
+$(countOccurrences "tv_show")
+
+==> Number of Seasons
+$(countOccurrences "tv_season")
+
+==> Number of Episodes
+$(countOccurrences "tv_episode")
+
+### Any funny stuff with file lengths?
+
+$(wc $ALL_SPREADSHEETS)
+
+EOF
+
+if [ "$SUMMARY" = "yes" ]; then
+    rm -f $ALL_INTERMEDIATE
+    rm -f $ALL_SPREADSHEETS
+fi
+
 exit
 
 # Generate title files
@@ -255,89 +336,3 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET_FILE
     addTotalsToSpreadsheet $LONG_SPREADSHEET_FILE
 fi
-
-# If we don't want to create a "diffs" file for debugging, exit here
-if [ "$DEBUG" != "yes" ]; then
-    if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_INTERMEDIATE
-        rm -f $ALL_SPREADSHEETS
-    fi
-    exit
-fi
-
-# Shortcut for counting occurrences of a string in all spreadsheets
-# countOccurrences string
-function countOccurrences() {
-    grep -H -c "$1" $ALL_SPREADSHEETS
-}
-
-# Shortcut for checking differences between two files.
-# checkdiffs basefile newfile
-function checkdiffs() {
-    echo
-    if [ ! -e "$1" ]; then
-        # If the basefile file doesn't yet exist, assume no differences
-        # and copy the newfile to the basefile so it can serve
-        # as a base for diffs in the future.
-        echo "==> $1 does not exist. Creating it, assuming no diffs."
-        cp -p "$2" "$1"
-    else
-        echo "==> what changed between $1 and $2:"
-        # first the stats
-        diff -c "$1" "$2" | diffstat -sq \
-            -D $(cd $(dirname "$2") && pwd -P) |
-            sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
-        # then the diffs
-        diff \
-            --unchanged-group-format='' \
-            --old-group-format='==> deleted %dn line%(n=1?:s) at line %df <==
-%<' \
-            --new-group-format='==> added %dN line%(N=1?:s) after line %de <==
-%>' \
-            --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
-%<------ to:
-%>' "$1" "$2"
-        if [ $? == 0 ]; then
-            echo "==> no diffs found"
-        fi
-    fi
-}
-
-# Preserve any possible errors for debugging
-cat >>$POSSIBLE_DIFFS <<EOF
-==> ${0##*/} completed: $(date)
-
-### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_PROGRAMS_SPREADSHEET $PROGRAMS_SPREADSHEET_FILE)
-$(checkdiffs $PUBLISHED_SEASONS_SPREADSHEET $SEASONS_SPREADSHEET_FILE)
-$(checkdiffs $PUBLISHED_EPISODES_SPREADSHEET $EPISODES_SPREADSHEET_FILE)
-$(checkdiffs $PUBLISHED_SEASONS_SORTED_SPREADSHEET $SEASONS_SORTED_SPREADSHEET_FILE)
-$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET_FILE)
-$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET_FILE)
-$(checkdiffs $PUBLISHED_DURATION $DURATION_FILE)
-
-### These counts should not vary much over time
-### if they do, the earlier scraping operation may have failed
-
-==> Number of Movies
-$(countOccurrences "/us/movie/")
-
-==> Number of Shows
-$(countOccurrences "/us/show/")
-
-==> Number of Episodes
-$(countOccurrences "/us/episode/")
-
-### Any funny stuff with file lengths?
-
-$(wc $ALL_SPREADSHEETS)
-
-EOF
-
-if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_INTERMEDIATE
-    rm -f $ALL_SPREADSHEETS
-fi
-
-echo
-echo "==> ${0##*/} completed: $(date)"

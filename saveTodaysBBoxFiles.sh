@@ -31,6 +31,7 @@ mkdir -p $COLUMNS $BASELINE
 cp -p $VERBOSE $COLUMNS/BBoxPrograms-$DATE.csv $BASELINE/BBoxPrograms.txt
 cp -p $VERBOSE $COLUMNS/BBoxSeasons-$DATE.csv $BASELINE/BBoxSeasons.txt
 cp -p $VERBOSE $COLUMNS/BBoxEpisodes-$DATE.csv $BASELINE/BBoxEpisodes.txt
+cp -p $VERBOSE $COLUMNS/BBoxCatalog-$DATE.csv $BASELINE/BBoxCatalog.txt
 cp -p $VERBOSE $COLUMNS/duration-$DATE.csv $BASELINE/duration.txt
 
 cp -p $VERBOSE BBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
