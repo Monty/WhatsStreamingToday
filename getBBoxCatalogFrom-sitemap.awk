@@ -2,9 +2,9 @@
 
 BEGIN {
     # Print header
-    printf ("contentType\tcontentId\tpubDate\ttitle\tEntityId\tgenre\trating\t")
-    printf ("showType\tduration\tdateType\toriginalDate\tshowContentId\tseasonContentId\t")
-    printf ("seasonNumber\tepisodeNumber\tdescription\n")
+    printf ("Content Type\tContent ID\tTitle\tEntity ID\tGenre\tRating\t")
+    printf ("Show Type\tDuration\tDate Type\tOriginal Date\tShow ID\tSeason ID\t")
+    printf ("Sn #\tEp #\tDescription\n")
 }
 
 # Don't process credits
@@ -14,6 +14,12 @@ BEGIN {
 
 # Don't use Canadian ratings
 /<rating systemCode="ca-tv">/ {
+    next
+}
+
+# Don't use pubDate - it's too random to be useful
+# <pubDate>2020-06-05T21:51:00Z</pubDate>
+/<pubDate>/ {
     next
 }
 
@@ -32,7 +38,6 @@ BEGIN {
     # print "contentType = " contentType
     # print "contentId = " contentId
     # Make sure no fields will be carried over due to missing keys
-    pubDate = ""
     title = ""
     EntityId = ""
     genre = ""
@@ -46,16 +51,6 @@ BEGIN {
     seasonNumber = ""
     episodeNumber = ""
     description = ""
-}
-
-# Grab pubDate
-# <pubDate>2020-06-05T21:51:00Z</pubDate>
-/<pubDate>/ {
-    split ($0,fld,"[<>]")
-    pubDate = fld[3]
-    sub (/T/," ",pubDate)
-    sub (/Z/,"",pubDate)
-    # print "pubDate = " pubDate
 }
 
 # Grab title
@@ -171,8 +166,8 @@ BEGIN {
         EntityId = "_23842"
         # print "EntityId = " EntityId
     }
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, \
-            pubDate, title, EntityId, genre, rating, showType, duration, dateType, originalDate, \
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, \
+            title, EntityId, genre, rating, showType, duration, dateType, originalDate, \
             showContentId, seasonContentId, seasonNumber, episodeNumber, description)
 }
 
