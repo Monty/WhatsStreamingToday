@@ -157,15 +157,25 @@ BEGIN {
     next
 }
 
-# Print spacer between items
+# Do any special end of item processing, then print raw data spreadsheet row
 /<\/item>/ {
     if (title == "Shallow Grave") {
         EntityId = "_23576"
-        # print "EntityId = " EntityId
+        # print "==> EntityId = " EntityId
     }
+
+    if (title == "Porridge") {
+        if (EntityId == "_9509")
+            title = "Porridge (1974-1977)"
+        else if (EntityId == "_14747")
+            title = "Porridge (2016-2017)"
+        # print "==> title = " title
+        # print "==> EntityId = " EntityId
+    }
+
     if (contentId == "p07gnw9f") {
         EntityId = "_23842"
-        # print "EntityId = " EntityId
+        # print "==> EntityId = " EntityId
     }
 
     if (contentType == "movie") {
@@ -195,7 +205,3 @@ BEGIN {
 /<item contentType="movie"/,/<\/item>/ {
     # print
 }
-
-# <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;png&apos;&amp;Quality=45&amp;ImageId=&apos;204656&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;23740&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
-# https://www.britbox.com/us/episode/The_Last_Furlong_23740
-# https://www.britbox.com/us/episode/24_Hours_In_Police_Custody_23576
