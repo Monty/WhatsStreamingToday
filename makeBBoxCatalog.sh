@@ -174,6 +174,26 @@ head -4 $SITEMAP_FILE | tail -2 |
 printf "\n---\n"
 printAdjustedFileInfo $CATALOG_SPREADSHEET_FILE 1
 
+# Shortcut for adding totals to spreadsheets
+function addTotalsToSpreadsheet() {
+    ((lastRow = $(sed -n '$=' $1)))
+    TOTAL="Non-blank values"
+    TOTAL+="\t=COUNTA(B2:B$lastRow)\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
+    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
+    TOTAL+="\t=COUNTA(I2:I$lastRow)\t=COUNTA(J2:J$lastRow)\t=COUNTA(K2:K$lastRow)"
+    TOTAL+="\t=COUNTA(L2:L$lastRow)\t=COUNTA(M2:M$lastRow)\t=COUNTA(N2:N$lastRow)"
+    TOTAL+="\t=COUNTA(O2:O$lastRow)\t=COUNTA(P2:P$lastRow)"
+    printf "$TOTAL\n" >>$1
+    # Number of seasons & episodes not yet implemented
+    # printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+}
+
+# Output spreadsheet footer if totals requested
+if [ "$PRINT_TOTALS" = "yes" ]; then
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET_FILE
+    addTotalsToSpreadsheet $LONG_SPREADSHEET_FILE
+fi
+
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
@@ -258,35 +278,3 @@ if [ "$SUMMARY" = "yes" ]; then
 fi
 
 exit
-
-# Generate _final_ spreadsheets from BritBox "Programmes A-Z" page
-head -1 $PROGRAMS_SPREADSHEET_FILE >$LONG_SPREADSHEET_FILE
-grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -f |
-    tail -r | awk -v ERROR_FILE=$ERROR_FILE -v DURATION_FILE=$DURATION_FILE \
-    -f calculateBBoxDurations.awk | tail -r >>$LONG_SPREADSHEET_FILE
-#
-
-# Add header for possible crosscheck errors between EPISODES and SEASONS
-printf "\n### Any shows with 0 episodes in $EPISODES_FILE or mismatched episodes
-### between $SEASONS_FILE and $EPISODES_FILE
-### as computed from $EPISODE_INFO_FILE are listed below.\n\n" >>$ERROR_FILE
-awk -v REPAIR_SHOWS=$REPAIR_SHOWS -f verifyBBoxInfoFrom-webscraper.awk \
-    $EPISODE_INFO_FILE >>$ERROR_FILE
-
-# Shortcut for adding totals to spreadsheets
-function addTotalsToSpreadsheet() {
-    # Grab (the last) totalTime (just in case)
-    totalTime=$(grep : $DURATION_FILE | tail -1)
-    ((lastRow = $(sed -n '$=' $1)))
-    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
-    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
-    printf "$TOTAL\n" >>$1
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime\n" \
-        >>$1
-}
-
-# Output spreadsheet footer if totals requested
-if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET_FILE
-    addTotalsToSpreadsheet $LONG_SPREADSHEET_FILE
-fi
