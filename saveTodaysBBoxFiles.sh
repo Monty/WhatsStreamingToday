@@ -3,6 +3,11 @@
 # -d DATE picks a different date
 # -v does verbose copying
 
+# Make sure we are in the correct directory
+DIRNAME=$(dirname "$0")
+cd $DIRNAME
+
+# Create a timestamp
 DATE="$(date +%y%m%d)"
 
 # Allow user to override DATE
@@ -28,12 +33,12 @@ COLUMNS="BBox-columns"
 BASELINE="BBox-baseline"
 mkdir -p $COLUMNS $BASELINE
 
-cp -p $VERBOSE $COLUMNS/BBoxPrograms-$DATE.csv $BASELINE/BBoxPrograms.txt
-cp -p $VERBOSE $COLUMNS/BBoxSeasons-$DATE.csv $BASELINE/BBoxSeasons.txt
-cp -p $VERBOSE $COLUMNS/BBoxEpisodes-$DATE.csv $BASELINE/BBoxEpisodes.txt
-cp -p $VERBOSE $COLUMNS/BBoxCatalog-$DATE.csv $BASELINE/BBoxCatalog.txt
-cp -p $VERBOSE $COLUMNS/duration-$DATE.csv $BASELINE/duration.txt
+cp -p $VERBOSE $COLUMNS/BBoxCatalog-$DATE.csv $BASELINE/BBoxCatalog.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/BBoxPrograms-$DATE.csv $BASELINE/BBoxPrograms.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/BBoxEpisodes-$DATE.csv $BASELINE/BBoxEpisodes.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/BBoxSeasons-$DATE.csv $BASELINE/BBoxSeasons.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/BBoxMovies-$DATE.csv $BASELINE/BBoxMovies.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/duration-$DATE.csv $BASELINE/duration.txt 2>/dev/null
 
 cp -p $VERBOSE BBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
 cp -p $VERBOSE BBox_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
-cp -p $VERBOSE BBoxSeasons-sorted-$DATE.csv $BASELINE/seasons-sorted.txt 2>/dev/null

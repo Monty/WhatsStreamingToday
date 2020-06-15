@@ -88,26 +88,21 @@ SITEMAP_FILE="$COLUMNS/BBox-sitemap$DATE_ID.xml"
 # Final output spreadsheets
 SHORT_SPREADSHEET_FILE="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET_FILE="BBox_TV_ShowsEpisodes$DATE_ID.csv"
-SEASONS_SORTED_SPREADSHEET_FILE="BBoxSeasons-sorted$DATE_ID.csv"
 #
 # Error and debugging info (per run)
 POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
 ERROR_FILE="BBox_anomalies$LONGDATE.txt"
 EPISODE_INFO_FILE="BBox_episodeInfo$LONGDATE.txt"
 
-# Intermediate but useful results
-PROGRAMS_SORTED_FILE="$COLUMNS/BBoxPrograms-sorted$DATE_ID.csv"
-EPISODES_SORTED_FILE="$COLUMNS/BBoxEpisodes-sorted$DATE_ID.csv"
-SEASONS_SORTED_FILE="$COLUMNS/BBoxSeasons-sorted$DATE_ID.csv"
-#
+# Intermediate but useful spreadsheet files
+CATALOG_SPREADSHEET_FILE="$COLUMNS/BBoxCatalog$DATE_ID.csv"
 PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BBoxPrograms$DATE_ID.csv"
 EPISODES_SPREADSHEET_FILE="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
 SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons$DATE_ID.csv"
-CATALOG_SPREADSHEET_FILE="$COLUMNS/BBoxCatalog$DATE_ID.csv"
+MOVIES_SPREADSHEET_FILE="$COLUMNS/BBoxMovies$DATE_ID.csv"
 #
 # Intermediate working files
-PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxPrograms$DATE_ID.csv"
-EPISODES_TITLE_FILE="$COLUMNS/uniqTitlesFrom-BBoxEpisodes$DATE_ID.csv"
+PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
 DURATION_FILE="$COLUMNS/duration$DATE_ID.csv"
 TEMP_FILE="/tmp/BBoxTemp-$DATE_ID.csv"
 TEMP_MISSING_FILE="/tmp/BBoxTemp-missing-$DATE_ID.csv"
@@ -115,28 +110,25 @@ TEMP_MISSING_FILE="/tmp/BBoxTemp-missing-$DATE_ID.csv"
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes$ALT_ID.txt"
-PUBLISHED_SEASONS_SORTED_SPREADSHEET="$BASELINE/seasons-sorted$ALT_ID.txt"
 #
+PUBLISHED_CATALOG_SPREADSHEET="$BASELINE/BBoxCatalog$ALT_ID.txt"
 PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms$ALT_ID.txt"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes$ALT_ID.txt"
 PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
-PUBLISHED_CATALOG_SPREADSHEET="$BASELINE/BBoxCatalog$ALT_ID.txt"
+PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies$ALT_ID.txt"
 #
 PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
 
 # Gather filenames that can be used for cleanup
-ALL_INTERMEDIATE="$PROGRAMS_SORTED_FILE $EPISODES_SORTED_FILE $SEASONS_SORTED_FILE "
-ALL_INTERMEDIATE+="$PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE $DURATION_FILE "
-ALL_INTERMEDIATE+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
+ALL_WORKING="$PROGRAMS_TITLE_FILE $DURATION_FILE $TEMP_FILE $TEMP_MISSING_FILE"
 #
-# ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE $SEASONS_SORTED_SPREADSHEET_FILE "
-# ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE"
-# ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET_FILE"
-ALL_SPREADSHEETS="$CATALOG_SPREADSHEET_FILE"
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE "
+ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE "
+ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $MOVIES_SPREADSHEET_FILE "
 
 # Cleanup any possible leftover files
-rm -f $TEMP_FILE $TEMP_MISSING_FILE $DURATION_FILE $SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE \
-    $PROGRAMS_SPREADSHEET_FILE $SEASONS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE $CATALOG_SPREADSHEET_FILE
+rm -f $ALL_WORKING
+rm -f $ALL_SPREADSHEETS
 
 # Grab the XML file and get rid of Windows CRs
 # Unless we already have one from today
@@ -147,8 +139,20 @@ else
     printf "==> using existing $SITEMAP_FILE\n"
 fi
 
-# Make a spreadsheet of all catalog fields
+# Make unsorted spreadsheet of all catalog fields
 awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET_FILE
+#
+# Make final sorted spreadsheet of all catalog fields
+head -1 $CATALOG_SPREADSHEET_FILE >$LONG_SPREADSHEET_FILE
+tail -n +2 $CATALOG_SPREADSHEET_FILE | sort -u >>$LONG_SPREADSHEET_FILE
+
+# Generate other spreadsheet files
+grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET_FILE >$PROGRAMS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET_FILE >$EPISODES_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET_FILE >$MOVIES_SPREADSHEET_FILE
+grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 4 | sort -u >$PROGRAMS_TITLE_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -173,7 +177,7 @@ printAdjustedFileInfo $CATALOG_SPREADSHEET_FILE 1
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_INTERMEDIATE
+        rm -f $ALL_WORKING
         rm -f $ALL_SPREADSHEETS
     fi
     exit
@@ -221,6 +225,9 @@ function checkdiffs() {
 cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
+### Any duplicate titles?
+$(grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 4 | uniq -d)
+
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET_FILE)
 
@@ -246,63 +253,11 @@ $(wc $ALL_SPREADSHEETS)
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_INTERMEDIATE
+    rm -f $ALL_WORKING
     rm -f $ALL_SPREADSHEETS
 fi
 
 exit
-
-# Generate title files
-grep '/us/' $PROGRAMS_SORTED_FILE | cut -f 2 -d $'\t' | sort -u >$PROGRAMS_TITLE_FILE
-grep '/us/' $EPISODES_SORTED_FILE | cut -f 5 -d $'\t' | sort -u >$EPISODES_TITLE_FILE
-
-# Print header for verifying episodes across webscraper downloads
-# Also prints badEpisodes to TEMP_MISSING_FILE which is used later on
-printf "### Information on number of episodes and seasons is listed below.\n\n" >$EPISODE_INFO_FILE
-#
-awk -v EPISODES_SORTED_FILE=$EPISODES_SORTED_FILE -v SEASONS_SORTED_FILE=$SEASONS_SORTED_FILE \
-    -v TEMP_FILE=$TEMP_MISSING_FILE -f verifyBBoxDownloadsFrom-webscraper.awk $PROGRAMS_SORTED_FILE \
-    >>$EPISODE_INFO_FILE
-
-# Generate _initial_ spreadsheets from BritBox "Programmes A-Z" page
-# Print header about info obtained during processing of shows
-printf "### Possible anomalies from processing series are listed below.\n\n" >$ERROR_FILE
-awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f getBBoxProgramsFrom-webscraper.awk $PROGRAMS_SORTED_FILE >$PROGRAMS_SPREADSHEET_FILE
-printf "\n### Possible anomalies from processing episodes are listed below.\n\n" >>$ERROR_FILE
-awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f getBBoxEpisodesFrom-webscraper.awk $EPISODES_SORTED_FILE >$EPISODES_SPREADSHEET_FILE
-printf "\n### Possible anomalies from processing seasons are listed below.\n\n" >>$ERROR_FILE
-awk -v EPISODE_INFO_FILE=$EPISODE_INFO_FILE -v ERROR_FILE=$ERROR_FILE \
-    -f getBBoxSeasonsFrom-webscraper.awk $SEASONS_SORTED_FILE >$SEASONS_SPREADSHEET_FILE
-
-# Check for missing titles
-printf "In makeBBoxSpreadsheet.sh\n" >&2
-missingTitles=$(comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -n '$=')
-if [ "$missingTitles" != "" ]; then
-    field="title"
-    if [ "$missingTitles" != 1 ]; then
-        field="titles"
-    fi
-    printf "    %2d missing %s in $EPISODES_SORTED_FILE\n" "$missingTitles" "$field" >&2
-    # Print header for missing episode errors
-    printf "\n### Missing titles in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
-    comm -23 $PROGRAMS_TITLE_FILE $EPISODES_TITLE_FILE | sed -e 's/^/    /' >>$ERROR_FILE
-fi
-
-# badEpisodes were saved in TEMP_MISSING_FILE, if there were none, TEMP_MISSING_FILE won't exist
-if [ -e "$TEMP_MISSING_FILE" ]; then
-    # Print header for possible errors that occur during processing
-    printf "\n### Missing programs in $EPISODES_SORTED_FILE are listed below.\n\n" >>$ERROR_FILE
-    sort -df $TEMP_MISSING_FILE >>$ERROR_FILE
-    rm -f $TEMP_MISSING_FILE
-fi
-
-# Temporarily save a sorted "seasons file" for easier debugging.
-# Don't sort header line, keep it at the top of the spreadsheet
-# The only difference between the two is the sort order
-head -1 $SEASONS_SPREADSHEET_FILE >$SEASONS_SORTED_SPREADSHEET_FILE
-grep -hv ^Sortkey $SEASONS_SPREADSHEET_FILE | sort -f >>$SEASONS_SORTED_SPREADSHEET_FILE
 
 # Generate _final_ spreadsheets from BritBox "Programmes A-Z" page
 head -1 $PROGRAMS_SPREADSHEET_FILE >$LONG_SPREADSHEET_FILE
@@ -310,7 +265,6 @@ grep -hv ^Sortkey $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE | sort -
     tail -r | awk -v ERROR_FILE=$ERROR_FILE -v DURATION_FILE=$DURATION_FILE \
     -f calculateBBoxDurations.awk | tail -r >>$LONG_SPREADSHEET_FILE
 #
-grep -v ' (2) ' $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
 
 # Add header for possible crosscheck errors between EPISODES and SEASONS
 printf "\n### Any shows with 0 episodes in $EPISODES_FILE or mismatched episodes
