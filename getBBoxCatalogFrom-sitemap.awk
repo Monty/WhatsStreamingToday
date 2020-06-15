@@ -173,6 +173,15 @@ BEGIN {
         # print "==> EntityId = " EntityId
     }
 
+    if (title == "A Midsummer Night's Dream") {
+        if (EntityId == "_26179")
+            title = "A Midsummer Night's Dream (1981)"
+        else if (EntityId == "_15999")
+            title = "A Midsummer Night's Dream (2016)"
+        # print "==> title = " title
+        # print "==> EntityId = " EntityId
+    }
+
     if (contentId == "p07gnw9f") {
         EntityId = "_23842"
         # print "==> EntityId = " EntityId
