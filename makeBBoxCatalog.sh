@@ -102,8 +102,8 @@ SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons$DATE_ID.csv"
 MOVIES_SPREADSHEET_FILE="$COLUMNS/BBoxMovies$DATE_ID.csv"
 #
 # Intermediate working files
-PROGRAMS_TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
-DURATION_FILE="$COLUMNS/duration$DATE_ID.csv"
+TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
+DURATION_FILE="$COLUMNS/durations$DATE_ID.csv"
 TEMP_FILE="/tmp/BBoxTemp-$DATE_ID.csv"
 TEMP_MISSING_FILE="/tmp/BBoxTemp-missing-$DATE_ID.csv"
 
@@ -117,10 +117,11 @@ PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes$ALT_ID.txt"
 PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies$ALT_ID.txt"
 #
-PUBLISHED_DURATION="$BASELINE/duration$ALT_ID.txt"
+PUBLISHED_TITLE_FILE="$BASELINE/uniqTitles$ALT_ID.txt"
+PUBLISHED_DURATION_FILE="$BASELINE/durations$ALT_ID.txt"
 
 # Gather filenames that can be used for cleanup
-ALL_WORKING="$PROGRAMS_TITLE_FILE $DURATION_FILE $TEMP_FILE $TEMP_MISSING_FILE"
+ALL_WORKING="$TITLE_FILE $DURATION_FILE $TEMP_FILE $TEMP_MISSING_FILE"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE "
 ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE "
@@ -152,7 +153,7 @@ grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET_FILE >$PROGRAMS_SPREADSHEET_FI
 grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET_FILE >$EPISODES_SPREADSHEET_FILE
 grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET_FILE >$MOVIES_SPREADSHEET_FILE
-grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 4 | sort -u >$PROGRAMS_TITLE_FILE
+grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 4 | sort -u >$TITLE_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -249,6 +250,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 4 | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
+$(checkdiffs $PUBLISHED_TITLE_FILE $TITLE_FILE)
 $(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET_FILE)
 
 ### These counts should not vary significantly over time

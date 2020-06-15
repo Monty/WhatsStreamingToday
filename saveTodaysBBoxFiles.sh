@@ -38,7 +38,8 @@ cp -p $VERBOSE $COLUMNS/BBoxPrograms-$DATE.csv $BASELINE/BBoxPrograms.txt 2>/dev
 cp -p $VERBOSE $COLUMNS/BBoxEpisodes-$DATE.csv $BASELINE/BBoxEpisodes.txt 2>/dev/null
 cp -p $VERBOSE $COLUMNS/BBoxSeasons-$DATE.csv $BASELINE/BBoxSeasons.txt 2>/dev/null
 cp -p $VERBOSE $COLUMNS/BBoxMovies-$DATE.csv $BASELINE/BBoxMovies.txt 2>/dev/null
-cp -p $VERBOSE $COLUMNS/duration-$DATE.csv $BASELINE/duration.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/uniqTitles-$DATE.csv $BASELINE/uniqTitles.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/durations-$DATE.csv $BASELINE/durations.txt 2>/dev/null
 
 cp -p $VERBOSE BBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
 cp -p $VERBOSE BBox_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
