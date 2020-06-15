@@ -2,7 +2,7 @@
 
 BEGIN {
     # Print header
-    printf ("Content Type\tContent ID\tTitle\tEntity ID\tGenre\tRating\t")
+    printf ("Sortkey\tContent Type\tContent ID\tTitle\tEntity ID\tGenre\tRating\t")
     printf ("Show Type\tDuration\tDate Type\tOriginal Date\tShow ID\tSeason ID\t")
     printf ("Sn #\tEp #\tDescription\n")
 }
@@ -38,6 +38,7 @@ BEGIN {
     # print "contentType = " contentType
     # print "contentId = " contentId
     # Make sure no fields will be carried over due to missing keys
+    sortkey = ""
     title = ""
     EntityId = ""
     genre = ""
@@ -166,8 +167,26 @@ BEGIN {
         EntityId = "_23842"
         # print "EntityId = " EntityId
     }
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", contentType, contentId, \
-            title, EntityId, genre, rating, showType, duration, dateType, originalDate, \
+
+    if (contentType == "movie") {
+        sortkey = sprintf ("%s (1) %s M%s", title, originalDate, EntityId)
+    }
+
+    if (contentType == "tv_show") {
+        showTitle = title
+        sortkey = sprintf ("%s (1) %s S%s", title, originalDate, EntityId)
+    }
+
+    if (contentType == "tv_season") {
+        sortkey = sprintf ("%s (2) %s S%02d", showTitle, originalDate, seasonNumber)
+    }
+
+    if (contentType == "tv_episode") {
+        sortkey = sprintf ("%s (2) %s S%02dE%03d", showTitle, originalDate, seasonNumber, episodeNumber)
+    }
+
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", sortkey, contentType, \
+            contentId, title, EntityId, genre, rating, showType, duration, dateType, originalDate, \
             showContentId, seasonContentId, seasonNumber, episodeNumber, description)
 }
 
