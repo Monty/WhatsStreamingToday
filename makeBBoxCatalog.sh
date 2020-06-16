@@ -63,11 +63,14 @@ if ! curl -o /dev/null -Isf $SITEMAP_URL; then
     exit 1
 fi
 
+# Map of columns returned by getBBoxCatalogFrom-sitemap.awk
+spreadsheet_columns="1-9"
+title_column="2"
+
+# Required subdirectories
 COLUMNS="BBox-columns"
 BASELINE="BBox-baseline"
-SCRAPES="BBox-scrapes"
-
-mkdir -p $COLUMNS $BASELINE $SCRAPES
+mkdir -p $COLUMNS $BASELINE
 
 # File names are used in saveTodaysBBoxFiles.sh
 # so if you change them here, change them there as well
@@ -148,13 +151,14 @@ head -1 $CATALOG_SPREADSHEET_FILE >$TEMP_FILE
 tail -n +2 $CATALOG_SPREADSHEET_FILE | sort -u >>$TEMP_FILE
 
 # Generate spreadsheet files
-cut -f 1-8 $TEMP_FILE >$LONG_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $TEMP_FILE | cut -f 1-8 >$SHORT_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_show" $TEMP_FILE | cut -f 1-8 >$PROGRAMS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_season" $TEMP_FILE | cut -f 1-8 >$SEASONS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_episode" $TEMP_FILE | cut -f 1-8 >$EPISODES_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_movie" $TEMP_FILE | cut -f 1-8 >$MOVIES_SPREADSHEET_FILE
-grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 2 | sort -u >$TITLE_FILE
+cut -f $spreadsheet_columns $TEMP_FILE >$LONG_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $TEMP_FILE |
+    cut -f $spreadsheet_columns >$SHORT_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_show" $TEMP_FILE | cut -f $spreadsheet_columns >$PROGRAMS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_season" $TEMP_FILE | cut -f $spreadsheet_columns >$SEASONS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_episode" $TEMP_FILE | cut -f $spreadsheet_columns >$EPISODES_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_movie" $TEMP_FILE | cut -f $spreadsheet_columns >$MOVIES_SPREADSHEET_FILE
+grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f $title_column | sort -u >$TITLE_FILE
 
 # Don't need the sorted file with all fields anymore
 rm -f $TEMP_FILE
@@ -248,7 +252,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
-$(grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 2 | uniq -d)
+$(grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f $title_column | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_TITLE_FILE $TITLE_FILE)
