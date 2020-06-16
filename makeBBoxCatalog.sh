@@ -91,15 +91,15 @@ ERROR_FILE="BBox_anomalies$LONGDATE.txt"
 SITEMAP_FILE="$COLUMNS/BBox-sitemap$DATE_ID.xml"
 
 # Final output spreadsheets
-SHORT_SPREADSHEET_FILE="BBox_TV_Shows$DATE_ID.csv"
-LONG_SPREADSHEET_FILE="BBox_TV_ShowsEpisodes$DATE_ID.csv"
+SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
+LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Intermediate but useful spreadsheet files
-CATALOG_SPREADSHEET_FILE="$COLUMNS/BBoxCatalog$DATE_ID.csv"
-PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BBoxPrograms$DATE_ID.csv"
-EPISODES_SPREADSHEET_FILE="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
-SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons$DATE_ID.csv"
-MOVIES_SPREADSHEET_FILE="$COLUMNS/BBoxMovies$DATE_ID.csv"
+CATALOG_SPREADSHEET="$COLUMNS/BBoxCatalog$DATE_ID.csv"
+PROGRAMS_SPREADSHEET="$COLUMNS/BBoxPrograms$DATE_ID.csv"
+EPISODES_SPREADSHEET="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
+SEASONS_SPREADSHEET="$COLUMNS/BBoxSeasons$DATE_ID.csv"
+MOVIES_SPREADSHEET="$COLUMNS/BBoxMovies$DATE_ID.csv"
 
 # Intermediate working files
 TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
@@ -121,9 +121,9 @@ PUBLISHED_DURATION_FILE="$BASELINE/durations$ALT_ID.txt"
 # Filename groups used for cleanup
 ALL_WORKING="$TITLE_FILE $DURATION_FILE "
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE "
-ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE "
-ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET_FILE $MOVIES_SPREADSHEET_FILE "
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
+ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $PROGRAMS_SPREADSHEET $EPISODES_SPREADSHEET "
+ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $MOVIES_SPREADSHEET "
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING
@@ -139,20 +139,20 @@ else
 fi
 
 # Make unsorted spreadsheet of all catalog fields
-awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET_FILE
+awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
 
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
-head -1 $CATALOG_SPREADSHEET_FILE | cut -f $spreadsheet_columns >$LONG_SPREADSHEET_FILE
-tail -n +2 $CATALOG_SPREADSHEET_FILE | cut -f $spreadsheet_columns | sort -u >>$LONG_SPREADSHEET_FILE
+head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
+tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -u >>$LONG_SPREADSHEET
 
 # Generate final spreadsheets
-grep -e "^Sortkey" -e "movie$" -e "tv_show" $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET_FILE >$PROGRAMS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET_FILE >$EPISODES_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "movie$" $LONG_SPREADSHEET_FILE >$MOVIES_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "movie$" -e "tv_show" $LONG_SPREADSHEET >$SHORT_SPREADSHEET
+grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
+grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
+grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
+grep -e "^Sortkey" -e "movie$" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
 #
-grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f $title_column | sort -u >$TITLE_FILE
+grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $title_column | sort -u >$TITLE_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -172,7 +172,7 @@ head -4 $SITEMAP_FILE | tail -2 |
     awk -F"[<>]" '{printf ("    %s: %s", $2, $3)}'
 #
 printf "\n---\n"
-printAdjustedFileInfo $CATALOG_SPREADSHEET_FILE 1
+printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
@@ -187,8 +187,8 @@ function addTotalsToSpreadsheet() {
 
 # Output spreadsheet footer if totals requested
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET_FILE
-    addTotalsToSpreadsheet $LONG_SPREADSHEET_FILE
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET
+    addTotalsToSpreadsheet $LONG_SPREADSHEET
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -243,11 +243,11 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
-$(grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f $title_column | uniq -d)
+$(grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $title_column | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_TITLE_FILE $TITLE_FILE)
-$(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET_FILE)
+$(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET)
 
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.
