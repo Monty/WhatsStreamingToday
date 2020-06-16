@@ -2,9 +2,9 @@
 
 BEGIN {
     # Print header
-    printf ("Sortkey\tContent Type\tContent ID\tTitle\tEntity ID\tGenre\tRating\t")
-    printf ("Show Type\tDuration\tDate Type\tOriginal Date\tShow ID\tSeason ID\t")
-    printf ("Sn #\tEp #\tDescription\n")
+    printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription\t")
+    printf ("Content Type\tContent ID\tEntity ID\tGenre\tShow Type\tDate Type\tOriginal Date\t")
+    printf ("Show ID\tSeason ID\tSn #\tEp #\n")
 }
 
 # Don't process credits
@@ -52,6 +52,11 @@ BEGIN {
     seasonNumber = ""
     episodeNumber = ""
     description = ""
+    # Generated fields
+    years = ""
+    # New fields that haven't been created yet
+    numSeasons = 111
+    numEpisodes = 222
 }
 
 # Grab title
@@ -111,8 +116,10 @@ BEGIN {
     dateType = fld[2]
     sub (/original/,"",dateType)
     originalDate = fld[3]
+    years = substr (originalDate,1,4)
     # print "dateType = " dateType
     # print "originalDate = " originalDate
+    # print "years = " years
 }
 
 # Grab showContentId
@@ -193,20 +200,27 @@ BEGIN {
 
     if (contentType == "tv_show") {
         showTitle = title
-        sortkey = sprintf ("%s (1) %s S%s", title, originalDate, EntityId)
+        sortkey = sprintf ("%s (1) S%s", title, EntityId)
     }
 
     if (contentType == "tv_season") {
-        sortkey = sprintf ("%s (2) %s S%02d", showTitle, originalDate, seasonNumber)
+        sortkey = sprintf ("%s (2) S%02d", showTitle, seasonNumber)
     }
 
     if (contentType == "tv_episode") {
-        sortkey = sprintf ("%s (2) %s S%02dE%03d", showTitle, originalDate, seasonNumber, episodeNumber)
+        sortkey = sprintf ("%s (2) S%02dE%03d %s", showTitle, seasonNumber, \
+                episodeNumber, showContentId)
     }
+    
+    # Copied from printing header to make it easier to coordinate arranging fields
+    # printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription\t")
+    # printf ("Content Type\tContent ID\tEntity ID\tGenre\tShow Type\tDate Type\tOriginal Date\t")
+    # printf ("Show ID\tSeason ID\tSn #\tEp #\n")
 
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", sortkey, contentType, \
-            contentId, title, EntityId, genre, rating, showType, duration, dateType, originalDate, \
-            showContentId, seasonContentId, seasonNumber, episodeNumber, description)
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", \
+            sortkey, title, numSeasons, numEpisodes, duration, years, rating, description, \
+            contentType, contentId, EntityId, genre, showType, dateType, originalDate, \
+            showContentId, seasonContentId, seasonNumber, episodeNumber)
 }
 
 # <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
