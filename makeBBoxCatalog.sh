@@ -178,8 +178,9 @@ printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 function addTotalsToSpreadsheet() {
     ((lastRow = $(sed -n '$=' $1)))
     TOTAL="\tNon-blank values"
-    TOTAL+="\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
-    TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
+    for x in {C..I}; do
+        TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
+    done
     printf "$TOTAL\n" >>$1
     # Number of seasons & episodes not yet implemented
     printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
