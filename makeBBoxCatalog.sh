@@ -138,8 +138,11 @@ else
     printf "==> using existing $SITEMAP_FILE\n"
 fi
 
+# Print header for error file
+printf "### Possible anomalies from processing sitemap are listed below.\n\n" >$ERROR_FILE
+
 # Make unsorted spreadsheet of all catalog fields
-awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
+awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
 
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
 head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
