@@ -104,8 +104,8 @@ MOVIES_SPREADSHEET_FILE="$COLUMNS/BBoxMovies$DATE_ID.csv"
 # Intermediate working files
 TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
 DURATION_FILE="$COLUMNS/durations$DATE_ID.csv"
-TEMP_FILE="/tmp/BBoxTemp-$DATE_ID.csv"
-TEMP_MISSING_FILE="/tmp/BBoxTemp-missing-$DATE_ID.csv"
+TEMP_FILE="/tmp/BBoxTemp$DATE_ID.csv"
+TEMP_MISSING_FILE="/tmp/BBoxTemp-missing$DATE_ID.csv"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
@@ -143,17 +143,21 @@ fi
 # Make unsorted spreadsheet of all catalog fields
 awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET_FILE
 #
-# Make final sorted spreadsheet of all catalog fields
-head -1 $CATALOG_SPREADSHEET_FILE >$LONG_SPREADSHEET_FILE
-tail -n +2 $CATALOG_SPREADSHEET_FILE | sort -u >>$LONG_SPREADSHEET_FILE
+# Make sorted spreadsheet of all catalog fields
+head -1 $CATALOG_SPREADSHEET_FILE >$TEMP_FILE
+tail -n +2 $CATALOG_SPREADSHEET_FILE | sort -u >>$TEMP_FILE
 
-# Generate other spreadsheet files
-grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET_FILE >$PROGRAMS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET_FILE >$EPISODES_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET_FILE >$MOVIES_SPREADSHEET_FILE
-grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 4 | sort -u >$TITLE_FILE
+# Generate spreadsheet files
+cut -f 1-8 $TEMP_FILE >$LONG_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $TEMP_FILE | cut -f 1-8 >$SHORT_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_show" $TEMP_FILE | cut -f 1-8 >$PROGRAMS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_season" $TEMP_FILE | cut -f 1-8 >$SEASONS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_episode" $TEMP_FILE | cut -f 1-8 >$EPISODES_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_movie" $TEMP_FILE | cut -f 1-8 >$MOVIES_SPREADSHEET_FILE
+grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 2 | sort -u >$TITLE_FILE
+
+# Don't need the sorted file with all fields anymore
+rm -f $TEMP_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -178,15 +182,12 @@ printAdjustedFileInfo $CATALOG_SPREADSHEET_FILE 1
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
     ((lastRow = $(sed -n '$=' $1)))
-    TOTAL="Non-blank values"
-    TOTAL+="\t=COUNTA(B2:B$lastRow)\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
+    TOTAL="\tNon-blank values"
+    TOTAL+="\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
     TOTAL+="\t=COUNTA(F2:F$lastRow)\t=COUNTA(G2:G$lastRow)\t=COUNTA(H2:H$lastRow)"
-    TOTAL+="\t=COUNTA(I2:I$lastRow)\t=COUNTA(J2:J$lastRow)\t=COUNTA(K2:K$lastRow)"
-    TOTAL+="\t=COUNTA(L2:L$lastRow)\t=COUNTA(M2:M$lastRow)\t=COUNTA(N2:N$lastRow)"
-    TOTAL+="\t=COUNTA(O2:O$lastRow)\t=COUNTA(P2:P$lastRow)"
     printf "$TOTAL\n" >>$1
     # Number of seasons & episodes not yet implemented
-    # printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
 }
 
 # Output spreadsheet footer if totals requested
@@ -247,7 +248,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
-$(grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 4 | uniq -d)
+$(grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f 2 | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_TITLE_FILE $TITLE_FILE)
