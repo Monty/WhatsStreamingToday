@@ -5,7 +5,6 @@
 trap cleanup INT
 #
 function cleanup() {
-    rm -f $TEMP_FILE $TEMP_MISSING_FILE
     printf "\n"
     exit 130
 }
@@ -84,18 +83,16 @@ mkdir -p $COLUMNS $BASELINE
 #   be any string.
 # Error and debugging files always have a LONGDATE of the execution time inserted.
 
-#
-# XML Files to process
-SITEMAP_FILE="$COLUMNS/BBox-sitemap$DATE_ID.xml"
-#
-# Final output spreadsheets
-SHORT_SPREADSHEET_FILE="BBox_TV_Shows$DATE_ID.csv"
-LONG_SPREADSHEET_FILE="BBox_TV_ShowsEpisodes$DATE_ID.csv"
-#
 # Error and debugging info (per run)
 POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
 ERROR_FILE="BBox_anomalies$LONGDATE.txt"
-EPISODE_INFO_FILE="BBox_episodeInfo$LONGDATE.txt"
+
+# Downloaded XML file to process
+SITEMAP_FILE="$COLUMNS/BBox-sitemap$DATE_ID.xml"
+
+# Final output spreadsheets
+SHORT_SPREADSHEET_FILE="BBox_TV_Shows$DATE_ID.csv"
+LONG_SPREADSHEET_FILE="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Intermediate but useful spreadsheet files
 CATALOG_SPREADSHEET_FILE="$COLUMNS/BBoxCatalog$DATE_ID.csv"
@@ -103,12 +100,10 @@ PROGRAMS_SPREADSHEET_FILE="$COLUMNS/BBoxPrograms$DATE_ID.csv"
 EPISODES_SPREADSHEET_FILE="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
 SEASONS_SPREADSHEET_FILE="$COLUMNS/BBoxSeasons$DATE_ID.csv"
 MOVIES_SPREADSHEET_FILE="$COLUMNS/BBoxMovies$DATE_ID.csv"
-#
+
 # Intermediate working files
 TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
 DURATION_FILE="$COLUMNS/durations$DATE_ID.csv"
-TEMP_FILE="/tmp/BBoxTemp$DATE_ID.csv"
-TEMP_MISSING_FILE="/tmp/BBoxTemp-missing$DATE_ID.csv"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
@@ -123,8 +118,8 @@ PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies$ALT_ID.txt"
 PUBLISHED_TITLE_FILE="$BASELINE/uniqTitles$ALT_ID.txt"
 PUBLISHED_DURATION_FILE="$BASELINE/durations$ALT_ID.txt"
 
-# Gather filenames that can be used for cleanup
-ALL_WORKING="$TITLE_FILE $DURATION_FILE $TEMP_FILE $TEMP_MISSING_FILE"
+# Filename groups used for cleanup
+ALL_WORKING="$TITLE_FILE $DURATION_FILE "
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET_FILE $LONG_SPREADSHEET_FILE "
 ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET_FILE $PROGRAMS_SPREADSHEET_FILE $EPISODES_SPREADSHEET_FILE "
@@ -145,23 +140,19 @@ fi
 
 # Make unsorted spreadsheet of all catalog fields
 awk -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET_FILE
+
+# Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
+head -1 $CATALOG_SPREADSHEET_FILE | cut -f $spreadsheet_columns >$LONG_SPREADSHEET_FILE
+tail -n +2 $CATALOG_SPREADSHEET_FILE | cut -f $spreadsheet_columns | sort -u >>$LONG_SPREADSHEET_FILE
+
+# Generate final spreadsheets
+grep -e "^Sortkey" -e "movie$" -e "tv_show" $LONG_SPREADSHEET_FILE >$SHORT_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET_FILE >$PROGRAMS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET_FILE >$SEASONS_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET_FILE >$EPISODES_SPREADSHEET_FILE
+grep -e "^Sortkey" -e "movie$" $LONG_SPREADSHEET_FILE >$MOVIES_SPREADSHEET_FILE
 #
-# Make sorted spreadsheet of all catalog fields
-head -1 $CATALOG_SPREADSHEET_FILE >$TEMP_FILE
-tail -n +2 $CATALOG_SPREADSHEET_FILE | sort -u >>$TEMP_FILE
-
-# Generate spreadsheet files
-cut -f $spreadsheet_columns $TEMP_FILE >$LONG_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $TEMP_FILE |
-    cut -f $spreadsheet_columns >$SHORT_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_show" $TEMP_FILE | cut -f $spreadsheet_columns >$PROGRAMS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_season" $TEMP_FILE | cut -f $spreadsheet_columns >$SEASONS_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_episode" $TEMP_FILE | cut -f $spreadsheet_columns >$EPISODES_SPREADSHEET_FILE
-grep -e "^Sortkey" -e "tv_movie" $TEMP_FILE | cut -f $spreadsheet_columns >$MOVIES_SPREADSHEET_FILE
 grep -v "^Sortkey" $SHORT_SPREADSHEET_FILE | cut -f $title_column | sort -u >$TITLE_FILE
-
-# Don't need the sorted file with all fields anymore
-rm -f $TEMP_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -262,7 +253,7 @@ $(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET_FILE)
 ### if they do, the earlier download may have failed.
 
 ==> Number of Movies
-$(countOccurrences "tv_movie")
+$(countOccurrences "movie$")
 
 ==> Number of Shows
 $(countOccurrences "tv_show")
