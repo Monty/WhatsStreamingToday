@@ -111,8 +111,14 @@ BEGIN {
 # <duration>3000</duration>
 /<duration>/ {
     split ($0,fld,"[<>]")
-    duration = fld[3]
-    # print "duration = " duration  > "/dev/stderr"
+    seconds = fld[3]
+    secs = seconds % 60
+    mins = int(seconds / 60 % 60)
+    hrs = int(seconds / 3600)
+    duration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+    if (duration == "00:00:00")
+        duration = ""
+    # print "duration = " seconds " seconds = " duration > "/dev/stderr"
 }
 
 # Grab originalDate
