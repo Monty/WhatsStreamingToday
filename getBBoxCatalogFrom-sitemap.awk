@@ -1,8 +1,16 @@
 # Broduce a raw data spreadsheet of fields in BritBox Catalog --  apple_catalogue_feed.xml
 
+# INVOCATION
+#   awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
+
+# Field numbers
+#     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
+#     7 Rating        8 Description     9 Content Type    10 Content ID   11 Entity ID   12 Genre
+#    13 Show Type    14 Date Type      15 Original Date   16 Show ID      16 Season ID   13 Sn #   14 Ep #
+
 BEGIN {
     # Print header
-    printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription\t")
+    printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
     printf ("Content Type\tContent ID\tEntity ID\tGenre\tShow Type\tDate Type\tOriginal Date\t")
     printf ("Show ID\tSeason ID\tSn #\tEp #\n")
 }
@@ -53,7 +61,7 @@ BEGIN {
     episodeNumber = ""
     description = ""
     # Generated fields
-    years = ""
+    year = ""
     # New fields that haven't been created yet
     numSeasons = 111
     numEpisodes = 222
@@ -116,10 +124,10 @@ BEGIN {
     dateType = fld[2]
     sub (/original/,"",dateType)
     originalDate = fld[3]
-    years = substr (originalDate,1,4)
+    year = substr (originalDate,1,4)
     # print "dateType = " dateType
     # print "originalDate = " originalDate
-    # print "years = " years
+    # print "year = " year
 }
 
 # Grab showContentId
@@ -172,19 +180,29 @@ BEGIN {
     }
 
     if (title == "Porridge") {
-        if (EntityId == "_9509")
+        if (EntityId == "_9509") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Porridge (1974-1977)'\n", title) >> ERROR_FILE
             title = "Porridge (1974-1977)"
-        else if (EntityId == "_14747")
+        } else if (EntityId == "_14747") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n", title) >> ERROR_FILE
             title = "Porridge (2016-2017)"
+        }
         # print "==> title = " title
         # print "==> EntityId = " EntityId
     }
 
     if (title == "A Midsummer Night's Dream") {
-        if (EntityId == "_26179")
+        if (EntityId == "_26179") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (1981)'\n", title) >> ERROR_FILE
             title = "A Midsummer Night's Dream (1981)"
-        else if (EntityId == "_15999")
+        } else if (EntityId == "_15999") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (2016)'\n", title) >> ERROR_FILE
             title = "A Midsummer Night's Dream (2016)"
+        }
         # print "==> title = " title
         # print "==> EntityId = " EntityId
     }
@@ -218,7 +236,7 @@ BEGIN {
     # printf ("Show ID\tSeason ID\tSn #\tEp #\n")
 
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", \
-            sortkey, title, numSeasons, numEpisodes, duration, years, rating, description, \
+            sortkey, title, numSeasons, numEpisodes, duration, year, rating, description, \
             contentType, contentId, EntityId, genre, showType, dateType, originalDate, \
             showContentId, seasonContentId, seasonNumber, episodeNumber)
 }
@@ -227,4 +245,12 @@ BEGIN {
 # https://www.britbox.com/us/movie/300_Years_of_French_and_Saunders_16103
 /<item contentType="movie"/,/<\/item>/ {
     # print
+}
+
+END {
+    printf ("In getBBoxCatalogFrom-sitemap.awk\n") > "/dev/stderr"
+    if (revisedTitles > 0 ) {
+        revisedTitles == 1 ? field = "title" : field = "titles"
+        printf ("    %2d %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
+    }
 }
