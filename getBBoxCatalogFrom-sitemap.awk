@@ -43,8 +43,8 @@ BEGIN {
     split ($0,fld,"\"")
     contentType = fld[2]
     contentId = fld[4]
-    # print "contentType = " contentType
-    # print "contentId = " contentId
+    # print "contentType = " contentType  > "/dev/stderr"
+    # print "contentId = " contentId  > "/dev/stderr"
     # Make sure no fields will be carried over due to missing keys
     sortkey = ""
     title = ""
@@ -72,7 +72,7 @@ BEGIN {
 /<title locale="en-US">/ {
     split ($0,fld,"[<>]")
     title = fld[3]
-    # print "title = " title
+    # print "title = " title  > "/dev/stderr"
 }
 
 # Grab genre
@@ -80,7 +80,7 @@ BEGIN {
 /<genre>/ {
     split ($0,fld,"[<>]")
     genre = fld[3]
-    # print "genre = " genre
+    # print "genre = " genre  > "/dev/stderr"
 }
 
 # Grab description
@@ -88,7 +88,7 @@ BEGIN {
 /<description>/ {
     split ($0,fld,"[<>]")
     description = fld[3]
-    # print "description = " description
+    # print "description = " description  > "/dev/stderr"
 }
 
 # Grab rating
@@ -96,7 +96,7 @@ BEGIN {
 /<rating systemCode=/ {
     split ($0,fld,"[<>]")
     rating = fld[3]
-    # print "rating = " rating
+    # print "rating = " rating  > "/dev/stderr"
 }
 
 # Grab type
@@ -104,7 +104,7 @@ BEGIN {
 /<type>/ {
     split ($0,fld,"[<>]")
     showType = fld[3]
-    # print "showType = " showType
+    # print "showType = " showType  > "/dev/stderr"
 }
 
 # Grab duration
@@ -112,7 +112,7 @@ BEGIN {
 /<duration>/ {
     split ($0,fld,"[<>]")
     duration = fld[3]
-    # print "duration = " duration
+    # print "duration = " duration  > "/dev/stderr"
 }
 
 # Grab originalDate
@@ -125,9 +125,9 @@ BEGIN {
     sub (/original/,"",dateType)
     originalDate = fld[3]
     year = substr (originalDate,1,4)
-    # print "dateType = " dateType
-    # print "originalDate = " originalDate
-    # print "year = " year
+    # print "dateType = " dateType  > "/dev/stderr"
+    # print "originalDate = " originalDate  > "/dev/stderr"
+    # print "year = " year  > "/dev/stderr"
 }
 
 # Grab showContentId
@@ -135,7 +135,7 @@ BEGIN {
 /<showContentId>/ {
     split ($0,fld,"[<>]")
     showContentId = fld[3]
-    # print "showContentId = " showContentId
+    # print "showContentId = " showContentId  > "/dev/stderr"
 }
 
 # Grab seasonContentId
@@ -143,7 +143,7 @@ BEGIN {
 /<seasonContentId>/ {
     split ($0,fld,"[<>]")
     seasonContentId = fld[3]
-    # print "seasonContentId = " seasonContentId
+    # print "seasonContentId = " seasonContentId  > "/dev/stderr"
 }
 
 # Grab seasonNumber
@@ -151,7 +151,7 @@ BEGIN {
 /<seasonNumber>/ {
     split ($0,fld,"[<>]")
     seasonNumber = fld[3]
-    # print "seasonNumber = " seasonNumber
+    # print "seasonNumber = " seasonNumber  > "/dev/stderr"
 }
 
 # Grab episodeNumber
@@ -159,7 +159,7 @@ BEGIN {
 /<episodeNumber>/ {
     split ($0,fld,"[<>]")
     episodeNumber = fld[3]
-    # print "episodeNumber = " episodeNumber
+    # print "episodeNumber = " episodeNumber  > "/dev/stderr"
 }
 
 # Grab EntityId from artwork
@@ -168,17 +168,19 @@ BEGIN {
     sub (/.*EntityId=&apos;/,"")
     sub (/&apos.*/,"")
     EntityId = "_" $0
-    # print "EntityId = " EntityId
+    # print "EntityId = " EntityId  > "/dev/stderr"
     next
 }
 
 # Do any special end of item processing, then print raw data spreadsheet row
 /<\/item>/ {
+    # Add missing EntityId
     if (title == "Shallow Grave") {
         EntityId = "_23576"
-        # print "==> EntityId = " EntityId
+        # print "==> EntityId = " EntityId  > "/dev/stderr"
     }
 
+    # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
         if (EntityId == "_9509") {
             revisedTitles += 1
@@ -189,10 +191,13 @@ BEGIN {
             printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n", title) >> ERROR_FILE
             title = "Porridge (2016-2017)"
         }
-        # print "==> title = " title
-        # print "==> EntityId = " EntityId
+        # print "==> title = " title  > "/dev/stderr"
+        # print "==> contentId = " contentId  > "/dev/stderr"
+        # print "==> EntityId = " EntityId  > "/dev/stderr"
+        # print "---"  > "/dev/stderr"
     }
 
+    # "A Midsummer Night's Dream" needs to be revised to avoid duplicate names
     if (title == "A Midsummer Night's Dream") {
         if (EntityId == "_26179") {
             revisedTitles += 1
@@ -203,13 +208,31 @@ BEGIN {
             printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (2016)'\n", title) >> ERROR_FILE
             title = "A Midsummer Night's Dream (2016)"
         }
-        # print "==> title = " title
-        # print "==> EntityId = " EntityId
+        # print "==> title = " title  > "/dev/stderr"
+        # print "==> EntityId = " EntityId  > "/dev/stderr"
+    }
+
+    # "Maigret" needs to be revised to clarify timeframe
+    if (title ~ /^Maigret/ && contentType == "tv_show") {
+        if (EntityId == "_15928") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n", title) >> ERROR_FILE
+            title = "Maigret (1992-1993)"
+        } else if (EntityId == "_15974") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Maigret (2016–2017)'\n", title) >> ERROR_FILE
+            title = "Maigret (2016–2017)"
+        }
+        # print "==> title = " title  > "/dev/stderr"
+        # print "==> originalDate = " originalDate  > "/dev/stderr"
+        # print "==> contentId = " contentId  > "/dev/stderr"
+        # print "==> EntityId = " EntityId  > "/dev/stderr"
+        # print "---"  > "/dev/stderr"
     }
 
     if (contentId == "p07gnw9f") {
         EntityId = "_23842"
-        # print "==> EntityId = " EntityId
+        # print "==> EntityId = " EntityId  > "/dev/stderr"
     }
 
     if (contentType == "movie") {
