@@ -232,11 +232,13 @@ BEGIN {
 
     if (EntityId == "") {
         missingIDs += 1
-        printf ("==> Missing EntityId for %s '%s' in show %s\n", contentType, title, showContentId) \
-                >> ERROR_FILE
+        printf ("==> Missing EntityId for %s %s '%s' in show %s\n", contentType, contentId, title, \
+                showContentId) >> ERROR_FILE
         # Add missing EntityId
         if (contentId == "p07gnw9f") {
             EntityId = "_23842"
+            printf ("==> Added EntityId %s for %s %s '%s' in show %s\n", EntityId, contentType, contentId,
+                    title, showContentId) >> ERROR_FILE
             # print "==> EntityId = " EntityId  > "/dev/stderr"
         }
     }

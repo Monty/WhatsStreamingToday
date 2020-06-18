@@ -139,7 +139,7 @@ else
 fi
 
 # Print header for error file
-printf "### Possible anomalies from processing sitemap are listed below.\n\n" >$ERROR_FILE
+printf "### Possible anomalies from processing the sitemap are listed below.\n\n" >$ERROR_FILE
 
 # Make unsorted spreadsheet of all catalog fields
 awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
