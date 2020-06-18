@@ -6,7 +6,7 @@
 # Field numbers
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
 #     7 Rating        8 Description     9 Content Type    10 Content ID   11 Entity ID   12 Genre
-#    13 Show Type    14 Date Type      15 Original Date   16 Show ID      16 Season ID   13 Sn #   14 Ep #
+#    13 Show Type    14 Date Type      15 Original Date   16 Show ID      17 Season ID   18 Sn #   19 Ep #
 
 BEGIN {
     # Print header
