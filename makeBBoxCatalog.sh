@@ -92,10 +92,10 @@ LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Intermediate but useful spreadsheet files
 CATALOG_SPREADSHEET="$COLUMNS/BBoxCatalog$DATE_ID.csv"
-PROGRAMS_SPREADSHEET="$COLUMNS/BBoxPrograms$DATE_ID.csv"
 EPISODES_SPREADSHEET="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
-SEASONS_SPREADSHEET="$COLUMNS/BBoxSeasons$DATE_ID.csv"
 MOVIES_SPREADSHEET="$COLUMNS/BBoxMovies$DATE_ID.csv"
+PROGRAMS_SPREADSHEET="$COLUMNS/BBoxPrograms$DATE_ID.csv"
+SEASONS_SPREADSHEET="$COLUMNS/BBoxSeasons$DATE_ID.csv"
 
 # Intermediate working files
 TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
@@ -106,10 +106,10 @@ PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes$ALT_ID.txt"
 #
 PUBLISHED_CATALOG_SPREADSHEET="$BASELINE/BBoxCatalog$ALT_ID.txt"
-PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms$ALT_ID.txt"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes$ALT_ID.txt"
-PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies$ALT_ID.txt"
+PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms$ALT_ID.txt"
+PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 #
 PUBLISHED_TITLE_FILE="$BASELINE/uniqTitles$ALT_ID.txt"
 PUBLISHED_DURATION_FILE="$BASELINE/durations$ALT_ID.txt"
@@ -118,8 +118,8 @@ PUBLISHED_DURATION_FILE="$BASELINE/durations$ALT_ID.txt"
 ALL_WORKING="$TITLE_FILE $DURATION_FILE "
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
-ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $PROGRAMS_SPREADSHEET $EPISODES_SPREADSHEET "
-ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $MOVIES_SPREADSHEET "
+ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
+ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET $SEASONS_SPREADSHEET "
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING
@@ -158,10 +158,10 @@ tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -u >>$LONG_
 
 # Generate final spreadsheets
 grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $LONG_SPREADSHEET >$SHORT_SPREADSHEET
-grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
-grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
+grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
+grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
 #
 grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | sort -u >$TITLE_FILE
 
@@ -207,10 +207,10 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET
     addTotalsToSpreadsheet $LONG_SPREADSHEET
     #
-    addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET
     addTotalsToSpreadsheet $EPISODES_SPREADSHEET
-    addTotalsToSpreadsheet $SEASONS_SPREADSHEET
     addTotalsToSpreadsheet $MOVIES_SPREADSHEET
+    addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET
+    addTotalsToSpreadsheet $SEASONS_SPREADSHEET
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -274,17 +274,17 @@ $(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET)
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.
 
+==> Number of Episodes
+$(countOccurrences "tv_episode")
+
 ==> Number of Movies
 $(countOccurrences "tv_movie")
 
-==> Number of Shows
+==> Number of Programs
 $(countOccurrences "tv_show")
 
 ==> Number of Seasons
 $(countOccurrences "tv_season")
-
-==> Number of Episodes
-$(countOccurrences "tv_episode")
 
 ### Any funny stuff with file lengths?
 
