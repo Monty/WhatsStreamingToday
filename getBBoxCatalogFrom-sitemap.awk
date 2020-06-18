@@ -180,12 +180,6 @@ BEGIN {
 
 # Do any special end of item processing, then print raw data spreadsheet row
 /<\/item>/ {
-    # Add missing EntityId
-    if (title == "Shallow Grave") {
-        EntityId = "_23576"
-        # print "==> EntityId = " EntityId  > "/dev/stderr"
-    }
-
     # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
         if (EntityId == "_9509") {
@@ -236,9 +230,15 @@ BEGIN {
         # print "---"  > "/dev/stderr"
     }
 
-    if (contentId == "p07gnw9f") {
-        EntityId = "_23842"
-        # print "==> EntityId = " EntityId  > "/dev/stderr"
+    if (EntityId == "") {
+        missingIDs += 1
+        printf ("==> Missing EntityId for %s '%s' in show %s\n", contentType, title, showContentId) \
+                >> ERROR_FILE
+        # Add missing EntityId
+        if (contentId == "p07gnw9f") {
+            EntityId = "_23842"
+            # print "==> EntityId = " EntityId  > "/dev/stderr"
+        }
     }
 
     if (contentType == "movie") {
@@ -278,6 +278,11 @@ BEGIN {
 
 END {
     printf ("In getBBoxCatalogFrom-sitemap.awk\n") > "/dev/stderr"
+    if (missingIDs > 0 ) {
+        missingIDs == 1 ? field = "EntityId" : field = "EntityIds"
+        printf ("    %2d missing %s in %s\n", missingIDs, field, FILENAME) > "/dev/stderr"
+    }
+    #
     if (revisedTitles > 0 ) {
         revisedTitles == 1 ? field = "title" : field = "titles"
         printf ("    %2d %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
