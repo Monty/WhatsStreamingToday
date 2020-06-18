@@ -244,6 +244,8 @@ BEGIN {
     }
 
     if (contentType == "movie") {
+        # Wish I didn't have to do this, but "movie" is too common to be in a key field
+        contentType = "tv_movie"
         sortkey = sprintf ("%s (1) %s M%s", title, originalDate, EntityId)
     }
 

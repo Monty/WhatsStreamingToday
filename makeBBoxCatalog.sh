@@ -62,10 +62,6 @@ if ! curl -o /dev/null -Isf $SITEMAP_URL; then
     exit 1
 fi
 
-# Map of columns returned by getBBoxCatalogFrom-sitemap.awk
-spreadsheet_columns="1-9"
-title_column="2"
-
 # Required subdirectories
 COLUMNS="BBox-columns"
 BASELINE="BBox-baseline"
@@ -144,18 +140,30 @@ printf "### Possible anomalies from processing the sitemap are listed below.\n\n
 # Make unsorted spreadsheet of all catalog fields
 awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
 
+# Field numbers returned by getBBoxCatalogFrom-sitemap.awk
+#     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
+#     7 Rating        8 Description     9 Content Type    10 Content ID   11 Entity ID   12 Genre
+#    13 Show Type    14 Date Type      15 Original Date   16 Show ID      17 Season ID   18 Sn #   19 Ep #
+#
+if [ "$DEBUG" != "yes" ]; then
+    spreadsheet_columns="1-9"
+else
+    spreadsheet_columns="1-11,16-17"
+fi
+titleCol="2"
+
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
 head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
 tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -u >>$LONG_SPREADSHEET
 
 # Generate final spreadsheets
-grep -e "^Sortkey" -e "movie$" -e "tv_show" $LONG_SPREADSHEET >$SHORT_SPREADSHEET
+grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $LONG_SPREADSHEET >$SHORT_SPREADSHEET
 grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
 grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
-grep -e "^Sortkey" -e "movie$" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
+grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
 #
-grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $title_column | sort -u >$TITLE_FILE
+grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | sort -u >$TITLE_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -179,9 +187,14 @@ printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
+    # Add labels in column B
+    # Add totals formula in remaining columns
+    colNames=BCDEFGHIJKLMNOPQRS
     ((lastRow = $(sed -n '$=' $1)))
+    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 2))
     TOTAL="\tNon-blank values"
-    for x in {C..I}; do
+    for (( i=1; i<=$numCountA; i++ )); do
+        x=${colNames:$i:1}
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
     printf "$TOTAL\n" >>$1
@@ -193,6 +206,11 @@ function addTotalsToSpreadsheet() {
 if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET
     addTotalsToSpreadsheet $LONG_SPREADSHEET
+    #
+    addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET
+    addTotalsToSpreadsheet $EPISODES_SPREADSHEET
+    addTotalsToSpreadsheet $SEASONS_SPREADSHEET
+    addTotalsToSpreadsheet $MOVIES_SPREADSHEET
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -247,7 +265,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
-$(grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $title_column | uniq -d)
+$(grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_TITLE_FILE $TITLE_FILE)
@@ -257,7 +275,7 @@ $(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET)
 ### if they do, the earlier download may have failed.
 
 ==> Number of Movies
-$(countOccurrences "movie$")
+$(countOccurrences "tv_movie")
 
 ==> Number of Shows
 $(countOccurrences "tv_show")
