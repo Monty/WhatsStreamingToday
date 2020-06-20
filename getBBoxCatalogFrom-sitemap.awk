@@ -5,14 +5,15 @@
 
 # Field numbers
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
-#     7 Rating        8 Description     9 Content Type    10 Content ID   11 Entity ID   12 Genre
-#    13 Show Type    14 Date Type      15 Original Date   16 Show ID      17 Season ID   18 Sn #   19 Ep #
+#     7 Rating        8 Description     9 Content_Type    10 Content_ID   11 Entity_ID   12 Genre
+#    13 Show_Type    14 Date_Type      15 Original_Date   16 Show_ID      17 Season_ID   18 Sn_#
+#    19 Ep_#         20 1st_#          21 Last_#
 
 BEGIN {
     # Print header
     printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
-    printf ("Content Type\tContent ID\tEntity ID\tGenre\tShow Type\tDate Type\tOriginal Date\t")
-    printf ("Show ID\tSeason ID\tSn #\tEp #\n")
+    printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
+    printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
 # Don't process credits
@@ -40,6 +41,7 @@ BEGIN {
 # Grab contentType & contentId
 # <item contentType="tv_episode" contentId="p079sxm9">
 /<item contentType="/ {
+    firstLineNum = NR
     split ($0,fld,"\"")
     contentType = fld[2]
     contentId = fld[4]
@@ -180,6 +182,7 @@ BEGIN {
 
 # Do any special end of item processing, then print raw data spreadsheet row
 /<\/item>/ {
+    lastLineNum = NR
     # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
         if (EntityId == "_9509") {
@@ -263,15 +266,15 @@ BEGIN {
                 episodeNumber, showContentId)
     }
     
-    # Copied from printing header to make it easier to coordinate arranging fields
-    # printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear(s)\tRating\tDescription\t")
-    # printf ("Content Type\tContent ID\tEntity ID\tGenre\tShow Type\tDate Type\tOriginal Date\t")
-    # printf ("Show ID\tSeason ID\tSn #\tEp #\n")
+    # Copied from above to make it easier to coordinate printing fields
+    # printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
+    # printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
+    # printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", \
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n", \
             sortkey, title, numSeasons, numEpisodes, duration, year, rating, description, \
             contentType, contentId, EntityId, genre, showType, dateType, originalDate, \
-            showContentId, seasonContentId, seasonNumber, episodeNumber)
+            showContentId, seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
 }
 
 # <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />

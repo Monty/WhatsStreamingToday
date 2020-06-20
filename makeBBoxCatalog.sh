@@ -142,13 +142,15 @@ awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$
 
 # Field numbers returned by getBBoxCatalogFrom-sitemap.awk
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
-#     7 Rating        8 Description     9 Content Type    10 Content ID   11 Entity ID   12 Genre
-#    13 Show Type    14 Date Type      15 Original Date   16 Show ID      17 Season ID   18 Sn #   19 Ep #
-#
+#     7 Rating        8 Description     9 Content_Type    10 Content_ID   11 Entity_ID   12 Genre
+#    13 Show_Type    14 Date_Type      15 Original_Date   16 Show_ID      17 Season_ID   18 Sn_#
+#    19 Ep_#         20 1st_#          21 Last_#
+
+# Pick columns to display
 if [ "$DEBUG" != "yes" ]; then
     spreadsheet_columns="1-9"
 else
-    spreadsheet_columns="1-11,16-17"
+    spreadsheet_columns="1-11,16-17,20-21"
 fi
 titleCol="2"
 
@@ -189,7 +191,7 @@ printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 function addTotalsToSpreadsheet() {
     # Add labels in column B
     # Add totals formula in remaining columns
-    colNames=BCDEFGHIJKLMNOPQRS
+    colNames=BCDEFGHIJKLMNOPQRSTU
     ((lastRow = $(sed -n '$=' $1)))
     ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 2))
     TOTAL="\tNon-blank values"
