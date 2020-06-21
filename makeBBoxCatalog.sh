@@ -156,7 +156,7 @@ titleCol="2"
 
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
 head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
-tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -u >>$LONG_SPREADSHEET
+tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -fu >>$LONG_SPREADSHEET
 
 # Generate final spreadsheets
 grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $LONG_SPREADSHEET >$SHORT_SPREADSHEET
@@ -165,7 +165,7 @@ grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
 grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
 #
-grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | sort -u >$TITLE_FILE
+grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | sort -fu >$TITLE_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
