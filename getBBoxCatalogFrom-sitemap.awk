@@ -14,6 +14,11 @@ BEGIN {
     printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
     printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
     printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
+
+    # For debugging variations in seasons and episodes format
+    str = "date +%y%m%d.%H%M%S"
+    str | getline longDate
+    close str
 }
 
 # Don't process credits
@@ -65,8 +70,8 @@ BEGIN {
     # Generated fields
     year = ""
     # New fields that haven't been created yet
-    numSeasons = 111
-    numEpisodes = 222
+    numSeasons = 101
+    numEpisodes = 202
 }
 
 # Grab title
@@ -177,7 +182,6 @@ BEGIN {
     sub (/&apos.*/,"")
     EntityId = "_" $0
     # print "EntityId = " EntityId  > "/dev/stderr"
-    next
 }
 
 # Do any special end of item processing, then print raw data spreadsheet row
@@ -234,7 +238,7 @@ BEGIN {
     }
 
     if (EntityId == "") {
-        missingIDs += 1
+        missingEntityIds += 1
         printf ("==> Missing EntityId for %s %s '%s' in show %s\n", contentType, contentId, title, \
                 showContentId) >> ERROR_FILE
         # Add missing EntityId
@@ -250,20 +254,50 @@ BEGIN {
         # Wish I didn't have to do this, but "movie" is too common to be in a key field
         contentType = "tv_movie"
         sortkey = sprintf ("%s (1) %s M%s", title, originalDate, EntityId)
+        # print "movie sortkey = " sortkey  > "/dev/stderr"
     }
 
     if (contentType == "tv_show") {
-        showTitle = title
+        # print "\ntv_show" > "/dev/stderr"
+        numShows += 1
+        showArray[numShows] = contentId
+        titleArray[numShows] = title
         sortkey = sprintf ("%s (1) S%s", title, EntityId)
+        # print "sortkey = " sortkey > "/dev/stderr"
     }
 
     if (contentType == "tv_season") {
+        # print "\ntv_season" > "/dev/stderr"
+        for ( i = 1; i <= numShows; i++ ) {
+            if (showArray[i] == showContentId) {
+                showTitle = titleArray[i]
+                break
+            }
+        }
         sortkey = sprintf ("%s (2) S%02d", showTitle, seasonNumber)
+        # print "sortkey = " sortkey  > "/dev/stderr"
+        # Compose title
     }
 
     if (contentType == "tv_episode") {
+        # xxx
+        # print "\ntv_episode" > "/dev/stderr"
+        for ( i = 1; i <= numShows; i++ ) {
+            if (showArray[i] == showContentId) {
+                showTitle = titleArray[i]
+                break
+            }
+        }
+        # Need to check that showContentId was actually found
+        if (showArray[i] != showContentId) {
+            missingShowContentIds += 1
+            printf ("==> Missing showContentId for %s %s '%s' in show %s\n", contentType, contentId, title, \
+                showContentId) >> ERROR_FILE
+        }
         sortkey = sprintf ("%s (2) S%02dE%03d %s", showTitle, seasonNumber, \
                 episodeNumber, showContentId)
+        # print "sortkey = " sortkey  > "/dev/stderr"
+        # Compose title
     }
     
     # Copied from above to make it easier to coordinate printing fields
@@ -277,17 +311,16 @@ BEGIN {
             showContentId, seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
 }
 
-# <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
-# https://www.britbox.com/us/movie/300_Years_of_French_and_Saunders_16103
-/<item contentType="movie"/,/<\/item>/ {
-    # print
-}
-
 END {
     printf ("In getBBoxCatalogFrom-sitemap.awk\n") > "/dev/stderr"
-    if (missingIDs > 0 ) {
-        missingIDs == 1 ? field = "EntityId" : field = "EntityIds"
-        printf ("    %2d missing %s in %s\n", missingIDs, field, FILENAME) > "/dev/stderr"
+    if (missingEntityIds > 0 ) {
+        missingEntityIds == 1 ? field = "EntityId" : field = "EntityIds"
+        printf ("    %2d missing %s in %s\n", missingEntityIds, field, FILENAME) > "/dev/stderr"
+    }
+    #
+    if (missingShowContentIds > 0 ) {
+        missingShowContentIds == 1 ? field = "showContentId" : field = "showContentIds"
+        printf ("    %2d missing %s in %s\n", missingShowContentIds, field, FILENAME) > "/dev/stderr"
     }
     #
     if (revisedTitles > 0 ) {
