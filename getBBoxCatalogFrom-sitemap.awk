@@ -50,8 +50,8 @@ BEGIN {
     split ($0,fld,"\"")
     contentType = fld[2]
     contentId = fld[4]
-    # print "contentType = " contentType  > "/dev/stderr"
-    # print "contentId = " contentId  > "/dev/stderr"
+    # print "contentType = " contentType > "/dev/stderr"
+    # print "contentId = " contentId > "/dev/stderr"
     # Make sure no fields will be carried over due to missing keys
     sortkey = ""
     title = ""
@@ -79,7 +79,7 @@ BEGIN {
 /<title locale="en-US">/ {
     split ($0,fld,"[<>]")
     title = fld[3]
-    # print "title = " title  > "/dev/stderr"
+    # print "title = " title > "/dev/stderr"
 }
 
 # Grab genre
@@ -87,7 +87,7 @@ BEGIN {
 /<genre>/ {
     split ($0,fld,"[<>]")
     genre = fld[3]
-    # print "genre = " genre  > "/dev/stderr"
+    # print "genre = " genre > "/dev/stderr"
 }
 
 # Grab description
@@ -95,7 +95,7 @@ BEGIN {
 /<description>/ {
     split ($0,fld,"[<>]")
     description = fld[3]
-    # print "description = " description  > "/dev/stderr"
+    # print "description = " description > "/dev/stderr"
 }
 
 # Grab rating
@@ -103,7 +103,7 @@ BEGIN {
 /<rating systemCode=/ {
     split ($0,fld,"[<>]")
     rating = fld[3]
-    # print "rating = " rating  > "/dev/stderr"
+    # print "rating = " rating > "/dev/stderr"
 }
 
 # Grab type
@@ -111,7 +111,7 @@ BEGIN {
 /<type>/ {
     split ($0,fld,"[<>]")
     showType = fld[3]
-    # print "showType = " showType  > "/dev/stderr"
+    # print "showType = " showType > "/dev/stderr"
 }
 
 # Grab duration
@@ -138,9 +138,9 @@ BEGIN {
     sub (/original/,"",dateType)
     originalDate = fld[3]
     year = substr (originalDate,1,4)
-    # print "dateType = " dateType  > "/dev/stderr"
-    # print "originalDate = " originalDate  > "/dev/stderr"
-    # print "year = " year  > "/dev/stderr"
+    # print "dateType = " dateType > "/dev/stderr"
+    # print "originalDate = " originalDate > "/dev/stderr"
+    # print "year = " year > "/dev/stderr"
 }
 
 # Grab showContentId
@@ -148,7 +148,7 @@ BEGIN {
 /<showContentId>/ {
     split ($0,fld,"[<>]")
     showContentId = fld[3]
-    # print "showContentId = " showContentId  > "/dev/stderr"
+    # print "showContentId = " showContentId > "/dev/stderr"
 }
 
 # Grab seasonContentId
@@ -156,7 +156,7 @@ BEGIN {
 /<seasonContentId>/ {
     split ($0,fld,"[<>]")
     seasonContentId = fld[3]
-    # print "seasonContentId = " seasonContentId  > "/dev/stderr"
+    # print "seasonContentId = " seasonContentId > "/dev/stderr"
 }
 
 # Grab seasonNumber
@@ -164,7 +164,7 @@ BEGIN {
 /<seasonNumber>/ {
     split ($0,fld,"[<>]")
     seasonNumber = fld[3]
-    # print "seasonNumber = " seasonNumber  > "/dev/stderr"
+    # print "seasonNumber = " seasonNumber > "/dev/stderr"
 }
 
 # Grab episodeNumber
@@ -172,7 +172,7 @@ BEGIN {
 /<episodeNumber>/ {
     split ($0,fld,"[<>]")
     episodeNumber = fld[3]
-    # print "episodeNumber = " episodeNumber  > "/dev/stderr"
+    # print "episodeNumber = " episodeNumber > "/dev/stderr"
 }
 
 # Grab EntityId from artwork
@@ -181,7 +181,7 @@ BEGIN {
     sub (/.*EntityId=&apos;/,"")
     sub (/&apos.*/,"")
     EntityId = "_" $0
-    # print "EntityId = " EntityId  > "/dev/stderr"
+    # print "EntityId = " EntityId > "/dev/stderr"
 }
 
 # Do any special end of item processing, then print raw data spreadsheet row
@@ -198,10 +198,10 @@ BEGIN {
             printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n", title) >> ERROR_FILE
             title = "Porridge (2016-2017)"
         }
-        # print "==> title = " title  > "/dev/stderr"
-        # print "==> contentId = " contentId  > "/dev/stderr"
-        # print "==> EntityId = " EntityId  > "/dev/stderr"
-        # print "---"  > "/dev/stderr"
+        # print "==> title = " title > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
+        # print "==> EntityId = " EntityId > "/dev/stderr"
+        # print "---" > "/dev/stderr"
     }
 
     # "A Midsummer Night's Dream" needs to be revised to avoid duplicate names
@@ -215,8 +215,8 @@ BEGIN {
             printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (2016)'\n", title) >> ERROR_FILE
             title = "A Midsummer Night's Dream (2016)"
         }
-        # print "==> title = " title  > "/dev/stderr"
-        # print "==> EntityId = " EntityId  > "/dev/stderr"
+        # print "==> title = " title > "/dev/stderr"
+        # print "==> EntityId = " EntityId > "/dev/stderr"
     }
 
     # "Maigret" needs to be revised to clarify timeframe
@@ -230,73 +230,86 @@ BEGIN {
             printf ("==> Changed title '%s' to 'Maigret (2016–2017)'\n", title) >> ERROR_FILE
             title = "Maigret (2016–2017)"
         }
-        # print "==> title = " title  > "/dev/stderr"
-        # print "==> originalDate = " originalDate  > "/dev/stderr"
-        # print "==> contentId = " contentId  > "/dev/stderr"
-        # print "==> EntityId = " EntityId  > "/dev/stderr"
-        # print "---"  > "/dev/stderr"
+        # print "==> title = " title > "/dev/stderr"
+        # print "==> originalDate = " originalDate > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
+        # print "==> EntityId = " EntityId > "/dev/stderr"
+        # print "---" > "/dev/stderr"
     }
 
     if (EntityId == "") {
         missingEntityIds += 1
-        printf ("==> Missing EntityId for %s %s '%s' in show %s\n", contentType, contentId, title, \
-                showContentId) >> ERROR_FILE
+        printf ("==> Missing EntityId for %s %s '%s' in show %s at line %d\n", contentType, contentId,
+                title, showContentId, firstLineNum) >> ERROR_FILE
         # Add missing EntityId
         if (contentId == "p07gnw9f") {
             EntityId = "_23842"
             printf ("==> Added EntityId %s for %s %s '%s' in show %s\n", EntityId, contentType, contentId,
                     title, showContentId) >> ERROR_FILE
-            # print "==> EntityId = " EntityId  > "/dev/stderr"
+            # print "==> EntityId = " EntityId > "/dev/stderr"
         }
     }
 
     if (contentType == "movie") {
+        countMovies += 1
+        # print "\ntv_movie" > "/dev/stderr"
         # Wish I didn't have to do this, but "movie" is too common to be in a key field
         contentType = "tv_movie"
         sortkey = sprintf ("%s (1) %s M%s", title, originalDate, EntityId)
-        # print "movie sortkey = " sortkey  > "/dev/stderr"
+        # print "sortkey = " sortkey > "/dev/stderr"
     }
 
     if (contentType == "tv_show") {
+        countShows += 1
         # print "\ntv_show" > "/dev/stderr"
-        numShows += 1
-        showArray[numShows] = contentId
-        titleArray[numShows] = title
+        showArray[countShows] = contentId
+        titleArray[countShows] = title
         sortkey = sprintf ("%s (1) S%s", title, EntityId)
         # print "sortkey = " sortkey > "/dev/stderr"
     }
 
     if (contentType == "tv_season") {
+        #xxx
+        countSeasons += 1
         # print "\ntv_season" > "/dev/stderr"
-        for ( i = 1; i <= numShows; i++ ) {
+        for ( i = 1; i <= countShows; i++ ) {
             if (showArray[i] == showContentId) {
                 showTitle = titleArray[i]
                 break
             }
         }
         sortkey = sprintf ("%s (2) S%02d", showTitle, seasonNumber)
-        # print "sortkey = " sortkey  > "/dev/stderr"
+        # Check that showContentId was actually found - if not, put parens around showTitle in sortkey
+        if (showArray[i] != showContentId) {
+            missingShowContentIds += 1
+            printf ("==> Missing showContentId for %s %s '%s' in show %s at line %d\n", contentType,
+                    contentId, title, showContentId, firstLineNum) >> ERROR_FILE
+            sortkey = sprintf ("(%s) (2) S%02d", showTitle, seasonNumber)
+        } 
+        # print "sortkey = " sortkey > "/dev/stderr"
         # Compose title
     }
 
     if (contentType == "tv_episode") {
-        # xxx
+        countEpisodes += 1
         # print "\ntv_episode" > "/dev/stderr"
-        for ( i = 1; i <= numShows; i++ ) {
+        for ( i = 1; i <= countShows; i++ ) {
             if (showArray[i] == showContentId) {
                 showTitle = titleArray[i]
                 break
             }
         }
-        # Need to check that showContentId was actually found
+        sortkey = sprintf ("%s (2) S%02dE%03d %s", showTitle, seasonNumber, episodeNumber,
+                showContentId)
+        # Check that showContentId was actually found - if not, put parens around showTitle in sortkey
         if (showArray[i] != showContentId) {
             missingShowContentIds += 1
-            printf ("==> Missing showContentId for %s %s '%s' in show %s\n", contentType, contentId, title, \
-                showContentId) >> ERROR_FILE
+            printf ("==> Missing showContentId for %s %s '%s' in show %s at line %d\n", contentType,
+                    contentId, title, showContentId, firstLineNum) >> ERROR_FILE
+            sortkey = sprintf ("(%s) (2) S%02dE%03d %s", showTitle, seasonNumber, episodeNumber,
+                    showContentId)
         }
-        sortkey = sprintf ("%s (2) S%02dE%03d %s", showTitle, seasonNumber, \
-                episodeNumber, showContentId)
-        # print "sortkey = " sortkey  > "/dev/stderr"
+        # print "sortkey = " sortkey > "/dev/stderr"
         # Compose title
     }
     
@@ -305,26 +318,35 @@ BEGIN {
     # printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
     # printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n", \
-            sortkey, title, numSeasons, numEpisodes, duration, year, rating, description, \
-            contentType, contentId, EntityId, genre, showType, dateType, originalDate, \
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
+            sortkey, title, numSeasons, numEpisodes, duration, year, rating, description,
+            contentType, contentId, EntityId, genre, showType, dateType, originalDate,
             showContentId, seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
 }
 
 END {
     printf ("In getBBoxCatalogFrom-sitemap.awk\n") > "/dev/stderr"
+
     if (missingEntityIds > 0 ) {
-        missingEntityIds == 1 ? field = "EntityId" : field = "EntityIds"
-        printf ("    %2d missing %s in %s\n", missingEntityIds, field, FILENAME) > "/dev/stderr"
+        missingEntityIds == 1 ? plural = "EntityId" : plural = "EntityIds"
+        printf ("    %2d missing %s in %s\n", missingEntityIds, plural, FILENAME) > "/dev/stderr"
     }
     #
     if (missingShowContentIds > 0 ) {
-        missingShowContentIds == 1 ? field = "showContentId" : field = "showContentIds"
-        printf ("    %2d missing %s in %s\n", missingShowContentIds, field, FILENAME) > "/dev/stderr"
+        missingShowContentIds == 1 ? plural = "showContentId" : plural = "showContentIds"
+        printf ("    %2d missing %s in %s\n", missingShowContentIds, plural, FILENAME) > "/dev/stderr"
     }
     #
     if (revisedTitles > 0 ) {
-        revisedTitles == 1 ? field = "title" : field = "titles"
-        printf ("    %2d %s revised in %s\n", revisedTitles, field, FILENAME) > "/dev/stderr"
+        revisedTitles == 1 ? plural = "title" : plural = "titles"
+        printf ("    %2d %s revised in %s\n", revisedTitles, plural, FILENAME) > "/dev/stderr"
     }
+
+    countMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
+    countShows == 1 ? pluralShows = "show" : pluralShows = "shows"
+    countSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
+    countEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
+    #
+    printf ("\n    Processed %d %s, %d %s, %d %s, %d %s\n", countMovies, pluralMovies, countShows,
+            pluralShows, countSeasons, pluralSeasons, countEpisodes, pluralEpisodes) > "/dev/stderr"
 }
