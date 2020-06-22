@@ -263,7 +263,7 @@ BEGIN {
         # print "\ntv_show" > "/dev/stderr"
         showArray[countShows] = contentId
         titleArray[countShows] = title
-        sortkey = sprintf ("%s (1) S%s", title, EntityId)
+        sortkey = sprintf ("%s (1) S%s %s", title, EntityId, contentId)
         # print "sortkey = " sortkey > "/dev/stderr"
     }
 
@@ -277,13 +277,13 @@ BEGIN {
                 break
             }
         }
-        sortkey = sprintf ("%s (2) S%02d", showTitle, seasonNumber)
+        sortkey = sprintf ("%s (2) S%02d %s", showTitle, seasonNumber, showContentId)
         # Check that showContentId was actually found - if not, put parens around showTitle in sortkey
         if (showArray[i] != showContentId) {
             missingShowContentIds += 1
             printf ("==> Missing showContentId for %s %s '%s' in show %s at line %d\n", contentType,
                     contentId, title, showContentId, firstLineNum) >> ERROR_FILE
-            sortkey = sprintf ("(%s) (2) S%02d", showTitle, seasonNumber)
+            sortkey = sprintf ("(%s) (2) S%02d %s", showTitle, seasonNumber, showContentId)
         } 
         # print "sortkey = " sortkey > "/dev/stderr"
         # Compose title
