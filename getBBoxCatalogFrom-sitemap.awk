@@ -1,4 +1,6 @@
-# Broduce a raw data spreadsheet of fields in BritBox Catalog --  apple_catalogue_feed.xml
+# Produce a raw data spreadsheet from fields in BritBox Catalog --  apple_catalogue_feed.xml
+# The "showContentId" from "tv_show" items are needed to process "tv_season" and "tv_episode" items,
+# so you should sort the catalog to ensure items are in the proper order.
 
 # INVOCATION
 #   awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
@@ -14,11 +16,6 @@ BEGIN {
     printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
     printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
     printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
-
-    # For debugging variations in seasons and episodes format
-    str = "date +%y%m%d.%H%M%S"
-    str | getline longDate
-    close str
 }
 
 # Don't process credits
@@ -52,6 +49,7 @@ BEGIN {
     contentId = fld[4]
     # print "contentType = " contentType > "/dev/stderr"
     # print "contentId = " contentId > "/dev/stderr"
+    #
     # Make sure no fields will be carried over due to missing keys
     sortkey = ""
     title = ""
@@ -187,6 +185,7 @@ BEGIN {
 # Do any special end of item processing, then print raw data spreadsheet row
 /<\/item>/ {
     lastLineNum = NR
+
     # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
         if (EntityId == "_9509") {
@@ -327,26 +326,26 @@ BEGIN {
 END {
     printf ("In getBBoxCatalogFrom-sitemap.awk\n") > "/dev/stderr"
 
-    if (missingEntityIds > 0 ) {
-        missingEntityIds == 1 ? plural = "EntityId" : plural = "EntityIds"
-        printf ("    %2d missing %s in %s\n", missingEntityIds, plural, FILENAME) > "/dev/stderr"
-    }
-    #
-    if (missingShowContentIds > 0 ) {
-        missingShowContentIds == 1 ? plural = "showContentId" : plural = "showContentIds"
-        printf ("    %2d missing %s in %s\n", missingShowContentIds, plural, FILENAME) > "/dev/stderr"
-    }
-    #
-    if (revisedTitles > 0 ) {
-        revisedTitles == 1 ? plural = "title" : plural = "titles"
-        printf ("    %2d %s revised in %s\n", revisedTitles, plural, FILENAME) > "/dev/stderr"
-    }
-
     countMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
     countShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     countSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
     countEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
     #
-    printf ("\n    Processed %d %s, %d %s, %d %s, %d %s\n", countMovies, pluralMovies, countShows,
+    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n", countMovies, pluralMovies, countShows,
             pluralShows, countSeasons, pluralSeasons, countEpisodes, pluralEpisodes) > "/dev/stderr"
+
+    if (missingEntityIds > 0 ) {
+        missingEntityIds == 1 ? plural = "EntityId" : plural = "EntityIds"
+        printf ("%8d missing %s in %s\n", missingEntityIds, plural, FILENAME) > "/dev/stderr"
+    }
+
+    if (missingShowContentIds > 0 ) {
+        missingShowContentIds == 1 ? plural = "showContentId" : plural = "showContentIds"
+        printf ("%8d missing %s in %s\n", missingShowContentIds, plural, FILENAME) > "/dev/stderr"
+    }
+
+    if (revisedTitles > 0 ) {
+        revisedTitles == 1 ? plural = "title" : plural = "titles"
+        printf ("%8d %s revised in %s\n", revisedTitles, plural, FILENAME) > "/dev/stderr"
+    }
 }
