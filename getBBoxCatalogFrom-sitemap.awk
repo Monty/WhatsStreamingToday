@@ -3,7 +3,8 @@
 # so you should sort the catalog to ensure items are in the proper order.
 
 # INVOCATION
-#   awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SITEMAP_FILE >$CATALOG_SPREADSHEET
+#   awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
+#       -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFrom-sitemap.awk $SORTED_SITEMAPS >$CATALOG_SPREADSHEET
 
 # Field numbers
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
@@ -68,8 +69,8 @@ BEGIN {
     # Generated fields
     year = ""
     # New fields that haven't been created yet
-    numSeasons = 101
-    numEpisodes = 202
+    numSeasons = ""
+    numEpisodes = ""
 }
 
 # Grab title
@@ -192,11 +193,11 @@ BEGIN {
     if (title == "Porridge") {
         if (EntityId == "_9509") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Porridge (1974-1977)'\n", title) >> ERROR_FILE
+            printf ("==> Changed title '%s' to 'Porridge (1974-1977)'\n", title) >> ERRORS
             title = "Porridge (1974-1977)"
         } else if (EntityId == "_14747") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n", title) >> ERROR_FILE
+            printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n", title) >> ERRORS
             title = "Porridge (2016-2017)"
         }
         # print "==> title = " title > "/dev/stderr"
@@ -209,11 +210,11 @@ BEGIN {
     if (title == "A Midsummer Night's Dream") {
         if (EntityId == "_26179") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (1981)'\n", title) >> ERROR_FILE
+            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (1981)'\n", title) >> ERRORS
             title = "A Midsummer Night's Dream (1981)"
         } else if (EntityId == "_15999") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (2016)'\n", title) >> ERROR_FILE
+            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (2016)'\n", title) >> ERRORS
             title = "A Midsummer Night's Dream (2016)"
         }
         # print "==> title = " title > "/dev/stderr"
@@ -224,11 +225,11 @@ BEGIN {
     if (title ~ /^Maigret/ && contentType == "tv_show") {
         if (EntityId == "_15928") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n", title) >> ERROR_FILE
+            printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n", title) >> ERRORS
             title = "Maigret (1992-1993)"
         } else if (EntityId == "_15974") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Maigret (2016–2017)'\n", title) >> ERROR_FILE
+            printf ("==> Changed title '%s' to 'Maigret (2016–2017)'\n", title) >> ERRORS
             title = "Maigret (2016–2017)"
         }
         # print "==> title = " title > "/dev/stderr"
@@ -241,12 +242,12 @@ BEGIN {
     if (EntityId == "") {
         missingEntityIds += 1
         printf ("==> Missing EntityId for %s %s '%s' in show %s at line %d\n", contentType, contentId,
-                title, showContentId, firstLineNum) >> ERROR_FILE
+                title, showContentId, firstLineNum) >> ERRORS
         # Add missing EntityId
         if (contentId == "p07gnw9f") {
             EntityId = "_23842"
             printf ("==> Added EntityId %s for %s %s '%s' in show %s\n", EntityId, contentType, contentId,
-                    title, showContentId) >> ERROR_FILE
+                    title, showContentId) >> ERRORS
             # print "==> EntityId = " EntityId > "/dev/stderr"
         }
     }
@@ -258,6 +259,7 @@ BEGIN {
         contentType = "tv_movie"
         sortkey = sprintf ("%s (1) %s M%s", title, originalDate, EntityId)
         # print "sortkey = " sortkey > "/dev/stderr"
+        print title >> RAW_TITLES
     }
 
     if (contentType == "tv_show") {
@@ -267,6 +269,15 @@ BEGIN {
         titleArray[countShows] = title
         sortkey = sprintf ("%s (1) S%s %s", title, EntityId, contentId)
         # print "sortkey = " sortkey > "/dev/stderr"
+        print title >> RAW_TITLES
+        #
+        str = "grep -c " contentId " " IDS_SEASONS
+        str | getline numSeasons
+        close str
+        #
+        str = "grep -c " contentId " " IDS_EPISODES
+        str | getline numEpisodes
+        close str
     }
 
     if (contentType == "tv_season") {
@@ -283,7 +294,7 @@ BEGIN {
         if (showArray[i] != showContentId) {
             missingShowContentIds += 1
             printf ("==> Missing showContentId for %s %s '%s' in show %s at line %d\n", contentType,
-                    contentId, title, showContentId, firstLineNum) >> ERROR_FILE
+                    contentId, title, showContentId, firstLineNum) >> ERRORS
             sortkey = sprintf ("(%s) (2) S%02d %s", showTitle, seasonNumber, showContentId)
         } 
         # print "sortkey = " sortkey > "/dev/stderr"
@@ -306,7 +317,7 @@ BEGIN {
         if (showArray[i] != showContentId) {
             missingShowContentIds += 1
             printf ("==> Missing showContentId for %s %s '%s' in show %s at line %d\n", contentType,
-                    contentId, title, showContentId, firstLineNum) >> ERROR_FILE
+                    contentId, title, showContentId, firstLineNum) >> ERRORS
             sortkey = sprintf ("(%s) (2) S%02dE%03d %s", showTitle, seasonNumber, episodeNumber,
                     showContentId)
         }
@@ -327,10 +338,10 @@ BEGIN {
     #
     # https://www.britbox.com/us/episode/All_Creatures_Great_and_Small_S2_E2_23764
     # https://www.britbox.com/us/episode/_23764
-    showType = contentType
-    sub ("tv_","",showType)
-    URL = "https://www.britbox.com/us/" showType EntityId
-    fullTitle = "=HYPERLINK(\"" URL "\";\"" title "\")"
+    showType_URL = contentType "/"
+    sub ("tv_","",showType_URL)
+    full_URL = "https://www.britbox.com/us/" showType_URL EntityId
+    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Copied from above to make it easier to coordinate printing fields

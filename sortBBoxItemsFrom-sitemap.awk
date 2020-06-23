@@ -1,9 +1,10 @@
 # Rearrange a raw BritBox Catalog (apple_catalogue_feed.xml) so items are sorted by contentType
 
 # INVOCATION
-#   awk -v ERROR_FILE=$ERROR_FILE -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
+#   awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
 #       -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
-#       -f sortBBoxItemsFrom-sitemap.awk $SITEMAP_FILE
+#       -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
+#       -f sortBBoxItemsFrom-sitemap.awk $SITEMAP
 
 # Add inclusive content of <item .. item> to a string
 /<item contentType="/,/<\/item>/ {
@@ -15,6 +16,13 @@
 /<item contentType="/ {
     split ($0,fld,"\"")
     contentType = fld[2]
+}
+
+# Grab showContentId
+# <showContentId>b008yjd9</showContentId>
+/<showContentId>/ {
+    split ($0,fld,"[<>]")
+    showContentId = fld[3]
 }
 
 # Output wholeItem <item .. item> to a file based on contentType
@@ -33,15 +41,18 @@
     if (contentType == "tv_season") {
         countSeasons += 1
         print wholeItem >> TV_SEASON_ITEMS
+        print showContentId >> IDS_SEASONS
     }
 
     if (contentType == "tv_episode") {
         countEpisodes += 1
         print wholeItem >> TV_EPISODE_ITEMS
+        print showContentId >> IDS_EPISODES
     }
 
     # Make sure the wholeItem <item .. item> isn't carried over to the next item
     wholeItem = ""
+    showContentId = ""
 }
 
 END {

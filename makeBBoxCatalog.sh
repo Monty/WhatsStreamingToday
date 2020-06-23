@@ -81,11 +81,11 @@ mkdir -p $COLUMNS $BASELINE
 
 # Error and debugging info (per run)
 POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
-ERROR_FILE="BBox_anomalies$LONGDATE.txt"
+ERRORS="BBox_anomalies$LONGDATE.txt"
 
 # Downloaded XML file to process
-SITEMAP_FILE="$COLUMNS/BBox-sitemap$DATE_ID.xml"
-SORTED_SITEMAP_FILE="$COLUMNS/BBox-sitemap_sorted$DATE_ID.xml"
+SITEMAP="$COLUMNS/BBox-sitemap$DATE_ID.xml"
+SORTED_SITEMAP="$COLUMNS/BBox-sitemap_sorted$DATE_ID.xml"
 
 # Final output spreadsheets
 SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
@@ -104,9 +104,14 @@ TV_SHOW_ITEMS="$COLUMNS/tv_shows$DATE_ID.xml"
 TV_SEASON_ITEMS="$COLUMNS/tv_seasons$DATE_ID.xml"
 TV_EPISODE_ITEMS="$COLUMNS/tv_episodes$DATE_ID.xml"
 
+# Text files containing only <item lines (much shorter than xml files to use when searching for contentIds)
+IDS_SEASONS="$COLUMNS/ids_seasons$DATE_ID.txt"
+IDS_EPISODES="$COLUMNS/ids_episodes$DATE_ID.txt"
+
 # Intermediate working files
-TITLE_FILE="$COLUMNS/uniqTitles$DATE_ID.csv"
-DURATION_FILE="$COLUMNS/durations$DATE_ID.csv"
+RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.csv"
+UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.csv"
+DURATIONS="$COLUMNS/durations$DATE_ID.csv"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
@@ -118,13 +123,14 @@ PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies$ALT_ID.txt"
 PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms$ALT_ID.txt"
 PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 #
-PUBLISHED_TITLE_FILE="$BASELINE/uniqTitles$ALT_ID.txt"
-PUBLISHED_DURATION_FILE="$BASELINE/durations$ALT_ID.txt"
+PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles$ALT_ID.txt"
+PUBLISHED_DURATIONS="$BASELINE/durations$ALT_ID.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$TITLE_FILE $DURATION_FILE "
+ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATIONS "
 #
 ALL_XML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
+ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
 ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
@@ -132,33 +138,39 @@ ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET $SEASONS_SPREADSHEET "
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING
-rm -f $ALL_XML
+rm -f $ALL_XML $ALL_TXT
 rm -f $ALL_SPREADSHEETS
 
 # Grab the XML catalog file and get rid of Windows CRs
 # Unless we already have one from today
-if [ ! -e "$SITEMAP_FILE" ]; then
-    printf "==> Downloading new $SITEMAP_FILE\n"
-    curl -s $SITEMAP_URL | perl -pe 'tr/\r//d' >$SITEMAP_FILE
+if [ ! -e "$SITEMAP" ]; then
+    printf "==> Downloading new $SITEMAP\n"
+    curl -s $SITEMAP_URL | perl -pe 'tr/\r//d' >$SITEMAP
 else
-    printf "==> using existing $SITEMAP_FILE\n"
+    printf "==> using existing $SITEMAP\n"
 fi
 
 # Print header for error file
-printf "### Possible anomalies from processing $SITEMAP_FILE are listed below.\n\n" >$ERROR_FILE
+printf "### Possible anomalies from processing $SITEMAP are listed below.\n\n" >$ERRORS
 
-# Pre-sort XML catalog file into four files sorted by item type 
-awk -v ERROR_FILE=$ERROR_FILE -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
+# Pre-sort XML catalog file into four files sorted by item type
+awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
     -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
-    -f sortBBoxItemsFrom-sitemap.awk $SITEMAP_FILE 
+    -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
+    -f sortBBoxItemsFrom-sitemap.awk $SITEMAP
 
 # Create sorted XML catalog file which is sorted by item type, preserving lines preceding first item
-grep -B99 -m 1 "<item"  $SITEMAP_FILE | grep -v "<item" > $SORTED_SITEMAP_FILE
-printf "\n" >> $SORTED_SITEMAP_FILE
-cat $ALL_XML >> $SORTED_SITEMAP_FILE
+grep -B99 -m 1 "<item" $SITEMAP | grep -v "<item" >$SORTED_SITEMAP
+printf "\n" >>$SORTED_SITEMAP
+cat $ALL_XML >>$SORTED_SITEMAP
 
-# Make unsorted spreadsheet of all catalog fields
-awk -v ERROR_FILE=$ERROR_FILE -f getBBoxCatalogFrom-sitemap.awk $SORTED_SITEMAP_FILE >$CATALOG_SPREADSHEET
+# Make an unsorted spreadsheet of all catalog fields; save an unsorted list of titles
+awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
+    -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFrom-sitemap.awk $SORTED_SITEMAP >$CATALOG_SPREADSHEET
+
+# Sort the titles produced by getBBoxCatalogFrom-sitemap.awk
+sort -fu $RAW_TITLES >$UNIQUE_TITLES
+rm -f $RAW_TITLES
 
 # Field numbers returned by getBBoxCatalogFrom-sitemap.awk
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
@@ -184,8 +196,6 @@ grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
 grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
-#
-grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | sort -fu >$TITLE_FILE
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -199,12 +209,15 @@ function printAdjustedFileInfo() {
 
 # Output some stats
 printf "\n==> Stats from downloading and processing raw catalog data:\n"
-printAdjustedFileInfo $SORTED_SITEMAP_FILE 0
+printAdjustedFileInfo $SORTED_SITEMAP 0
 printAdjustedFileInfo $CATALOG_SPREADSHEET 1
+printAdjustedFileInfo $IDS_EPISODES 0
+printAdjustedFileInfo $IDS_SEASONS 0
+printAdjustedFileInfo $UNIQUE_TITLES 0
 #
-# Details from SORTED_SITEMAP_FILE
-grep -m 1 '<totalItemCount>' $SORTED_SITEMAP_FILE | awk -F"[<>]" '{printf ("    %s:    %s\n", $2, $3)}'
-grep -m 1 '<lastBuildDate>' $SORTED_SITEMAP_FILE | awk -F"[<>]" '{printf ("    %s:     %s\n\n", $2, $3)}'
+# Details from SORTED_SITEMAP
+grep -m 1 '<totalItemCount>' $SORTED_SITEMAP | awk -F"[<>]" '{printf ("    %s:    %s\n", $2, $3)}'
+grep -m 1 '<lastBuildDate>' $SORTED_SITEMAP | awk -F"[<>]" '{printf ("    %s:     %s\n\n", $2, $3)}'
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
@@ -214,8 +227,8 @@ function addTotalsToSpreadsheet() {
     ((lastRow = $(sed -n '$=' $1)))
     ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 2))
     TOTAL="\tNon-blank values"
-    for (( i=1; i<=$numCountA; i++ )); do
-        x=${colNames:$i:1}
+    for ((i = 1; i <= numCountA; i++)); do
+        x=${colNames:i:1}
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
     printf "$TOTAL\n" >>$1
@@ -289,8 +302,9 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_TITLE_FILE $TITLE_FILE)
+$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.
