@@ -286,6 +286,7 @@ BEGIN {
         } 
         # print "sortkey = " sortkey > "/dev/stderr"
         # Compose title
+        title = sprintf ("%s, S%02d, %s", showTitle, seasonNumber, title)
     }
 
     if (contentType == "tv_episode") {
@@ -309,6 +310,7 @@ BEGIN {
         }
         # print "sortkey = " sortkey > "/dev/stderr"
         # Compose title
+        title = sprintf ("%s, S%02dE%03d, %s", showTitle, seasonNumber, episodeNumber, title)
     }
 
     # Generate a link that will lead to the show on Britbox
@@ -327,6 +329,7 @@ BEGIN {
     sub ("tv_","",showType)
     URL = "https://www.britbox.com/us/" showType EntityId
     fullTitle = "=HYPERLINK(\"" URL "\";\"" title "\")"
+    # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Copied from above to make it easier to coordinate printing fields
     # printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
