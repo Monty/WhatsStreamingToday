@@ -268,7 +268,6 @@ BEGIN {
     }
 
     if (contentType == "tv_season") {
-        #xxx
         countSeasons += 1
         # print "\ntv_season" > "/dev/stderr"
         for ( i = 1; i <= countShows; i++ ) {
@@ -311,14 +310,31 @@ BEGIN {
         # print "sortkey = " sortkey > "/dev/stderr"
         # Compose title
     }
-    
+
+    # Generate a link that will lead to the show on Britbox
+    # https://www.britbox.com/us/movie/A_Queen_Is_Crowned_13551
+    # https://www.britbox.com/us/movie/_13551
+    #
+    # https://www.britbox.com/us/show/All_Creatures_Great_and_Small_23737
+    # https://www.britbox.com/us/show/_23737
+    #
+    # https://www.britbox.com/us/season/All_Creatures_Great_and_Small_S2_23752
+    # https://www.britbox.com/us/season/_23752
+    #
+    # https://www.britbox.com/us/episode/All_Creatures_Great_and_Small_S2_E2_23764
+    # https://www.britbox.com/us/episode/_23764
+    showType = contentType
+    sub ("tv_","",showType)
+    URL = "https://www.britbox.com/us/" showType EntityId
+    fullTitle = "=HYPERLINK(\"" URL "\";\"" title "\")"
+
     # Copied from above to make it easier to coordinate printing fields
     # printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
     # printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
     # printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
-            sortkey, title, numSeasons, numEpisodes, duration, year, rating, description,
+            sortkey, fullTitle, numSeasons, numEpisodes, duration, year, rating, description,
             contentType, contentId, EntityId, genre, showType, dateType, originalDate,
             showContentId, seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
 }
