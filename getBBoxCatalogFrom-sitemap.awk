@@ -78,6 +78,7 @@ BEGIN {
     split ($0,fld,"[<>]")
     title = fld[3]
     # print "title = " title > "/dev/stderr"
+    gsub (/&amp;/,"\\&",title)
 }
 
 # Grab genre
@@ -94,6 +95,7 @@ BEGIN {
     split ($0,fld,"[<>]")
     description = fld[3]
     # print "description = " description > "/dev/stderr"
+    gsub (/&amp;/,"\\&",description)
 }
 
 # Grab rating
