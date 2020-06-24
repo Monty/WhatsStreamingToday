@@ -182,7 +182,7 @@ rm -f $RAW_TITLES
 if [ "$DEBUG" != "yes" ]; then
     spreadsheet_columns="1-9"
 else
-    spreadsheet_columns="1-11,16-17,20-21"
+    spreadsheet_columns="1-21"
 fi
 titleCol="2"
 
@@ -232,8 +232,8 @@ function addTotalsToSpreadsheet() {
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
     printf "$TOTAL\n" >>$1
-    # Number of seasons & episodes not yet implemented
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+    #
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow\t=SUM(E2:E$lastRow)\n" >>$1
 }
 
 # Output spreadsheet footer if totals requested
