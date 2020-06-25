@@ -109,9 +109,9 @@ IDS_SEASONS="$COLUMNS/ids_seasons$DATE_ID.txt"
 IDS_EPISODES="$COLUMNS/ids_episodes$DATE_ID.txt"
 
 # Intermediate working files
-RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.csv"
-UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.csv"
-DURATIONS="$COLUMNS/durations$DATE_ID.csv"
+RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
+UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
+DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
@@ -124,10 +124,10 @@ PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms$ALT_ID.txt"
 PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
 #
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles$ALT_ID.txt"
-PUBLISHED_DURATIONS="$BASELINE/durations$ALT_ID.txt"
+PUBLISHED_DURATION="$BASELINE/total_duration$ALT_ID.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATIONS "
+ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION "
 #
 ALL_XML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
 ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
@@ -191,11 +191,14 @@ head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
 tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -fu >>$LONG_SPREADSHEET
 
 # Generate final spreadsheets
-grep -e "^Sortkey" -e "tv_movie" -e "tv_show" $LONG_SPREADSHEET >$SHORT_SPREADSHEET
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
 grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
+
+# Generate SHORT_SPREADSHEET by processing LONG_SPREADSHEET to calculate and include durations
+tail -r $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
+    -f calculateBBoxShowDurations.awk | tail -r >$SHORT_SPREADSHEET
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -207,13 +210,17 @@ function printAdjustedFileInfo() {
     printf "%-45s%6s%15s%9d lines\n" "$1" "$filesize" "$filedate" "$numlines"
 }
 
-# Output some stats
+# Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw catalog data:\n"
 printAdjustedFileInfo $SORTED_SITEMAP 0
 printAdjustedFileInfo $CATALOG_SPREADSHEET 1
+printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $IDS_EPISODES 0
 printAdjustedFileInfo $IDS_SEASONS 0
+printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
+printAdjustedFileInfo $PROGRAMS_SPREADSHEET 1
+printAdjustedFileInfo $MOVIES_SPREADSHEET 1
 #
 # Details from SORTED_SITEMAP
 grep -m 1 '<totalItemCount>' $SORTED_SITEMAP | awk -F"[<>]" '{printf ("    %s:    %s\n", $2, $3)}'
