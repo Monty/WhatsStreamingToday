@@ -76,7 +76,6 @@ ERRORS="BBox_anomalies$LONGDATE.txt"
 
 # Downloaded XML file to process
 SITEMAP="$COLUMNS/BBox-sitemap$DATE_ID.xml"
-SORTED_SITEMAP="$COLUMNS/BBox-sitemap_sorted$DATE_ID.xml"
 
 # Final output spreadsheets
 SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
@@ -100,6 +99,7 @@ IDS_SEASONS="$COLUMNS/ids_seasons$DATE_ID.txt"
 IDS_EPISODES="$COLUMNS/ids_episodes$DATE_ID.txt"
 
 # Intermediate working files
+SORTED_SITEMAP="$COLUMNS/BBox-sitemap_sorted$DATE_ID.xml"
 RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
 UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
@@ -118,7 +118,7 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION "
+ALL_WORKING="$SORTED_SITEMAP $RAW_TITLES $UNIQUE_TITLES $DURATION "
 #
 ALL_XML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
 ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
@@ -249,6 +249,7 @@ fi
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
         rm -f $ALL_WORKING
+        rm -f $ALL_XML $ALL_TXT
         rm -f $ALL_SPREADSHEETS
     fi
     exit
@@ -327,6 +328,7 @@ EOF
 
 if [ "$SUMMARY" = "yes" ]; then
     rm -f $ALL_WORKING
+    rm -f $ALL_XML $ALL_TXT
     rm -f $ALL_SPREADSHEETS
 fi
 
