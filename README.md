@@ -1,12 +1,15 @@
 ## What's Streaming Today?
 
-**Acorn TV** is a streaming service for over 250 British television
-shows.  **MHz Choice** is a streaming service for over 100 subtitled
-European television detective, mystery, and crime shows.  Both are
+**Acorn TV** and **BritBox** are streaming services carrying over 300 
+British, Australian, New Zealand and other television shows each.
+**MHz Choice** is a streaming service for over 200 subtitled
+European television detective, mystery, and crime shows.  All are
 available in the US on Apple TV, Amazon Prime, or the web.
 
-Both https://acorn.tv/browse and https://mhzchoice.vhx.tv/series
-have a visual interface which lists all their TV series. However,
+**[Acorn](https://acorn.tv/browse)**, 
+**[BritBox](https://www.britbox.com/us/programmes)** and
+**[MHz](https://watch.mhzchoice.com/browse)** all
+have visual interfaces which list all their shows. However,
 you have to click on the image for each series to see its description.
 I can't find any web page or document that describes all the available
 series in one place.
@@ -15,8 +18,9 @@ I wrote these scripts to fetch the descriptions and other info from
 their websites and create .csv spreadsheet files containing these
 columns: (*Titles are hyperlinks to the series on the web*)
 
-+ **Acorn TV:** # | Title | Seasons | Episodes | Description  
-+ **MHz Choice:** # | Title | Seasons | Episodes | Duration | Genre
++ **Acorn TV:** Title | Seasons | Episodes | Description 
++ **Britbox:** Title | Seasons | Episodes | Duration | Year | Rating | Description
++ **MHz:** Title | Seasons | Episodes | Duration | Genre
 | Country | Language | Rating | Description
 
 I know of no way to incorporate formatting such as column width,

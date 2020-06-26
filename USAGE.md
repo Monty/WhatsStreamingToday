@@ -1,10 +1,10 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-cdltu]** or **makeMHzSpreadsheet.sh [-dltu]**  
+Run **makeAcornSpreadsheet.sh [-cdltu]**, **makeBBoxCatalog.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dltu]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-c**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Canadian_ - Don't delete the text "Not available in Canada." in Acorn TV.  
+_Canadian_ - Don't delete the text "Not available in Canada." (Acorn).  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-d**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -12,9 +12,15 @@ _Debug_ - Create a diffs file that details what changed in each column.
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-l**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Long_ - Include descriptions of every episode, not just the series.  
+_Long_ - Include descriptions of every episode, not just the shows.  
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Fast for MHz Choice, but can take 30 minutes or more for Acorn TV.  
+Fast for MHz, but can take 30 minutes or more for Acorn.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+For BritBox, this option is always on.  
+&nbsp;&nbsp;&nbsp;&nbsp;
+**-s**
+&nbsp;&nbsp;&nbsp;&nbsp;
+_Summary_ - Delete all new files except for error reports and diffs (BritBox).  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-t**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -22,18 +28,22 @@ _Totals_ - Add column totals and row counts at the end of the spreadsheet.
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-u**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Unsorted_ - Leave shows in the order they are found on the web.
+_Unsorted_ - Leave shows in the order they are found on the web (Acorn & MHz).
 
-Each script creates a number of .csv files. To see the complete list,
-look at **saveTodaysAcornFiles.sh** or **saveTodaysMHzFiles.sh**.
+Each script creates a number of other files. To see the complete list,
+look at **saveTodaysAcornFiles.sh**, **saveTodaysBBoxFiles.sh** or
+**saveTodaysMHzFiles.sh**.
 
-The primary spreadsheet file is called **Acorn_TV_Shows-[DATE].csv**
-or **MHz_TV_Shows-[DATE].csv** -- **Acorn_TV_ShowsEpisodes-[DATE].csv**
-or **MHz_TV_ShowsEpisodes-[DATE].csv** if the **-l** switch is used.
-**[DATE]** is today’s date in the format yymmdd, e.g. 170810.  These
-spreadsheets can be loaded into Open Office or Google Sheets for
-further formatting. Any secondary .csv files are tucked away in the
-directories **Acorn-columns** or **MHz-columns**.
+The primary spreadsheet file is called **Acorn\_TV\_Shows-[DATE].csv**,
+**BBox\_TV\_Shows-[DATE].csv**, or **MHz\_TV\_Shows-[DATE].csv** -- the
+spreadsheet with all episodes is called
+**Acorn\_TV\_ShowsEpisodes-[DATE].csv**,
+**BBOX\_TV\_ShowsEpisodes-[DATE].csv**, or
+**MHz\_TV\_ShowsEpisodes-[DATE].csv**. **[DATE]** is today’s date in the
+format yymmdd, e.g. 170810.  These spreadsheets can be loaded into Open Office
+or Google Sheets for further formatting. Any secondary .csv files are tucked
+away in the directories **Acorn-columns**, **BBox-columns**, or
+**MHz-columns**.
 
 Running the script again will overwrite any .csv files from earlier
 that day but not from any previous day.
@@ -43,13 +53,12 @@ spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
-Shows in the spreadsheet are sorted by title. You can sort them in
-the order they are found on the web by using the **-u** switch or
-by sorting on the first column. If you want to sort by a different
-column **_and_** you used the **-t** switch to add column totals
-and row counts you should either create a Named Range to sort on
-or delete the added rows. Otherwise those rows will wind up in the
-middle of your spreadsheet.
+Shows in the spreadsheet are sorted by title. For Acorn or MHz, you can sort
+them in the order they are found on the web by using the **-u** switch or by
+sorting on the first column. If you want to sort by a different column
+**_and_** you used the **-t** switch to add column totals and row counts you
+should either create a Named Range to sort on or delete the added rows.
+Otherwise those rows will wind up in the middle of your spreadsheet.
 
 #### To format the spreadsheets:
 
@@ -90,7 +99,8 @@ are quite long, so you may want to redirect the full output into a
 .csv file and open it as a spreadsheet for easier viewing.
 
 If you are happy with the diffs, you can create a new baseline from
-today's results by running **saveTodaysAcornFiles.sh [-v]** or
+today's results by running **saveTodaysAcornFiles.sh [-v]**,
+**saveTodaysBBoxFiles.sh [-v]**,  or
 **saveTodaysMHzFiles.sh [-v]** where **-v** is the "verbose" option
 to be passed through to the **cp** command. To save results from a
 different date use **-d DATE** with a date in the format yymmdd.
@@ -104,7 +114,8 @@ Run one of the primary scripts with the **-d** [_debug]_ option. This
 provides diffs of each column individually, which is more useful
 for debugging than diffs of the whole spreadsheet.
 
-Then examine the diff file called **Acorn_diffs-[LONGDATE].txt** or
+Then examine the diff file called **Acorn_diffs-[LONGDATE].txt**,
+**BBox_diffs-[LONGDATE].txt**,  or
 **MHz_diffs-[LONGDATE].txt**, where **[LONGDATE]** is the date/time
 the script was run in the format yymmdd.HHMMSS, e.g. 170609.161113.
 
@@ -123,7 +134,7 @@ from identical titles being deleted and re-inserted.
 
 Run **rebuildAcornBaseline.sh [-d | -v]**
 
-This will use the current **Acorn_TV_ShowsEpisodes-[DATE].csv** to
+This will use the current **Acorn\_TV\_ShowsEpisodes-[DATE].csv** to
 create an **Acorn-baseline-[DATE].csv**. To recreate a different date's
 baseline, use **-d DATE** with a date in the format yymmdd.  **-v** is
 a "verbose" option to be passed through to the underlying commands.
