@@ -240,7 +240,7 @@ function addTotalsToSpreadsheet() {
     done
     printf "$TOTAL\n" >>$1
     #
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow\t=SUM(E2:E$lastRow)\n" >>$1
+    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)\n" >>$1
 }
 
 # Output spreadsheet footer if totals requested
