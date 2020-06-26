@@ -17,17 +17,11 @@ cd $DIRNAME
 DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
-# -a ALT picks alternate files to scrape. The triple "BBoxPrograms, BBoxEpisodes, and BBoxSeasons"
-#    are amended with ALT, e.g. BBoxPrograms-$ALT.csv, BBoxEpisodes-$ALT.csv, etc.
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
 while getopts ":a:drst" opt; do
     case $opt in
-    a)
-        ALT_ID="-$OPTARG"
-        DATE_ID="-$OPTARG"
-        ;;
     d)
         DEBUG="yes"
         ;;
@@ -74,9 +68,6 @@ mkdir -p $COLUMNS $BASELINE
 
 # In the default case -- input, output, and baseline files have no date information.
 #   but intermediate files have today's date $DATE_ID inserted before the file extension.
-# If -a ALT_ID is specified, the $ALT_ID string is instead inserted in ALL of those files,
-#   most commonly a LONGDATE corresponding to the original scrape time, but it could
-#   be any string.
 # Error and debugging files always have a LONGDATE of the execution time inserted.
 
 # Error and debugging info (per run)
@@ -114,17 +105,17 @@ UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
-PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet$ALT_ID.txt"
-PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes$ALT_ID.txt"
+PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
+PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_CATALOG_SPREADSHEET="$BASELINE/BBoxCatalog$ALT_ID.txt"
-PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes$ALT_ID.txt"
-PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies$ALT_ID.txt"
-PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms$ALT_ID.txt"
-PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons$ALT_ID.txt"
+PUBLISHED_CATALOG_SPREADSHEET="$BASELINE/BBoxCatalog.txt"
+PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
+PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies.txt"
+PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms.txt"
+PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons.txt"
 #
-PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles$ALT_ID.txt"
-PUBLISHED_DURATION="$BASELINE/total_duration$ALT_ID.txt"
+PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
+PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION "
@@ -309,9 +300,9 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
+$(checkdiffs $PUBLISHED_DURATION $DURATION)
 
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.
