@@ -1,11 +1,11 @@
 /**
- * Format Acorn TV or MHz TV Spreadsheets after uploading them to Google Sheets
+ * Format Acorn TV, MHz TV, or BritBox Spreadsheets after uploading them to Google Sheets
  * @author Monty Williams
  *
  * For information on how to use this code, see:
  *   https://developers.google.com/apps-script/guides/sheets
  *
- * Change the 4 URL's below to those in your Google Sheets
+ * Change the 6 URL's below to those in your Google Sheets
  *
  */
 
@@ -16,6 +16,8 @@
 function format_All_TV_Spreadsheets() {
   format_Acorn_TV_Shows();
   format_Acorn_TV_ShowsEpisodes();
+  format_BBox_TV_Shows();
+  format_BBox_TV_ShowsEpisodes();
   format_MHz_TV_Shows();
   format_MHz_TV_ShowsEpisodes();
 }
@@ -28,6 +30,20 @@ function format_Acorn_TV_Shows() {
 }
 
 function format_Acorn_TV_ShowsEpisodes() {
+  var ss = SpreadsheetApp.openByUrl(
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
+  );
+  format_a_TV_Spreadsheet(ss);
+}
+
+function format_BBox_TV_Shows() {
+  var ss = SpreadsheetApp.openByUrl(
+    'https://docs.google.com/spreadsheets/d/abc1234567/edit'
+  );
+  format_a_TV_Spreadsheet(ss);
+}
+
+function format_BBox_TV_ShowsEpisodes() {
   var ss = SpreadsheetApp.openByUrl(
     'https://docs.google.com/spreadsheets/d/abc1234567/edit'
   );
@@ -50,21 +66,31 @@ function format_MHz_TV_ShowsEpisodes() {
 
 /**
  * Structure of an Acorn TV Spreadsheet
- * # Title Seasons Episodes Duration Description
- * 1   2      3       4        5         6
+ *   1 #            2 Title          3 Seasons         4 Episodes     5 Duration    6 Description
+ *
+ * Structure of a BBox Spreadsheet
+ *   1 Sortkey      2 Title          3 Seasons         4 Episodes     5 Duration    6 Year
+ *   7 Rating       8 Description    9 Content_Type   10 Content_ID  11 Entity_ID  12 Genre
+ *  13 Show_Type   14 Date_Type     15 Original_Date  16 Show_ID     17 Season_ID  18 Sn_#
+ *  19 Ep_#        20 1st_#         21 Last_#
  *
  * Structure of an MHz TV Spreadsheet
- * # Title Seasons Episodes Duration Genre Country Language Rating Description
- * 1   2      3       4        5       6      7       8       9        10
+ *   1 #            2 Title          3 Seasons         4 Episodes     5 Duration    6 Genre
+ *   7 Country      8 Language       9 Rating         10 Description
  */
 
 function format_a_TV_Spreadsheet(ss) {
   var sheet = ss.getSheets()[0];
   var lastRowNum = sheet.getLastRow();
   var lastColumnNum = sheet.getLastColumn();
-  var titleColumnNum = 2;
-  var durationColumnNum = 5;
-  var descriptionColumnNum = lastColumnNum;
+  // Find significant column numbers by title
+  var columnNum;
+  for (columnNum = 1; columnNum <= lastColumnNum; columnNum++) {
+    columnName = sheet.getRange(1, columnNum).getValue().toString();
+    if (columnName == "Title") var titleColumnNum = columnNum;
+    if (columnName == "Duration") var durationColumnNum = columnNum;
+    if (columnName == "Description") var descriptionColumnNum = columnNum;
+  }
   var totalsRow = sheet.getRange(lastRowNum, 1, 1, lastColumnNum);
   var countsRow = sheet.getRange(lastRowNum - 1, 1, 1, lastColumnNum);
   // Make column length adjustments for 'Totals' rows if they exist
@@ -74,10 +100,13 @@ function format_a_TV_Spreadsheet(ss) {
   var sortkeyInColumnOne = sheet.getRange(1, 1).getValue()
     .toString().match('Sortkey') == 'Sortkey' ? 1 : 0;
   var dataColumnLength = lastRowNum - footerRowsCount - 1;
-  var columnNum;
+  
   Logger.log('Formatting spreadsheet: ' + sheet.getName());
   Logger.log('Last row number: ' + lastRowNum);
   Logger.log('Last column number: ' + lastColumnNum);
+  Logger.log('Title column number: ' + titleColumnNum);
+  Logger.log('Duration column number: ' + durationColumnNum);
+  Logger.log('Description column number: ' + descriptionColumnNum);
   Logger.log('Totals row count: ' + footerRowsCount);
   Logger.log('Data column length: ' + dataColumnLength);
   Logger.log('---');
