@@ -35,9 +35,9 @@ fi
 export LC_ALL=en_US.UTF-8
 #
 echo "----------------------------------------"
-echo "==> time ./makeBBoxSpreadsheet.sh -td"
+echo "==> time ./makeBBoxCatalog.sh -td"
 date
-time ./makeBBoxSpreadsheet.sh -td
+time ./makeBBoxCatalog.sh -td
 echo ""
 
 echo "========================================"
