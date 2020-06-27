@@ -66,6 +66,7 @@
         sub (/WITH ENGLISH SUBTITLES /,"")
         sub (/SCANDINAVIAN CRIME FICTION/,"Sweden")
         sub (/NONFICTION - DOCUMENTARY/,"Documentary")
+        sub (/NON-FICTION - DOCUMENTARY/,"Documentary")
         gsub (/ \| {1,2}/,"|")
         sub (/\r/,"")
         # Split out header fields
@@ -80,6 +81,8 @@
         }
         # print the finalized header
         if (numFields > 3 ) {
+            sub ("Drama-crime","Drama - crime",fld[1])
+            gsub (" ","",fld[4])
             print fld[1] "\t" fld[2] "\t" fld[(numFields-1)] "\t" fld[(numFields)] >> HEADER_FILE
             headerPrinted = "yes"
         }
