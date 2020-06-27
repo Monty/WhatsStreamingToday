@@ -1,6 +1,6 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-cdltu]**, **makeBBoxCatalog.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dltu]**  
+Run **makeAcornSpreadsheet.sh [-cdltu]**, **makeBBoxFromSitemap.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dltu]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-c**
 &nbsp;&nbsp;&nbsp;&nbsp;

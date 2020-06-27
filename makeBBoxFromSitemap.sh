@@ -148,7 +148,7 @@ printf "### Possible anomalies from processing $SITEMAP are listed below.\n\n" >
 awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
     -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
     -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-    -f sortBBoxItemsFrom-sitemap.awk $SITEMAP
+    -f sortBBoxItemsFromSitemap.awk $SITEMAP
 
 # Create sorted XML catalog file which is sorted by item type, preserving lines preceding first item
 grep -B99 -m 1 "<item" $SITEMAP | grep -v "<item" >$SORTED_SITEMAP
@@ -157,13 +157,13 @@ cat $ALL_XML >>$SORTED_SITEMAP
 
 # Make an unsorted spreadsheet of all catalog fields; save an unsorted list of titles
 awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-    -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFrom-sitemap.awk $SORTED_SITEMAP >$CATALOG_SPREADSHEET
+    -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFromSitemap.awk $SORTED_SITEMAP >$CATALOG_SPREADSHEET
 
-# Sort the titles produced by getBBoxCatalogFrom-sitemap.awk
+# Sort the titles produced by getBBoxCatalogFromSitemap.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
 
-# Field numbers returned by getBBoxCatalogFrom-sitemap.awk
+# Field numbers returned by getBBoxCatalogFromSitemap.awk
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
 #     7 Rating        8 Description     9 Content_Type    10 Content_ID   11 Entity_ID   12 Genre
 #    13 Show_Type    14 Date_Type      15 Original_Date   16 Show_ID      17 Season_ID   18 Sn_#

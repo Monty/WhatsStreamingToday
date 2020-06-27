@@ -35,9 +35,9 @@ fi
 export LC_ALL=en_US.UTF-8
 #
 echo "----------------------------------------"
-echo "==> time ./makeBBoxCatalog.sh -td"
+echo "==> time ./makeBBoxFromSitemap.sh -td"
 date
-time ./makeBBoxCatalog.sh -td
+time ./makeBBoxFromSitemap.sh -td
 echo ""
 
 echo "========================================"

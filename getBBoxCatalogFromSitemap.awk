@@ -4,7 +4,7 @@
 
 # INVOCATION
 #   awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-#       -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFrom-sitemap.awk $SORTED_SITEMAPS >$CATALOG_SPREADSHEET
+#       -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFromSitemap.awk $SORTED_SITEMAPS >$CATALOG_SPREADSHEET
 
 # Field numbers
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
@@ -356,7 +356,7 @@ BEGIN {
 }
 
 END {
-    printf ("In getBBoxCatalogFrom-sitemap.awk\n") > "/dev/stderr"
+    printf ("In getBBoxCatalogFromSitemap.awk\n") > "/dev/stderr"
 
     countMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
     countShows == 1 ? pluralShows = "show" : pluralShows = "shows"

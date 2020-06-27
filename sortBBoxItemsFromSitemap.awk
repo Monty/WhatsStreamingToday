@@ -4,7 +4,7 @@
 #   awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
 #       -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
 #       -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-#       -f sortBBoxItemsFrom-sitemap.awk $SITEMAP
+#       -f sortBBoxItemsFromSitemap.awk $SITEMAP
 
 # Add inclusive content of <item .. item> to a string
 /<item contentType="/,/<\/item>/ {
@@ -56,7 +56,7 @@
 }
 
 END {
-    printf ("In sortBBoxItemsFrom-sitemap.awk\n") > "/dev/stderr"
+    printf ("In sortBBoxItemsFromSitemap.awk\n") > "/dev/stderr"
 
     countMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
     countShows == 1 ? pluralShows = "show" : pluralShows = "shows"

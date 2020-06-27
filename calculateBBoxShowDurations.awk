@@ -9,7 +9,7 @@
 #    tail -r $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
 #        -f calculateBBoxShowDurations.awk | tail -r >>$SHORT_SPREADSHEET
 
-# Field numbers returned by getBBoxCatalogFrom-sitemap.awk
+# Field numbers returned by getBBoxCatalogFromSitemap.awk
 #     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
 #     7 Rating        8 Description     9 Content_Type    10 Content_ID   11 Entity_ID   12 Genre
 #    13 Show_Type    14 Date_Type      15 Original_Date   16 Show_ID      17 Season_ID   18 Sn_#
