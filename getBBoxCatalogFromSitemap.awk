@@ -7,15 +7,15 @@
 #       -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFromSitemap.awk $SORTED_SITEMAPS >$CATALOG_SPREADSHEET
 
 # Field numbers
-#     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
-#     7 Rating        8 Description     9 Content_Type    10 Content_ID   11 Entity_ID   12 Genre
-#    13 Show_Type    14 Date_Type      15 Original_Date   16 Show_ID      17 Season_ID   18 Sn_#
-#    19 Ep_#         20 1st_#          21 Last_#
+#     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre
+#     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Entity_ID
+#    13 Show_Type    14 Date_Type    15 Original_Date   16 Show_ID         17 Season_ID    18 Sn_#
+#    19 Ep_#         20 1st_#        21 Last_#
 
 BEGIN {
     # Print header
-    printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
-    printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
+    printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
+    printf ("Content_Type\tContent_ID\tEntity_ID\tShow_Type\tDate_Type\tOriginal_Date\t")
     printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
@@ -87,6 +87,9 @@ BEGIN {
 /<genre>/ {
     split ($0,fld,"[<>]")
     genre = fld[3]
+    genre = toupper(substr(genre,1,1)) substr(genre,2)
+    sub ("Sci_fi","Sci-Fi",genre)
+    sub ("Special_interest","Special interest",genre)
     # print "genre = " genre > "/dev/stderr"
 }
 
@@ -344,15 +347,10 @@ BEGIN {
     fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
-    # Copied from above to make it easier to coordinate printing fields
-    # printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tYear\tRating\tDescription\t")
-    # printf ("Content_Type\tContent_ID\tEntity_ID\tGenre\tShow_Type\tDate_Type\tOriginal_Date\t")
-    # printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
-
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
-            sortkey, fullTitle, numSeasons, numEpisodes, duration, year, rating, description,
-            contentType, contentId, EntityId, genre, showType, dateType, originalDate,
-            showContentId, seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
+            sortkey, fullTitle, numSeasons, numEpisodes, duration, genre, year, rating, description,
+            contentType, contentId, EntityId, showType, dateType, originalDate, showContentId,
+            seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
 }
 
 END {

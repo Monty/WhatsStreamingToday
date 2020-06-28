@@ -19,9 +19,8 @@ their websites and create .csv spreadsheet files containing these
 columns: (*Titles are hyperlinks to the series on the web*)
 
 + **Acorn TV:** Title | Seasons | Episodes | Description 
-+ **Britbox:** Title | Seasons | Episodes | Duration | Year | Rating | Description
-+ **MHz:** Title | Seasons | Episodes | Duration | Genre
-| Country | Language | Rating | Description
++ **Britbox:** Title | Seasons | Episodes | Duration | Genre | Year | Rating | Description
++ **MHz:** Title | Seasons | Episodes | Duration | Genre | Country | Language | Rating | Description
 
 I know of no way to incorporate formatting such as column width,
 horizontal centering, etc. into a .csv file. However, 

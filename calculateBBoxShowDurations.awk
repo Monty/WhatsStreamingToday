@@ -10,10 +10,10 @@
 #        -f calculateBBoxShowDurations.awk | tail -r >>$SHORT_SPREADSHEET
 
 # Field numbers returned by getBBoxCatalogFromSitemap.awk
-#     1 Sortkey       2 Title           3 Seasons          4 Episodes      5 Duration     6 Year
-#     7 Rating        8 Description     9 Content_Type    10 Content_ID   11 Entity_ID   12 Genre
-#    13 Show_Type    14 Date_Type      15 Original_Date   16 Show_ID      17 Season_ID   18 Sn_#
-#    19 Ep_#         20 1st_#          21 Last_#
+#     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre
+#     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Entity_ID
+#    13 Show_Type    14 Date_Type    15 Original_Date   16 Show_ID         17 Season_ID    18 Sn_#
+#    19 Ep_#         20 1st_#        21 Last_#
 
 BEGIN {
     FS = "\t"
@@ -27,7 +27,7 @@ $1 == "" || $1 == "Sortkey" {
 }
 
 # Don't add seasons to short spreadsheet
-$9 == "tv_season" {
+$10 == "tv_season" {
     next
 }
 
@@ -51,7 +51,7 @@ $5 != "" {
 # "tv_episode" indicates an episode, which should always have a valid duration
 # Accumulate series time and episode count on any line that has a valid duration
 # But don't print episodes in short spreadsheet
-$9 == "tv_episode" {
+$10 == "tv_episode" {
         secs += tm[3]
         mins += tm[2] + int(secs / 60)
         hrs += tm[1] + int(mins / 60)
@@ -62,7 +62,7 @@ $9 == "tv_episode" {
 
 # "tv_show" indicates a show, which may or may not have a duration
 # If it has no duration, update it from the running total
-$9 == "tv_show" {
+$10 == "tv_show" {
     if ($5 == "") {
         $4 = episodes
         $5 = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
@@ -73,7 +73,7 @@ $9 == "tv_show" {
     }
 }
 
-$9 == "tv_movie" {
+$10 == "tv_movie" {
     print
 }
 
