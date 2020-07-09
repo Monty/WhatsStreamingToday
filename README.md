@@ -18,7 +18,7 @@ I wrote these scripts to fetch the descriptions and other info from
 their websites and create .csv spreadsheet files containing these
 columns: (*Titles are hyperlinks to the series on the web*)
 
-+ **Acorn TV:** Title | Seasons | Episodes | Description 
++ **Acorn TV:** Title | Seasons | Episodes | Duration | Description 
 + **Britbox:** Title | Seasons | Episodes | Duration | Genre | Year | Rating | Description
 + **MHz:** Title | Seasons | Episodes | Duration | Genre | Country | Language | Rating | Description
 

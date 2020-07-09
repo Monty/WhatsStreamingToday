@@ -1,6 +1,6 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-cdltu]**, **makeBBoxFromSitemap.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dltu]**  
+Run **makeAcornSpreadsheet.sh [-cdltu]**, **makeBBoxFromSitemap.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dst]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-c**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -11,16 +11,14 @@ _Canadian_ - Don't delete the text "Not available in Canada." (Acorn).
 _Debug_ - Create a diffs file that details what changed in each column.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-l**
-&nbsp;&nbsp;&nbsp;&nbsp;
-_Long_ - Include descriptions of every episode, not just the shows.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Fast for MHz, but can take 30 minutes or more for Acorn.  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-For BritBox, this option is always on.  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+_Long_ - Include descriptions of every episode, not just the shows. (Acorn).  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Can take 30 minutes or more.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-s**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Summary_ - Delete all new files except for error reports and diffs (BritBox).  
+_Summary_ - Delete all new files except for error reports and diffs (Acorn & BritBox).  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-t**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -28,7 +26,7 @@ _Totals_ - Add column totals and row counts at the end of the spreadsheet.
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-u**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Unsorted_ - Leave shows in the order they are found on the web (Acorn & MHz).
+_Unsorted_ - Leave shows in the order they are found on the web (Acorn).
 
 Each script creates a number of other files. To see the complete list,
 look at **saveTodaysAcornFiles.sh**, **saveTodaysBBoxFiles.sh** or
@@ -53,7 +51,7 @@ spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
-Shows in the spreadsheet are sorted by title. For Acorn or MHz, you can sort
+Shows in the spreadsheet are sorted by title. For Acorn you can sort
 them in the order they are found on the web by using the **-u** switch or by
 sorting on the first column. If you want to sort by a different column
 **_and_** you used the **-t** switch to add column totals and row counts you
@@ -124,11 +122,6 @@ such as missing descriptions, missing durations, etc. Some are
 intentional, but if there are a large number, something is probably
 broken. Usually it's Acorn TV's problem. Cross check the file called 
 **Acorn_anomalies-[LONGDATE].txt** against what you see in your browser.
-
-MHz shows on the web are not sorted by title. When shows are
-rearranged, the individual column diffs may look significant.
-Check the "titles" column diffs to see if the changes are only
-from identical titles being deleted and re-inserted.
 
 #### To recover an older Acorn-baseline
 
