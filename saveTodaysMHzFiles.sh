@@ -28,17 +28,11 @@ COLUMNS="MHz-columns"
 BASELINE="MHz-baseline"
 mkdir -p $COLUMNS $BASELINE
 
-cp -p $VERBOSE $COLUMNS/urls-$DATE.csv $BASELINE/urls.txt
-cp -p $VERBOSE $COLUMNS/marquees-$DATE.csv $BASELINE/marquees.txt
-cp -p $VERBOSE $COLUMNS/titles-$DATE.csv $BASELINE/titles.txt
-cp -p $VERBOSE $COLUMNS/links-$DATE.csv $BASELINE/links.txt
-cp -p $VERBOSE $COLUMNS/descriptions-$DATE.csv $BASELINE/descriptions.txt
-cp -p $VERBOSE $COLUMNS/numberOfSeasons-$DATE.csv $BASELINE/numberOfSeasons.txt
-cp -p $VERBOSE $COLUMNS/numberOfEpisodes-$DATE.csv $BASELINE/numberOfEpisodes.txt
-cp -p $VERBOSE $COLUMNS/durations-$DATE.csv $BASELINE/durations.txt
-cp -p $VERBOSE $COLUMNS/headers-$DATE.csv $BASELINE/headers.txt
-cp -p $VERBOSE $COLUMNS/episodeUrls-$DATE.csv $BASELINE/episodeUrls.txt
-cp -p $VERBOSE $COLUMNS/episodeInfo-$DATE.csv $BASELINE/episodeInfo.txt
+cp -p $VERBOSE $COLUMNS/MHz_urls-$DATE.txt $BASELINE/MHz_urls.txt
+cp -p $VERBOSE $COLUMNS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
+cp -p $VERBOSE $COLUMNS/season_urls-$DATE.txt $BASELINE/season_urls.txt
+cp -p $VERBOSE $COLUMNS/uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
+cp -p $VERBOSE $COLUMNS/total_duration-$DATE.txt $BASELINE/total_duration.txt
 
 cp -p $VERBOSE MHz_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
 cp -p $VERBOSE MHz_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
