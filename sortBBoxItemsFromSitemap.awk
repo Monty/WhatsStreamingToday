@@ -29,23 +29,23 @@
 /<\/item>/ {
 
     if (contentType == "movie") {
-        countMovies += 1
+        totalMovies += 1
         print wholeItem >> TV_MOVIE_ITEMS
     }
 
     if (contentType == "tv_show") {
-        countShows += 1
+        totalShows += 1
         print wholeItem >> TV_SHOW_ITEMS
     }
 
     if (contentType == "tv_season") {
-        countSeasons += 1
+        totalSeasons += 1
         print wholeItem >> TV_SEASON_ITEMS
         print showContentId >> IDS_SEASONS
     }
 
     if (contentType == "tv_episode") {
-        countEpisodes += 1
+        totalEpisodes += 1
         print wholeItem >> TV_EPISODE_ITEMS
         print showContentId >> IDS_EPISODES
     }
@@ -58,11 +58,11 @@
 END {
     printf ("In sortBBoxItemsFromSitemap.awk\n") > "/dev/stderr"
 
-    countMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
-    countShows == 1 ? pluralShows = "show" : pluralShows = "shows"
-    countSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
-    countEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
+    totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
+    totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
+    totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
+    totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
     #
-    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n\n", countMovies, pluralMovies, countShows,
-            pluralShows, countSeasons, pluralSeasons, countEpisodes, pluralEpisodes) > "/dev/stderr"
+    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n\n", totalMovies, pluralMovies, totalShows,
+            pluralShows, totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes) > "/dev/stderr"
 }

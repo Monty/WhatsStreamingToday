@@ -246,7 +246,7 @@ BEGIN {
         missingEntityIds += 1
         printf ("==> Missing EntityId for %s %s '%s' in show %s at line %d\n", contentType, contentId,
                 title, showContentId, firstLineNum) >> ERRORS
-        # Add missing EntityId
+        # Special processing for tv_episode p07gnw9f in show p07gnpx0 - add missing EntityId 
         if (contentId == "p07gnw9f") {
             EntityId = "_23842"
             printf ("==> Added EntityId %s for %s %s '%s' in show %s\n", EntityId, contentType, contentId,
@@ -256,7 +256,7 @@ BEGIN {
     }
 
     if (contentType == "movie") {
-        countMovies += 1
+        totalMovies += 1
         # print "\ntv_movie" > "/dev/stderr"
         # Wish I didn't have to do this, but "movie" is too common to be in a key field
         contentType = "tv_movie"
@@ -266,10 +266,10 @@ BEGIN {
     }
 
     if (contentType == "tv_show") {
-        countShows += 1
+        totalShows += 1
         # print "\ntv_show" > "/dev/stderr"
-        showArray[countShows] = contentId
-        titleArray[countShows] = title
+        showArray[totalShows] = contentId
+        titleArray[totalShows] = title
         sortkey = sprintf ("%s (1) S%s %s", title, EntityId, contentId)
         # print "sortkey = " sortkey > "/dev/stderr"
         print title >> RAW_TITLES
@@ -284,9 +284,9 @@ BEGIN {
     }
 
     if (contentType == "tv_season") {
-        countSeasons += 1
+        totalSeasons += 1
         # print "\ntv_season" > "/dev/stderr"
-        for ( i = 1; i <= countShows; i++ ) {
+        for ( i = 1; i <= totalShows; i++ ) {
             if (showArray[i] == showContentId) {
                 showTitle = titleArray[i]
                 break
@@ -306,9 +306,9 @@ BEGIN {
     }
 
     if (contentType == "tv_episode") {
-        countEpisodes += 1
+        totalEpisodes += 1
         # print "\ntv_episode" > "/dev/stderr"
-        for ( i = 1; i <= countShows; i++ ) {
+        for ( i = 1; i <= totalShows; i++ ) {
             if (showArray[i] == showContentId) {
                 showTitle = titleArray[i]
                 break
@@ -356,13 +356,13 @@ BEGIN {
 END {
     printf ("In getBBoxCatalogFromSitemap.awk\n") > "/dev/stderr"
 
-    countMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
-    countShows == 1 ? pluralShows = "show" : pluralShows = "shows"
-    countSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
-    countEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
+    totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
+    totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
+    totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
+    totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
     #
-    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n", countMovies, pluralMovies, countShows,
-            pluralShows, countSeasons, pluralSeasons, countEpisodes, pluralEpisodes) > "/dev/stderr"
+    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n", totalMovies, pluralMovies, totalShows,
+            pluralShows, totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes) > "/dev/stderr"
 
     if (missingEntityIds > 0 ) {
         missingEntityIds == 1 ? plural = "EntityId" : plural = "EntityIds"

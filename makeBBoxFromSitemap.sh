@@ -20,7 +20,7 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":a:drst" opt; do
+while getopts ":dst" opt; do
     case $opt in
     d)
         DEBUG="yes"
@@ -33,10 +33,6 @@ while getopts ":a:drst" opt; do
         ;;
     \?)
         printf "[Warning] Ignoring invalid option: -$OPTARG\n" >&2
-        ;;
-    :)
-        printf "[Error] Option -$OPTARG requires an argument.\n" >&2
-        exit 1
         ;;
     esac
 done

@@ -38,11 +38,9 @@ function yesnodelete() {
 # i.e. the function is passed the number of parameters seen below, not
 # the expananded list which could be quite long.
 yesnodelete "all primary spreadsheet files" "Acorn_TV_Shows*.csv" "MHz_TV_Shows*.csv" \
-    "BBox_TV_Shows*.csv" "BBoxSeasons-sorted*.csv"
+    "BBox_TV_Shows*.csv"
 yesnodelete "all secondary spreadsheet files" "Acorn-columns" "MHz-columns" "BBox-columns"
 yesnodelete "all anomalies reports" "Acorn_anomalies*.txt" "MHz_anomalies*.txt" \
     "BBox_anomalies*.txt" "BBox_episodeInfo*.txt"
 yesnodelete "all diff results" "Acorn_diffs*.txt" "MHz_diffs*.txt" "BBox_diffs*.txt"
 yesnodelete "all diff baselines" "Acorn-baseline" "MHz-baseline" "BBox-baseline"
-yesnodelete "all BBox repair files" "BBox*-repair*" "BBox*.json" \
-    "BBox-scrapes/BBox*-revised*.csv" "BBox-scrapes/BBox*.bak"
