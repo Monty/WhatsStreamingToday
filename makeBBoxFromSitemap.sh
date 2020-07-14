@@ -170,7 +170,7 @@ rm -f $RAW_TITLES
 if [ "$DEBUG" != "yes" ]; then
     spreadsheet_columns="1-10"
 else
-    spreadsheet_columns="1-21"
+    spreadsheet_columns="1-13,16-19"
 fi
 titleCol="2"
 
