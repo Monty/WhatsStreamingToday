@@ -298,7 +298,8 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_CATALOG_SPREADSHEET $CATALOG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 
