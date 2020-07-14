@@ -34,5 +34,5 @@ cp -p $VERBOSE $COLUMNS/season_urls-$DATE.txt $BASELINE/season_urls.txt
 cp -p $VERBOSE $COLUMNS/uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE $COLUMNS/total_duration-$DATE.txt $BASELINE/total_duration.txt
 
-cp -p $VERBOSE MHz_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
-cp -p $VERBOSE MHz_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
+cp -p $VERBOSE MHz_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
+cp -p $VERBOSE MHz_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt
