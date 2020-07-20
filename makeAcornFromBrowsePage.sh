@@ -209,7 +209,7 @@ $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 ### of lines indicates the website was updated in the
 ### middle of processing. You should rerun the script!
 
-$(wc $COLUMNS/*$DATE_ID.csv)
+$(wc $COLUMNS/*$DATE_ID.txt)
 
 EOF2
 
