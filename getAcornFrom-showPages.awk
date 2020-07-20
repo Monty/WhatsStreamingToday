@@ -37,20 +37,57 @@
     split ($0,fld,"\"")
     showURL = fld[4]
     # print "==> showURL = " showURL " -- " FILENAME > "/dev/stderr"
+    #
+    # Create shorter URL by removing https://
+    shortURL = showURL
+    sub (/.*acorn\.tv/,"acorn.tv",shortURL)
+    next
+}
+
+# Extract the number of episodes in the series
+/itemprop="numberOfEpisodes"/ {
+    episodeLinesFound += 1
+    split ($0,fld,"\"")
+    if (episodeLinesFound == 1)
+        showEpisodes = fld[4]
+    if (episodeLinesFound != 1)
+        seasonEpisodes = seasonEpisodes "+" fld[4]
+    next
+}
+
+# Extract the number of seasons in the series
+/itemprop="numberOfSeasons"/ {
+    seasonLinesFound += 1
+    split ($0,fld,"\"")
+    showSeasons = fld[4]
+    if ((showSeasons + 0) == 0) {
+        printf ("==> No seasons in numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
+    }
     next
 }
 
 /<footer>/ {
+    if (episodeLinesFound == 0) {
+        printf ("==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
+        showEpisodes = 0
+    }
+    if (seasonLinesFound == 0) {
+        printf ("==> No numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
+    }
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
-    printf ("%s\n", showLink)
+    # printf ("%s\t%s\t%s\n", showLink, showSeasons, showEpisodes)
+    printf ("%s\t%s\t=%s\n", showLink, showSeasons, seasonEpisodes)
     # Title	Seasons	Episodes	Duration	Description
     # printf ("%s\t%s\t\t\t\t\t%s\n", showLink, showSeasons, showEpisodes, showDuration, showDescriptor)
     # Make sure there is no carryover
     showTitle = ""
     showURL = ""
+    shortURL = ""
     showLink = ""
     showSeasons = ""
+    episodeLinesFound = 0
     showEpisodes = ""
+    seasonEpisodes = ""
     showDuration = ""
     showDescriptor = ""
 }

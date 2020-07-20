@@ -122,6 +122,7 @@ printf "### Possible anomalies from processing shows are listed below.\n\n" >$ER
 
 curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
     sort -f >$SHOW_URLS
+#   head -15 | sort -f >$SHOW_URLS
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
@@ -137,69 +138,17 @@ done <"$SHOW_URLS"
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
 
-exit
-
-if [ "$INCLUDE_EPISODES" = "yes" ]; then
-    # Print  header for possible errors from processing episodes
-    # Don't delete the blank lines!
-    cat >>$ERRORS <<EOF1
-
-### Possible anomalies from processing episodes are listed below.
-### At least one episode may have no description, but if there are many,
-### there could be a temporary problem with the Acorn website.
-### You can check by using your browser to visit the associated URL.
-### You should rerun the script when the problem is cleared up.
-
-EOF1
-
-    episodeNumber=1
-    # loop through the list of episode URLs from $EPISODE_CURL_FILE
-    # WARNING can take an hour or more
-    # Generate a separate file with a line for each episode containing
-    # the description of that episode
-    curl -sS --config $EPISODE_CURL_FILE |
-        awk -v EPISODE_DESCRIPTION_FILE=$EPISODE_DESCRIPTION_FILE \
-            -v ERRORS=$ERRORS -v EPISODE_CURL_FILE=$EPISODE_CURL_FILE \
-            -v EPISODE_NUMBER=$episodeNumber -f getAcornFrom-episodePages.awk
-    paste $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE >$EPISODE_PASTED_FILE
-    # pick a second file to include in the spreadsheet
-    file2=$EPISODE_PASTED_FILE
-    ((lastRow += $(sed -n '$=' $file2)))
-else
-    # null out included file
-    file2=""
-fi
-
-# Join the URL and Title into a hyperlink
-# WARNING there is an actual tab character in the following command
-# because sed in macOS doesn't regognize \t
-paste $URL_FILE $TITLE_FILE |
-    sed -e 's/^/=HYPERLINK("/; s/	/"\;"/; s/$/")/' >>$LINK_FILE
-
-# Output header
-printf "#\tTitle\tSeasons\tEpisodes\tDuration\tDescription\n" >$SPREADSHEET_FILE
-#
-# Output body
-if [ "$UNSORTED" = "yes" ]; then
-    # sort key 1 sorts in the order found on the web
-    # sort key 4 sorts by title
-    # both sort $file2 by season then episode (if one is provided)
-    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
-        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
-        sort --key=1,1n --key=4 --field-separator=\" >>$SPREADSHEET_FILE
-else
-    paste $LINK_FILE $NUM_SEASONS_FILE $NUM_EPISODES_FILE $DURATION_FILE \
-        $DESCRIPTION_FILE | awk '{print NR"\t"$0}' | cat - $file2 |
-        sort --key=4 --field-separator=\" >>$SPREADSHEET_FILE
-fi
-#
-# Output footer
+# Output $SHORT_SPREADSHEET header
+printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
+# Output $SHORT_SPREADSHEET body
+sort --key=4 --field-separator=\" $UNSORTED >> $SHORT_SPREADSHEET
+# Output $SHORT_SPREADSHEET footer
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    TOTAL="\tNon-blank values\t=COUNTA(C2:C$lastRow)\t=COUNTA(D2:D$lastRow)"
-    TOTAL+="\t=COUNTA(E2:E$lastRow)\t=COUNTA(F2:F$lastRow)"
-    printf "$TOTAL\n" >>$SPREADSHEET_FILE
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$totalTime\n" \
-        >>$SPREADSHEET_FILE
+    TOTAL="Non-blank values\t=COUNTA(B2:B$lastRow)\t=COUNTA(C2:C$lastRow)"
+    TOTAL+="\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
+    printf "$TOTAL\n" >>$SHORT_SPREADSHEET
+    printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$totalTime\n" \
+        >>$SHORT_SPREADSHEET
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -250,15 +199,9 @@ cat >>$POSSIBLE_DIFFS <<EOF2
 ### Differences between saved Acorn-baseline and current Acorn-columns files
 ### are listed below.
 
-$(checkdiffs $PUBLISHED_TITLES $TITLE_FILE)
-$(checkdiffs $PUBLISHED_URLS $URL_FILE)
-$(checkdiffs $PUBLISHED_LINKS $LINK_FILE)
-$(checkdiffs $PUBLISHED_DESCRIPTIONS $DESCRIPTION_FILE)
-$(checkdiffs $PUBLISHED_NUM_SEASONS $NUM_SEASONS_FILE)
-$(checkdiffs $PUBLISHED_NUM_EPISODES $NUM_EPISODES_FILE)
-$(checkdiffs $PUBLISHED_DURATIONS $DURATION_FILE)
-$(checkdiffs $PUBLISHED_EPISODE_CURLS $EPISODE_CURL_FILE)
-$(checkdiffs $PUBLISHED_EPISODE_INFO $EPISODE_INFO_FILE)
+$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
+$(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
+$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 
 
 ### Any funny stuff with file lengths? There should only
@@ -272,3 +215,36 @@ EOF2
 
 echo
 echo "==> ${0##*/} completed: $(date)"
+
+exit
+
+if [ "$INCLUDE_EPISODES" = "yes" ]; then
+    # Print  header for possible errors from processing episodes
+    # Don't delete the blank lines!
+    cat >>$ERRORS <<EOF1
+
+### Possible anomalies from processing episodes are listed below.
+### At least one episode may have no description, but if there are many,
+### there could be a temporary problem with the Acorn website.
+### You can check by using your browser to visit the associated URL.
+### You should rerun the script when the problem is cleared up.
+
+EOF1
+
+    episodeNumber=1
+    # loop through the list of episode URLs from $EPISODE_CURL_FILE
+    # WARNING can take an hour or more
+    # Generate a separate file with a line for each episode containing
+    # the description of that episode
+    curl -sS --config $EPISODE_CURL_FILE |
+        awk -v EPISODE_DESCRIPTION_FILE=$EPISODE_DESCRIPTION_FILE \
+            -v ERRORS=$ERRORS -v EPISODE_CURL_FILE=$EPISODE_CURL_FILE \
+            -v EPISODE_NUMBER=$episodeNumber -f getAcornFrom-episodePages.awk
+    paste $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE >$EPISODE_PASTED_FILE
+    # pick a second file to include in the spreadsheet
+    file2=$EPISODE_PASTED_FILE
+    ((lastRow += $(sed -n '$=' $file2)))
+else
+    # null out included file
+    file2=""
+fi

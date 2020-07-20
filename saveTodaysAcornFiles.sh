@@ -28,18 +28,8 @@ COLUMNS="Acorn-columns"
 BASELINE="Acorn-baseline"
 mkdir -p $COLUMNS $BASELINE
 
-cp -p $VERBOSE $COLUMNS/urls-$DATE.csv $BASELINE/urls.txt
-cp -p $VERBOSE $COLUMNS/marquees-$DATE.csv $BASELINE/marquees.txt
-cp -p $VERBOSE $COLUMNS/titles-$DATE.csv $BASELINE/titles.txt
-cp -p $VERBOSE $COLUMNS/links-$DATE.csv $BASELINE/links.txt
-cp -p $VERBOSE $COLUMNS/descriptions-$DATE.csv $BASELINE/descriptions.txt
-cp -p $VERBOSE $COLUMNS/numberOfSeasons-$DATE.csv $BASELINE/numberOfSeasons.txt
-cp -p $VERBOSE $COLUMNS/numberOfEpisodes-$DATE.csv $BASELINE/numberOfEpisodes.txt
-cp -p $VERBOSE $COLUMNS/durations-$DATE.csv $BASELINE/durations.txt
-cp -p $VERBOSE $COLUMNS/episodeCurls-$DATE.csv $BASELINE/episodeCurls.txt
-cp -p $VERBOSE $COLUMNS/episodeInfo-$DATE.csv $BASELINE/episodeInfo.txt
-cp -p $VERBOSE $COLUMNS/episodeDescription-$DATE.csv $BASELINE/episodeDescription.txt 2>/dev/null
-cp -p $VERBOSE $COLUMNS/episodePasted-$DATE.csv $BASELINE/episodePasted.txt 2>/dev/null
+cp -p $VERBOSE $COLUMNS/show_urls-$DATE.txt $BASELINE/show_urls.txt
+cp -p $VERBOSE $COLUMNS/uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 
 cp -p $VERBOSE Acorn_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt 2>/dev/null
-cp -p $VERBOSE Acorn_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
+# cp -p $VERBOSE Acorn_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt 2>/dev/null
