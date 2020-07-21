@@ -99,6 +99,27 @@
     next
 }
 
+# Extract the episode duration
+/<meta itemprop="timeRequired"/ {
+    durationLinesFound += 1
+    split ($0,fld,"\"")
+    split (fld[4],tm,/[TMS]/)
+    secs = tm[3]
+    mins = tm[2] + int(secs / 60)
+    hrs =  int(mins / 60)
+    secs %= 60; mins %= 60
+    #
+    showSecs += secs
+    showMins += mins + int(showSecs / 60)
+    showHrs += hrs + int(showMins / 60)
+    showSecs %= 60; showMins %= 60
+    #
+    episodeDuration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+    if (episodeDuration == "00:00:00")
+        printf ("==> Blank episode duration: %s  %s\n", shortURL, showTitle) >> ERRORS
+    next
+}
+
 /<footer>/ {
     if (episodeLinesFound == 0) {
         printf ("==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
@@ -109,10 +130,13 @@
     if (descriptionLinesFound == 0) {
         printf ("==> No franchise-description: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
+    if (durationLinesFound == 0) {
+        printf ("==> No durations: %s\t%s\n", shortURL, showTitle) >> ERRORS
+    }
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
+    showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
     # Title	Seasons	Episodes	Duration	Description
-    printf ("%s\t%s\t=%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDescription)
-    # printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, showDescription)
+    printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, showDescription)
     # printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, showEpisodes, showDuration, showDescription)
     # Make sure there is no carryover
     showTitle = ""
@@ -122,6 +146,9 @@
     showSeasons = ""
     showEpisodes = ""
     seasonEpisodes = ""
+    showSecs = 0
+    showMins = 0
+    showHrs = 0
     showDuration = ""
     showDescription = ""
     #
