@@ -46,10 +46,16 @@
     split ($0,fld,"\"")
     if (episodeLinesFound == 1) {
         showEpisodes = fld[4]
+        if (showEpisodes == "") {
+            printf ("==> Blank showEpisodes in numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
+        }
         # print "==> showEpisodes = " showEpisodes " -- " FILENAME > "/dev/stderr"
     }
     if (episodeLinesFound != 1) {
         seasonEpisodes = seasonEpisodes "+" fld[4]
+        if (seasonEpisodes == "") {
+            printf ("==> Blank seasonEpisodes in numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
+        }
         # print "==> seasonEpisodes = " seasonEpisodes " -- " FILENAME > "/dev/stderr"
     }
     next
@@ -60,8 +66,8 @@
     seasonLinesFound += 1
     split ($0,fld,"\"")
     showSeasons = fld[4]
-    if ((showSeasons + 0) == 0) {
-        printf ("==> No seasons in numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
+    if (showSeasons == "") {
+        printf ("==> Blank showSeasons in numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
     # print "==> showSeasons = " showSeasons " -- " FILENAME > "/dev/stderr"
     next
@@ -73,12 +79,10 @@
     # get rid of boilerplate
     split ($0,fld,"[<>]")
     showDescription = fld[3]
-    # get rid of unnecessary characters and text
-    sub (/ Not available in Canada\./,"",showDescription)
     # fix sloppy input spacing
     gsub (/ \./,".",showDescription)
     gsub (/  */," ",showDescription)
-    # sub (/^ */,"",showDescription)
+    sub (/^ */,"",showDescription)
     sub (/ *$/,"",showDescription)
     # fix funky HTML characters
     gsub (/&amp;/,"\\&",showDescription)
@@ -98,7 +102,6 @@
 /<footer>/ {
     if (episodeLinesFound == 0) {
         printf ("==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
-        showEpisodes = 0
     }
     if (seasonLinesFound == 0) {
         printf ("==> No numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS

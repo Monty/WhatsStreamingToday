@@ -17,26 +17,20 @@ cd $DIRNAME
 DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
-# Use "-c" switch to get a Canadian view of descriptions,
-# i.e. don't remove the text "Not available in Canada."
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-l" switch to include every episode description for each show
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":cdlt" opt; do
+while getopts ":dlst" opt; do
     case $opt in
-    c)
-        # Only echo this once, even if -c occurs twice
-        if [ -z $IN_CANADA ]; then
-            echo "Invoking Canadian version..." >&2
-            IN_CANADA="yes"
-        fi
-        ;;
     d)
         DEBUG="yes"
         ;;
     l)
         INCLUDE_EPISODES="yes"
         echo "NOTICE: The -l option for Acorn TV can take a half hour or more."
+        ;;
+    s)
+        SUMMARY="yes"
         ;;
     t)
         PRINT_TOTALS="yes"
@@ -153,6 +147,11 @@ fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
+    if [ "$SUMMARY" = "yes" ]; then
+        rm -f $ALL_WORKING
+        rm -f $ALL_TXT
+        rm -f $ALL_SPREADSHEETS
+    fi
     exit
 fi
 
@@ -213,8 +212,11 @@ $(wc $COLUMNS/*$DATE_ID.txt)
 
 EOF2
 
-echo
-echo "==> ${0##*/} completed: $(date)"
+if [ "$SUMMARY" = "yes" ]; then
+    rm -f $ALL_WORKING
+    rm -f $ALL_TXT
+    rm -f $ALL_SPREADSHEETS
+fi
 
 exit
 

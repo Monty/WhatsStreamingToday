@@ -2,10 +2,6 @@
 
 Run **makeAcornSpreadsheet.sh [-cdltu]**, **makeBBoxFromSitemap.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dst]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
-**-c**
-&nbsp;&nbsp;&nbsp;&nbsp;
-_Canadian_ - Don't delete the text "Not available in Canada." (Acorn).  
-&nbsp;&nbsp;&nbsp;&nbsp;
 **-d**
 &nbsp;&nbsp;&nbsp;&nbsp;
 _Debug_ - Create a diffs file that details what changed in each column.  
@@ -18,15 +14,11 @@ Can take 30 minutes or more.
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-s**
 &nbsp;&nbsp;&nbsp;&nbsp;
-_Summary_ - Delete all new files except for error reports and diffs (Acorn & BritBox).  
+_Summary_ - Delete all new files except for error reports and diffs.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-t**
 &nbsp;&nbsp;&nbsp;&nbsp;
 _Totals_ - Add column totals and row counts at the end of the spreadsheet.  
-&nbsp;&nbsp;&nbsp;&nbsp;
-**-u**
-&nbsp;&nbsp;&nbsp;&nbsp;
-_Unsorted_ - Leave shows in the order they are found on the web (Acorn).
 
 Each script creates a number of other files. To see the complete list,
 look at **saveTodaysAcornFiles.sh**, **saveTodaysBBoxFiles.sh** or
