@@ -114,19 +114,17 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$SORTED_SITEMAP $RAW_TITLES $UNIQUE_TITLES $DURATION "
+ALL_WORKING="$SORTED_SITEMAP $RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
 ALL_XML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
 ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
 ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
-ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET $SEASONS_SPREADSHEET "
+ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET $SEASONS_SPREADSHEET"
 
 # Cleanup any possible leftover files
-rm -f $ALL_WORKING
-rm -f $ALL_XML $ALL_TXT
-rm -f $ALL_SPREADSHEETS
+rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
 
 # Grab the XML catalog file and get rid of Windows CRs
 # Unless we already have one from today
@@ -164,6 +162,7 @@ rm -f $RAW_TITLES
 #     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Entity_ID
 #    13 Show_Type    14 Date_Type    15 Original_Date   16 Show_ID         17 Season_ID    18 Sn_#
 #    19 Ep_#         20 1st_#        21 Last_#
+titleCol="2"
 
 # Pick columns to display
 # NOTE: Content_Type is required for calculateBBoxShowDurations.awk
@@ -172,7 +171,6 @@ if [ "$DEBUG" != "yes" ]; then
 else
     spreadsheet_columns="1-13,16-19"
 fi
-titleCol="2"
 
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
 head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
@@ -245,9 +243,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_WORKING
-        rm -f $ALL_XML $ALL_TXT
-        rm -f $ALL_SPREADSHEETS
+        rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
 fi
@@ -295,7 +291,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
-$(grep -v "^Sortkey" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
+$(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
@@ -320,14 +316,12 @@ $(countOccurrences "tv_season")
 
 ### Any funny stuff with file lengths?
 
-$(wc $ALL_SPREADSHEETS)
+$(wc $ALL_TXT $ALL_SPREADSHEETS)
 
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_WORKING
-    rm -f $ALL_XML $ALL_TXT
-    rm -f $ALL_SPREADSHEETS
+    rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
 fi
 
 exit

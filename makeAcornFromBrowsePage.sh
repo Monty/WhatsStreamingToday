@@ -107,9 +107,7 @@ ALL_TXT="$SHOW_URLS $EPISODE_URLS $SEASON_URLS "
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
 
 # Cleanup any possible leftover files
-rm -f $ALL_WORKING
-rm -f $ALL_TXT
-rm -f $ALL_SPREADSHEETS
+rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 # Print header for possible errors from processing shows
 printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
@@ -132,6 +130,10 @@ done <"$SHOW_URLS"
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
 
+# Field numbers returned by getAcornFrom-showPages.awk
+#     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
+titleCol="1"
+
 # Output $SHORT_SPREADSHEET header
 printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
 # Output $SHORT_SPREADSHEET body
@@ -148,9 +150,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_WORKING
-        rm -f $ALL_TXT
-        rm -f $ALL_SPREADSHEETS
+        rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
 fi
@@ -195,27 +195,25 @@ function checkdiffs() {
 cat >>$POSSIBLE_DIFFS <<EOF2
 ==> ${0##*/} completed: $(date)
 
-### Differences between saved Acorn-baseline and current Acorn-columns files
-### are listed below.
+### Any duplicate titles?
+$(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
+### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-
 
 ### Any funny stuff with file lengths? There should only
 ### be two different lengths. Any differences in the number
 ### of lines indicates the website was updated in the
 ### middle of processing. You should rerun the script!
 
-$(wc $COLUMNS/*$DATE_ID.txt)
+$(wc $ALL_TXT $ALL_SPREADSHEETS)
 
 EOF2
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_WORKING
-    rm -f $ALL_TXT
-    rm -f $ALL_SPREADSHEETS
+    rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
 exit

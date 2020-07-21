@@ -96,16 +96,14 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_TITLES $UNIQUE_TITLES $DURATION "
+ALL_WORKING="$UNSORTED $RAW_TITLES"
 #
-ALL_TXT="$EPISODE_URLS $SEASON_URLS "
+ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_TITLES $DURATION"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
-rm -f $ALL_WORKING
-rm -f $ALL_TXT
-rm -f $ALL_SPREADSHEETS
+rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 # Grab only the season and episode URLs from the sitemap
 # Unless we already have a result from today
@@ -200,9 +198,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_WORKING
-        rm -f $ALL_TXT
-        rm -f $ALL_SPREADSHEETS
+        rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
 fi
@@ -260,14 +256,12 @@ $(checkdiffs $PUBLISHED_DURATION $DURATION)
 
 ### Any funny stuff with file lengths?
 
-$(wc $LONG_SPREADSHEET $COLUMNS/*$DATE_ID.* $SHORT_SPREADSHEET)
+$(wc $ALL_TXT $ALL_SPREADSHEETS)
 
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_WORKING
-    rm -f $ALL_TXT
-    rm -f $ALL_SPREADSHEETS
+    rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
 exit
