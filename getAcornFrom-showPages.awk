@@ -92,7 +92,7 @@
     # fix unmatched quotes
     numQuotes = gsub(/"/,"\"",showDescription)
     if ((numQuotes % 2) == 1) {
-        printf ("==> Changed unmatched quote (%d): %d\t%s\t%s\t%s\n", numQuotes, shortURL, \
+        printf ("==> Changed unmatched quote (%d): %d\t%s\t%s\t%s\n", numQuotes, shortURL,
                 showTitle) >> ERRORS
         showDescription = showDescription " \""
     }
@@ -180,8 +180,14 @@
     if (episodeURL ~ \
         /\/cryptoftears\/bonus\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
         && seasonNumber != 1) {
-            printf ("==> Changed S%02d to S01: /%s\n", seasonNumber, shortEpisodeURL) >> ERRORS
+            printf ("==> Changed S%02d to S01: %s\n", seasonNumber, shortEpisodeURL) >> ERRORS
         seasonNumber = 1
+    }
+    # Plain christmasspecial, seriesfinale don't increment seasonNumber
+    if (episodeURL ~ /\/christmasspecial\/|\/seriesfinale\//) {
+        printf ("==> Changed S%02d to S%02d: %s\n", seasonNumber, seasonNumber-1, 
+                shortEpisodeURL) >> ERRORS
+        seasonNumber -= 1
     }
     # Wrap up this episode
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
@@ -190,8 +196,7 @@
     # Print "episode" line
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
     # \t\t\t 00:59:17 \t As they arrive
-        printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription) \
-                >> LONG_SPREADSHEET
+        printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription) >> LONG_SPREADSHEET
     episodeURL = ""
     episodeType = ""
     episodeTitle = ""
