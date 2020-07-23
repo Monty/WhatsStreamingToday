@@ -158,11 +158,28 @@
     split ($0,fld,"[<>]")
     episodeNumber = fld[5]
     # print "==> episodeNumber = " episodeNumber " " shortEpisodeURL > "/dev/stderr"
-    # Wrap up this episode
+    # 
+    # Setup showType so shows group/sort properly
+    # Default showType to "S"
+    showType = "S"
+    # If show is a Prequel, use "P" e.g. Doc Martin
+    if (episodeURL ~ /\/prequel/)
+        showType = "P"
+    # 
+    # Setup episodeType so episodes group/sort properly
+    # Default episodeType to "E"
     episodeType = "E"
+    # Default bonus and christmas specials episodeType to "X"
+    if (episodeURL ~ /\/bonus|christmas[-]?special/)
+        episodeType = "X"
+    # If episode is a Trailer, set episodeType to "T" - even though not all these have episodes
+    if (episodeURL ~ /_cs\//)
+        episodeType = "T"
+    #
+    # Wrap up this episode
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
-    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\"\)", episodeURL, showTitle,
-                    seasonNumber, episodeType, episodeNumber, episodeTitle)
+    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)", episodeURL, showTitle,
+                    showType, seasonNumber, episodeType, episodeNumber, episodeTitle)
     # Print "episode" line
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
     # \t\t\t 00:59:17 \t As they arrive
