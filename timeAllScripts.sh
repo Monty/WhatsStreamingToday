@@ -9,14 +9,9 @@ time ./makeMHzFromSitemap.sh -td
 echo ""
 
 echo "----------------------------------------"
-echo "==> time ./makeAcornSpreadsheet.sh -t"
+echo "==> time ./makeAcornSpreadsheet.sh -td"
 date
-time ./makeAcornSpreadsheet.sh -t
-echo ""
-echo "----------------------------------------"
-echo "==> time ./makeAcornSpreadsheet.sh -tld"
-date
-time ./makeAcornSpreadsheet.sh -tld
+time ./makeAcornSpreadsheet.sh -td
 echo ""
 
 echo "----------------------------------------"

@@ -5,7 +5,8 @@
 # INVOCATION:
 #    while read -r line; do
 #        curl -sS "$line" |
-#            awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -f getAcornFrom-showPages.awk >>$UNSORTED
+#            awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES v LONG_SPREADSHEET=$LONG_SPREADSHEET \
+#            -v EPISODE_URLS=$EPISODE_URLS -f getAcornFrom-showPages.awk >>$UNSORTED
 #        ((lastRow++))
 #    done <"$SHOW_URLS"
 
@@ -25,7 +26,7 @@
         showTitle = substr(showTitle, 5) ", The"
     }
     print showTitle >> RAW_TITLES
-    # print "==> showTitle = " showTitle " -- " FILENAME > "/dev/stderr"
+    # print "==> showTitle = " showTitle > "/dev/stderr"
     next
 }
 
@@ -33,7 +34,7 @@
 /meta property="og:url/ {
     split ($0,fld,"\"")
     showURL = fld[4]
-    # print "==> showURL = " showURL " -- " FILENAME > "/dev/stderr"
+    # print "==> showURL = " showURL > "/dev/stderr"
     # Create shorter URL by removing https://
     shortURL = showURL
     sub (/.*acorn\.tv/,"acorn.tv",shortURL)
@@ -49,14 +50,14 @@
         if (showEpisodes == "") {
             printf ("==> Blank showEpisodes in numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
         }
-        # print "==> showEpisodes = " showEpisodes " -- " FILENAME > "/dev/stderr"
+        # print "==> showEpisodes = " showEpisodes " " shortURL > "/dev/stderr"
     }
     if (episodeLinesFound != 1) {
         seasonEpisodes = seasonEpisodes "+" fld[4]
         if (seasonEpisodes == "") {
             printf ("==> Blank seasonEpisodes in numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
         }
-        # print "==> seasonEpisodes = " seasonEpisodes " -- " FILENAME > "/dev/stderr"
+        # print "==> seasonEpisodes = " seasonEpisodes " " shortURL > "/dev/stderr"
     }
     next
 }
@@ -69,7 +70,7 @@
     if (showSeasons == "") {
         printf ("==> Blank showSeasons in numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
-    # print "==> showSeasons = " showSeasons " -- " FILENAME > "/dev/stderr"
+    # print "==> showSeasons = " showSeasons " " shortURL > "/dev/stderr"
     next
 }
 
@@ -95,7 +96,28 @@
                 showTitle) >> ERRORS
         showDescription = showDescription " \""
     }
-    # print "==> showDescription = " showDescription " -- " FILENAME > "/dev/stderr"
+    # print "==> showDescription = " showDescription " " shortURL > "/dev/stderr"
+    next
+}
+
+# Extract the seasonNumber
+# Note that Acorn "season" numbers may not correspond to actual season numbers.
+# They simply refer to the number of seasons available on Acorn.
+/<meta itemprop="seasonNumber" content="/ {
+    split ($0,fld,"\"")
+    seasonNumber = fld[4]
+    # print "==> seasonNumber = " seasonNumber " " shortURL > "/dev/stderr"
+    next
+}
+
+# Extract the episode URL
+/<a itemprop="url"/ {
+    split ($0,fld,"\"")
+    episodeURL = fld[4]
+    # print "==> episodeURL = " episodeURL > "/dev/stderr"
+    print episodeURL >> EPISODE_URLS
+    shortEpisodeURL = episodeURL
+    sub (/.*acorn\.tv/,"acorn.tv",shortEpisodeURL)
     next
 }
 
@@ -115,11 +137,46 @@
     showSecs %= 60; showMins %= 60
     #
     episodeDuration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+    # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL > "/dev/stderr"
     if (episodeDuration == "00:00:00")
-        printf ("==> Blank episode duration: %s  %s\n", shortURL, showTitle) >> ERRORS
+        printf ("==> Blank episode duration: %s  %s\n", shortEpisodeURL, showTitle) >> ERRORS
     next
 }
 
+# Extract the episode title
+/<h5 itemprop="name">/ {
+    split ($0,fld,"[<>]")
+    episodeTitle = fld[3]
+    gsub (/&amp;/,"\\&", episodeTitle)
+    gsub (/&#039;/,"'",episodeTitle)
+    # print "==> episodeTitle = " episodeTitle " " shortEpisodeURL > "/dev/stderr"
+    next
+}
+
+# Extract episode number
+/<h6>.*span itemprop="episodeNumber">/ {
+    split ($0,fld,"[<>]")
+    episodeNumber = fld[5]
+    # print "==> episodeNumber = " episodeNumber " " shortEpisodeURL > "/dev/stderr"
+    # Wrap up this episode
+    episodeType = "E"
+    # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
+    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\"\)", episodeURL, showTitle,
+                    seasonNumber, episodeType, episodeNumber, episodeTitle)
+    # Print "episode" line
+    # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
+    # \t\t\t 00:59:17 \t As they arrive
+        printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription) \
+                >> LONG_SPREADSHEET
+    episodeURL = ""
+    episodeType = ""
+    episodeTitle = ""
+    episodeNumber = ""
+    episodeDuration = ""
+    next
+}
+
+# Wrap up this show
 /<footer>/ {
     if (episodeLinesFound == 0) {
         printf ("==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS

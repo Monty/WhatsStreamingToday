@@ -100,11 +100,11 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_TITLES $UNIQUE_TITLES $DURATION "
+ALL_WORKING="$UNSORTED $RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
-ALL_TXT="$SHOW_URLS $EPISODE_URLS $SEASON_URLS "
+ALL_TXT="$SHOW_URLS $EPISODE_URLS $SEASON_URLS"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -122,7 +122,8 @@ lastRow=1
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
 while read -r line; do
     curl -sS "$line" |
-        awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -f getAcornFrom-showPages.awk >>$UNSORTED
+        awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
+            -v EPISODE_URLS=$EPISODE_URLS -f getAcornFrom-showPages.awk >>$UNSORTED
     ((lastRow++))
 done <"$SHOW_URLS"
 
@@ -137,7 +138,7 @@ titleCol="1"
 # Output $SHORT_SPREADSHEET header
 printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
 # Output $SHORT_SPREADSHEET body
-sort --key=4 --field-separator=\" $UNSORTED >> $SHORT_SPREADSHEET
+sort --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
 # Output $SHORT_SPREADSHEET footer
 if [ "$PRINT_TOTALS" = "yes" ]; then
     TOTAL="Non-blank values\t=COUNTA(B2:B$lastRow)\t=COUNTA(C2:C$lastRow)"
@@ -146,6 +147,17 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$totalTime\n" \
         >>$SHORT_SPREADSHEET
 fi
+
+# Sort a few files
+mv $EPISODE_URLS $UNSORTED
+sort $UNSORTED >$EPISODE_URLS
+#
+mv $LONG_SPREADSHEET $UNSORTED
+# Output $LONG_SPREADSHEET header
+printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$LONG_SPREADSHEET
+# Output $LONG_SPREADSHEET body
+sort --key=4 --field-separator=\" $UNSORTED >>$LONG_SPREADSHEET
+rm -f $UNSORTED
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
@@ -201,12 +213,11 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
+$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
-### Any funny stuff with file lengths? There should only
-### be two different lengths. Any differences in the number
-### of lines indicates the website was updated in the
-### middle of processing. You should rerun the script!
+### Any funny stuff with file lengths?
 
 $(wc $ALL_TXT $ALL_SPREADSHEETS)
 
