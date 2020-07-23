@@ -176,6 +176,13 @@
     if (episodeURL ~ /_cs\//)
         episodeType = "T"
     #
+    # cryptoftears, newworlds & newtonslaw bonus seasonNumber should be 1
+    if (episodeURL ~ \
+        /\/cryptoftears\/bonus\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
+        && seasonNumber != 1) {
+            printf ("==> Changed S%02d to S01: /%s\n", seasonNumber, shortEpisodeURL) >> ERRORS
+        seasonNumber = 1
+    }
     # Wrap up this episode
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
     episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)", episodeURL, showTitle,
