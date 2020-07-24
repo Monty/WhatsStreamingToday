@@ -48,14 +48,16 @@
     if (episodeLinesFound == 1) {
         showEpisodes = fld[4]
         if (showEpisodes == "") {
-            printf ("==> Blank showEpisodes in numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
+            printf ("==> Blank showEpisodes in numberOfEpisodes: %s\t%s\n", shortURL,
+                    showTitle) >> ERRORS
         }
         # print "==> showEpisodes = " showEpisodes " " shortURL > "/dev/stderr"
     }
     if (episodeLinesFound != 1) {
         seasonEpisodes = seasonEpisodes "+" fld[4]
         if (seasonEpisodes == "") {
-            printf ("==> Blank seasonEpisodes in numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
+            printf ("==> Blank seasonEpisodes in numberOfEpisodes: %s\t%s\n", shortURL,
+                    showTitle) >> ERRORS
         }
         # print "==> seasonEpisodes = " seasonEpisodes " " shortURL > "/dev/stderr"
     }
@@ -114,10 +116,13 @@
 /<a itemprop="url"/ {
     split ($0,fld,"\"")
     episodeURL = fld[4]
+    sub (/\/$/,"",episodeURL)
     # print "==> episodeURL = " episodeURL > "/dev/stderr"
     print episodeURL >> EPISODE_URLS
     shortEpisodeURL = episodeURL
     sub (/.*acorn\.tv/,"acorn.tv",shortEpisodeURL)
+    split (episodeURL, part, "/")
+    shortSeasonURL = "acorn.tv/" part[4] "/" part[5]
     next
 }
 
@@ -180,15 +185,36 @@
     if (episodeURL ~ \
         /\/cryptoftears\/bonus\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// \
         && seasonNumber != 1) {
-            printf ("==> Changed S%02d to S01: %s\n", seasonNumber, shortEpisodeURL) >> ERRORS
+            printf ("==> Changed S%02d to S01: %s\n", seasonNumber, shortSeasonURL) >> ERRORS
         seasonNumber = 1
     }
     # Plain christmasspecial, seriesfinale don't increment seasonNumber
     if (episodeURL ~ /\/christmasspecial\/|\/seriesfinale\//) {
         printf ("==> Changed S%02d to S%02d: %s\n", seasonNumber, seasonNumber-1, 
-                shortEpisodeURL) >> ERRORS
+                shortSeasonURL) >> ERRORS
         seasonNumber -= 1
     }
+    #
+    # The season number should match that in the URL
+    # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, Vera, and others have problems
+    if (episodeURL ~ \
+           /\/series[0-9]{1,2}\/|[0-9]{1,2}bonus\/|\/murdoch\/season[0-9]{1,2}/) {
+        split (episodeURL, part, "/")
+        URLseasonNumber = part[5]
+        sub (/bonus/,"",URLseasonNumber)
+        # Foyle's War has sets: foyleswar/series9set8bonus/
+        sub (/set[0-9]/,"",URLseasonNumber)
+        # Midsomer Murders has two parts: midsomermurders/series19parttwo/
+        sub (/parttwo/,"",URLseasonNumber)
+        sub (/christmasspecial/,"",URLseasonNumber)
+        sub (/[[:alpha:]]*/,"",URLseasonNumber)
+        if (URLseasonNumber != seasonNumber) {
+            printf ("==> Changed S%02d to S%02d: %s\n", seasonNumber, URLseasonNumber,
+                    shortSeasonURL) >> ERRORS
+            seasonNumber = URLseasonNumber
+        }
+    }
+    #
     # Wrap up this episode
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
     episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)", episodeURL, showTitle,
@@ -197,7 +223,10 @@
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
     # \t\t\t 00:59:17 \t As they arrive
         printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription) >> LONG_SPREADSHEET
+    # Make sure there is no carryover
     episodeURL = ""
+    shortEpisodeURL = ""
+    shortSeasonURL = ""
     episodeType = ""
     episodeTitle = ""
     episodeNumber = ""
