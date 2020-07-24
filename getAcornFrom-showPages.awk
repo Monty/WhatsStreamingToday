@@ -123,6 +123,22 @@
     sub (/.*acorn\.tv/,"acorn.tv",shortEpisodeURL)
     split (episodeURL, part, "/")
     shortSeasonURL = "acorn.tv/" part[4] "/" part[5]
+    # extract the episode description
+    cmd = "curl -s " episodeURL " | grep '<meta itemprop=\"description\"' | tail -1"
+    while ((cmd | getline desc ) > 0) {
+        split (desc,fld,"\"")
+        episodeDescription = fld[4]
+        # fix sloppy input spacing
+        gsub (/ \./,".",episodeDescription)
+        gsub (/  */," ",episodeDescription)
+        sub (/^ */,"",episodeDescription)
+        sub (/ *$/,"",episodeDescription)
+        # fix funky HTML characters
+        gsub (/&amp;/,"\\&",episodeDescription)
+        gsub (/&quot;/,"\"\"",episodeDescription)
+        gsub (/&#039;/,"'",episodeDescription)
+    }
+    close cmd
     next
 }
 
