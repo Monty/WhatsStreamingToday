@@ -41,6 +41,6 @@ yesnodelete "all primary spreadsheet files" "Acorn_TV_Shows*.csv" "MHz_TV_Shows*
     "BBox_TV_Shows*.csv"
 yesnodelete "all secondary spreadsheet files" "Acorn-columns" "MHz-columns" "BBox-columns"
 yesnodelete "all anomalies reports" "Acorn_anomalies*.txt" "MHz_anomalies*.txt" \
-    "BBox_anomalies*.txt" "BBox_episodeInfo*.txt"
+    "BBox_anomalies*.txt""
 yesnodelete "all diff results" "Acorn_diffs*.txt" "MHz_diffs*.txt" "BBox_diffs*.txt"
 yesnodelete "all diff baselines" "Acorn-baseline" "MHz-baseline" "BBox-baseline"
