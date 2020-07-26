@@ -1,16 +1,10 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-cdltu]**, **makeBBoxFromSitemap.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dst]**  
+Run **makeAcornSpreadsheet.sh [-dst]**, **makeBBoxFromSitemap.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dst]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-d**
 &nbsp;&nbsp;&nbsp;&nbsp;
 _Debug_ - Create a diffs file that details what changed in each column.  
-&nbsp;&nbsp;&nbsp;&nbsp;
-**-l**
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-_Long_ - Include descriptions of every episode, not just the shows. (Acorn).  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-Can take 30 minutes or more.  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-s**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -42,13 +36,6 @@ You don't need to keep any .csv files around after loading the
 spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
-
-Shows in the spreadsheet are sorted by title. For Acorn you can sort
-them in the order they are found on the web by using the **-u** switch or by
-sorting on the first column. If you want to sort by a different column
-**_and_** you used the **-t** switch to add column totals and row counts you
-should either create a Named Range to sort on or delete the added rows.
-Otherwise those rows will wind up in the middle of your spreadsheet.
 
 #### To format the spreadsheets:
 
@@ -114,20 +101,6 @@ such as missing descriptions, missing durations, etc. Some are
 intentional, but if there are a large number, something is probably
 broken. Usually it's Acorn TV's problem. Cross check the file called 
 **Acorn_anomalies-[LONGDATE].txt** against what you see in your browser.
-
-#### To recover an older Acorn-baseline
-
-Run **rebuildAcornBaseline.sh [-d | -v]**
-
-This will use the current **Acorn\_TV\_ShowsEpisodes-[DATE].csv** to
-create an **Acorn-baseline-[DATE].csv**. To recreate a different date's
-baseline, use **-d DATE** with a date in the format yymmdd.  **-v** is
-a "verbose" option to be passed through to the underlying commands.
-
-It can be useful to run **diff -rq** on old and new baselines to see
-what columns changed. Of course, you can replace the current 
-**Acorn-baseline-[DATE]** with a rebuilt one if the rebuilt one
-is more accurate.
 
 #### To remove any files created by running scripts:
 

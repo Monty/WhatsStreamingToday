@@ -18,16 +18,12 @@ DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
 # Use "-d" switch to output a "diffs" file useful for debugging
-# Use "-l" switch to include every episode description for each show
+# Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":dlst" opt; do
+while getopts ":dst" opt; do
     case $opt in
     d)
         DEBUG="yes"
-        ;;
-    l)
-        INCLUDE_EPISODES="yes"
-        echo "NOTICE: The -l option for Acorn TV can take a half hour or more."
         ;;
     s)
         SUMMARY="yes"
@@ -220,7 +216,7 @@ function checkdiffs() {
 }
 
 # Preserve any possible errors for debugging
-cat >>$POSSIBLE_DIFFS <<EOF2
+cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
@@ -237,41 +233,10 @@ $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
 $(wc $ALL_TXT $ALL_SPREADSHEETS)
 
-EOF2
+EOF
 
 if [ "$SUMMARY" = "yes" ]; then
     rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
 exit
-
-if [ "$INCLUDE_EPISODES" = "yes" ]; then
-    # Print  header for possible errors from processing episodes
-    # Don't delete the blank lines!
-    cat >>$ERRORS <<EOF1
-
-### Possible anomalies from processing episodes are listed below.
-### At least one episode may have no description, but if there are many,
-### there could be a temporary problem with the Acorn website.
-### You can check by using your browser to visit the associated URL.
-### You should rerun the script when the problem is cleared up.
-
-EOF1
-
-    episodeNumber=1
-    # loop through the list of episode URLs from $EPISODE_CURL_FILE
-    # WARNING can take an hour or more
-    # Generate a separate file with a line for each episode containing
-    # the description of that episode
-    curl -sS --config $EPISODE_CURL_FILE |
-        awk -v EPISODE_DESCRIPTION_FILE=$EPISODE_DESCRIPTION_FILE \
-            -v ERRORS=$ERRORS -v EPISODE_CURL_FILE=$EPISODE_CURL_FILE \
-            -v EPISODE_NUMBER=$episodeNumber -f getAcornFrom-episodePages.awk
-    paste $EPISODE_INFO_FILE $EPISODE_DESCRIPTION_FILE >$EPISODE_PASTED_FILE
-    # pick a second file to include in the spreadsheet
-    file2=$EPISODE_PASTED_FILE
-    ((lastRow += $(sed -n '$=' $file2)))
-else
-    # null out included file
-    file2=""
-fi
