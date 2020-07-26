@@ -122,42 +122,58 @@ lastRow=1
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
 while read -r line; do
     curl -sS "$line" |
-        awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
-            -v EPISODE_URLS=$EPISODE_URLS -f getAcornFrom-showPages.awk >>$UNSORTED
-    ((lastRow++))
+        awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
+            -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET -f getAcornFrom-showPages.awk >>$UNSORTED
 done <"$SHOW_URLS"
-
-# Sort the titles produced by getAcornFrom-showPages.awk
-sort -fu $RAW_TITLES >$UNIQUE_TITLES
-rm -f $RAW_TITLES
 
 # Field numbers returned by getAcornFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
 titleCol="1"
 
+# Print header for $LONG_SPREADSHEET
+printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$LONG_SPREADSHEET
+# Create $LONG_SPREADSHEET sorted by title, not URL
+sort -fu --key=4 --field-separator=\" $UNSORTED >>$LONG_SPREADSHEET
+rm -f $UNSORTED
+
+# Generate $SHORT_SPREADSHEET
+mv $SHORT_SPREADSHEET $UNSORTED
 # Output $SHORT_SPREADSHEET header
 printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
-# Output $SHORT_SPREADSHEET body
-sort --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
-# Output $SHORT_SPREADSHEET footer
-if [ "$PRINT_TOTALS" = "yes" ]; then
-    TOTAL="Non-blank values\t=COUNTA(B2:B$lastRow)\t=COUNTA(C2:C$lastRow)"
-    TOTAL+="\t=COUNTA(D2:D$lastRow)\t=COUNTA(E2:E$lastRow)"
-    printf "$TOTAL\n" >>$SHORT_SPREADSHEET
-    printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$totalTime\n" \
-        >>$SHORT_SPREADSHEET
-fi
-
-# Sort a few files
-mv $EPISODE_URLS $UNSORTED
-sort $UNSORTED >$EPISODE_URLS
-#
-mv $LONG_SPREADSHEET $UNSORTED
-# Output $LONG_SPREADSHEET header
-printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$LONG_SPREADSHEET
-# Output $LONG_SPREADSHEET body
-sort --key=4 --field-separator=\" $UNSORTED >>$LONG_SPREADSHEET
+# Output $SHORT_SPREADSHEET body sorted by title, not URL
+sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
 rm -f $UNSORTED
+
+# Sort the titles produced by getAcornFrom-showPages.awk
+sort -fu $RAW_TITLES >$UNIQUE_TITLES
+rm -f $RAW_TITLES
+# Sort episode URLs produced by getAcornFrom-showPages.awk
+mv $EPISODE_URLS $UNSORTED
+sort -fu $UNSORTED >$EPISODE_URLS
+rm -f $UNSORTED
+
+# Shortcut for adding totals to spreadsheets
+function addTotalsToSpreadsheet() {
+    # Add labels in column A
+    # Add totals formula in remaining columns
+    colNames=ABCDEFGHIJKLMNOPQRSTU
+    ((lastRow = $(sed -n '$=' $1)))
+    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 1))
+    TOTAL="Non-blank values"
+    for ((i = 1; i <= numCountA; i++)); do
+        x=${colNames:i:1}
+        TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
+    done
+    printf "$TOTAL\n" >>$1
+    #
+    printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+}
+
+# Output spreadsheet footer if totals requested
+if [ "$PRINT_TOTALS" = "yes" ]; then
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET
+    addTotalsToSpreadsheet $LONG_SPREADSHEET
+fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then

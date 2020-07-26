@@ -5,9 +5,8 @@
 # INVOCATION:
 #    while read -r line; do
 #        curl -sS "$line" |
-#            awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES v LONG_SPREADSHEET=$LONG_SPREADSHEET \
-#            -v EPISODE_URLS=$EPISODE_URLS -f getAcornFrom-showPages.awk >>$UNSORTED
-#        ((lastRow++))
+#            awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
+#                -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET -f getAcornFrom-showPages.awk >>$UNSORTED
 #    done <"$SHOW_URLS"
 
 #   Field Names
@@ -235,10 +234,10 @@
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
     episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)", episodeURL, showTitle,
                     showType, seasonNumber, episodeType, episodeNumber, episodeTitle)
-    # Print "episode" line
+    # Print "episode" line to UNSORTED
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
     # \t\t\t 00:59:17 \t As they arrive
-        printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription) >> LONG_SPREADSHEET
+        printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription)
     # Make sure there is no carryover
     episodeURL = ""
     shortEpisodeURL = ""
@@ -266,9 +265,14 @@
     }
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
-    # Title	Seasons	Episodes	Duration	Description
-    printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, showDescription)
-    # printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, showEpisodes, showDuration, showDescription)
+    # Print "show" line to SHORT_SPREADSHEET with showDuration
+    printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, \
+            showDescription) >> SHORT_SPREADSHEET
+    # Print "show" line to UNSORTED without showDuration unless single episode
+    if (showSeasons != 1 || showEpisodes != 1) 
+        showDuration = ""
+    printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes,  showDuration, \
+            showDescription)
     # Make sure there is no carryover
     showTitle = ""
     showURL = ""
