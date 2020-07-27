@@ -347,10 +347,12 @@ BEGIN {
     fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
-            sortkey, fullTitle, numSeasons, numEpisodes, duration, genre, year, rating, description,
-            contentType, contentId, EntityId, showType, dateType, originalDate, showContentId,
-            seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
+    # Print everything except tv_seasons
+    if (contentType != "tv_season")
+        printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
+                sortkey, fullTitle, numSeasons, numEpisodes, duration, genre, year, rating, description,
+                contentType, contentId, EntityId, showType, dateType, originalDate, showContentId,
+                seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
 }
 
 END {

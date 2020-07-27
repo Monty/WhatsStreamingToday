@@ -82,7 +82,6 @@ CATALOG_SPREADSHEET="$COLUMNS/BBoxCatalog$DATE_ID.csv"
 EPISODES_SPREADSHEET="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
 MOVIES_SPREADSHEET="$COLUMNS/BBoxMovies$DATE_ID.csv"
 PROGRAMS_SPREADSHEET="$COLUMNS/BBoxPrograms$DATE_ID.csv"
-SEASONS_SPREADSHEET="$COLUMNS/BBoxSeasons$DATE_ID.csv"
 
 # XML files segregated by item type
 TV_MOVIE_ITEMS="$COLUMNS/tv_movies$DATE_ID.xml"
@@ -108,7 +107,6 @@ PUBLISHED_CATALOG_SPREADSHEET="$BASELINE/BBoxCatalog.txt"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
 PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies.txt"
 PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms.txt"
-PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxSeasons.txt"
 #
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
@@ -121,7 +119,7 @@ ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
 ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
-ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET $SEASONS_SPREADSHEET"
+ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
@@ -180,7 +178,6 @@ tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -fu >>$LONG
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
-grep -e "^Sortkey" -e "tv_season" $LONG_SPREADSHEET >$SEASONS_SPREADSHEET
 
 # Generate SHORT_SPREADSHEET by processing LONG_SPREADSHEET to calculate and include durations
 tail -r $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
@@ -237,7 +234,6 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $EPISODES_SPREADSHEET
     addTotalsToSpreadsheet $MOVIES_SPREADSHEET
     addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET
-    addTotalsToSpreadsheet $SEASONS_SPREADSHEET
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -310,9 +306,6 @@ $(countOccurrences "tv_movie")
 
 ==> Number of Programs
 $(countOccurrences "tv_show")
-
-==> Number of Seasons
-$(countOccurrences "tv_season")
 
 ### Any funny stuff with file lengths?
 
