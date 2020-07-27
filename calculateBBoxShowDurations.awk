@@ -26,11 +26,6 @@ $1 == "" || $1 == "Sortkey" {
     next
 }
 
-# Don't add seasons to short spreadsheet
-$10 == "tv_season" {
-    next
-}
-
 # Accumulate total time on any line that has a valid duration
 # this incudes all movies and all episodes
 $5 != "" {
