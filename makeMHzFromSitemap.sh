@@ -127,6 +127,13 @@ printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\
 # keep track of the number of rows in the spreadsheet
 lastRow=1
 
+# Field numbers
+# 1 Title  2 Seasons  3 Episodes  4 Duration  5 Genre  6 Country  7 Language  8 Rating  9 Description
+#
+# Print spreadsheet header (OK because it will always sort to the top)
+printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription\n" \
+    >$UNSORTED
+
 # loop through the list of URLs from $SEASON_URLS and generate a full but unsorted spreadsheet
 while read -r line; do
     curl -sS "$line" |
@@ -134,19 +141,15 @@ while read -r line; do
     ((lastRow++))
 done <"$SEASON_URLS"
 
-# Field numbers returned by getMHzFromSitemap.awk
-# 1 Title  2 Seasons  3 Episodes  4 Duration  5 Genre  6 Country  7 Language  8 Rating  9 Description
-
-# Print header for $LONG_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription\n" \
-    >$LONG_SPREADSHEET
-# Create $LONG_SPREADSHEET sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED >>$LONG_SPREADSHEET
-rm -f $UNSORTED
-
-# Generate SHORT_SPREADSHEET by processing LONG_SPREADSHEET to calculate and include durations
-tail -r $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
-    -f calculateMHzShowDurations.awk | tail -r >$SHORT_SPREADSHEET
+# Create both SHORT_SPREADSHEET and LONG_SPREADSHEET
+# Roll up seasons episodes into show episodes, don't print seasons lines
+sort -fu --key=4 --field-separator=\" $UNSORTED | tail -r | awk -v ERRORS=$ERRORS \
+    -v DURATION="$DURATION" -v LONG_SPREADSHEET=$LONG_SPREADSHEET -f calculateMHzShowDurations.awk |
+    tail -r >$SHORT_SPREADSHEET
+#
+mv $LONG_SPREADSHEET $UNSORTED
+tail -r $UNSORTED > $LONG_SPREADSHEET
+# rm -f $UNSORTED
 
 # Sort the titles produced by getMHzFromSitemap.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES

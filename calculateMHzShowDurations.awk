@@ -6,8 +6,9 @@
 # NOTE: Depends on file being sorted in reverse order
 
 # INVOCATION:
-#    tail -r $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
-#        -f calculateMHzShowDurations.awk | tail -r >$SHORT_SPREADSHEET
+#    sort -fu --key=4 --field-separator=\" $UNSORTED | tail -r | awk -v ERRORS=$ERRORS \
+#        -v DURATION="$DURATION" -v LONG_SPREADSHEET=$LONG_SPREADSHEET -f calculateMHzShowDurations.awk |
+#        tail -r >$SHORT_SPREADSHEET
 
 # Field numbers returned by getMHzCatalogFromSitemap.awk
 #    1 Title    2 Seasons    3 Episodes    4 Duration    5 Genre    6 Country    7 Language
@@ -21,6 +22,7 @@ BEGIN {
 # No processing on header and other lines unrelated to shows
 $1 !~ /=HYPERLINK/ {
     print
+    print >> LONG_SPREADSHEET
     next
 }
 
@@ -31,6 +33,7 @@ $3 != "" {
 
 # Accumulate total time on any line that has a valid duration, it must be an episode
 $4 != "" {
+    print >> LONG_SPREADSHEET
     # Check all durations for strict HH:MM:SS format
     if ($4 !~ /^[[:digit:]]{1,2}:[[:digit:]]{2}:[[:digit:]]{2}$/) {
         # print "==> Bad duration " $4 " in " $0 >> ERRORS
@@ -65,6 +68,7 @@ $2 != "" {
         $4 = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
         # Print line with episodesCounted and duration to short spreadsheet
         print
+        print >> LONG_SPREADSHEET
         totalShows += 1
         # Make sure there is no carryover
         secs = 0; mins = 0; hrs = 0;
