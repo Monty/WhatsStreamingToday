@@ -3,12 +3,6 @@
 # Time the primary variants of shell scripts that make spreadsheets
 
 echo "----------------------------------------"
-echo "==> time ./makeAcornSpreadsheet.sh -td"
-date
-time ./makeAcornSpreadsheet.sh -td
-echo ""
-
-echo "----------------------------------------"
 echo "==> time ./makeBBoxFromSitemap.sh -td"
 date
 time ./makeBBoxFromSitemap.sh -td
@@ -18,6 +12,12 @@ echo "========================================"
 echo "==> time ./makeMHzFromSitemap.sh -td"
 date
 time ./makeMHzFromSitemap.sh -td
+echo ""
+
+echo "----------------------------------------"
+echo "==> time ./makeAcornFromBrowsePage.sh -td"
+date
+time ./makeAcornFromBrowsePage.sh -td
 echo ""
 
 echo "========================================"
