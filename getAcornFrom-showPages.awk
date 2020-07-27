@@ -263,6 +263,8 @@
     if (durationLinesFound == 0) {
         printf ("==> No durations: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
+    if (showEpisodes == 1)
+        printf ("==> Only one episode: %s\t%s\n", shortURL, showTitle) >> ERRORS
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
     # Print "show" line to SHORT_SPREADSHEET with showDuration
