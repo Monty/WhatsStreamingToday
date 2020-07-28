@@ -108,7 +108,6 @@ printf "### Possible anomalies from processing shows are listed below.\n\n" >$ER
 
 curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
     sort -f >$SHOW_URLS
-#   head -15 | sort -f >$SHOW_URLS
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
@@ -160,8 +159,8 @@ function printAdjustedFileInfo() {
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $EPISODE_URLS 0
+printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 
