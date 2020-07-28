@@ -77,7 +77,6 @@ LONG_SPREADSHEET="Acorn_TV_ShowsEpisodes$DATE_ID.csv"
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLUMNS/show_urls$DATE_ID.txt"
 EPISODE_URLS="$COLUMNS/episode_urls$DATE_ID.txt"
-SEASON_URLS="$COLUMNS/season_urls$DATE_ID.txt"
 
 # Intermediate working files
 UNSORTED="$COLUMNS/unsorted$DATE_ID.txt"
@@ -91,14 +90,13 @@ PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 PUBLISHED_SHOW_URLS="$COLUMNS/show_urls$DATE_ID.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
-PUBLISHED_SEASON_URLS="$BASELINE/season_urls.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED $RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
-ALL_TXT="$SHOW_URLS $EPISODE_URLS $SEASON_URLS"
+ALL_TXT="$SHOW_URLS $EPISODE_URLS"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
@@ -147,6 +145,25 @@ rm -f $RAW_TITLES
 mv $EPISODE_URLS $UNSORTED
 sort -fu $UNSORTED >$EPISODE_URLS
 rm -f $UNSORTED
+
+# Shortcut for printing file info (before adding totals)
+function printAdjustedFileInfo() {
+    # Print filename, size, date, number of lines
+    # Subtract lines to account for headers or trailers, 0 for no adjustment
+    #   INVOCATION: printAdjustedFileInfo filename adjustment
+    filesize=$(ls -loh $1 | cut -c 22-26)
+    filedate=$(ls -loh $1 | cut -c 28-39)
+    numlines=$(($(sed -n '$=' $1) - $2))
+    printf "%-45s%6s%15s%9d lines\n" "$1" "$filesize" "$filedate" "$numlines"
+}
+
+# Output some stats, adjust by 1 if header line is included.
+printf "\n==> Stats from downloading and processing raw catalog data:\n"
+printAdjustedFileInfo $LONG_SPREADSHEET 1
+printAdjustedFileInfo $SHOW_URLS 0
+printAdjustedFileInfo $EPISODE_URLS 0
+printAdjustedFileInfo $SHORT_SPREADSHEET 1
+printAdjustedFileInfo $UNIQUE_TITLES 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
