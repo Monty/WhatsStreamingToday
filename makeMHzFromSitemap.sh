@@ -149,7 +149,7 @@ sort -fu --key=4 --field-separator=\" $UNSORTED | tail -r | awk -v ERRORS=$ERROR
 #
 mv $LONG_SPREADSHEET $UNSORTED
 tail -r $UNSORTED > $LONG_SPREADSHEET
-# rm -f $UNSORTED
+rm -f $UNSORTED
 
 # Sort the titles produced by getMHzFromSitemap.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
@@ -167,7 +167,7 @@ function printAdjustedFileInfo() {
 }
 
 # Output some stats, adjust by 1 if header line is included.
-printf "\n==> Stats from downloading and processing raw catalog data:\n"
+printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $MHZ_URLS 0
 printAdjustedFileInfo $EPISODE_URLS 0

@@ -194,7 +194,7 @@ function printAdjustedFileInfo() {
 }
 
 # Output some stats, adjust by 1 if header line is included.
-printf "\n==> Stats from downloading and processing raw catalog data:\n"
+printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $SORTED_SITEMAP 0
 printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 printAdjustedFileInfo $LONG_SPREADSHEET 1
