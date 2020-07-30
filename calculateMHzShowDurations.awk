@@ -40,22 +40,19 @@ $4 != "" {
         print "==> Bad duration " $4 " in " $0 >> ERRORS
         next
     } else {
-        # Don't count "First Look" episodes
-        if ($1 !~ /, PR \| /) {
-            split ($4, tm, ":")
-            totalTime[3] += tm[3]
-            totalTime[2] += tm[2] + int(totalTime[3] / 60)  
-            totalTime[1] += tm[1] + int(totalTime[2] / 60)
-            totalTime[3] %= 60; totalTime[2] %= 60
-            totalEpisodes += 1
-            # Accumulate episode times to use when a show line is found
-            secs += tm[3]
-            mins += tm[2] + int(secs / 60)
-            hrs += tm[1] + int(mins / 60)
-            secs %= 60; mins %= 60
-            episodesCounted += 1
-            # print "==> episodesCounted = " episodesCounted > "/dev/stderr"
-        }
+        split ($4, tm, ":")
+        totalTime[3] += tm[3]
+        totalTime[2] += tm[2] + int(totalTime[3] / 60)  
+        totalTime[1] += tm[1] + int(totalTime[2] / 60)
+        totalTime[3] %= 60; totalTime[2] %= 60
+        totalEpisodes += 1
+        # Accumulate episode times to use when a show line is found
+        secs += tm[3]
+        mins += tm[2] + int(secs / 60)
+        hrs += tm[1] + int(mins / 60)
+        secs %= 60; mins %= 60
+        episodesCounted += 1
+        # print "==> episodesCounted = " episodesCounted > "/dev/stderr"
         next
     }
 }
@@ -68,6 +65,8 @@ $2 != "" {
         $4 = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
         # Print line with episodesCounted and duration to short spreadsheet
         print
+        # Don't print show duration to LONG_SPREADSHEET so durations icolumn can be summed
+        $4 = ""
         print >> LONG_SPREADSHEET
         totalShows += 1
         # Make sure there is no carryover

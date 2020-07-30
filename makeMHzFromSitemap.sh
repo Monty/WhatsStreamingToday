@@ -168,8 +168,8 @@ function printAdjustedFileInfo() {
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $MHZ_URLS 0
+printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $EPISODE_URLS 0
 printAdjustedFileInfo $SEASON_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
