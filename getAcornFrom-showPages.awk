@@ -14,6 +14,7 @@
 
 # Extract the show title
 /meta property="og:title/ {
+    totalShows += 1
     split ($0,fld,"\"")
     showTitle = fld[4]
     sub (/^Watch /,"",showTitle)
@@ -45,6 +46,8 @@
     episodeLinesFound += 1
     split ($0,fld,"\"")
     if (episodeLinesFound == 1) {
+        # Make seasonEpisodes a spreadsheet formula
+        seasonEpisodes = "="
         showEpisodes = fld[4]
         if (showEpisodes == "") {
             printf ("==> Blank showEpisodes in numberOfEpisodes: %s\t%s\n", shortURL,
@@ -68,6 +71,7 @@
     seasonLinesFound += 1
     split ($0,fld,"\"")
     showSeasons = fld[4]
+    totalSeasons += showSeasons
     if (showSeasons == "") {
         printf ("==> Blank showSeasons in numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
@@ -113,6 +117,7 @@
 
 # Extract the episode URL
 /<a itemprop="url"/ {
+    totalEpisodes += 1
     split ($0,fld,"\"")
     episodeURL = fld[4]
     sub (/\/$/,"",episodeURL)
@@ -249,6 +254,14 @@
     next
 }
 
+# Movies don't have seasons or episodes
+/<h6> Movie/ {
+    totalMovies += 1
+    showSeasons = ""
+    showEpisodes = ""
+    seasonEpisodes = ""
+}
+
 # Wrap up this show
 /<footer>/ {
     if (episodeLinesFound == 0) {
@@ -268,12 +281,12 @@
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
     # Print "show" line to SHORT_SPREADSHEET with showDuration
-    printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, \
+    printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, \
             showDescription) >> SHORT_SPREADSHEET
     # Print "show" line to UNSORTED without showDuration unless single episode
     if (showSeasons != 1 || showEpisodes != 1) 
         showDuration = ""
-    printf ("%s\t%s\t=%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes,  showDuration, \
+    printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes,  showDuration, \
             showDescription)
     # Make sure there is no carryover
     showTitle = ""
@@ -292,4 +305,16 @@
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound  = 0
+}
+
+END {
+    printf ("In getAcornFrom-showPages.awk\n") > "/dev/stderr"
+
+    totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
+    totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
+    totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
+    totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
+    #
+    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n", totalMovies, pluralMovies, totalShows,
+            pluralShows, totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes) > "/dev/stderr"
 }
