@@ -246,13 +246,6 @@ BEGIN {
         missingEntityIds += 1
         printf ("==> Missing EntityId for %s %s '%s' in show %s at line %d\n", contentType, contentId,
                 title, showContentId, firstLineNum) >> ERRORS
-        # Special processing for tv_episode p07gnw9f in show p07gnpx0 - add missing EntityId 
-        if (contentId == "p07gnw9f") {
-            EntityId = "_23842"
-            printf ("==> Added EntityId %s for %s %s '%s' in show %s\n", EntityId, contentType, contentId,
-                    title, showContentId) >> ERRORS
-            # print "==> EntityId = " EntityId > "/dev/stderr"
-        }
     }
 
     if (contentType == "movie") {
