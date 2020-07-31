@@ -347,6 +347,12 @@ BEGIN {
     fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
+    # A seasonless "show" should have blank rather than 0 seasons
+    if (showType == "seasonless")
+        numSeasons = ""
+    # If an "episode" sortkey or fullTitle conains "S00E" delete the "S00" part
+    sub ("S00E","E",sortkey)
+    sub ("S00E","E",fullTitle)
     # Print everything except tv_seasons
     if (contentType != "tv_season")
         printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",

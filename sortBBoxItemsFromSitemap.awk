@@ -22,6 +22,7 @@
 # <showContentId>b008yjd9</showContentId>
 /<showContentId>/ {
     split ($0,fld,"[<>]")
+    # showContentId is the parent tv_show's contentId for tv_episodes and tv_seasons
     showContentId = fld[3]
 }
 
