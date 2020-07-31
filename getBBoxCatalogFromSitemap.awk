@@ -192,6 +192,17 @@ BEGIN {
 /<\/item>/ {
     lastLineNum = NR
 
+    # "The Moonstone" needs to be revised to avoid duplicate names
+    if (title == "The Moonstone") {
+        if (EntityId == "_9283") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'The Moonstone (2016)'\n", title) >> ERRORS
+            title = "The Moonstone (2016)"
+        }
+        # print "==> title = " title > "/dev/stderr"
+        # print "==> EntityId = " EntityId > "/dev/stderr"
+    }
+
     # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
         if (EntityId == "_9509") {
