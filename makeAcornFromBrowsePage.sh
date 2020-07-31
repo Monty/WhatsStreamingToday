@@ -94,9 +94,9 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_TITLES $UNIQUE_TITLES $DURATION"
+ALL_WORKING="$UNSORTED $RAW_TITLES $DURATION"
 #
-ALL_TXT="$SHOW_URLS $EPISODE_URLS"
+ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_URLS"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
@@ -106,18 +106,16 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 # Print header for possible errors from processing shows
 printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
-curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
+curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+url = "http+' -e 's+/">$+"+' |
     sort -f >$SHOW_URLS
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
 
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
-while read -r line; do
-    curl -sS "$line" |
-        awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
-            -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET -f getAcornFrom-showPages.awk >>$UNSORTED
-done <"$SHOW_URLS"
+curl -sS --config $SHOW_URLS |
+    awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
+        -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET -f getAcornFrom-showPages.awk >>$UNSORTED
 
 # Field numbers returned by getAcornFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
