@@ -215,9 +215,7 @@ BEGIN {
             title = "Porridge (2016-2017)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> contentId = " contentId > "/dev/stderr"
         # print "==> EntityId = " EntityId > "/dev/stderr"
-        # print "---" > "/dev/stderr"
     }
 
     # "A Midsummer Night's Dream" needs to be revised to avoid duplicate names
@@ -247,10 +245,7 @@ BEGIN {
             title = "Maigret (2016–2017)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> originalDate = " originalDate > "/dev/stderr"
-        # print "==> contentId = " contentId > "/dev/stderr"
         # print "==> EntityId = " EntityId > "/dev/stderr"
-        # print "---" > "/dev/stderr"
     }
 
     if (EntityId == "") {
