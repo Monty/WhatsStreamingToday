@@ -2,13 +2,13 @@
 
 # Time the primary variants of shell scripts that make spreadsheets
 
-echo "----------------------------------------"
+echo "========================================"
 echo "==> time ./makeBBoxFromSitemap.sh -td"
 date
 time ./makeBBoxFromSitemap.sh -td
 echo ""
 
-echo "========================================"
+echo "----------------------------------------"
 echo "==> time ./makeMHzFromSitemap.sh -td"
 date
 time ./makeMHzFromSitemap.sh -td
