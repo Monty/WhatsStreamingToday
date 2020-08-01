@@ -33,28 +33,36 @@ $3 != "" {
 
 # Accumulate total time on any line that has a valid duration, it must be an episode
 $4 != "" {
+    # Are we a "First Look" episode? Print it, but don't count it as a real episode
+    if ($1 ~ /, PR \| /) {
+        # Don't use its duration
+        $4 = ""
+        print >> LONG_SPREADSHEET
+        # Skip everything else
+        next
+    }
+    # We have a normal episode
+    episodesCounted += 1
+    # print "==> episodesCounted = " episodesCounted > "/dev/stderr"
     print >> LONG_SPREADSHEET
     # Check all durations for strict HH:MM:SS format
     if ($4 !~ /^[[:digit:]]{1,2}:[[:digit:]]{2}:[[:digit:]]{2}$/) {
-        # print "==> Bad duration " $4 " in " $0 >> ERRORS
         print "==> Bad duration " $4 " in " $0 >> ERRORS
         next
-    } else {
-        split ($4, tm, ":")
-        totalTime[3] += tm[3]
-        totalTime[2] += tm[2] + int(totalTime[3] / 60)  
-        totalTime[1] += tm[1] + int(totalTime[2] / 60)
-        totalTime[3] %= 60; totalTime[2] %= 60
-        totalEpisodes += 1
-        # Accumulate episode times to use when a show line is found
-        secs += tm[3]
-        mins += tm[2] + int(secs / 60)
-        hrs += tm[1] + int(mins / 60)
-        secs %= 60; mins %= 60
-        episodesCounted += 1
-        # print "==> episodesCounted = " episodesCounted > "/dev/stderr"
-        next
     }
+    # We have a valid duration, add to total
+    split ($4, tm, ":")
+    totalTime[3] += tm[3]
+    totalTime[2] += tm[2] + int(totalTime[3] / 60)  
+    totalTime[1] += tm[1] + int(totalTime[2] / 60)
+    totalTime[3] %= 60; totalTime[2] %= 60
+    totalEpisodes += 1
+    # Accumulate episode times to use when a show line is found
+    secs += tm[3]
+    mins += tm[2] + int(secs / 60)
+    hrs += tm[1] + int(mins / 60)
+    secs %= 60; mins %= 60
+    next
 }
 
 # If a line has seasons, it must be a show - Add it to the short spreadsheet
@@ -65,7 +73,7 @@ $2 != "" {
         $4 = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
         # Print line with episodesCounted and duration to short spreadsheet
         print
-        # Don't print show duration to LONG_SPREADSHEET so durations icolumn can be summed
+        # Don't print show duration to LONG_SPREADSHEET so durations column can be summed
         $4 = ""
         print >> LONG_SPREADSHEET
         totalShows += 1
