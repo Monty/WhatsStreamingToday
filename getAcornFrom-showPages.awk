@@ -72,6 +72,8 @@
     split ($0,fld,"\"")
     showSeasons = fld[4]
     totalSeasons += showSeasons
+    # Default showType to "S" for Season
+    showType = "S"
     if (showSeasons == "") {
         printf ("==> Blank showSeasons in numberOfSeasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
@@ -146,6 +148,28 @@
     next
 }
 
+# Set showType to "M" for Movies
+/<h6> Movie/ {
+    totalMovies += 1
+    showType = "M"
+    # Movies don't usually have seasons or episodes, but some do
+    # Don't make the movie a season by itself - bonus features should belong to the same "season"
+    showSeasons > 1 ? showSeasons -= 1 : showSeasons = ""
+    # Subtract the movie itself from the number of episodes
+    showEpisodes > 1 ? showEpisodes -= 1 : showEpisodes = ""
+    showEpisodes > 1 ? seasonEpisodes = "=" : seasonEpisodes =""
+    # print "==> showSeasons = " showSeasons " " shortURL > "/dev/stderr"
+    # print "==> showEpisodes = " showEpisodes " " shortURL > "/dev/stderr"
+    # print "==> seasonEpisodes = " seasonEpisodes " " shortURL > "/dev/stderr"
+    # print "---" > "/dev/stderr"
+}
+
+# Set showType to "P" for Prequel epiodes so they sort before any Season episodes
+/<h6>Prequel Movies: / {
+    showType = "P"
+    printf ("==> Prequel to '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
+}
+
 # Extract the episode duration
 /<meta itemprop="timeRequired"/ {
     durationLinesFound += 1
@@ -162,6 +186,9 @@
     showSecs %= 60; showMins %= 60
     #
     episodeDuration = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+    # Save the first duration to deal with movies with bonus episodes
+    if (durationLinesFound == 1)
+        firstDuration = episodeDuration
     # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL > "/dev/stderr"
     if (episodeDuration == "00:00:00")
         printf ("==> Blank episode duration: %s  %s\n", shortEpisodeURL, showTitle) >> ERRORS
@@ -184,22 +211,19 @@
     episodeNumber = fld[5]
     # print "==> episodeNumber = " episodeNumber " " shortEpisodeURL > "/dev/stderr"
     # 
-    # Setup showType so shows group/sort properly
-    # Default showType to "S"
-    showType = "S"
-    # If show is a Prequel, use "P" e.g. Doc Martin
-    if (episodeURL ~ /\/prequel/)
-        showType = "P"
-    # 
     # Setup episodeType so episodes group/sort properly
     # Default episodeType to "E"
     episodeType = "E"
     # Default bonus and christmas specials episodeType to "X"
-    if (episodeURL ~ /\/bonus|christmas[-]?special/)
+    if (episodeURL ~ /\/bonus|bonus\/|christmas[-]?special/) {
         episodeType = "X"
+        # printf ("==> Bonus to '%s': %s\n", showTitle, shortEpisodeURL) > "/dev/stderr"
+    }
     # If episode is a Trailer, set episodeType to "T" - even though not all these have episodes
-    if (episodeURL ~ /_cs\//)
+    if (episodeURL ~ /_cs\//) {
         episodeType = "T"
+        printf ("==> Trailer '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
+    }
     #
     # cryptoftears, newworlds & newtonslaw bonus seasonNumber should be 1
     if (episodeURL ~ \
@@ -240,9 +264,12 @@
     episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)", episodeURL, showTitle,
                     showType, seasonNumber, episodeType, episodeNumber, episodeTitle)
     # Print "episode" line to UNSORTED
+    # But don't include duration for trailers
+    if (episodeType == "T")
+        episodeDuration = ""
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
     # \t\t\t 00:59:17 \t As they arrive
-        printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription)
+    printf ("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription)
     # Make sure there is no carryover
     episodeURL = ""
     shortEpisodeURL = ""
@@ -251,15 +278,11 @@
     episodeTitle = ""
     episodeNumber = ""
     episodeDuration = ""
+    # Default showType to "S" for Season so it can change from Prequel to Season unless it's a Movie
+    if (showType != "M")
+        showType = "S"
+    # 
     next
-}
-
-# Movies don't have seasons or episodes
-/<h6> Movie/ {
-    totalMovies += 1
-    showSeasons = ""
-    showEpisodes = ""
-    seasonEpisodes = ""
 }
 
 # Wrap up this show
@@ -276,20 +299,36 @@
     if (durationLinesFound == 0) {
         printf ("==> No durations: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
-    if (showEpisodes == 1)
-        printf ("==> Only one episode: %s\t%s\n", shortURL, showTitle) >> ERRORS
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
-    # Print "show" line to SHORT_SPREADSHEET with showDuration
-    printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, \
-            showDescription) >> SHORT_SPREADSHEET
-    # Print "show" line to UNSORTED without showDuration unless single episode
-    if (showSeasons != 1 || showEpisodes != 1) 
-        showDuration = ""
-    printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes,  showDuration, \
-            showDescription)
+    # If it's not a trailer
+    if (showURL !~ /_cs$/) {
+        # Print "show" line to SHORT_SPREADSHEET with showDuration
+        printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, \
+                showDescription) >> SHORT_SPREADSHEET
+        # Print "show" line to UNSORTED without showDuration except movies & single episode shows
+        if (showSeasons == 1 && showEpisodes == 1) {
+            printf ("==> Only one episode: %s '%s'\n", shortURL, showTitle) >> ERRORS
+            showDuration = ""
+        }
+        if (showType != "M") {
+            showDuration = ""
+        }
+        # print  "==> showTitle = " showTitle > "/dev/stderr"
+        # print  "==> showType = " showType > "/dev/stderr"
+        # print  "==> showEpisodes = " showEpisodes > "/dev/stderr"
+        # print "---" > "/dev/stderr"
+        if (showType == "M" && showEpisodes != "") {
+            showDuration = firstDuration
+            printf ("==> Movie '%s' has %d bonus episodes: %s\n", showTitle, showEpisodes,
+                    shortURL) >> ERRORS
+        }
+        printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes,  showDuration, \
+                showDescription)
+    }
     # Make sure there is no carryover
     showTitle = ""
+    showType = ""
     showURL = ""
     shortURL = ""
     showLink = ""
@@ -305,6 +344,7 @@
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound  = 0
+    durationLinesFound = 0
 }
 
 END {

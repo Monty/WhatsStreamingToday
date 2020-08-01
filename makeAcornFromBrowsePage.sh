@@ -106,15 +106,8 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
     sort -f >$SHOW_URLS
 
-# URLs ending in _cs are trailers that show up as a separate show rather than an episode of the actual show
-printf "### Skipping the following previews of upcoming seasons.\n\n" >$ERRORS
-grep '_cs$' $SHOW_URLS >>$ERRORS
-mv $SHOW_URLS $UNSORTED
-grep -v '_cs$' $UNSORTED >$SHOW_URLS
-rm -f $UNSORTED
-
 # Print header for possible errors from processing shows
-printf "\n### Possible anomalies from processing shows are listed below.\n\n" >>$ERRORS
+printf "\n### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
 # keep track of the number of rows in the spreadsheet
 lastRow=1
