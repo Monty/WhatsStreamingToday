@@ -167,7 +167,7 @@
 # Set showType to "P" for Prequel epiodes so they sort before any Season episodes
 /<h6>Prequel Movies: / {
     showType = "P"
-    printf ("==> Prequel to '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
+    # printf ("==> Prequel to '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
 }
 
 # Extract the episode duration
@@ -222,7 +222,7 @@
     # If episode is a Trailer, set episodeType to "T" - even though not all these have episodes
     if (episodeURL ~ /_cs\//) {
         episodeType = "T"
-        printf ("==> Trailer '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
+        # printf ("==> Trailer '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
     }
     #
     # cryptoftears, newworlds & newtonslaw bonus seasonNumber should be 1
