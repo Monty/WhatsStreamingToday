@@ -40,7 +40,7 @@ Google Sheets won't depend on the local file being around.
 #### To format the spreadsheets:
 
 Manual formatting is tedious, but you can automate it. Upload your
-spreadheets to [Google Sheets](https://docs.google.com/spreadsheets/u/0/),
+spreadsheets to [Google Sheets](https://docs.google.com/spreadsheets/u/0/),
 modify **formatSpreadsheet.js** to include URLs for your spreadsheets,
 paste it into a [Google Apps Script](https://script.google.com) and
 run it.  *You'll have to authorize it the first time it's run*. If
