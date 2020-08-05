@@ -3,6 +3,11 @@
 # -d DATE picks a different date
 # -v does verbose copying
 
+# Make sure we are in the correct directory
+DIRNAME=$(dirname "$0")
+cd $DIRNAME
+
+# Create a timestamp
 DATE="$(date +%y%m%d)"
 
 # Allow user to override DATE

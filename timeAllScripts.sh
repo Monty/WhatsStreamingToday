@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Time the primary variants of shell scripts that make spreadsheets
+# in order from fastest to slowest so first results come in quickly
 
 echo "========================================"
 echo "==> time ./makeBBoxFromSitemap.sh -td"
