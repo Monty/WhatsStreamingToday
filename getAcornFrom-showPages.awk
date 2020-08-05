@@ -164,7 +164,7 @@
     # print "---" > "/dev/stderr"
 }
 
-# Set showType to "P" for Prequel epiodes so they sort before any Season episodes
+# Set showType to "P" for Prequel episodes so they sort before any Season episodes
 /<h6>Prequel Movies: / {
     showType = "P"
     # printf ("==> Prequel to '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS

@@ -27,7 +27,7 @@ $1 == "" || $1 == "Sortkey" {
 }
 
 # Accumulate total time on any line that has a valid duration
-# this incudes all movies and all episodes
+# this includes all movies and all episodes
 $5 != "" {
     # Check all durations for strict HH:MM:SS format
     if ($5 !~ /^[[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2}$/) {

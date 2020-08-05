@@ -82,7 +82,7 @@
             $0 = "COMEDY \| SPAIN \| SPANISH WITH ENGLISH SUBTITLES \| TV-MA"
         }
     }
-    # If we find a header, clean it up and put it before the desscription
+    # If we find a header, clean it up and put it before the description
     if ($0 ~ /\| {1,2}TV-/) {
         sub (/WITH ENGLISH SUBTITLES /,"")
         sub (/SCANDINAVIAN CRIME FICTION/,"Sweden")

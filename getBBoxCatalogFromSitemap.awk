@@ -349,7 +349,7 @@ BEGIN {
     # A seasonless "show" should have blank rather than 0 seasons
     if (showType == "seasonless")
         numSeasons = ""
-    # If an "episode" sortkey or fullTitle conains "S00E" delete the "S00" part
+    # If an "episode" sortkey or fullTitle contains "S00E" delete the "S00" part
     sub ("S00E","E",sortkey)
     sub ("S00E","E",fullTitle)
     # Print everything except tv_seasons

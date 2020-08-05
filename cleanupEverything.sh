@@ -36,7 +36,7 @@ function yesnodelete() {
 
 # Quote filenames so globbing takes place in the "rm" command itself,
 # i.e. the function is passed the number of parameters seen below, not
-# the expananded list which could be quite long.
+# the expanded list which could be quite long.
 yesnodelete "all primary spreadsheet files" "Acorn_TV_Shows*.csv" "MHz_TV_Shows*.csv" \
     "BBox_TV_Shows*.csv"
 yesnodelete "all secondary spreadsheet files" "Acorn-columns" "MHz-columns" "BBox-columns"
