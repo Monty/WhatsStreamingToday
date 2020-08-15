@@ -115,7 +115,8 @@ lastRow=1
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
 sed -e 's+^+url = "+' -e 's+$+"+' $SHOW_URLS | curl -sS --config - |
     awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
-        -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET -f getAcornFrom-showPages.awk >$UNSORTED
+        -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
+        -f getAcornFrom-showPages.awk >$UNSORTED
 
 # Field numbers returned by getAcornFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
@@ -176,13 +177,25 @@ function addTotalsToSpreadsheet() {
     done
     printf "$TOTAL\n" >>$1
     #
-    printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+    case "$2" in
+    sum)
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        ;;
+    total)
+        TXT_TOTAL=$(cat $DURATION)
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
+        ;;
+    *)
+        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
+        ;;
+    esac
 }
 
 # Output spreadsheet footer if totals requested
+# Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET
-    addTotalsToSpreadsheet $LONG_SPREADSHEET
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
+    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -237,6 +250,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
+$(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)

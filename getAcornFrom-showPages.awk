@@ -6,7 +6,8 @@
 #    while read -r line; do
 #        curl -sS "$line" |
 #            awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
-#                -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET -f getAcornFrom-showPages.awk >>$UNSORTED
+#                -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
+#                -f getAcornFrom-showPages.awk >$UNSORTED
 #    done <"$SHOW_URLS"
 
 #   Field Names
@@ -180,6 +181,13 @@
     hrs =  int(mins / 60)
     secs %= 60; mins %= 60
     #
+    if (showURL !~ /_cs$/) {
+        totalTime[3] += secs
+        totalTime[2] += mins + int(totalTime[3] / 60)
+        totalTime[1] += hrs + int(totalTime[2] / 60)
+        totalTime[3] %= 60; totalTime[2] %= 60
+    }
+    #
     showSecs += secs
     showMins += mins + int(showSecs / 60)
     showHrs += hrs + int(showMins / 60)
@@ -301,10 +309,11 @@
     }
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
+    showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
     # If it's not a trailer
     if (showURL !~ /_cs$/) {
-        # Print "show" line to SHORT_SPREADSHEET with showDuration
-        printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDuration, \
+        # Print "show" line to SHORT_SPREADSHEET with showDurationText
+        printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, seasonEpisodes, showDurationText, \
                 showDescription) >> SHORT_SPREADSHEET
         # Print "show" line to UNSORTED without showDuration except movies & single episode shows
         if (showSeasons == 1 && showEpisodes == 1) {
@@ -348,6 +357,8 @@
 }
 
 END {
+    printf ("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
+
     printf ("In getAcornFrom-showPages.awk\n") > "/dev/stderr"
 
     totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
