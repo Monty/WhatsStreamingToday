@@ -60,7 +60,7 @@ $10 == "tv_episode" {
 $10 == "tv_show" {
     if ($5 == "") {
         $4 = episodes
-        $5 = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+        $5 = sprintf ("%02dh %02dm", hrs, mins)
         secs = 0; mins = 0; hrs = 0;
         episodes = 0
         print
@@ -69,9 +69,14 @@ $10 == "tv_show" {
 }
 
 $10 == "tv_movie" {
+    secs = tm[3]
+    mins = tm[2] + int(secs / 60)
+    hrs = tm[1] + int(mins / 60)
+    $5 = sprintf ("%02dh %02dm", hrs, mins)
+    secs = 0; mins = 0; hrs = 0;
     print
 }
 
 END {
-    printf ("%02d:%02d:%02d\n", totalTime[1], totalTime[2], totalTime[3]) >> DURATION
+    printf ("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
 }

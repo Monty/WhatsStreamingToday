@@ -223,17 +223,32 @@ function addTotalsToSpreadsheet() {
     done
     printf "$TOTAL\n" >>$1
     #
-    printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)\n" >>$1
+    case "$2" in
+    skip)
+        printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        ;;
+    sum)
+        printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)\n" >>$1
+        ;;
+    total)
+        TXT_TOTAL=$(cat $DURATION)
+        printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$TXT_TOTAL\n" >>$1
+        ;;
+    *)
+        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
+        ;;
+    esac
 }
 
 # Output spreadsheet footer if totals requested
+# Either skip, sum, or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET
-    addTotalsToSpreadsheet $LONG_SPREADSHEET
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
+    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
     #
-    addTotalsToSpreadsheet $EPISODES_SPREADSHEET
-    addTotalsToSpreadsheet $MOVIES_SPREADSHEET
-    addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET
+    addTotalsToSpreadsheet $EPISODES_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $MOVIES_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET "skip"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
