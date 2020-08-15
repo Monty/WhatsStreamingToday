@@ -70,7 +70,7 @@ $4 != "" {
 $2 != "" {
     if ($3 == "") {
         $3 = episodesCounted
-        $4 = sprintf ("%02d:%02d:%02d", hrs, mins, secs)
+        $4 = sprintf ("%02dh %02dm", hrs, mins)
         # Print line with episodesCounted and duration to short spreadsheet
         print
         # Don't print show duration to LONG_SPREADSHEET so durations column can be summed
@@ -85,7 +85,7 @@ $2 != "" {
 }
 
 END {
-    printf ("%02d:%02d:%02d\n", totalTime[1], totalTime[2], totalTime[3]) >> DURATION
+    printf ("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
 
     printf ("In calculateMHzShowDurations.awk\n") > "/dev/stderr"
 

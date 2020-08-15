@@ -148,7 +148,7 @@ sort -fu --key=4 --field-separator=\" $UNSORTED | tail -r | awk -v ERRORS=$ERROR
     tail -r >$SHORT_SPREADSHEET
 #
 mv $LONG_SPREADSHEET $UNSORTED
-tail -r $UNSORTED > $LONG_SPREADSHEET
+tail -r $UNSORTED >$LONG_SPREADSHEET
 rm -f $UNSORTED
 
 # Sort the titles produced by getMHzFromSitemap.awk
@@ -188,14 +188,25 @@ function addTotalsToSpreadsheet() {
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
     printf "$TOTAL\n" >>$1
-    #
-    printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+    case "$2" in
+    sum)
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        ;;
+    total)
+        TXT_TOTAL=$(cat $DURATION)
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
+        ;;
+    *)
+        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
+        ;;
+    esac
 }
 
 # Output spreadsheet footer if totals requested
+# Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET
-    addTotalsToSpreadsheet $LONG_SPREADSHEET
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
+    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
