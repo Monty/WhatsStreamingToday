@@ -96,7 +96,7 @@
         for (i = 1; i < numFields; ++i) {
             fld[i] = substr(fld[i],1,1) tolower(substr(fld[i],2))
             # uppercase the first character of any second word
-            if (match (fld[i],/ /) > 0) {
+            if (match (fld[i],/ /)) {
                 fld[i] = substr(fld[i],1,RSTART) toupper(substr(fld[i],RSTART+1,1)) (substr(fld[i],RSTART+2))
             }
         }
@@ -206,6 +206,16 @@
         episodeTitle = substr(episodeTitle, RLENGTH + 1)
     }
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
+    #
+    # If there is a trailing (Sn 1 Ep 1), remove it
+    # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
+    # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
+    if (match (episodeTitle,\
+        /[ ]*\(S[Nnm]*[ ]*[[:digit:]]{1,2}[ ]+[Ee][Pp]*[ ]*[[:digit:]]{1,3}[[:space:]]*\)/))  {
+        sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]{1,2}[ ]+[Ee][Pp]*[ ]*[[:digit:]]{1,3}[[:space:]]*\)/,\
+             "",episodeTitle)
+        # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
+    }
     #
     # Default episodeType to "E"
     episodeType = "E"
