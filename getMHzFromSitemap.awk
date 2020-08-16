@@ -212,9 +212,11 @@
     # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
     if (match (episodeTitle,\
         /[ ]*\(S[Nnm]*[ ]*[[:digit:]]{1,2}[ ]+[Ee][Pp]*[ ]*[[:digit:]]{1,3}[[:space:]]*\)/))  {
-        sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]{1,2}[ ]+[Ee][Pp]*[ ]*[[:digit:]]{1,3}[[:space:]]*\)/,\
-             "",episodeTitle)
-        # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
+            if (episodeTitle ~ /\(Sm /)
+                printf ("==> Malformed Sn in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
+            sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]{1,2}[ ]+[Ee][Pp]*[ ]*[[:digit:]]{1,3}[[:space:]]*\)/,\
+                "",episodeTitle)
+            # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     }
     #
     # Default episodeType to "E"
