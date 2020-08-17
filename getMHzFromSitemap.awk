@@ -201,6 +201,7 @@
     gsub (/&#x27;/,"'",episodeTitle)
     gsub (/&quot;/,"\"\"",episodeTitle)
     gsub (/&amp;/,"\\&",episodeTitle)
+    sub (/[[:space:]]+$/,"",episodeTitle)
     # If start of episodeTitle == showTitle ": ", remove the redundant part.
     if ((match (episodeTitle, showTitle ": ")) == 1) {
         episodeTitle = substr(episodeTitle, RLENGTH + 1)

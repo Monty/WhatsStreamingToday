@@ -80,6 +80,7 @@ BEGIN {
     title = fld[3]
     # print "title = " title > "/dev/stderr"
     gsub (/&amp;/,"\\&",title)
+    sub (/[[:space:]]+$/,"",title)
 }
 
 # Grab genre
