@@ -110,7 +110,7 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 if [ ! -e "$MHZ_URLS" ]; then
     printf "==> Downloading new $MHZ_URLS\n"
     curl -s $SITEMAP_URL | grep '<loc>https://watch.mhzchoice.com.*/season:' |
-        sed 's+^[ \t]*<loc>++;s+</loc>++' >$MHZ_URLS
+        sed 's+^[ \t]*<loc>++;s+</loc>++' | sort >$MHZ_URLS
 else
     printf "==> using existing $MHZ_URLS\n"
 fi
