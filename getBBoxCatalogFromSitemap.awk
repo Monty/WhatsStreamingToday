@@ -101,6 +101,7 @@ BEGIN {
     description = fld[3]
     # print "description = " description > "/dev/stderr"
     gsub (/&amp;/,"\\&",description)
+    gsub (/\t/," – ",description)
 }
 
 # Grab rating
