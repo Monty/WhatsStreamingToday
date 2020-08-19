@@ -40,5 +40,6 @@ cp -p $VERBOSE $COLUMNS/BBoxPrograms-$DATE.csv $BASELINE/BBoxPrograms.txt
 cp -p $VERBOSE $COLUMNS/total_duration-$DATE.txt $BASELINE/total_duration.txt
 cp -p $VERBOSE $COLUMNS/uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 
+cp -p $VERBOSE BBox_TV_Credits-$DATE.csv $BASELINE/credits.txt
 cp -p $VERBOSE BBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
 cp -p $VERBOSE BBox_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt

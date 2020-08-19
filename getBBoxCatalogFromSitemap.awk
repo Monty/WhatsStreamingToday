@@ -4,7 +4,8 @@
 
 # INVOCATION
 #   awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-#       -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFromSitemap.awk $SORTED_SITEMAPS >$CATALOG_SPREADSHEET
+#       -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS -f getBBoxCatalogFromSitemap.awk \
+#       $SORTED_SITEMAP >$CATALOG_SPREADSHEET
 
 # Field numbers
 #     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre
@@ -13,14 +14,45 @@
 #    19 Ep_#         20 1st_#        21 Last_#
 
 BEGIN {
-    # Print header
+    # Print spreadsheet header
     printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
     printf ("Content_Type\tContent_ID\tEntity_ID\tShow_Type\tDate_Type\tOriginal_Date\t")
     printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
+
+    # Print credits  header
+    printf ("Person\tRole\tShow_Type\tShow_Title\tCharacter_Name\n") > RAW_CREDITS
 }
 
-# Don't process credits
-/<credit role=/,/<\/credit>/ {
+# Process credits
+/<credit role=/ {
+    split ($0,fld,"\"")
+    person_role = fld[2]
+    next
+}
+#
+/<name locale="en-US">/ {
+    split ($0,fld,"[<>]")
+    person_name = fld[3]
+    next
+}
+#
+/<characterName locale="en-US">/ {
+    split ($0,fld,"[<>]")
+    char_name = fld[3]
+    next
+}
+#
+/<\/credit>/ {
+    if (contentType == "movie" || contentType == "tv_show") {
+        totalCredits += 1
+        # "movie" is too common to be in a key field, use "tv_movie"
+        contentType == "movie" ? tvShowType = "tv_movie" : x = contentType
+        printf ("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, 
+                char_name) >> RAW_CREDITS
+    }
+    person_role = ""
+    person_name = ""
+    char_name = ""
     next
 }
 
@@ -330,7 +362,7 @@ BEGIN {
         title = sprintf ("%s, S%02dE%03d, %s", showTitle, seasonNumber, episodeNumber, title)
     }
 
-    # Generate a link that will lead to the show on Britbox
+    # Generate a link that will lead to the show on BritBox
     # https://www.britbox.com/us/movie/A_Queen_Is_Crowned_13551
     # https://www.britbox.com/us/movie/_13551
     #
@@ -369,9 +401,11 @@ END {
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
     totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
+    totalCredits == 1 ? pluralCredits = "credit" : pluralCredits = "credits"
     #
-    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n", totalMovies, pluralMovies, totalShows,
-            pluralShows, totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes) > "/dev/stderr"
+    printf ("    Processed %d %s, %d %s, %d %s, %d %s, %d %s\n", totalMovies, pluralMovies,
+            totalShows, pluralShows, totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes,
+            totalCredits, pluralCredits) > "/dev/stderr"
 
     if (missingEntityIds > 0 ) {
         missingEntityIds == 1 ? plural = "EntityId" : plural = "EntityIds"

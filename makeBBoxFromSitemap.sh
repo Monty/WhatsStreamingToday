@@ -74,6 +74,7 @@ ERRORS="BBox_anomalies$LONGDATE.txt"
 SITEMAP="$COLUMNS/BBox-sitemap$DATE_ID.xml"
 
 # Final output spreadsheets
+CREDITS="BBox_TV_Credits$DATE_ID.csv"
 SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
@@ -95,11 +96,13 @@ IDS_EPISODES="$COLUMNS/ids_episodes$DATE_ID.txt"
 
 # Intermediate working files
 SORTED_SITEMAP="$COLUMNS/BBox-sitemap_sorted$DATE_ID.xml"
+RAW_CREDITS="$COLUMNS/rawCredits$DATE_ID.txt"
 RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
 UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
+PUBLISHED_CREDITS="$BASELINE/credits.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
@@ -112,12 +115,12 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$SORTED_SITEMAP $RAW_TITLES $UNIQUE_TITLES $DURATION"
+ALL_WORKING="$SORTED_SITEMAP $RAW_CREDITS $RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
 ALL_XML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
 ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
+ALL_SPREADSHEETS="$CREDITS $SHORT_SPREADSHEET $LONG_SPREADSHEET "
 ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
 ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET"
 
@@ -149,7 +152,8 @@ cat $ALL_XML >>$SORTED_SITEMAP
 
 # Make an unsorted spreadsheet of all catalog fields; save an unsorted list of titles
 awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-    -v RAW_TITLES=$RAW_TITLES -f getBBoxCatalogFromSitemap.awk $SORTED_SITEMAP >$CATALOG_SPREADSHEET
+    -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS -f getBBoxCatalogFromSitemap.awk \
+    $SORTED_SITEMAP >$CATALOG_SPREADSHEET
 
 # Sort the titles produced by getBBoxCatalogFromSitemap.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
@@ -173,6 +177,10 @@ fi
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
 head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
 tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -fu >>$LONG_SPREADSHEET
+
+# Generate credits spreadsheet
+head -1 $RAW_CREDITS >$CREDITS
+tail -n +2 $RAW_CREDITS | sort -fu >>$CREDITS
 
 # Generate final spreadsheets
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
@@ -199,6 +207,7 @@ printAdjustedFileInfo $SORTED_SITEMAP 0
 printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $IDS_EPISODES 0
+printAdjustedFileInfo $CREDITS 1
 printAdjustedFileInfo $IDS_SEASONS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
@@ -305,6 +314,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
+$(checkdiffs $PUBLISHED_CREDITS $CREDITS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
