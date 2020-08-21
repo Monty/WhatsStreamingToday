@@ -1,7 +1,7 @@
-#! /bin/bash
+#!/usr/bin/env bash
 # Print episode descriptions from the latest spreadsheets using a case insensitive search
 # If you get too many results, copy/paste a portion of the title string from one of the results
-# 
+#
 # EXAMPLES:
 #    ./listEpisodes.sh wallander               131 lines
 #    ./listEpisodes.sh Wallander,               90 lines
