@@ -39,6 +39,8 @@ BEGIN {
 /<characterName locale="en-US">/ {
     split ($0,fld,"[<>]")
     char_name = fld[3]
+    # Fix anomalous line with embedded tab ".^I Charlotte Edalji"
+    sub ("^.\t ","",char_name)
     next
 }
 #
@@ -46,7 +48,7 @@ BEGIN {
     if (contentType == "movie" || contentType == "tv_show") {
         totalCredits += 1
         # "movie" is too common to be in a key field, use "tv_movie"
-        contentType == "movie" ? tvShowType = "tv_movie" : x = contentType
+        contentType == "movie" ? tvShowType = "tv_movie" : tvShowType = contentType
         printf ("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, 
                 char_name) >> RAW_CREDITS
     }
