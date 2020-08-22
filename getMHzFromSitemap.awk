@@ -76,11 +76,6 @@
     if ($0 ~ /name="description" content="/) {
         headerAdded = "no"
         sub (/.*name="description" content="/,"")
-        # Special processing for "Arde Madrid: Burn Madrid Burn" which is missing a rating
-        if ($0 ~ /COMEDY \| SPAIN \| SPANISH WITH ENGLISH SUBTITLES \| $/ && showTitle ~ /Arde Madrid:/) {
-            printf ("==> Added TV-MA Rating to \"%s\"\n", showTitle) >> ERRORS
-            $0 = "COMEDY \| SPAIN \| SPANISH WITH ENGLISH SUBTITLES \| TV-MA"
-        }
     }
     # If we find a header, clean it up and put it before the description
     if ($0 ~ /\| {1,2}TV-/) {
