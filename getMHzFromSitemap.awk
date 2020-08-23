@@ -196,6 +196,7 @@
     gsub (/&#x27;/,"'",episodeTitle)
     gsub (/&quot;/,"\"\"",episodeTitle)
     gsub (/&amp;/,"\\&",episodeTitle)
+    sub (/^[[:space:]]/,"",episodeTitle)
     sub (/[[:space:]]+$/,"",episodeTitle)
     # If start of episodeTitle == showTitle followed by ": " or " - ", remove the redundant part.
     if ((match (episodeTitle, showTitle ": ")) == 1 || \
@@ -272,6 +273,7 @@
     #  =HYPERLINK("https://watch.mhzchoice.com/gasmamman/season:1/videos/gasmamman-episode-01-sn-1-ep-1-1";\
     #  "Gasmamman, S01E01, Gåsmamman: Episode 01 (Sn 1 Ep 1)")
     if ($0 ~ /<\/div>/) {
+        # Make sure episodeDescription is valid
         if (episodeDescription == "") {
             if (episodeType == "T") {
                 episodeDescription = episodeTitle
@@ -285,6 +287,17 @@
         # print "==> episodeDescription = \n" episodeDescription > "/dev/stderr"
         episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\"\)", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
+        #
+        # Make sure episodeDuration is valid
+        if (split (episodeDuration, tm, ":") == 3) {
+            # Cannnocalize episodeDuration to 3 parts like other services
+            episodeDuration = sprintf ("%02d:%02d:%02d",tm[1],tm[2],tm[3])
+        } else {
+            printf ("==> Bad episodeDuration %s in \"%s: %s\"\n", episodeDuration, showTitle,
+                    episodeTitle) >> ERRORS
+            episodeDuration = ""
+        }
+        #
         # Print "episode" line
         printf ("%s\t\t\t%s\t\t\t\t\t%s\n", episodeLink, episodeDuration, episodeDescription)
         #
