@@ -23,7 +23,9 @@ MHZ=$(find . -depth 1 -name "MHz_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c
 if [ $ACORN ] && [ $(cut -f 1 $ACORN | grep -i -c "$*") != 0 ]; then
     echo "==> From $ACORN"
     linesFound="yes"
-    grep -i "$*" $ACORN | cut -f 1,5 | perl -p -e 's/^.*";"//;s/"\)\t/\n     /' | fmt -w 100
+    grep -i "$*" $ACORN | cut -f 1,4,5 |
+        perl -F"\t" -lane '$F[0] =~ s/^.*";"//; $F[0] =~ s/"\)$//; \
+        printf "%-80s%12s\n    %s\n\n", $F[0], $F[1], $F[2]' | fmt -w 92
 fi
 
 if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
@@ -32,7 +34,9 @@ if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
     fi
     echo "==> From $BBOX"
     linesFound="yes"
-    grep -i "$*" $BBOX | cut -f 2,9 | perl -p -e 's/^.*";"//;s/"\)\t/\n     /' | fmt -w 100
+    grep -i "$*" $BBOX | cut -f 2,5,9 |
+        perl -F"\t" -lane '$F[0] =~ s/^.*";"//; $F[0] =~ s/"\)$//; \
+        printf "%-80s%12s\n    %s\n\n", $F[0], $F[1], $F[2]' | fmt -w 92
 fi
 
 if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
@@ -40,5 +44,7 @@ if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
         printf "\n"
     fi
     echo "==> From $MHZ"
-    grep -i "$*" $MHZ | cut -f 1,9 | perl -p -e 's/^.*";"//;s/"\)\t/\n     /' | fmt -w 100
+    grep -i "$*" $MHZ | cut -f 1,4,9 |
+        perl -F"\t" -lane '$F[0] =~ s/^.*";"//; $F[0] =~ s/"\)$//; \
+        printf "%-80s%12s\n    %s\n\n", $F[0], $F[1], $F[2]' | fmt -w 92
 fi
