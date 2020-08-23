@@ -22,15 +22,23 @@ MHZ=$(find . -depth 1 -name "MHz_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c
 
 if [ $ACORN ] && [ $(cut -f 1 $ACORN | grep -i -c "$*") != 0 ]; then
     echo "==> From $ACORN"
+    linesFound="yes"
     grep -i "$*" $ACORN | cut -f 1,5 | perl -p -e 's/^.*";"//;s/"\)\t/\n     /' | fmt -w 100
 fi
 
 if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
+    if [ "$linesFound" = "yes" ]; then
+        printf "\n"
+    fi
     echo "==> From $BBOX"
+    linesFound="yes"
     grep -i "$*" $BBOX | cut -f 2,9 | perl -p -e 's/^.*";"//;s/"\)\t/\n     /' | fmt -w 100
 fi
 
 if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
+    if [ "$linesFound" = "yes" ]; then
+        printf "\n"
+    fi
     echo "==> From $MHZ"
     grep -i "$*" $MHZ | cut -f 1,9 | perl -p -e 's/^.*";"//;s/"\)\t/\n     /' | fmt -w 100
 fi
