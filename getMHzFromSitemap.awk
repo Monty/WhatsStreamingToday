@@ -290,7 +290,7 @@
         #
         # Make sure episodeDuration is valid
         if (split (episodeDuration, tm, ":") == 3) {
-            # Cannnocalize episodeDuration to 3 parts like other services
+            # Canonicalize episodeDuration to 3 parts like other services
             episodeDuration = sprintf ("%02d:%02d:%02d",tm[1],tm[2],tm[3])
         } else {
             printf ("==> Bad episodeDuration %s in \"%s: %s\"\n", episodeDuration, showTitle,
