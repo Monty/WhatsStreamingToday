@@ -4,7 +4,8 @@
 British, Australian, New Zealand and other television shows each.
 **MHz Choice** is a streaming service for over 200 subtitled
 European television detective, mystery, and crime shows.  All are
-available in the US on Apple TV, Amazon Prime, or the web.
+available in the US on Apple TV, Amazon Prime, Xfinity, the web, and
+[many others](https://support.mhznetworks.com/support/solutions/folders/44001123070).
 
 **[Acorn](https://acorn.tv/browse)**, 
 **[BritBox](https://www.britbox.com/us/programmes)** and
