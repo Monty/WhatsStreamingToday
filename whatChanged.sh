@@ -30,7 +30,7 @@ while getopts ":bls" opt; do
         SUMMARY="yes"
         ;;
     \?)
-        echo "Ignoring invalid option: -$OPTARG" >&2
+        printf "Ignoring invalid option: -$OPTARG\n" >&2
         ;;
     esac
 done
@@ -42,7 +42,7 @@ function sanitize() {
     sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ "$1" | cut -f 1-3"${LONG}"
 }
 
-echo "==> changes between $1 and $2:"
+printf "==> changes between $1 and $2:\n"
 # first the stats
 diff -c <(sanitize "$1") <(sanitize "$2") | diffstat -sq |
     sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
@@ -70,10 +70,10 @@ if [ "$BRIEF" = "yes" ]; then
     checkdiffs <(sanitize "$1") <(sanitize "$2") |
         sed -e "/#   ==>/!D" -e "s/#   ==> /    /" -e "s/ <==//"
     if [ ${PIPESTATUS[0]} == 0 ]; then
-        echo "==> nothing changed"
+        printf "==> nothing changed.\n"
     fi
 else
     if checkdiffs <(sanitize "$1") <(sanitize "$2"); then
-        echo "==> nothing changed"
+        printf "==> nothing changed.\n"
     fi
 fi

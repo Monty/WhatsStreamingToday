@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Remove all files and directories created by running scripts
 
-echo "Answer y to delete, anything else to skip. Deletion cannot be undone!"
-echo ""
+printf "Answer y to delete, anything else to skip. Deletion cannot be undone!\n"
+printf "\n"
 
 # Allow switches -v or -i to be passed to the rm command
 while getopts ":iv" opt; do
@@ -14,7 +14,7 @@ while getopts ":iv" opt; do
         TELL="-v"
         ;;
     \?)
-        echo "Ignoring invalid option: -$OPTARG" >&2
+        printf "Ignoring invalid option: -$OPTARG\n" >&2
         ;;
     esac
 done
@@ -25,13 +25,13 @@ function yesnodelete() {
     read -r -p "Delete $1? [y/N] " YESNO
     shift
     if [ "$YESNO" != "y" ]; then
-        echo "Skipping..."
+        printf "Skipping...\n"
     else
-        echo "Deleting ..."
+        printf "Deleting ...\n"
         # Don't quote $@. Globbing needs to take place here.
         rm -rf $ASK $TELL $@
     fi
-    echo ""
+    printf "\n"
 }
 
 # Quote filenames so globbing takes place in the "rm" command itself,

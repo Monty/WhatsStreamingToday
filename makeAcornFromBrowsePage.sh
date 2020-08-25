@@ -32,23 +32,23 @@ while getopts ":dst" opt; do
         PRINT_TOTALS="yes"
         ;;
     \?)
-        echo "Ignoring invalid option: -$OPTARG" >&2
+        printf "Ignoring invalid option: -$OPTARG\n" >&2
         ;;
     esac
 done
 
 # Make sure we can execute curl.
 if [ ! -x "$(which curl 2>/dev/null)" ]; then
-    echo "[Error] Can't run curl. Install curl and rerun this script."
-    echo "        To test, type:  curl -Is https://github.com/ | head -5"
+    printf "[Error] Can't run curl. Install curl and rerun this script.\n"
+    printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
 fi
 
 # Make sure network is up and the Acorn TV site is reachable
 BROWSE_URL="https://acorn.tv/browse/all"
 if ! curl -o /dev/null -Isf $BROWSE_URL; then
-    echo "[Error] $BROWSE_URL isn't available, or your network is down."
-    echo "        Try accessing $BROWSE_URL in your browser"
+    printf "[Error] $BROWSE_URL isn't available, or your network is down.\n"
+    printf "        Try accessing $BROWSE_URL in your browser.\n"
     exit 1
 fi
 
@@ -209,19 +209,19 @@ fi
 # Shortcut for checking differences between two files.
 # checkdiffs basefile newfile
 function checkdiffs() {
-    echo
+    printf "\n"
     if [ ! -e "$2" ]; then
-        echo "==> $2 does not exist. Skipping diff."
+        printf "==> $2 does not exist. Skipping diff.\n"
         return 1
     fi
     if [ ! -e "$1" ]; then
         # If the basefile file doesn't yet exist, assume no differences
         # and copy the newfile to the basefile so it can serve
         # as a base for diffs in the future.
-        echo "==> $1 does not exist. Creating it, assuming no diffs."
+        printf "==> $1 does not exist. Creating it, assuming no diffs.\n"
         cp -p "$2" "$1"
     else
-        echo "==> what changed between $1 and $2:"
+        printf "==> what changed between $1 and $2:\n"
         # first the stats
         diff -c "$1" "$2" | diffstat -sq \
             -D $(cd $(dirname "$2") && pwd -P) |
@@ -237,7 +237,7 @@ function checkdiffs() {
 %<------ to:
 %>' "$1" "$2"
         if [ $? == 0 ]; then
-            echo "==> no diffs found"
+            printf "==> no diffs found.\n"
         fi
     fi
 }

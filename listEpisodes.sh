@@ -21,7 +21,7 @@ BBOX=$(find . -d 1 -name "BBox_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c 3
 MHZ=$(find . -depth 1 -name "MHz_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c 3-)
 
 if [ $ACORN ] && [ $(cut -f 1 $ACORN | grep -i -c "$*") != 0 ]; then
-    echo "==> From $ACORN"
+    printf "==> From $ACORN\n"
     linesFound="yes"
     grep -i "$*" $ACORN | cut -f 1,4,5 | awk -f printList.awk
 fi
@@ -30,7 +30,7 @@ if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
     if [ "$linesFound" = "yes" ]; then
         printf "\n"
     fi
-    echo "==> From $BBOX"
+    printf "==> From $BBOX\n"
     linesFound="yes"
     grep -i "$*" $BBOX | cut -f 2,5,9 | awk -f printList.awk
 fi
@@ -39,6 +39,6 @@ if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
     if [ "$linesFound" = "yes" ]; then
         printf "\n"
     fi
-    echo "==> From $MHZ"
+    printf "==> From $MHZ\n"
     grep -i "$*" $MHZ | cut -f 1,4,9 | awk -f printList.awk
 fi

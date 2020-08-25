@@ -17,7 +17,7 @@ while getopts ":dlsv" opt; do
         VERBOSE="-v"
         ;;
     \?)
-        echo "Ignoring invalid option: -$OPTARG" >&2
+        printf "Ignoring invalid option: -$OPTARG\n" >&2
         ;;
     esac
 done
@@ -33,10 +33,6 @@ ACORN_CSV=$(ls -1t Acorn_TV_Shows-*csv | head -1)
 BBOX_CSV=$(ls -1t BBox_TV_Shows-*csv | head -1)
 MHZ_CSV=$(ls -1t MHz_TV_Shows-*csv | head -1)
 WATCHED_TXT="$SCRAPES/watched_titles.txt"
-# echo ACORN=$ACORN_CSV
-# echo BBOX=$BBOX_CSV
-# echo MHZ=$MHZ_CSV
-# echo WATCHED=$WATCHED_TXT
 #
 ACORN_TITLES="$COLUMNS/Acorn-titles$DATE_ID.txt"
 BBOX_TITLES="$COLUMNS/BBox-titles$DATE_ID.txt"
