@@ -3,14 +3,14 @@
 # If you get too many results, copy/paste a portion of the title string from one of the results
 #
 # EXAMPLES:
-#    ./listEpisodes.sh wallander               184 lines
-#    ./listEpisodes.sh Wallander,              127 lines
-#    ./listEpisodes.sh Wallander, S03           38 lines
-#    ./listEpisodes.sh Wallander, S03E03         4 lines
+#    ./listEpisodes.sh wallander               176 lines
+#    ./listEpisodes.sh Wallander,              134 lines
+#    ./listEpisodes.sh Wallander, S03           39 lines
+#    ./listEpisodes.sh Wallander, S03E03         5 lines
 #
 # Some regular expressions require quotes
-#    ./listEpisodes.sh Wallander, S0..03         8 lines
-#    ./listEpisodes.sh "Wallander, S0[2-3]"     48 lines
+#    ./listEpisodes.sh Wallander, S0..03         9 lines
+#    ./listEpisodes.sh "Wallander, S0[2-3]"     51 lines
 #
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
@@ -23,10 +23,7 @@ MHZ=$(find . -depth 1 -name "MHz_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c
 if [ $ACORN ] && [ $(cut -f 1 $ACORN | grep -i -c "$*") != 0 ]; then
     echo "==> From $ACORN"
     linesFound="yes"
-    grep -i "$*" $ACORN | cut -f 1,4,5 |
-        perl -F"\t" -lane 'for ($F[0]) {s/^.*";"//; s/"\)$//;};
-            for ($F[1]) {s/0(\d):/$1:/g; s/:/h /; s/:.*/m/; s/^0h //; s/^0m//;};
-            @F = grep { $_ } @F; print join("\n",@F),"\n";'
+    grep -i "$*" $ACORN | cut -f 1,4,5 | awk -f printList.awk
 fi
 
 if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
@@ -35,10 +32,7 @@ if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
     fi
     echo "==> From $BBOX"
     linesFound="yes"
-    grep -i "$*" $BBOX | cut -f 2,5,9 |
-        perl -F"\t" -lane 'for ($F[0]) {s/^.*";"//; s/"\)$//;};
-            for ($F[1]) {s/0(\d):/$1:/g; s/:/h /; s/:.*/m/; s/^0h //; s/^0m//;};
-            @F = grep { $_ } @F; print join("\n",@F),"\n";'
+    grep -i "$*" $BBOX | cut -f 2,5,9 | awk -f printList.awk
 fi
 
 if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
@@ -46,8 +40,5 @@ if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
         printf "\n"
     fi
     echo "==> From $MHZ"
-    grep -i "$*" $MHZ | cut -f 1,4,9 |
-        perl -F"\t" -lane 'for ($F[0]) {s/^.*";"//; s/"\)$//;};
-            for ($F[1]) {s/0(\d):/$1:/g; s/:/h /; s/:.*/m/; s/^0h //; s/^0m//;};
-            @F = grep { $_ } @F; print join("\n",@F),"\n";'
+    grep -i "$*" $MHZ | cut -f 1,4,9 | awk -f printList.awk
 fi
