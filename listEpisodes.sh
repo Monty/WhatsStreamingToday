@@ -26,7 +26,7 @@ if [ $ACORN ] && [ $(cut -f 1 $ACORN | grep -i -c "$*") != 0 ]; then
     grep -i "$*" $ACORN | cut -f 1,4,5 |
         perl -F"\t" -lane 'for ($F[0]) {s/^.*";"//; s/"\)$//;};
             for ($F[1]) {s/0(\d):/$1:/g; s/:/h /; s/:.*/m/; s/^0h //; s/^0m//;};
-            printf "%-80s%12s\n    %s\n\n", $F[0], $F[1], $F[2]' | fmt -w 92
+            @F = grep { $_ } @F; print join("\n",@F),"\n";'
 fi
 
 if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
@@ -38,7 +38,7 @@ if [ $BBOX ] && [ $(cut -f 2 $BBOX | grep -i -c "$*") != 0 ]; then
     grep -i "$*" $BBOX | cut -f 2,5,9 |
         perl -F"\t" -lane 'for ($F[0]) {s/^.*";"//; s/"\)$//;};
             for ($F[1]) {s/0(\d):/$1:/g; s/:/h /; s/:.*/m/; s/^0h //; s/^0m//;};
-            printf "%-80s%12s\n    %s\n\n", $F[0], $F[1], $F[2]' | fmt -w 92
+            @F = grep { $_ } @F; print join("\n",@F),"\n";'
 fi
 
 if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
@@ -49,5 +49,5 @@ if [ $MHZ ] && [ $(cut -f 1 $MHZ | grep -i -c "$*") != 0 ]; then
     grep -i "$*" $MHZ | cut -f 1,4,9 |
         perl -F"\t" -lane 'for ($F[0]) {s/^.*";"//; s/"\)$//;};
             for ($F[1]) {s/0(\d):/$1:/g; s/:/h /; s/:.*/m/; s/^0h //; s/^0m//;};
-            printf "%-80s%12s\n    %s\n\n", $F[0], $F[1], $F[2]' | fmt -w 92
+            @F = grep { $_ } @F; print join("\n",@F),"\n";'
 fi
