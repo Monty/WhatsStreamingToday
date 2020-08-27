@@ -1,10 +1,10 @@
 # Rearrange a raw BritBox Catalog (apple_catalogue_feed.xml) so items are sorted by contentType
 
-# INVOCATION
-#   awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
-#       -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
-#       -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-#       -f sortBBoxItemsFromSitemap.awk $SITEMAP
+# INVOCATION:
+#    awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
+#        -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
+#        -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
+#        -f sortBBoxItemsFromSitemap.awk $SITEMAP
 
 # Add inclusive content of <item .. item> to a string
 /<item contentType="/,/<\/item>/ {

@@ -2,10 +2,10 @@
 # The "showContentId" from "tv_show" items are needed to process "tv_season" and "tv_episode" items,
 # so you should sort the catalog to ensure items are in the proper order.
 
-# INVOCATION
-#   awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-#       -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS -f getBBoxCatalogFromSitemap.awk \
-#       $SORTED_SITEMAP >$CATALOG_SPREADSHEET
+# INVOCATION:
+#    awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
+#        -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS -f getBBoxCatalogFromSitemap.awk \
+#        $SORTED_SITEMAP >$CATALOG_SPREADSHEET
 
 # Field numbers
 #     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre

@@ -1,6 +1,6 @@
 # Produce a raw data spreadsheet from URLs found in https://watch.mhzchoice.com/sitemap.xml
 
-# INVOCATION
+# INVOCATION:
 #    awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -f getMHzFromSitemap.awk >>$UNSORTED
 
 # Field numbers
