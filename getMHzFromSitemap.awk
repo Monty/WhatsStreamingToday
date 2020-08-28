@@ -1,7 +1,8 @@
 # Produce a raw data spreadsheet from URLs found in https://watch.mhzchoice.com/sitemap.xml
 
 # INVOCATION:
-#    awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -f getMHzFromSitemap.awk >>$UNSORTED
+#    awk -v ERRORS=$ERRORS -v RAW_CREDITS=$RAW_CREDITS -v RAW_TITLES=$RAW_TITLES \
+#        -f getMHzFromSitemap.awk >>$UNSORTED
 
 # Field numbers
 # 1 Title  2 Seasons  3 Episodes  4 Duration  5 Genre  6 Country  7 Language  8 Rating  9 Description
@@ -301,6 +302,16 @@
         # Print "episode" line
         printf ("%s\t\t\t%s\t\t\t\t\t%s\n", episodeLink, episodeDuration, episodeDescription)
         #
+        # Look for directors
+        director_name = episodeDescription
+        if (director_name ~ /[Dd]irected by/) {
+            sub (/.*[Dd]irected by /,"",director_name)
+            sub (/,.*$/,"",director_name)
+            sub (/ [[:digit:]]{4}\./,"",director_name)
+            sub (/[[:space:]]+$/,"",director_name)
+            sub (/\.$/,"",director_name)
+            printf ("%s\tdirector\ttv_show\t%s\n", director_name, showTitle) >> RAW_CREDITS
+        }
         # Make sure there is no carryover
         descriptionLinesFound = 0
         episodeLink = ""

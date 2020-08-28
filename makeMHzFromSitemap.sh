@@ -71,6 +71,7 @@ POSSIBLE_DIFFS="MHz_diffs$LONGDATE.txt"
 ERRORS="MHz_anomalies$LONGDATE.txt"
 
 # Final output spreadsheets
+CREDITS="MHz_TV_Credits$DATE_ID.csv"
 SHORT_SPREADSHEET="MHz_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="MHz_TV_ShowsEpisodes$DATE_ID.csv"
 
@@ -81,26 +82,30 @@ SEASON_URLS="$COLUMNS/season_urls$DATE_ID.txt"
 
 # Intermediate working files
 UNSORTED="$COLUMNS/unsorted$DATE_ID.txt"
+RAW_CREDITS="$COLUMNS/rawCredits$DATE_ID.txt"
 RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
+UNIQUE_PERSONS="$COLUMNS/uniqPersons$DATE_ID.txt"
 UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
+PUBLISHED_CREDITS="$BASELINE/credits.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 PUBLISHED_MHZ_URLS="$BASELINE/MHz_urls.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
 PUBLISHED_SEASON_URLS="$BASELINE/season_urls.txt"
+PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_TITLES"
+ALL_WORKING="$UNSORTED $RAW_CREDITS $RAW_TITLES $UNIQUE_PERSONS"
 #
 ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_TITLES $DURATION"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
+ALL_SPREADSHEETS="$CREDITS $SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -130,14 +135,16 @@ lastRow=1
 # Field numbers
 # 1 Title  2 Seasons  3 Episodes  4 Duration  5 Genre  6 Country  7 Language  8 Rating  9 Description
 #
-# Print spreadsheet header (OK because it will always sort to the top)
+# Print spreadsheet headers (OK because they will always sort to the top)
 printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription\n" \
     >$UNSORTED
+printf "Person\tRole\tShow_Type\tShow_Title\tCharacter_Name\n" >$RAW_CREDITS
 
 # loop through the list of URLs from $SEASON_URLS and generate a full but unsorted spreadsheet
 while read -r line; do
     curl -sS "$line" |
-        awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -f getMHzFromSitemap.awk >>$UNSORTED
+        awk -v ERRORS=$ERRORS -v RAW_CREDITS=$RAW_CREDITS -v RAW_TITLES=$RAW_TITLES \
+            -f getMHzFromSitemap.awk >>$UNSORTED
     ((lastRow++))
 done <"$SEASON_URLS"
 
@@ -155,6 +162,13 @@ rm -f $UNSORTED
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
 
+# Generate credits spreadsheets
+head -1 $RAW_CREDITS >$CREDITS
+cut -f 1 $CREDITS >$UNIQUE_PERSONS
+tail -n +2 $RAW_CREDITS | sort -fu >>$CREDITS
+tail -n +2 $CREDITS | cut -f 1 | sort -fu >>$UNIQUE_PERSONS
+# rm -f $RAW_CREDITS
+
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -166,12 +180,25 @@ function printAdjustedFileInfo() {
     printf "%-45s%6s%15s%9d lines\n" "$1" "$filesize" "$filedate" "$numlines"
 }
 
+# Output some stats from credits
+printf "\n==> Stats from processing credits:\n"
+numPersons=$(sed -n '$=' $UNIQUE_PERSONS)
+printf "%8d people credited\n" "$numPersons"
+#
+# for i in $(cut -f 2 BBox_TV_Credits-200820.csv | tail -n +2 | sort -u); do
+# for i in actor producer director writer other guest narrator; do
+for i in director; do
+    count=$(cut -f 1,2 $CREDITS | sort -fu | grep -c "\t$i$")
+    printf "%8d as %ss\n" "$count" "$i"
+done
+
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $MHZ_URLS 0
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $EPISODE_URLS 0
 printAdjustedFileInfo $SEASON_URLS 0
+printAdjustedFileInfo $CREDITS 1
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 
@@ -263,6 +290,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(checkdiffs $PUBLISHED_MHZ_URLS $MHZ_URLS)
 $(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
 $(checkdiffs $PUBLISHED_SEASON_URLS $SEASON_URLS)
+$(checkdiffs $PUBLISHED_CREDITS $CREDITS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
