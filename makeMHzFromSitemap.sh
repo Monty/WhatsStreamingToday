@@ -129,9 +129,6 @@ printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>$S
 # Print header for error file
 printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\n" >$ERRORS
 
-# keep track of the number of rows in the spreadsheet
-lastRow=1
-
 # Field numbers
 # 1 Title  2 Seasons  3 Episodes  4 Duration  5 Genre  6 Country  7 Language  8 Rating  9 Description
 #
@@ -145,7 +142,6 @@ while read -r line; do
     curl -sS "$line" |
         awk -v ERRORS=$ERRORS -v RAW_CREDITS=$RAW_CREDITS -v RAW_TITLES=$RAW_TITLES \
             -f getMHzFromSitemap.awk >>$UNSORTED
-    ((lastRow++))
 done <"$SEASON_URLS"
 
 # Create both SHORT_SPREADSHEET and LONG_SPREADSHEET

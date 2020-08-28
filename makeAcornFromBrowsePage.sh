@@ -109,9 +109,6 @@ curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+
 # Print header for possible errors from processing shows
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
-# keep track of the number of rows in the spreadsheet
-lastRow=1
-
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
 sed -e 's+^+url = "+' -e 's+$+"+' $SHOW_URLS | curl -sS --config - |
     awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
