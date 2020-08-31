@@ -7,13 +7,13 @@ date
 time ./makeBBoxFromSitemap.sh -td
 printf "\n"
 
-printf "----------------------------------------\n"
+printf -- "----------------------------------------\n"
 printf "==> time ./makeMHzFromSitemap.sh -td\n"
 date
 time ./makeMHzFromSitemap.sh -td
 printf "\n"
 
-printf "----------------------------------------\n"
+printf -- "----------------------------------------\n"
 printf "==> time ./makeAcornFromBrowsePage.sh -td\n"
 date
 time ./makeAcornFromBrowsePage.sh -td
