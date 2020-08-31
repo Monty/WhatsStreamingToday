@@ -101,9 +101,9 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_CREDITS $RAW_TITLES $UNIQUE_PERSONS"
+ALL_WORKING="$UNSORTED $RAW_CREDITS $RAW_TITLES"
 #
-ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_TITLES $DURATION"
+ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_TITLES $DURATION"
 #
 ALL_SPREADSHEETS="$CREDITS $SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
@@ -158,9 +158,14 @@ rm -f $UNSORTED
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
 
+# loop through the list of URLs from $EPISODE_URLS and generate an unsorted credits spreadsheet
+while read -r line; do
+    curl -sS "$line" |
+        awk -v ERRORS=$ERRORS -f getCast.awk >>$RAW_CREDITS
+done <"$EPISODE_URLS"
+
 # Generate credits spreadsheets
 head -1 $RAW_CREDITS >$CREDITS
-cut -f 1 $CREDITS >$UNIQUE_PERSONS
 tail -n +2 $RAW_CREDITS | sort -fu >>$CREDITS
 tail -n +2 $CREDITS | cut -f 1 | sort -fu >>$UNIQUE_PERSONS
 # rm -f $RAW_CREDITS
@@ -183,7 +188,7 @@ printf "%8d people credited\n" "$numPersons"
 #
 # for i in $(cut -f 2 BBox_TV_Credits-200820.csv | tail -n +2 | sort -u); do
 # for i in actor producer director writer other guest narrator; do
-for i in director; do
+for i in actor director; do
     count=$(cut -f 1,2 $CREDITS | sort -fu | grep -c "\t$i$")
     printf "%8d as %ss\n" "$count" "$i"
 done
@@ -192,9 +197,10 @@ done
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $MHZ_URLS 0
 printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $EPISODE_URLS 0
-printAdjustedFileInfo $SEASON_URLS 0
 printAdjustedFileInfo $CREDITS 1
+printAdjustedFileInfo $EPISODE_URLS 0
+printAdjustedFileInfo $UNIQUE_PERSONS 0
+printAdjustedFileInfo $SEASON_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 
@@ -289,6 +295,7 @@ $(checkdiffs $PUBLISHED_SEASON_URLS $SEASON_URLS)
 $(checkdiffs $PUBLISHED_CREDITS $CREDITS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 

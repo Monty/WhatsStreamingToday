@@ -200,8 +200,8 @@
     sub (/^[[:space:]]/,"",episodeTitle)
     sub (/[[:space:]]+$/,"",episodeTitle)
     # If start of episodeTitle == showTitle followed by ": " or " - ", remove the redundant part.
-    if ((match (episodeTitle, showTitle ": ")) == 1 || \
-         ((match (episodeTitle, showTitle " - ")) == 1)) {
+    if (match (episodeTitle, showTitle ": ") == 1 || \
+        (match (episodeTitle, showTitle " - ") == 1)) {
         episodeTitle = substr(episodeTitle, RLENGTH + 1)
     }
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
@@ -304,12 +304,25 @@
         #
         # Look for directors
         director_name = episodeDescription
-        if (director_name ~ /[Dd]irected by/) {
+        if (gsub (/\xc2\xa0/," ",director_name))
+            printf ("==> UTF8 non-breaking-space in %s\n", shortEpisodeURL) >> ERRORS
+        if (director_name ~ /[Dd]irected by /) {
             sub (/.*[Dd]irected by /,"",director_name)
             sub (/,.*$/,"",director_name)
             sub (/ [[:digit:]]{4}\./,"",director_name)
             sub (/[[:space:]]+$/,"",director_name)
             sub (/\.$/,"",director_name)
+            # Special cases
+            if (director_name ~ /Manetti Bros/)
+                director_name = "The Manetti Bros."
+            if (director_name ~ /Andrea and Antonio Frazzi/)
+                director_name = "Andrea Frazzi and Antonio Frazzi"
+            #
+            if (match (director_name, " and ") || match (director_name, " & ")) {
+                dname = substr(director_name,1,RSTART-1)
+                director_name = substr(director_name,RSTART+RLENGTH)
+                printf ("%s\tdirector\ttv_show\t%s\n", dname, showTitle) >> RAW_CREDITS
+            }
             printf ("%s\tdirector\ttv_show\t%s\n", director_name, showTitle) >> RAW_CREDITS
         }
         # Make sure there is no carryover
