@@ -85,6 +85,7 @@ UNSORTED="$COLUMNS/unsorted$DATE_ID.txt"
 RAW_CREDITS="$COLUMNS/rawCredits$DATE_ID.txt"
 RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
 UNIQUE_PERSONS="$COLUMNS/uniqPersons$DATE_ID.txt"
+UNIQUE_CHARACTERS="$COLUMNS/uniqCharacters$DATE_ID.txt"
 UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
@@ -97,13 +98,14 @@ PUBLISHED_MHZ_URLS="$BASELINE/MHz_urls.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
 PUBLISHED_SEASON_URLS="$BASELINE/season_urls.txt"
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
+PUBLISHED_UNIQUE_CHARACTERS="$BASELINE/uniqCharacters.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED $RAW_CREDITS $RAW_TITLES"
 #
-ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_TITLES $DURATION"
+ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
 #
 ALL_SPREADSHEETS="$CREDITS $SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
@@ -168,6 +170,7 @@ done <"$EPISODE_URLS"
 head -1 $RAW_CREDITS >$CREDITS
 tail -n +2 $RAW_CREDITS | sort -fu >>$CREDITS
 tail -n +2 $CREDITS | cut -f 1 | sort -fu >>$UNIQUE_PERSONS
+tail -n +2 $CREDITS | cut -f 5 | sort -fu >>$UNIQUE_CHARACTERS
 # rm -f $RAW_CREDITS
 
 # Shortcut for printing file info (before adding totals)
@@ -184,6 +187,7 @@ function printAdjustedFileInfo() {
 # Output some stats from credits
 printf "\n==> Stats from processing credits:\n"
 numPersons=$(sed -n '$=' $UNIQUE_PERSONS)
+numCharacters=$(sed -n '$=' $UNIQUE_CHARACTERS)
 printf "%8d people credited\n" "$numPersons"
 #
 # for i in $(cut -f 2 BBox_TV_Credits-200820.csv | tail -n +2 | sort -u); do
@@ -192,6 +196,9 @@ for i in actor director; do
     count=$(cut -f 1,2 $CREDITS | sort -fu | grep -c "\t$i$")
     printf "%8d as %ss\n" "$count" "$i"
 done
+printf "%8d characters portrayed (in at most" "$numCharacters"
+count=$(cut -f 3,4 $CREDITS | sort -fu | grep -c "^tv_show\t")
+printf " %d TV shows)\n" "$count"
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
@@ -200,6 +207,7 @@ printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $CREDITS 1
 printAdjustedFileInfo $EPISODE_URLS 0
 printAdjustedFileInfo $UNIQUE_PERSONS 0
+printAdjustedFileInfo $UNIQUE_CHARACTERS 0
 printAdjustedFileInfo $SEASON_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
@@ -296,6 +304,7 @@ $(checkdiffs $PUBLISHED_CREDITS $CREDITS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
+$(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS $UNIQUE_CHARACTERS)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 
