@@ -45,6 +45,7 @@
     if ($0 ~ /<span class="small-8 capitalize/) {
         split ($0,fld,"[<>]")
         char_name = fld[3]
+        gsub (/&#x27;/,"'",char_name)
         if (match (person_name, " and ") || match (person_name, " & ")) {
             pname = substr(person_name,1,RSTART-1)
             sub (/\.$/,"",pname)
