@@ -56,7 +56,7 @@
 /<title>/ {
     split ($0,fld,"[<>]")
     showTitle = fld[3]
-    sub (" - MHz Choice","",showTitle)
+    sub (/ - MHz Choice/,"",showTitle)
     gsub (/&#x27;/,"'",showTitle)
     if (match (showTitle, /^The /)) {
         showTitle = substr(showTitle, 5) ", The"
@@ -98,8 +98,8 @@
         }
         # Put the finalized header before the description
         if (numFields > 3 ) {
-            sub ("Drama-crime","Drama - crime",fld[1])
-            gsub (" ","",fld[4])
+            sub (/Drama-crime/,"Drama - crime",fld[1])
+            gsub (/ /,"",fld[4])
             showDescriptor =  fld[1] "\t" fld[2] "\t" fld[(numFields-1)] "\t" fld[(numFields)] "\t"
             headerAdded = "yes"
         }
@@ -267,6 +267,7 @@
         if (paragraph != "")
             episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph
         gsub (/&amp;/,"\\&",episodeDescription)
+        gsub (/&#x27;/,"'",episodeDescription)
         # print "descriptionLinesFound = " descriptionLinesFound > "/dev/stderr"
         # print "==> episodeDescription from <p> = \n" episodeDescription > "/dev/stderr"
         next

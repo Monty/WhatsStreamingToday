@@ -125,8 +125,8 @@ BEGIN {
     split ($0,fld,"[<>]")
     genre = fld[3]
     genre = toupper(substr(genre,1,1)) substr(genre,2)
-    sub ("Sci_fi","Sci-Fi",genre)
-    sub ("Special_interest","Special interest",genre)
+    sub (/Sci_fi/,"Sci-Fi",genre)
+    sub (/Special_interest/,"Special interest",genre)
     # print "genre = " genre > "/dev/stderr"
 }
 
@@ -379,7 +379,7 @@ BEGIN {
     # https://www.britbox.com/us/episode/All_Creatures_Great_and_Small_S2_E2_23764
     # https://www.britbox.com/us/episode/_23764
     showType_URL = contentType "/"
-    sub ("tv_","",showType_URL)
+    sub (/tv_/,"",showType_URL)
     full_URL = "https://www.britbox.com/us/" showType_URL EntityId
     fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
@@ -388,8 +388,8 @@ BEGIN {
     if (showType == "seasonless")
         numSeasons = ""
     # If an "episode" sortkey or fullTitle contains "S00E" delete the "S00" part
-    sub ("S00E","E",sortkey)
-    sub ("S00E","E",fullTitle)
+    sub (/S00E/,"E",sortkey)
+    sub (/S00E/,"E",fullTitle)
     # Print everything except tv_seasons
     if (contentType != "tv_season")
         printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
