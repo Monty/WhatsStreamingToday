@@ -84,9 +84,9 @@ SEASON_URLS="$COLUMNS/season_urls$DATE_ID.txt"
 UNSORTED="$COLUMNS/unsorted$DATE_ID.txt"
 RAW_CREDITS="$COLUMNS/rawCredits$DATE_ID.txt"
 RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
-UNIQUE_PERSONS="$COLUMNS/uniqPersons$DATE_ID.txt"
-UNIQUE_CHARACTERS="$COLUMNS/uniqCharacters$DATE_ID.txt"
-UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
+UNIQUE_PERSONS="MHz_uniqPersons$DATE_ID.txt"
+UNIQUE_CHARACTERS="MHz_uniqCharacters$DATE_ID.txt"
+UNIQUE_TITLES="MHz_uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files

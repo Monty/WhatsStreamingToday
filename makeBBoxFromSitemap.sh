@@ -98,9 +98,9 @@ IDS_EPISODES="$COLUMNS/ids_episodes$DATE_ID.txt"
 SORTED_SITEMAP="$COLUMNS/BBox-sitemap_sorted$DATE_ID.xml"
 RAW_CREDITS="$COLUMNS/rawCredits$DATE_ID.txt"
 RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
-UNIQUE_PERSONS="$COLUMNS/uniqPersons$DATE_ID.txt"
-UNIQUE_CHARACTERS="$COLUMNS/uniqCharacters$DATE_ID.txt"
-UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
+UNIQUE_PERSONS="BBox_uniqPersons$DATE_ID.txt"
+UNIQUE_CHARACTERS="BBox_uniqCharacters$DATE_ID.txt"
+UNIQUE_TITLES="BBox_uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files

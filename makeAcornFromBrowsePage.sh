@@ -81,7 +81,7 @@ EPISODE_URLS="$COLUMNS/episode_urls$DATE_ID.txt"
 # Intermediate working files
 UNSORTED="$COLUMNS/unsorted$DATE_ID.txt"
 RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
-UNIQUE_TITLES="$COLUMNS/uniqTitles$DATE_ID.txt"
+UNIQUE_TITLES="Acorn_uniqTitles$DATE_ID.txt"
 DURATION="$COLUMNS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
