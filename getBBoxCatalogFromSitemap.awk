@@ -39,8 +39,10 @@ BEGIN {
 /<characterName locale="en-US">/ {
     split ($0,fld,"[<>]")
     char_name = fld[3]
-    # Fix anomalous line with embedded tab ".^I Charlotte Edalji"
-    sub ("^.\t ","",char_name)
+    sub (/^[[:space:]]+/,"",char_name)
+    # Special case
+    # Fix anomalous line with embedded tab ".^I Charlotte Edalji" in "Arthur and George"
+    sub (/^.[[:space:]]+/,"",char_name)
     next
 }
 #
