@@ -40,6 +40,7 @@
         split ($0,fld,"\"")
         person_name = fld[2]
         sub (/\.$/,"",person_name)
+        gsub (/&#x27;/,"'",person_name)
         next
     }
     if ($0 ~ /<span class="small-8 capitalize/) {
