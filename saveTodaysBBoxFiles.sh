@@ -35,10 +35,10 @@ mkdir -p $COLUMNS $BASELINE
 
 cp -p $VERBOSE $COLUMNS/BBoxCatalog-$DATE.csv $BASELINE/BBoxCatalog.txt
 cp -p $VERBOSE $COLUMNS/total_duration-$DATE.txt $BASELINE/total_duration.txt
-cp -p $VERBOSE $COLUMNS/uniqCharacters-$DATE.txt $BASELINE/uniqCharacters.txt
-cp -p $VERBOSE $COLUMNS/uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt
-cp -p $VERBOSE $COLUMNS/uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 
+cp -p $VERBOSE BBox_uniqCharacters-$DATE.txt $BASELINE/uniqCharacters.txt
+cp -p $VERBOSE BBox_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt
+cp -p $VERBOSE BBox_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE BBox_TV_Credits-$DATE.csv $BASELINE/credits.txt
 cp -p $VERBOSE BBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
 cp -p $VERBOSE BBox_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt

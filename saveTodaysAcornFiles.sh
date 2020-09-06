@@ -35,7 +35,7 @@ mkdir -p $COLUMNS $BASELINE
 
 cp -p $VERBOSE $COLUMNS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
 cp -p $VERBOSE $COLUMNS/show_urls-$DATE.txt $BASELINE/show_urls.txt
-cp -p $VERBOSE $COLUMNS/uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 
+cp -p $VERBOSE Acorn_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE Acorn_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
 cp -p $VERBOSE Acorn_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt
