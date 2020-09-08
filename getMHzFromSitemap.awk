@@ -305,8 +305,11 @@
         #
         # Look for directors
         director_name = episodeDescription
-        if (gsub (/\xc2\xa0/," ",director_name))
-            printf ("==> UTF8 non-breaking-space in %s\n", shortEpisodeURL) >> ERRORS
+        if (gsub (/\xc2\xa0/," ",director_name)) {
+            printf ("==> UTF-8 non-breaking-space in %s, S%02d%s%02d, %s\n", showTitle, seasonNumber,
+                    episodeType, episodeNumber, episodeTitle) >> ERRORS
+            print "    " episodeDescription >> ERRORS
+        }
         if (director_name ~ /[Dd]irected by /) {
             sub (/.*[Dd]irected by /,"",director_name)
             sub (/,.*$/,"",director_name)
