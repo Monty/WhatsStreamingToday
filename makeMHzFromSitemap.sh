@@ -137,7 +137,7 @@ printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\
 # Print spreadsheet headers (OK because they will always sort to the top)
 printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription\n" \
     >$UNSORTED
-printf "Person\tRole\tShow_Type\tShow_Title\tCharacter_Name\n" >$RAW_CREDITS
+printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >$RAW_CREDITS
 
 # loop through the list of URLs from $SEASON_URLS and generate a full but unsorted spreadsheet
 while read -r line; do
