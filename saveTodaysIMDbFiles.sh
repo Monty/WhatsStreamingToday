@@ -34,11 +34,12 @@ BASELINE="IMDb-baseline"
 mkdir -p $COLUMNS $BASELINE
 
 cp -p $VERBOSE $COLUMNS/tconst-$DATE.txt $BASELINE/tconst.txt
-cp -p $VERBOSE $COLUMNS/titles-$DATE.txt $BASELINE/titles.txt
 cp -p $VERBOSE $COLUMNS/nconst-$DATE.txt $BASELINE/nconst.txt
 cp -p $VERBOSE $COLUMNS/raw_shows-$DATE.csv $BASELINE/raw_shows.csv
 cp -p $VERBOSE $COLUMNS/raw_credits-$DATE.csv $BASELINE/raw_credits.csv
+cp -p $VERBOSE IMDb_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
+cp -p $VERBOSE IMDb_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt
 
+cp -p $VERBOSE IMDb_Shows-$DATE.csv $BASELINE/shows.csv
 cp -p $VERBOSE IMDb_Credits-Show-$DATE.csv $BASELINE/credits-show.csv
 cp -p $VERBOSE IMDb_Credits-Person-$DATE.csv $BASELINE/credits-person.csv
-cp -p $VERBOSE IMDb_Shows-$DATE.csv $BASELINE/shows.csv

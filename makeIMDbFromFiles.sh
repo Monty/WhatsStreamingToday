@@ -99,10 +99,11 @@ SHOWS="IMDb_Shows$DATE_ID.csv"
 
 # Intermediate working files
 TCONST_LIST="$COLUMNS/tconst$DATE_ID.txt"
-TITLE_LIST="$COLUMNS/titles$DATE_ID.txt"
 NCONST_LIST="$COLUMNS/nconst$DATE_ID.txt"
 RAW_SHOWS="$COLUMNS/raw_shows$DATE_ID.csv"
 RAW_CREDITS="$COLUMNS/raw_credits$DATE_ID.csv"
+UNIQUE_PERSONS="IMDb_uniqPersons$DATE_ID.txt"
+UNIQUE_TITLES="IMDb_uniqTitles$DATE_ID.txt"
 UNSORTED_CREDITS="$COLUMNS/unsorted_credits$DATE_ID.csv"
 #
 CONST_PL="$COLUMNS/const-pl$DATE_ID.txt"
@@ -114,18 +115,20 @@ PUBLISHED_CREDITS_PERSON="$BASELINE/credits-person.csv"
 PUBLISHED_SHOWS="$BASELINE/shows.csv"
 #
 PUBLISHED_TCONST_LIST="$BASELINE/tconst.txt"
-PUBLISHED_TITLE_LIST="$BASELINE/titles.txt"
 PUBLISHED_NCONST_LIST="$BASELINE/nconst.txt"
 PUBLISHED_RAW_SHOWS="$BASELINE/raw_shows.csv"
 PUBLISHED_RAW_CREDITS="$BASELINE/raw_credits.csv"
+PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
+PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$TCONST_LIST $TITLE_LIST $NCONST_LIST $CONST_PL $XLATE_PL"
-ALL_CSV="$RAW_CREDITS $RAW_SHOWS"
+ALL_WORKING="$TCONST_LIST $NCONST_LIST $XLATE_PL $CONST_PL"
+ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
+ALL_CSV="$RAW_SHOWS $RAW_CREDITS"
 ALL_SPREADSHEETS="$SHOWS $CREDITS_SHOW $CREDITS_PERSON $UNSORTED_CREDITS"
 
 # Cleanup any possible leftover files
-rm -f $ALL_WORKING $ALL_CSV $ALL_SPREADSHEETS
+rm -f $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS
 
 # Save a single tconst input list
 rg -INz "^tt" $TCONST_FILES | sort -u >$TCONST_LIST
@@ -138,13 +141,13 @@ perl -p -e 's+^+s{\\b+; s+\t+\\b}{+; s+$+};+' $XLATE_FILES >$XLATE_PL
 # translate any known non-English titles to their English equivalent,
 # and manually translate the UTF-8 last character cases that don't work with a trailing word boundary
 rg -wNz -f $TCONST_LIST title.basics.tsv.gz | cut -f 1-4,6-9 | perl -p -f $XLATE_PL |
-    perl -p -e 's+\bMeurtres à...+Murder In...+; s+\bLa scomparsa di Patò+The Vanishing of Patò+' |
-    sort -fu --key=3 | tee $RAW_SHOWS | cut -f 3 | sort -fu >$TITLE_LIST
+    perl -p -e 's+\bMeurtres à...+Murder In...+; s+\bLa scomparsa di Patò+The Vanishing of Patò+;' |
+    sort -fu --key=3 | tee $RAW_SHOWS | cut -f 3 | sort -fu >$UNIQUE_TITLES
 #
 # Let us know what shows we're processing - format for readability, separate with ";"
-num_titles=$(sed -n '$=' $TITLE_LIST)
+num_titles=$(sed -n '$=' $UNIQUE_TITLES)
 printf "\n==> Processing $num_titles shows found in $TCONST_FILES:\n"
-perl -p -e 's+$+;+' $TITLE_LIST | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s+.$++'
+perl -p -e 's+$+;+' $UNIQUE_TITLES | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s+.$++'
 
 # Use tconst list to lookup principal credits and create an nconst list
 # Generate a csv of principal nconsts and names of characters they portrayed from title matches
@@ -174,6 +177,9 @@ perl -F"\t" -lane 'printf "%s\t%s\t%02d\t%s\t%s\n", @F[2,0,1,3,5]' $RAW_CREDITS 
 perl -pi -f $CONST_PL $SHOWS
 perl -pi -f $CONST_PL $UNSORTED_CREDITS
 
+# Create UNIQUE_PERSONS
+cut -d \" -f 4 $UNSORTED_CREDITS | sort -fu >$UNIQUE_PERSONS
+
 # Create the sorted CREDITS spreadsheets
 printf "Person\tShow Title\tRank\tJob\tCharacter Name\n" | tee $CREDITS_SHOW >$CREDITS_PERSON
 rg -v -e "^nm" -e "\tproducer\t" $UNSORTED_CREDITS |
@@ -193,11 +199,12 @@ function printAdjustedFileInfo() {
 }
 
 # Output some stats, adjust by 1 if header line is included.
-printf "\n==> Stats from processing raw tconst data:\n"
-printAdjustedFileInfo $TITLE_LIST 0
+printf "\n==> Stats from processing IMDb data:\n"
+printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $RAW_SHOWS 0
 printAdjustedFileInfo $SHOWS 1
 printAdjustedFileInfo $NCONST_LIST 0
+printAdjustedFileInfo $UNIQUE_PERSONS 0
 printAdjustedFileInfo $CREDITS_SHOW 1
 printAdjustedFileInfo $CREDITS_PERSON 1
 printAdjustedFileInfo $RAW_CREDITS 0
@@ -239,9 +246,10 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_TITLE_LIST $TITLE_LIST)
 $(checkdiffs $PUBLISHED_TCONST_LIST $TCONST_LIST)
 $(checkdiffs $PUBLISHED_NCONST_LIST $NCONST_LIST)
+$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
+$(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
 $(checkdiffs $PUBLISHED_RAW_SHOWS $RAW_SHOWS)
 $(checkdiffs $PUBLISHED_RAW_CREDITS $RAW_CREDITS)
 $(checkdiffs $PUBLISHED_SHOWS $SHOWS)
@@ -250,7 +258,7 @@ $(checkdiffs $PUBLISHED_CREDITS_PERSON $CREDITS_PERSON)
 
 ### Any funny stuff with file lengths?
 
-$(wc $ALL_WORKING $ALL_CSV $ALL_SPREADSHEETS)
+$(wc $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS)
 
 EOF
 
