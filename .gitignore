@@ -2,8 +2,10 @@
 .DS_Store
 
 # Output from running any commands
+*.gz
 *.csv
 *.jl
+*.pdf
 *.txt
 *.xml
 
