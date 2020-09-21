@@ -135,13 +135,11 @@ rg -INz "^tt" $TCONST_FILES | sort -u >$TCONST_LIST
 
 # Create a perl "substitute" script to translate any known non-English titles to their English equivalent
 # Regex delimiter needs to avoid any characters present in the input, use {} for readability
-perl -p -e 's+^+s{\\b+; s+\t+\\b}{+; s+$+};+' $XLATE_FILES >$XLATE_PL
+perl -p -e 's+\t+\\t}{\\t+; s+^+s{\\t+; s+$+\\t};+' $XLATE_FILES >$XLATE_PL
 
 # Generate a csv of titles from the tconst list, remove the "adult" field,
 # translate any known non-English titles to their English equivalent,
-# and manually translate the UTF-8 last character cases that don't work with a trailing word boundary
 rg -wNz -f $TCONST_LIST title.basics.tsv.gz | cut -f 1-4,6-9 | perl -p -f $XLATE_PL |
-    perl -p -e 's+\bMeurtres à...+Murder In...+; s+\bLa scomparsa di Patò+The Vanishing of Patò+;' |
     sort -fu --key=3 | tee $RAW_SHOWS | cut -f 3 | sort -fu >$UNIQUE_TITLES
 #
 # Let us know what shows we're processing - format for readability, separate with ";"
@@ -149,11 +147,10 @@ num_titles=$(sed -n '$=' $UNIQUE_TITLES)
 printf "\n==> Processing $num_titles shows found in $TCONST_FILES:\n"
 perl -p -e 's+$+;+' $UNIQUE_TITLES | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s+.$++'
 
-# Use tconst list to lookup principal credits and create an nconst list
-# Generate a csv of principal nconsts and names of characters they portrayed from title matches
-# Add the nconst list of all known cast members from shows we know about
-rg -wNz -f $TCONST_LIST title.principals.tsv.gz | sort --key=1,1 --key=2,2n | tee $RAW_CREDITS |
-    rg -wN -e actor -e actress -e writer -e director | cut -f 3 | sort -u >$NCONST_LIST
+# Use the tconst list to lookup principal titles and generate a tconst/nconst credits csv
+# Use that csv to generate an nconst list for later processing
+rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -wN -e actor -e actress -e writer -e director |
+    sort --key=1,1 --key=2,2n | tee $RAW_CREDITS | cut -f 3 | sort -u >$NCONST_LIST
 
 # Create a perl script to convert a tconst to a title, and an nconst to a name
 cut -f 1,3 $RAW_SHOWS | perl -F"\t" -lane \
@@ -166,7 +163,7 @@ rg -wNz -f $NCONST_LIST name.basics.tsv.gz | cut -f 1-2 | sort -fu --key=2 | per
 # Get rid of ugly \N fields, unneeded characters, and commas not followed by spaces
 perl -pi -e 's+\\N++g; tr+"[]++d; s+,+, +g; s+,  +, +g;' $ALL_CSV
 
-# Create the SHOWS spreadsheet by rearranging RAW_SHOWS fields
+# Create the SHOWS spreadsheet by removing "Original Title" field from RAW_SHOWS
 printf "Primary Title\tShow Type\tOriginal Title\tStart\tEnd\tMinutes\tGenres\n" >$SHOWS
 cut -f 1,2,4-8 $RAW_SHOWS >>$SHOWS
 
@@ -182,10 +179,8 @@ cut -d \" -f 4 $UNSORTED_CREDITS | sort -fu >$UNIQUE_PERSONS
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tShow Title\tRank\tJob\tCharacter Name\n" | tee $CREDITS_SHOW >$CREDITS_PERSON
-rg -v -e "^nm" -e "\tproducer\t" $UNSORTED_CREDITS |
-    sort -f --field-separator=\" --key=4,4 --key=8 >>$CREDITS_PERSON
-rg -v -e "^nm" -e "\tproducer\t" $UNSORTED_CREDITS |
-    sort -f --field-separator=\" --key=8 --key=4,4 >>$CREDITS_SHOW
+rg -v -e "^nm" $UNSORTED_CREDITS | sort -f --field-separator=\" --key=4,4 --key=8 >>$CREDITS_PERSON
+rg -v -e "^nm" $UNSORTED_CREDITS | sort -f --field-separator=\" --key=8 --key=4,4 >>$CREDITS_SHOW
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
