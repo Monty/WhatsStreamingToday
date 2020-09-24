@@ -106,7 +106,9 @@ UNIQUE_PERSONS="IMDb_uniqPersons$DATE_ID.txt"
 UNIQUE_TITLES="IMDb_uniqTitles$DATE_ID.txt"
 UNSORTED_CREDITS="$COLUMNS/unsorted_credits$DATE_ID.csv"
 #
-CONST_PL="$COLUMNS/const-pl$DATE_ID.txt"
+TCONST_PRIM_PL="$COLUMNS/tconst-prim-pl$DATE_ID.txt"
+TCONST_ORIG_PL="$COLUMNS/tconst-orig-pl$DATE_ID.txt"
+NCONST_PL="$COLUMNS/nconst-pl$DATE_ID.txt"
 XLATE_PL="$COLUMNS/xlate-pl$DATE_ID.txt"
 
 # Saved files used for comparison with current files
@@ -122,10 +124,10 @@ PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$TCONST_LIST $NCONST_LIST $XLATE_PL $CONST_PL"
+ALL_WORKING="$TCONST_LIST $NCONST_LIST $XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL"
 ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
 ALL_CSV="$RAW_SHOWS $RAW_CREDITS"
-ALL_SPREADSHEETS="$SHOWS $CREDITS_SHOW $CREDITS_PERSON $UNSORTED_CREDITS"
+ALL_SPREADSHEETS="$SHOWS $UNSORTED_CREDITS $CREDITS_SHOW $CREDITS_PERSON"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS
@@ -139,8 +141,11 @@ perl -p -e 's+\t+\\t}{\\t+; s+^+s{\\t+; s+$+\\t};+' $XLATE_FILES >$XLATE_PL
 
 # Generate a csv of titles from the tconst list, remove the "adult" field,
 # translate any known non-English titles to their English equivalent,
+# Sort by Primary Title (3), Start (5), Original Title (4)
+TAB=$(printf "\t")
 rg -wNz -f $TCONST_LIST title.basics.tsv.gz | cut -f 1-4,6-9 | perl -p -f $XLATE_PL |
-    sort -fu --key=3 | tee $RAW_SHOWS | cut -f 3 | sort -fu >$UNIQUE_TITLES
+    sort -f --field-separator="$TAB" --key=3,3 --key=5,5 --key=4,4 | tee $RAW_SHOWS | cut -f 3 |
+    sort -fu >$UNIQUE_TITLES
 #
 # Let us know what shows we're processing - format for readability, separate with ";"
 num_titles=$(sed -n '$=' $UNIQUE_TITLES)
@@ -148,17 +153,23 @@ printf "\n==> Processing $num_titles shows found in $TCONST_FILES:\n"
 perl -p -e 's+$+;+' $UNIQUE_TITLES | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s+.$++'
 
 # Use the tconst list to lookup principal titles and generate a tconst/nconst credits csv
+# Fix bogus nconst nm0745728, it should be m0745694
 # Use that csv to generate an nconst list for later processing
 rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -wN -e actor -e actress -e writer -e director |
-    sort --key=1,1 --key=2,2n | tee $RAW_CREDITS | cut -f 3 | sort -u >$NCONST_LIST
+    sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' | tee $RAW_CREDITS |
+    cut -f 3 | sort -u >$NCONST_LIST
 
-# Create a perl script to convert a tconst to a title, and an nconst to a name
+# Create a perl script to convert the 1st tconst to a primary title, the 2nd to an original title
 cut -f 1,3 $RAW_SHOWS | perl -F"\t" -lane \
-    'print "s{\\b".@F[0]."\\b}{=HYPERLINK(\"https://www.imdb.com/title/".@F[0]."\";\"".@F[1]."\")}g;";' \
-    >$CONST_PL
+    'print "s{\\b".@F[0]."\\b}{=HYPERLINK(\"https://www.imdb.com/title/".@F[0]."\";\"".@F[1]."\")};";' \
+    >$TCONST_PRIM_PL
+cut -f 1,4 $RAW_SHOWS | perl -F"\t" -lane \
+    'print "s{\\t".@F[0]."\\t}{\\t=HYPERLINK(\"https://www.imdb.com/title/".@F[0]."\";\"".@F[1]."\")\\t};";' \
+    >$TCONST_ORIG_PL
+# Create a perl script to convert an nconst to a name
 rg -wNz -f $NCONST_LIST name.basics.tsv.gz | cut -f 1-2 | sort -fu --key=2 | perl -F"\t" -lane \
     'print "s{\\b".@F[0]."\\b}{=HYPERLINK(\"https://www.imdb.com/name/".@F[0]."\";\"".@F[1]."\")}g;";' \
-    >>$CONST_PL
+    >>$NCONST_PL
 
 # Get rid of ugly \N fields, unneeded characters, and commas not followed by spaces
 perl -pi -e 's+\\N++g; tr+"[]++d; s+,+, +g; s+,  +, +g;' $ALL_CSV
@@ -168,19 +179,24 @@ printf "Primary Title\tShow Type\tOriginal Title\tStart\tEnd\tMinutes\tGenres\n"
 cut -f 1,2,4-8 $RAW_SHOWS >>$SHOWS
 
 # Create the UNSORTED_CREDITS spreadsheet by rearranging RAW_CREDITS fields
-perl -F"\t" -lane 'printf "%s\t%s\t%02d\t%s\t%s\n", @F[2,0,1,3,5]' $RAW_CREDITS >$UNSORTED_CREDITS
+perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' $RAW_CREDITS >$UNSORTED_CREDITS
 
 # Translate tconst and nconst into titles and names
-perl -pi -f $CONST_PL $SHOWS
-perl -pi -f $CONST_PL $UNSORTED_CREDITS
+perl -pi -f $TCONST_PRIM_PL $SHOWS
+perl -pi -f $TCONST_PRIM_PL $UNSORTED_CREDITS
+perl -pi -f $TCONST_ORIG_PL $UNSORTED_CREDITS
+perl -pi -f $NCONST_PL $UNSORTED_CREDITS
 
 # Create UNIQUE_PERSONS
 cut -d \" -f 4 $UNSORTED_CREDITS | sort -fu >$UNIQUE_PERSONS
 
 # Create the sorted CREDITS spreadsheets
-printf "Person\tShow Title\tRank\tJob\tCharacter Name\n" | tee $CREDITS_SHOW >$CREDITS_PERSON
-rg -v -e "^nm" $UNSORTED_CREDITS | sort -f --field-separator=\" --key=4,4 --key=8 >>$CREDITS_PERSON
-rg -v -e "^nm" $UNSORTED_CREDITS | sort -f --field-separator=\" --key=8 --key=4,4 >>$CREDITS_SHOW
+printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
+    tee $CREDITS_SHOW >$CREDITS_PERSON
+# Sort by Person (4), Primary Title (8), Rank (13)
+sort -f --field-separator=\" --key=4,4 --key=8,8 --key=13,13 --key=12,12 $UNSORTED_CREDITS >>$CREDITS_PERSON
+# Sort by Primary Title (8), Original Title (12), Rank (13)
+sort -f --field-separator=\" --key=8,8 --key=12,13 $UNSORTED_CREDITS >>$CREDITS_SHOW
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
@@ -200,9 +216,9 @@ printAdjustedFileInfo $RAW_SHOWS 0
 printAdjustedFileInfo $SHOWS 1
 printAdjustedFileInfo $NCONST_LIST 0
 printAdjustedFileInfo $UNIQUE_PERSONS 0
+printAdjustedFileInfo $RAW_CREDITS 0
 printAdjustedFileInfo $CREDITS_SHOW 1
 printAdjustedFileInfo $CREDITS_PERSON 1
-printAdjustedFileInfo $RAW_CREDITS 0
 
 # Shortcut for checking differences between two files.
 # checkdiffs basefile newfile
