@@ -1,3 +1,8 @@
+# This is a sample file of tab separated translations from foreign film titles to their English equivalents
+#
+# Create a similar file for titles you want translated, with any name and extension.
+# Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t Netflix-xlate.txt
+
 ...es wird Trauer sein und Schmerz	Tatort: Lindholm
 A Place in the Sun	Annika Bengtzon: Crime Reporter
 Angst heiligt die Mittel	Bukow and König

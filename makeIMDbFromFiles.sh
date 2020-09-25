@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Generate show and cast spreadsheets from:
-#   1) a .tconst file containing a list of IMDb tconst identifiers
+#   1) .tconst file(s) containing a list of IMDb tconst identifiers
 #
 #       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
 #       tconst (string) - alphanumeric unique identifier of the title
@@ -12,11 +12,15 @@
 #           tt2980074
 #           ...
 #
-#    2) a .xlate file with pairs of non-English titles and their English equivalent for translation
+#       Defaults to all .tconst files, or specify them on the command line
+#
+#    2) .xlate file(s) with tab separated pairs of non-English titles and their English equivalents
 #
 #       For example:
 #           Den fördömde	Sebastian Bergman
 #           Der Bestatter	The Undertaker
+#
+#       Defaults to all .xlate files, or specify one with -t [file] on the command line
 #
 
 # trap ctrl-c and call cleanup
@@ -30,6 +34,31 @@ function cleanup() {
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
 cd $DIRNAME
+
+# Default translation files to all .xlate files, but allow user to override
+XLATE_FILES="*.xlate"
+while getopts ":t:h" opt; do
+    case $opt in
+    h)
+        printf "Create spreadsheets of shows, actors, and the characters they portray\n"
+        printf "from downloaded IMDb .gz fies. See https://www.imdb.com/interfaces/\n\n"
+        printf "USAGE:\n"
+        printf "    ./makeIMDbFromFiles.sh [-t translation file] [tconst file ...]\n"
+        exit
+        ;;
+    t)
+        XLATE_FILES="$OPTARG"
+        ;;
+    \?)
+        printf "Ignoring invalid option: -$OPTARG\n" >&2
+        ;;
+    :)
+        printf "Option -$OPTARG requires a 'translation file' argument'.\n" >&2
+        exit 1
+        ;;
+    esac
+done
+shift $((OPTIND - 1))
 
 # Make sure we can execute rg.
 if [ ! -x "$(which rg 2>/dev/null)" ]; then
@@ -60,6 +89,17 @@ else
 fi
 printf "\n"
 
+# Let us know which title translation files are used.
+if [ "$XLATE_FILES" == "*.xlate" ]; then
+    printf "==> Using all .xlate files for IMDb title translation.\n\n"
+else
+    printf "==> Using $XLATE_FILES for IMDb title translation.\n\n"
+fi
+if [ ! "$(ls $XLATE_FILES 2>/dev/null)" ]; then
+    printf "==> [Error] No such file: $XLATE_FILES\n"
+    exit 1
+fi
+
 # Pick tconst file(s) to process
 if [ $# -eq 0 ]; then
     TCONST_FILES="*.tconst"
@@ -75,9 +115,6 @@ if [ ! "$(ls $TCONST_FILES 2>/dev/null)" ]; then
     printf "==> [Error] No such file$PLURAL: $TCONST_FILES\n"
     exit 1
 fi
-
-# Pick translation files to use
-XLATE_FILES="*.xlate"
 
 # Create some timestamps
 DATE_ID="-$(date +%y%m%d)"
@@ -101,7 +138,6 @@ SHOWS="IMDb_Shows$DATE_ID.csv"
 TCONST_LIST="$COLUMNS/tconst$DATE_ID.txt"
 NCONST_LIST="$COLUMNS/nconst$DATE_ID.txt"
 RAW_SHOWS="$COLUMNS/raw_shows$DATE_ID.csv"
-RAW_CREDITS="$COLUMNS/raw_credits$DATE_ID.csv"
 UNIQUE_PERSONS="IMDb_uniqPersons$DATE_ID.txt"
 UNIQUE_TITLES="IMDb_uniqTitles$DATE_ID.txt"
 UNSORTED_CREDITS="$COLUMNS/unsorted_credits$DATE_ID.csv"
@@ -119,25 +155,25 @@ PUBLISHED_SHOWS="$BASELINE/shows.csv"
 PUBLISHED_TCONST_LIST="$BASELINE/tconst.txt"
 PUBLISHED_NCONST_LIST="$BASELINE/nconst.txt"
 PUBLISHED_RAW_SHOWS="$BASELINE/raw_shows.csv"
-PUBLISHED_RAW_CREDITS="$BASELINE/raw_credits.csv"
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$TCONST_LIST $NCONST_LIST $XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL"
 ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
-ALL_CSV="$RAW_SHOWS $RAW_CREDITS"
-ALL_SPREADSHEETS="$SHOWS $UNSORTED_CREDITS $CREDITS_SHOW $CREDITS_PERSON"
+ALL_CSV="$RAW_SHOWS $UNSORTED_CREDITS"
+ALL_SPREADSHEETS="$SHOWS $CREDITS_SHOW $CREDITS_PERSON"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS
 
-# Save a single tconst input list
-rg -INz "^tt" $TCONST_FILES | sort -u >$TCONST_LIST
+# Coalesce a single tconst input list
+rg -IN "^tt" $TCONST_FILES | sort -u >$TCONST_LIST
 
 # Create a perl "substitute" script to translate any known non-English titles to their English equivalent
 # Regex delimiter needs to avoid any characters present in the input, use {} for readability
-perl -p -e 's+\t+\\t}{\\t+; s+^+s{\\t+; s+$+\\t};+' $XLATE_FILES >$XLATE_PL
+rg -INv -e "^#" -e "^$" $XLATE_FILES | sort -fu |
+    perl -p -e 's+\t+\\t}{\\t+; s+^+s{\\t+; s+$+\\t};+' >$XLATE_PL
 
 # Generate a csv of titles from the tconst list, remove the "adult" field,
 # translate any known non-English titles to their English equivalent,
@@ -153,11 +189,16 @@ printf "\n==> Processing $num_titles shows found in $TCONST_FILES:\n"
 perl -p -e 's+$+;+' $UNIQUE_TITLES | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s+.$++'
 
 # Use the tconst list to lookup principal titles and generate a tconst/nconst credits csv
-# Fix bogus nconst nm0745728, it should be m0745694
-# Use that csv to generate an nconst list for later processing
+# Fix bogus nconst nm0745728, it should be m0745694. Rearrange fields
 rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -wN -e actor -e actress -e writer -e director |
-    sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' | tee $RAW_CREDITS |
-    cut -f 3 | sort -u >$NCONST_LIST
+    sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' |
+    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' >$UNSORTED_CREDITS
+
+# Get rid of ugly \N fields, unneeded characters, and commas not followed by spaces
+perl -pi -e 's+\\N++g; tr+"[]++d; s+,+, +g; s+,  +, +g;' $ALL_CSV
+
+# Generate an nconst list for later processing
+cut -f 1 $UNSORTED_CREDITS | sort -u >$NCONST_LIST
 
 # Create a perl script to convert the 1st tconst to a primary title, the 2nd to an original title
 cut -f 1,3 $RAW_SHOWS | perl -F"\t" -lane \
@@ -171,15 +212,9 @@ rg -wNz -f $NCONST_LIST name.basics.tsv.gz | cut -f 1-2 | sort -fu --key=2 | per
     'print "s{\\b".@F[0]."\\b}{=HYPERLINK(\"https://www.imdb.com/name/".@F[0]."\";\"".@F[1]."\")}g;";' \
     >>$NCONST_PL
 
-# Get rid of ugly \N fields, unneeded characters, and commas not followed by spaces
-perl -pi -e 's+\\N++g; tr+"[]++d; s+,+, +g; s+,  +, +g;' $ALL_CSV
-
 # Create the SHOWS spreadsheet by removing "Original Title" field from RAW_SHOWS
 printf "Primary Title\tShow Type\tOriginal Title\tStart\tEnd\tMinutes\tGenres\n" >$SHOWS
 cut -f 1,2,4-8 $RAW_SHOWS >>$SHOWS
-
-# Create the UNSORTED_CREDITS spreadsheet by rearranging RAW_CREDITS fields
-perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' $RAW_CREDITS >$UNSORTED_CREDITS
 
 # Translate tconst and nconst into titles and names
 perl -pi -f $TCONST_PRIM_PL $SHOWS
@@ -216,7 +251,6 @@ printAdjustedFileInfo $RAW_SHOWS 0
 printAdjustedFileInfo $SHOWS 1
 printAdjustedFileInfo $NCONST_LIST 0
 printAdjustedFileInfo $UNIQUE_PERSONS 0
-printAdjustedFileInfo $RAW_CREDITS 0
 printAdjustedFileInfo $CREDITS_SHOW 1
 printAdjustedFileInfo $CREDITS_PERSON 1
 
@@ -262,7 +296,6 @@ $(checkdiffs $PUBLISHED_NCONST_LIST $NCONST_LIST)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
 $(checkdiffs $PUBLISHED_RAW_SHOWS $RAW_SHOWS)
-$(checkdiffs $PUBLISHED_RAW_CREDITS $RAW_CREDITS)
 $(checkdiffs $PUBLISHED_SHOWS $SHOWS)
 $(checkdiffs $PUBLISHED_CREDITS_SHOW $CREDITS_SHOW)
 $(checkdiffs $PUBLISHED_CREDITS_PERSON $CREDITS_PERSON)

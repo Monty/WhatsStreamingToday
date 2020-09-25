@@ -1,4 +1,11 @@
-# Known IMDb title identifiers to search for
+# This is a sample file of IMDb tconst identifiers of shows I've watched on MHz.
+#       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
+#       tconst (string) - alphanumeric unique identifier of the title
+#
+# Create a similar tconst file of shows you've watched or are interested in, with any name and extension.
+# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
+# If you don't pass it a file parameter, it will process all *.tconst files
+
 # Added Sept 23
 # Millennium (Stieg Larsson)
 tt1634549
