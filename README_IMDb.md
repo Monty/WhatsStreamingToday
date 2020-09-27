@@ -34,6 +34,10 @@ search term on IMDb.
 separate IMDb page with no parent series - *e.g.* “Bukow and König” and “Murder
 In…”.
 
+**IMDb_Persons-Titles.xls** lists the top titles a person is known for.
+
+Useful to find other shows by persons credited in other spreadsheets.
+
 **Note:** Spreadsheets were generated from downloaded IMDb .gz movie and TV
 datasets, *i.e.*
 
