@@ -132,37 +132,50 @@ ERRORS="IMDb_anomalies$LONGDATE.txt"
 # Final output spreadsheets
 CREDITS_SHOW="IMDb_Credits-Show$DATE_ID.csv"
 CREDITS_PERSON="IMDb_Credits-Person$DATE_ID.csv"
+PERSONS="IMDb_Persons-Titles$DATE_ID.csv"
 SHOWS="IMDb_Shows$DATE_ID.csv"
+
+# Final output lists
+UNIQUE_PERSONS="IMDb_uniqPersons$DATE_ID.txt"
+UNIQUE_TITLES="IMDb_uniqTitles$DATE_ID.txt"
+KNOWNFOR_TITLES="IMDb_knownTitles$DATE_ID.txt"
 
 # Intermediate working files
 TCONST_LIST="$COLUMNS/tconst$DATE_ID.txt"
+KNOWNFOR_LIST="$COLUMNS/tconst_known$DATE_ID.txt"
 NCONST_LIST="$COLUMNS/nconst$DATE_ID.txt"
 RAW_SHOWS="$COLUMNS/raw_shows$DATE_ID.csv"
-UNIQUE_PERSONS="IMDb_uniqPersons$DATE_ID.txt"
-UNIQUE_TITLES="IMDb_uniqTitles$DATE_ID.txt"
+RAW_PERSONS="$COLUMNS/raw_persons$DATE_ID.csv"
 UNSORTED_CREDITS="$COLUMNS/unsorted_credits$DATE_ID.csv"
 #
 TCONST_PRIM_PL="$COLUMNS/tconst-prim-pl$DATE_ID.txt"
 TCONST_ORIG_PL="$COLUMNS/tconst-orig-pl$DATE_ID.txt"
+TCONST_KNOWN_PL="$COLUMNS/tconst-known-pl$DATE_ID.txt"
 NCONST_PL="$COLUMNS/nconst-pl$DATE_ID.txt"
 XLATE_PL="$COLUMNS/xlate-pl$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_CREDITS_SHOW="$BASELINE/credits-show.csv"
 PUBLISHED_CREDITS_PERSON="$BASELINE/credits-person.csv"
+PUBLISHED_PERSONS="$BASELINE/persons-titles.csv"
 PUBLISHED_SHOWS="$BASELINE/shows.csv"
 #
-PUBLISHED_TCONST_LIST="$BASELINE/tconst.txt"
-PUBLISHED_NCONST_LIST="$BASELINE/nconst.txt"
-PUBLISHED_RAW_SHOWS="$BASELINE/raw_shows.csv"
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
+PUBLISHED_KNOWNFOR_TITLES="$BASELINE/knownTitles.txt"
+#
+PUBLISHED_TCONST_LIST="$BASELINE/tconst.txt"
+PUBLISHED_KNOWNFOR_LIST="$BASELINE/tconst_known.txt"
+PUBLISHED_NCONST_LIST="$BASELINE/nconst.txt"
+PUBLISHED_RAW_SHOWS="$BASELINE/raw_shows.csv"
+PUBLISHED_RAW_PERSONS="$BASELINE/raw_persons.csv"
 
 # Filename groups used for cleanup
-ALL_WORKING="$TCONST_LIST $NCONST_LIST $XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL"
-ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
-ALL_CSV="$RAW_SHOWS $UNSORTED_CREDITS"
-ALL_SPREADSHEETS="$SHOWS $CREDITS_SHOW $CREDITS_PERSON"
+ALL_WORKING="$TCONST_LIST $NCONST_LIST $KNOWNFOR_LIST "
+ALL_WORKING+="$XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL $TCONST_KNOWN_PL"
+ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS $KNOWNFOR_TITLES"
+ALL_CSV="$RAW_SHOWS $RAW_PERSONS $UNSORTED_CREDITS"
+ALL_SPREADSHEETS="$SHOWS $PERSONS $CREDITS_SHOW $CREDITS_PERSON"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS
@@ -194,23 +207,39 @@ rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -wN -e actor -e actress -e 
     sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' |
     perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' >$UNSORTED_CREDITS
 
-# Get rid of ugly \N fields, unneeded characters, and commas not followed by spaces
-perl -pi -e 's+\\N++g; tr+"[]++d; s+,+, +g; s+,  +, +g;' $ALL_CSV
-
 # Generate an nconst list for later processing
 cut -f 1 $UNSORTED_CREDITS | sort -u >$NCONST_LIST
 
-# Create a perl script to convert the 1st tconst to a primary title, the 2nd to an original title
+# Create a perl script to convert the 1st tconst to a primary title link
 cut -f 1,3 $RAW_SHOWS | perl -F"\t" -lane \
-    'print "s{\\b".@F[0]."\\b}{=HYPERLINK(\"https://www.imdb.com/title/".@F[0]."\";\"".@F[1]."\")};";' \
-    >$TCONST_PRIM_PL
+    'print "s{\\b" . @F[0] . "\\b}{=HYPERLINK(\"https://www.imdb.com/title/" . @F[0] . "\";\""
+    . @F[1] . "\")};";' >$TCONST_PRIM_PL
+# Create a perl script to convert the 2nd tconst to an original title link
 cut -f 1,4 $RAW_SHOWS | perl -F"\t" -lane \
-    'print "s{\\t".@F[0]."\\t}{\\t=HYPERLINK(\"https://www.imdb.com/title/".@F[0]."\";\"".@F[1]."\")\\t};";' \
-    >$TCONST_ORIG_PL
-# Create a perl script to convert an nconst to a name
-rg -wNz -f $NCONST_LIST name.basics.tsv.gz | cut -f 1-2 | sort -fu --key=2 | perl -F"\t" -lane \
-    'print "s{\\b".@F[0]."\\b}{=HYPERLINK(\"https://www.imdb.com/name/".@F[0]."\";\"".@F[1]."\")}g;";' \
-    >>$NCONST_PL
+    'print "s{\\t" . @F[0] . "\\t}{\\t=HYPERLINK(\"https://www.imdb.com/title/" . @F[0] . "\";\""
+    .@F[1] . "\")\\t};";' >$TCONST_ORIG_PL
+# Create a perl script to convert an nconst to a name link
+rg -wNz -f $NCONST_LIST name.basics.tsv.gz | cut -f 1-2,6 | sort -fu --key=2 | tee $RAW_PERSONS |
+    perl -F"\t" -lane 'print "s{\\b" . @F[0] . "\\b}{=HYPERLINK(\"https://www.imdb.com/name/"
+    .@F[0] . "\";\"" . @F[1] . "\")};";' >$NCONST_PL
+
+# Get rid of ugly \N fields, unneeded characters, and make sure commas are followed by spaces
+perl -pi -e 's+\\N++g; tr+"[]++d; s+,+, +g; s+,  +, +g;' $ALL_CSV
+
+# Create the PERSONS spreadsheet
+printf "Person\tKnown For Titles...\n" >$PERSONS
+cut -f 1,3 $RAW_PERSONS | perl -p -e 's+, +\t+g' >>$PERSONS
+
+# Create a tconst list of the knownForTitles
+cut -f 3 $RAW_PERSONS | rg "^tt" | perl -p -e 's+, +\n+g' | sort -u >$KNOWNFOR_LIST
+# Create a perl script to convert a known tconst to a primary title link
+rg -wNz -f $KNOWNFOR_LIST title.basics.tsv.gz | perl -p -f $XLATE_PL | cut -f 1,3 |
+    perl -F"\t" -lane \
+        'print "s{\\b" . @F[0] . "\\b}{=HYPERLINK(\"https://www.imdb.com/title/" . @F[0] . "\";\""
+    . @F[1] . "\")};";' >$TCONST_KNOWN_PL
+
+# CReate a list of knownForTitles
+cut -d \" -f 4 $TCONST_KNOWN_PL | sort -fu >$KNOWNFOR_TITLES
 
 # Create the SHOWS spreadsheet by removing "Original Title" field from RAW_SHOWS
 printf "Primary Title\tShow Type\tOriginal Title\tStart\tEnd\tMinutes\tGenres\n" >$SHOWS
@@ -221,15 +250,18 @@ perl -pi -f $TCONST_PRIM_PL $SHOWS
 perl -pi -f $TCONST_PRIM_PL $UNSORTED_CREDITS
 perl -pi -f $TCONST_ORIG_PL $UNSORTED_CREDITS
 perl -pi -f $NCONST_PL $UNSORTED_CREDITS
+perl -pi -f $TCONST_KNOWN_PL $PERSONS
+perl -pi -f $NCONST_PL $PERSONS
 
 # Create UNIQUE_PERSONS
-cut -d \" -f 4 $UNSORTED_CREDITS | sort -fu >$UNIQUE_PERSONS
+cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
     tee $CREDITS_SHOW >$CREDITS_PERSON
 # Sort by Person (4), Primary Title (8), Rank (13)
-sort -f --field-separator=\" --key=4,4 --key=8,8 --key=13,13 --key=12,12 $UNSORTED_CREDITS >>$CREDITS_PERSON
+sort -f --field-separator=\" --key=4,4 --key=8,8 --key=13,13 --key=12,12 \
+    $UNSORTED_CREDITS >>$CREDITS_PERSON
 # Sort by Primary Title (8), Original Title (12), Rank (13)
 sort -f --field-separator=\" --key=8,8 --key=12,13 $UNSORTED_CREDITS >>$CREDITS_SHOW
 
@@ -247,12 +279,17 @@ function printAdjustedFileInfo() {
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from processing IMDb data:\n"
 printAdjustedFileInfo $UNIQUE_TITLES 0
-printAdjustedFileInfo $RAW_SHOWS 0
+# printAdjustedFileInfo $TCONST_LIST 0
+# printAdjustedFileInfo $RAW_SHOWS 0
 printAdjustedFileInfo $SHOWS 1
-printAdjustedFileInfo $NCONST_LIST 0
+# printAdjustedFileInfo $NCONST_LIST 0
 printAdjustedFileInfo $UNIQUE_PERSONS 0
+# printAdjustedFileInfo $RAW_PERSONS 0
+printAdjustedFileInfo $PERSONS 1
 printAdjustedFileInfo $CREDITS_SHOW 1
 printAdjustedFileInfo $CREDITS_PERSON 1
+printAdjustedFileInfo $KNOWNFOR_TITLES 0
+# printAdjustedFileInfo $KNOWNFOR_LIST 0
 
 # Shortcut for checking differences between two files.
 # checkdiffs basefile newfile
@@ -292,13 +329,17 @@ cat >>$POSSIBLE_DIFFS <<EOF
 
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_TCONST_LIST $TCONST_LIST)
+$(checkdiffs $PUBLISHED_KNOWNFOR_LIST $KNOWNFOR_LIST)
 $(checkdiffs $PUBLISHED_NCONST_LIST $NCONST_LIST)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
+$(checkdiffs $PUBLISHED_RAW_PERSONS $RAW_PERSONS)
 $(checkdiffs $PUBLISHED_RAW_SHOWS $RAW_SHOWS)
 $(checkdiffs $PUBLISHED_SHOWS $SHOWS)
+$(checkdiffs $PUBLISHED_PERSONS $PERSONS)
 $(checkdiffs $PUBLISHED_CREDITS_SHOW $CREDITS_SHOW)
 $(checkdiffs $PUBLISHED_CREDITS_PERSON $CREDITS_PERSON)
+$(checkdiffs $PUBLISHED_KNOWNFOR_TITLES $KNOWNFOR_TITLES)
 
 ### Any funny stuff with file lengths?
 
