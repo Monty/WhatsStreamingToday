@@ -185,7 +185,7 @@ rg -IN "^tt" $TCONST_FILES | cut -f 1 | sort -u >$TCONST_LIST
 
 # Create a perl "substitute" script to translate any known non-English titles to their English equivalent
 # Regex delimiter needs to avoid any characters present in the input, use {} for readability
-rg -INv -e "^#" -e "^$" $XLATE_FILES | sort -fu |
+rg -INv -e "^#" -e "^$" $XLATE_FILES | cut -f 1,2 | sort -fu |
     perl -p -e 's+\t+\\t}{\\t+; s+^+s{\\t+; s+$+\\t};+' >$XLATE_PL
 
 # Generate a csv of titles from the tconst list, remove the "adult" field,
