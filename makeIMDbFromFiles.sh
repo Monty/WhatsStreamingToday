@@ -181,7 +181,7 @@ ALL_SPREADSHEETS="$SHOWS $PERSONS $CREDITS_SHOW $CREDITS_PERSON"
 rm -f $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS
 
 # Coalesce a single tconst input list
-rg -IN "^tt" $TCONST_FILES | sort -u >$TCONST_LIST
+rg -IN "^tt" $TCONST_FILES | cut -f 1 | sort -u >$TCONST_LIST
 
 # Create a perl "substitute" script to translate any known non-English titles to their English equivalent
 # Regex delimiter needs to avoid any characters present in the input, use {} for readability
