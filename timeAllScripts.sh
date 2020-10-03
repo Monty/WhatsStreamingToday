@@ -25,4 +25,10 @@ date
 time ./makeIMDbFromFiles.sh
 printf "\n"
 
+printf -- "----------------------------------------\n"
+printf "==> time ./makeIMDbFromFiles-noHype.sh\n"
+date
+time ./makeIMDbFromFiles-noHype.sh
+printf "\n"
+
 printf "========================================\n"

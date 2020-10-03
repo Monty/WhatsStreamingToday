@@ -38,6 +38,9 @@ In…”.
 
 Useful to find other shows by persons credited in other spreadsheets.
 
+**Note:** **\*-noHype-\*** spreadsheets have the same data, but without hyperlinks,
+which is more readable in text searches.
+
 **Note:** Spreadsheets were generated from downloaded IMDb .gz movie and TV
 datasets, *i.e.*
 

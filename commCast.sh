@@ -3,7 +3,7 @@
 # Find common cast members between multiple shows
 #
 # NOTES:
-#   Requires files produced by makeIMDbFromFiles-noHype.sh and/or other make*.sh scripts.
+#   Requires cast member files produced by makeIMDbFromFiles-noHype.sh and/or other make*.sh scripts.
 #   Cast member data from IMDb and streaming service providers often has mistakes.
 #   Titles may differ between services, e.g. Gåsmamman/gasmamman, Jägarna/the-hunters 
 #

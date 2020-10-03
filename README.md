@@ -28,3 +28,7 @@ horizontal centering, etc. into a .csv file. However,
 [Google Apps Script](https://developers.google.com/apps-script/overview)
 enables you to automate formatting spreadsheets uploaded to [Google
 Sheets](https://docs.google.com/spreadsheets/u/0/).
+
+The scripts also produce spreadsheets and text files containing cast members,
+characters portrayed, alternate titles, and other details from the streaming services
+and **IMDb**. The first line of those spreadsheets contain descriptive column headers.

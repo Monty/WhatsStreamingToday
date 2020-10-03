@@ -1,6 +1,7 @@
 #### To create a .csv spreadsheet of available streaming TV series:
 
-Run **makeAcornSpreadsheet.sh [-dst]**, **makeBBoxFromSitemap.sh [-dst]**, or **makeMHzSpreadsheet.sh [-dst]**  
+Run **makeAcornSpreadsheet.sh [-dst]**, **makeBBoxFromSitemap.sh [-dst]**,
+or **makeMHzSpreadsheet.sh [-dst]**  
 &nbsp;&nbsp;&nbsp;&nbsp; 
 **-d**
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -37,7 +38,16 @@ spreadsheet into an application for formatting. Formatted spreadsheets
 should get saved as .xls or .ods files. Spreadsheets uploaded to
 Google Sheets won't depend on the local file being around.
 
-#### To format the spreadsheets:
+#### To get cast information from IMDb:
+
+Run **makeIMDbFromFiles.sh** and/or **makeIMDbFromFiles-noHype.sh** scripts to
+produce spreadsheets and text files containing cast members, characters
+portrayed, alternate titles, and other details from **IMDb**. See those source
+files and the **IMDb\*-[DATE].csv** spreadsheets for details. It's even possible
+to customize the list of IMDb shows the scripts will process and to translate
+non-English titles to their English equivalents.
+
+#### To format the streaming TV spreadsheets:
 
 Manual formatting is tedious, but you can automate it. Upload your
 spreadsheets to [Google Sheets](https://docs.google.com/spreadsheets/u/0/),
