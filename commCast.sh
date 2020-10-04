@@ -5,12 +5,12 @@
 # NOTES:
 #   Requires cast member files produced by makeIMDbFromFiles-noHype.sh and/or other make*.sh scripts.
 #   Cast member data from IMDb and streaming service providers often has mistakes.
-#   Titles may differ between services, e.g. Gåsmamman/gasmamman, Jägarna/the-hunters 
+#   Titles may differ between services, e.g. Gåsmamman/gasmamman, Jägarna/the-hunters
 #
 #   To help refine searches, the output is rather wordy.
 #   The final section (Duplicated names) is the section of interest.
 #
-#   It may help to start with an actor, e.g. 
+#   It may help to start with an actor, e.g.
 #       ./commCast.sh 'Alexandra Rapaport'
 #   Then move to more complex queries that expose other common cast members
 #       ./commCast.sh spring-tide the-sandhamn-murders the-team
