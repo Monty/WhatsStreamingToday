@@ -1,4 +1,4 @@
-# This is a sample file of IMDb tconst identifiers of shows I've watched on MHz.
+# This is a sample file of IMDb tconst identifiers of shows on MHz Choice and a few other European shows
 #       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
 #       tconst (string) - alphanumeric unique identifier of the title
 #
@@ -6,237 +6,229 @@
 # Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
 # If you don't pass it a file parameter, it will process all *.tconst files
 
-# Added Sept 23
-# Millennium (Stieg Larsson)
-tt1634549
-# Crimes of Passion
-tt2504308
-tt2511752
-tt2477910
-tt2511776
-tt2573414
-tt2621118
-# Aber Bergen
-tt5759648
-# Added Sept 22
-# Fabel
-tt4977680
-tt2186701
-tt1595384
-# Private Eye Vares
-tt3657684
-tt1919184
-tt2073137
-tt1625350
-tt1901033
-tt1836210
-tt1604231
-# Marie's Mind for Murder
-tt1192877
-tt1324877
-tt1327623
-tt1450753
-tt1463185
-tt1872109
-tt1887808
-tt2102373
-tt2359173
-tt2479608
-# Mary Higgins Clark Mysteries
-tt3572570
-tt3351208
-tt3268308
-tt4542814
-tt4387348
-tt5040826
-tt7849576
-# Georges Simenon Mysteries
-tt0810076
-tt1447496
-tt2701262
-tt3687762
-tt4714066
-tt1599286
-# Daughter of the Law
-tt6258764
-# Added Sept 21
-# Annika Bengtzon: Crime Reporter
-tt1794886
-tt2180578
-tt2183302
-tt2230434
-tt2230422
-tt0305945
-tt0294939
-# Nele Neuhaus Mysteries
-tt5680698
-tt2678356
-tt2837704
-tt3297484
-# Van Veeteren
-tt0871899
-tt0871900
-tt0421947
-# Piégés
-tt8924868
-# Murder In ... Lille
-tt7442320
-# The Diplomat
-tt5678308
-# Tatort: Cologne
-tt0152922
-tt0197942
-tt0205447
-# Tatort: Munich
-tt5307884
-tt1407121
-tt1443197
-tt1581232
-# Lindholm
-tt5218822
-tt1254687
-tt1361253
-tt1416310
-tt1449372
-tt1657790
-tt1802376
-tt2082966
-tt2455986
-tt2455992
-tt4197684
-tt6291486
-# Borowski
-tt9816692
-tt8867344
-tt7093754
-tt4832814
-tt7093754
-# Cain
-tt2364258
-# Arne Dahl
-tt2113148
-tt2113149
-tt2219106
-tt4514896
-tt4548050
-tt4396192
-tt2220954
-tt2208264
-tt4473482
-tt4428744
-# Varg Veum
-tt0844948
-tt1010265
-tt1614989
-tt1699164
-tt2102465
-tt2182239
-tt1181936
-tt1699163
-tt1135937
-tt1296458
-tt1572783
-tt1181935
-tt2182237
-# Added Sept 16
-tt6094254
-tt5134242
-tt5133858
-tt4495136
-tt4966752
-tt5122596
-tt7244170
-tt1538706
-tt1542295
-tt1751430
-tt2062289
-tt2372586
-tt2592708
-tt2999952
-tt2999938
-tt4171198
-# Added Sept 15
-tt6438886
-tt5700562
-tt0459579
-tt4571004
-tt2216856
-tt2183070
-tt1895318
-tt2188743
-tt2190252
-tt2259268
-tt1726409
-tt8178502
-tt7623452
-tt5768912
-tt4816894
-tt3777352
-tt3248842
-tt12333526
-tt6431610
-tt1349600
-tt1809792
-tt0896667
-tt0484335
-tt1353097
-tt3456290
-tt4080728
-tt2158526
-tt1726834
-tt1131145
-tt0763275
-tt1534083
-tt9610556
-tt1600419
-tt1790954
-tt1233559
-tt0907688
-tt8613776
-tt1100935
-tt8090714
-tt6190050
-tt0920489
-tt5684214
-tt3582458
-tt5207522
-tt9018960
-tt1866379
-tt7684260
-tt0111887
-tt0907683
-tt3032968
-tt2039582
-tt3175512
-tt2602070
-tt2980074
-tt0178132
-tt6601950
-tt1482968
-tt4716466
-tt0406447
-tt10895664
-tt1223917
-tt1556087
-tt1600263
-tt0826960
-tt6410134
-tt2208885
-tt9421436
-tt1548331
-tt2377081
-tt6367940
-tt8648176
-tt2164423
-tt0101152
-tt0229924
-tt7368268
-tt0477507
-tt5194410
-tt7059774
-tt1846197
-tt3681610
-tt2265544
-tt1565810
-tt6710454
-tt2259665
+# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# tconst	Service	Primary Title	Original Title
+tt5759648	MHz	Aber Bergen	Aber Bergen
+tt3582458	MHz	Acquitted	Frikjent
+tt0459579	MHz	Agatha Christie's Family Murder Party	Petits meurtres en famille
+tt5207522	MHz	Allmen	Allmen
+tt9018960	MHz	Anatomy of Evil	Spuren des Bösen
+tt2230434	MHz	Annika Bengtzon: Crime Reporter	En plats i solen
+tt2230422	MHz	Annika Bengtzon: Crime Reporter	Livstid
+tt1794886	MHz	Annika Bengtzon: Crime Reporter	Nobels testamente
+tt0305945	MHz	Annika Bengtzon: Crime Reporter	Paradiset
+tt2180578	MHz	Annika Bengtzon: Crime Reporter	Prime Time
+tt0294939	MHz	Annika Bengtzon: Crime Reporter	Sprängaren
+tt2183302	MHz	Annika Bengtzon: Crime Reporter	Studio Sex
+tt1866379	MHz	Anti-Drug Squad	Caccia al re - La narcotici
+tt7684260	MHz	Arde Madrid	Arde Madrid
+tt2220954	MHz	Arne Dahl	Arne Dahl: De största vatten
+tt4428744	MHz	Arne Dahl	Arne Dahl: Dödsmässa
+tt4514896	MHz	Arne Dahl	Arne Dahl: Efterskalv
+tt4396192	MHz	Arne Dahl	Arne Dahl: En midsommarnattsdröm
+tt2219106	MHz	Arne Dahl	Arne Dahl: Europa blues
+tt4548050	MHz	Arne Dahl	Arne Dahl: Himmelsöga
+tt2113148	MHz	Arne Dahl	Arne Dahl: Misterioso
+tt4473482	MHz	Arne Dahl	Arne Dahl: Mörkertal
+tt2113149	MHz	Arne Dahl	Arne Dahl: Ont blod
+tt2208264	MHz	Arne Dahl	Arne Dahl: Upp till toppen av berget
+tt0111887	MHz	Baantjer	Baantjer
+tt0907683	MHz	Beck	Beck
+tt3032968	MHz	Blochin	Blochin: Die Lebenden und die Toten
+tt1809792	MHz	Blood of the Vine	Le sang de la vigne
+tt2039582	MHz	Blood on the Docks	Deux flics sur les docks
+tt2158526	MHz	Borsellino	Paolo Borsellino - I 57 giorni
+tt5134242	MHz	Bukow and König	Angst heiligt die Mittel
+tt1542295	MHz	Bukow and König	Aquarius
+tt6094254	MHz	Bukow and König	Einer für alle, alle für Rostock
+tt2062289	MHz	Bukow and König	Einer trage des anderen Last
+tt1538706	MHz	Bukow and König	Einer von uns
+tt4171198	MHz	Bukow and König	Familiensache
+tt1751430	MHz	Bukow and König	Feindbild
+tt2592708	MHz	Bukow and König	Fischerkrieg
+tt5133858	MHz	Bukow and König	Im Schatten
+tt7244170	MHz	Bukow and König	In Flammen
+tt2999938	MHz	Bukow and König	Liebeswahn
+tt2372586	MHz	Bukow and König	Stillschweigen
+tt4495136	MHz	Bukow and König	Sturm im Kopf
+tt4966752	MHz	Bukow and König	Wendemanöver I
+tt5122596	MHz	Bukow and König	Wendemanöver II
+tt2999952	MHz	Bukow and König	Zwischen den Welten
+tt3175512	MHz	Bulletproof Heart	Una pallottola nel cuore
+tt2364258	MHz	Caïn	Caïn
+tt2216856	MHz	Camilla Lackberg	Tyskungen
+tt1895318	MHz	Camilla Lackberg’s Fjallbacka Murders	Fjällbackamorden: Havet ger, havet tar
+tt2259268	MHz	Camilla Lackberg’s Fjallbacka Murders	Fjällbackamorden: I betraktarens öga
+tt2183070	MHz	Camilla Lackberg’s Fjallbacka Murders	Fjällbackamorden: Ljusets drottning
+tt2188743	MHz	Camilla Lackberg’s Fjallbacka Murders	Fjällbackamorden: Strandridaren
+tt2190252	MHz	Camilla Lackberg’s Fjallbacka Murders	Fjällbackamorden: Vänner för livet
+tt5684214	MHz	Captain Marleau	Capitaine Marleau
+tt2573414	MHz	Crimes of Passion	Farliga drömmar
+tt2477910	MHz	Crimes of Passion	Inte flera mord
+tt2511752	MHz	Crimes of Passion	Kung Liljekonvalje av dungen
+tt2504308	MHz	Crimes of Passion	Mördaren ljuger inte ensam
+tt2511776	MHz	Crimes of Passion	Rosor kyssar och döden
+tt2621118	MHz	Crimes of Passion	Tragedi på en lantkyrkogård
+tt6258764	MHz	Daughter of the Law	Filha da Lei
+tt2602070	MHz	Death of a Pilgrim	En pilgrims död
+tt0907688	MHz	Detective Ellen Lucas	Kommissarin Lucas
+tt0920489	MHz	Detective Montalbano	Il commissario Montalbano
+tt2980074	MHz	Detectives	Détectives
+tt0178132	MHz	Don Matteo	Don Matteo
+tt1131145	MHz	Donna Detective	Donna detective
+tt0896667	MHz	Donna Leon's Brunetti Mysteries	Donna Leon
+tt2186701	MHz	Fabel	Blutadler
+tt4977680	MHz	Fabel	Brandmal
+tt1595384	MHz	Fabel	Wolfsfährte
+tt0138234	MHz	Fantômas	Fantômas
+tt6601950	MHz	Felix	Félix
+tt1482968	MHz	Flemming	Flemming
+tt0763275	MHz	Fog and Crimes	Nebbie e delitti
+tt4716466	MHz	Gasmamman	Gåsmamman
+tt1599286	MHz	Georges Simenon Mysteries	En cas de malheur
+tt1447496	MHz	Georges Simenon Mysteries	Jusqu'à l'Enfer
+tt2701262	MHz	Georges Simenon Mysteries	L'escalier de fer
+tt3687762	MHz	Georges Simenon Mysteries	La boule noire
+tt4714066	MHz	Georges Simenon Mysteries	La mort d'Auguste
+tt0810076	MHz	Georges Simenon Mysteries	Les innocents
+tt0406447	MHz	Homicide Squad	La omicidi
+tt1726409	MHz	House of Rocheville	La maison des Rocheville
+tt10895664	MHz	Imma Tataranni - Deputy Prosecutor	Imma Tataranni
+tt1223917	MHz	In the Face of Crime	Im Angesicht des Verbrechens
+tt1556087	MHz	Inspector Coliandro	L'ispettore Coliandro
+tt8613776	MHz	Inspector Dupin	Kommissar Dupin
+tt1100935	MHz	Inspector Manara	Il commissario Manara
+tt1600263	MHz	Inspector Nardone	Il commissario Nardone
+tt1233559	MHz	Inspector Vivaldi Mysteries	Io e mio figlio - Nuove storie per il commissario Vivaldi
+tt1534083	MHz	Inspector Winter	Kommissarie Winter
+tt6410134	MHz	Irene Huss	Irene Huss
+tt2208885	MHz	Kaboul Kitchen	Kaboul Kitchen
+tt1353097	MHz	Kennedy's Brain	Kennedys Hirn
+tt9421436	MHz	Les Secrets	Les Secrets
+tt1548331	MHz	Magellan	Commissaire Magellan
+tt2377081	MHz	Mammon	Mammon
+tt2479608	MHz	Marie's Mind for Murder	Marie Brand und das Lied von Tod und Liebe
+tt1450753	MHz	Marie's Mind for Murder	Marie Brand und das mörderische Vergessen
+tt1324877	MHz	Marie's Mind for Murder	Marie Brand und der Charme des Bösen
+tt2102373	MHz	Marie's Mind for Murder	Marie Brand und der Moment des Todes
+tt1887808	MHz	Marie's Mind for Murder	Marie Brand und der Sündenfall
+tt1872109	MHz	Marie's Mind for Murder	Marie Brand und die Dame im Spiel
+tt2359173	MHz	Marie's Mind for Murder	Marie Brand und die falsche Frau
+tt1463185	MHz	Marie's Mind for Murder	Marie Brand und die letzte Fahrt
+tt1327623	MHz	Marie's Mind for Murder	Marie Brand und die Nacht der Vergeltung
+tt1192877	MHz	Marie's Mind for Murder	Marie Brand und die tödliche Gier
+tt7849576	MHz	Mary Higgins Clark Mysteries	Ce Que Vivent les Roses
+tt3351208	MHz	Mary Higgins Clark Mysteries	Deux petites filles en bleu
+tt4387348	MHz	Mary Higgins Clark Mysteries	La clinique du docteur H
+tt5040826	MHz	Mary Higgins Clark Mysteries	Les années perdues
+tt3572570	MHz	Mary Higgins Clark Mysteries	Où es-tu maintenant?
+tt4542814	MHz	Mary Higgins Clark Mysteries	Souviens-toi
+tt3268308	MHz	Mary Higgins Clark Mysteries	Toi que j'aimais tant
+tt6367940	MHz	Missing	Saknad
+tt5700562	MHz	Money Murder Zurich	Der Zürich-Krimi
+tt8648176	MHz	Murder by the Lake	Die Toten vom Bodensee
+tt4816894	MHz	Murder In...	Crime à Aigues-Mortes
+tt5768912	MHz	Murder In...	Crime à Martigues
+tt12333526	MHz	Murder In...	Crime dans l'Hérault
+tt8178502	MHz	Murder In...	Crime dans le Luberon
+tt7623452	MHz	Murder In...	Crime dans les Alpilles
+tt3248842	MHz	Murder In...	Crime en Aveyron
+tt3777352	MHz	Murder In...	Crime en Lozère
+tt7442320	MHz	Murder In...	Les crimes silencieux
+tt6431610	MHz	Murder In...	Les mystères de l'île
+tt4571004	MHz	Murder In...	Meurtres à...
+tt9610556	MHz	Murders at Barlume	I delitti del BarLume
+tt5680698	MHz	Nele Neuhaus Mysteries	Die Lebenden und die Toten
+tt2837704	MHz	Nele Neuhaus Mysteries	Eine unbeliebte Frau
+tt2678356	MHz	Nele Neuhaus Mysteries	Schneewittchen muss sterben
+tt3297484	MHz	Nele Neuhaus Mysteries	Tiefe Wunden
+tt2164423	MHz	Nero Wolfe	Nero Wolfe
+tt0101152	MHz	Nestor Burma	Nestor Burma
+tt1726834	MHz	Palermo Connection	Il segreto dell'acqua
+tt8924868	MHz	Piégés	Piégés
+tt1836210	MHz	Private Eye Vares	Vares - Huhtikuun tytöt
+tt1625350	MHz	Private Eye Vares	Vares - Kaidan tien kulkijat
+tt1604231	MHz	Private Eye Vares	Vares - Pahan suudelma
+tt1919184	MHz	Private Eye Vares	Vares - Pimeyden tango
+tt3657684	MHz	Private Eye Vares	Vares - Sheriffi
+tt1901033	MHz	Private Eye Vares	Vares - Sukkanauhakäärme
+tt2073137	MHz	Private Eye Vares	Vares - Uhkapelimerkki
+tt0229924	MHz	Raid	Raid
+tt1790954	MHz	Sebastian Bergman	Den fördömde
+tt7368268	MHz	Speakerine	Speakerine
+tt0477507	MHz	Spiral	Engrenages
+tt5194410	MHz	Spring Tide	Springfloden
+tt4832814	MHz	Tatort: Borowski	Borowski und das Fest des Nordens
+tt8867344	MHz	Tatort: Borowski	Borowski und das Glück der Anderen
+tt7093754	MHz	Tatort: Borowski	Borowski und das Haus der Geister
+tt9816692	MHz	Tatort: Borowski	Inspector Borowski
+tt0197942	MHz	Tatort: Cologne	Kinder der Gewalt
+tt0205447	MHz	Tatort: Cologne	Licht und Schatten
+tt0152922	MHz	Tatort: Cologne	Manila
+tt1416310	MHz	Tatort: Lindholm	...es wird Trauer sein und Schmerz
+tt1361253	MHz	Tatort: Lindholm	Das Gespenst
+tt2455992	MHz	Tatort: Lindholm	Das goldene Band
+tt6291486	MHz	Tatort: Lindholm	Der Fall Holdt
+tt1657790	MHz	Tatort: Lindholm	Der letzte Patient
+tt4197684	MHz	Tatort: Lindholm	Der sanfte Tod
+tt1802376	MHz	Tatort: Lindholm	Mord in der ersten Liga
+tt1254687	MHz	Tatort: Lindholm	Salzleiche
+tt2082966	MHz	Tatort: Lindholm	Schwarze Tiger, weiße Löwen
+tt5218822	MHz	Tatort: Lindholm	Spielverderber
+tt1449372	MHz	Tatort: Lindholm	Vergessene Erinnerung
+tt2455986	MHz	Tatort: Lindholm	Wegwerfmädchen
+tt5307884	MHz	Tatort: Munich	Mia san jetz da wo's weh tut
+tt1407121	MHz	Tatort: Munich	Um jeden Preis
+tt1581232	MHz	Tatort: Munich	Unsterblich schön
+tt1443197	MHz	Tatort: Munich	Wir sind die Guten
+tt6190050	MHz	The Art of Crime	L'art du crime
+tt6438886	MHz	The Bastards of Pizzofalcone	I bastardi di Pizzofalcone
+tt8090714	MHz	The Berken Case	Peur sur la Base
+tt5678308	MHz	The Diplomat	Die Diplomatin
+tt3456290	MHz	The Fourth Man	Den fjärde mannen
+tt7059774	MHz	The Hunters	Jägarna
+tt0826960	MHz	The Inspector and the Sea	Der Kommissar und das Meer
+tt1349600	MHz	The Little Murders of Agatha Christie	Les petits meurtres d'Agatha Christie
+tt1846197	MHz	The Sandhamn Murders	Morden i Sandhamn
+tt3681610	MHz	The Team	The Team
+tt2265544	MHz	The Undertaker	Der Bestatter
+tt1600419	MHz	The Vanishing of Patò	La scomparsa di Patò
+tt1565810	MHz	Those Who Kill	Den som dræber
+tt4451240	MHz	Tu es mon fils	Tu es mon fils
+tt6710454	MHz	Twin	TWIN
+tt0421947	MHz	Van Veeteren	Carambole
+tt0871899	MHz	Van Veeteren	Fallet G
+tt0871900	MHz	Van Veeteren	Svalan, katten, rosen, döden
+tt1296458	MHz	Varg Veum	Varg Veum - Begravde hunder
+tt0844948	MHz	Varg Veum	Varg Veum - Bitre blomster
+tt2182237	MHz	Varg Veum	Varg Veum - De døde har det godt
+tt1181935	MHz	Varg Veum	Varg Veum - Din til døden
+tt1699163	MHz	Varg Veum	Varg Veum - Dødens drabanter
+tt1010265	MHz	Varg Veum	Varg Veum - Falne engler
+tt2102465	MHz	Varg Veum	Varg Veum - I mørket er alle ulver grå
+tt2182239	MHz	Varg Veum	Varg Veum - Kalde hjerter
+tt1135937	MHz	Varg Veum	Varg Veum - Kvinnen i kjøleskapet
+tt1572783	MHz	Varg Veum	Varg Veum - Skriften på veggen
+tt1699164	MHz	Varg Veum	Varg Veum - Svarte får
+tt1181936	MHz	Varg Veum	Varg Veum - Tornerose
+tt0484335	MHz	Wallander: The Original Episodes	Brandvägg
+tt2259665	MHz	Young Montalbano	Il giovane Montalbano
+tt9293466	Acorn	Balthazar	Balthazar
+tt6623682	Acorn	Rebecka Martinsson	Rebecka Martinsson
+tt11081102	Acorn	The Sommerdahl Murders	The Sommerdahl Murders
+tt8066878	Acorn	The Truth Will Out	Det som göms i snö
+tt7875794	Acorn	Wisting	Wisting
+tt2992876	Amazon	Black Widows	Mustat lesket
+tt13057860	Amazon	Deadly Seasons	Les Saisons meurtrières
+tt3561180	Amazon	Trapped	Ófærð
+tt4080728	Netflix	A Man Called Ove	En man som heter Ove
+tt6616260	Netflix	Deadwind	Karppi
+tt1614989	Netflix	Headhunters	Hodejegerne
+tt1634549	Netflix	Millennium	Millennium
+tt9100822	Netflix	The Valhalla Murders	The Valhalla Murders
+tt8259142	OPB	Baptiste	Baptiste
+tt5598192	OPB	Before We Die	Innan vi dör
+tt4600404	OPB	Modus	Modus
+tt9128874	OPB	Van der Valk	Van der Valk
