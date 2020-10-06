@@ -33,6 +33,8 @@ COLUMNS="IMDb-columns"
 BASELINE="IMDb-baseline"
 mkdir -p $COLUMNS $BASELINE
 
+# Copy standard files
+cp -p $VERBOSE $COLUMNS/tconst_all-$DATE.txt $BASELINE/tconst_all.txt
 cp -p $VERBOSE $COLUMNS/tconst-$DATE.txt $BASELINE/tconst.txt
 cp -p $VERBOSE $COLUMNS/nconst-$DATE.txt $BASELINE/nconst.txt
 cp -p $VERBOSE $COLUMNS/raw_shows-$DATE.csv $BASELINE/raw_shows.csv
@@ -41,9 +43,9 @@ cp -p $VERBOSE $COLUMNS/tconst_known-$DATE.txt $BASELINE/tconst_known.txt
 
 cp -p $VERBOSE IMDb_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE IMDb_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt
-cp -p $VERBOSE IMDb_knownTitles-$DATE.txt $BASELINE/knownTitles.txt
 
 cp -p $VERBOSE IMDb_Shows-$DATE.csv $BASELINE/shows.csv
 cp -p $VERBOSE IMDb_Credits-Show-$DATE.csv $BASELINE/credits-show.csv
 cp -p $VERBOSE IMDb_Credits-Person-$DATE.csv $BASELINE/credits-person.csv
 cp -p $VERBOSE IMDb_Persons-Titles-$DATE.csv $BASELINE/persons-titles.csv
+cp -p $VERBOSE IMDb_associatedTitles-$DATE.csv $BASELINE/associatedTitles.csv
