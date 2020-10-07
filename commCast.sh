@@ -36,15 +36,47 @@ function cleanup() {
     printf "\n"
     exit 130
 }
-
-BBOX="$(ls -1t BBox_TV_Credits*csv | head -1)"
-MHZ="$(ls -1t MHz_TV_Credits*csv | head -1)"
-IMDb="$(ls -1t IMDb_Credits-Person-noHype*csv | head -1)"
+# Get latest files to search
+BBOX="$(ls -1t BBox_TV_Credits*csv 2>/dev/null | head -1)"
+MHZ="$(ls -1t MHz_TV_Credits*csv 2>/dev/null | head -1)"
+IMDb="$(ls -1t IMDb_Credits-Person-noHype*csv 2>/dev/null | head -1)"
+# Get latest files to use for translating show names
+XLATE="$(ls -1t IMDb-columns/xlate-pl-noHype*.txt 2>/dev/null | head -1)"
 
 printf "==> Files processed:\n"
-echo BBOX=$BBOX
-echo MHZ=$MHZ
-echo IMDb=$IMDb
+#
+if [ $BBOX ]; then
+    printf "BBOX:\t$BBOX\n"
+    foundFiles="yes"
+else
+    printf "BBOX:\tNo files match BBox_TV_Credits*csv\n"
+fi
+#
+if [ $MHZ ]; then
+    printf "MHZ:\t$MHZ\n"
+    foundFiles="yes"
+else
+    printf "MHZ:\tNo files match MHz_TV_Credits*csv\n"
+fi
+#
+if [ $IMDb ]; then
+    printf "IMDb:\t$IMDb\n"
+    foundFiles="yes"
+else
+    printf "IMDb:\tNo files match IMDb_Credits-Person-noHype*csv\n"
+fi
+#
+if [ "$foundFiles" != "yes" ]; then
+    printf "==> [Error] No files available to process.\n"
+    exit 1
+fi
+#
+if [ $XLATE ]; then
+    printf "XLATE:\t$XLATE\n"
+else
+    printf "XLATE:\tNo files match IMDb-columns/xlate-pl*.txt\n"
+    printf "\tNo translation will be done.\n"
+fi
 
 printf "\n==> Searching for:\n"
 for a in "$@"; do
@@ -54,22 +86,33 @@ cat $SRCHFILE
 
 printf "\n==> All names (Name|Job|Show|Role):\n"
 #
-if [ $(rg -wS -c -f $SRCHFILE $BBOX) ]; then
-    rg -wSIN --color always -f $SRCHFILE $BBOX |
-        awk -F\t '{printf ("%s\t%s\t%s\t%s\n", $1,$2,$4,$5)}' >>$TMPFILE
+if [ $BBOX ]; then
+    if [ $(rg -wS -c -f $SRCHFILE $BBOX) ]; then
+        rg -wSIN --color always -f $SRCHFILE $BBOX |
+            awk -F\t '{printf ("%s\t%s\t%s\t%s\n", $1,$2,$4,$5)}' >>$TMPFILE
+    fi
 fi
 #
-if [ $(rg -wS -c -f $SRCHFILE $MHZ) ]; then
-    rg -wSIN --color always -f $SRCHFILE $MHZ |
-        awk -F\t '{printf ("%s\t%s\t%s\t%s\n", $1,$2,$4,$5)}' >>$TMPFILE
+if [ $MHZ ]; then
+    if [ $(rg -wS -c -f $SRCHFILE $MHZ) ]; then
+        rg -wSIN --color always -f $SRCHFILE $MHZ |
+            awk -F\t '{printf ("%s\t%s\t%s\t%s\n", $1,$2,$4,$5)}' >>$TMPFILE
+    fi
 fi
 #
-if [ $(rg -wS -c -f $SRCHFILE $IMDb) ]; then
-    rg -wSIN --color always -f $SRCHFILE $IMDb |
-        awk -F\t '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$3,$6)}' >>$TMPFILE
+if [ $IMDb ]; then
+    if [ $(rg -wS -c -f $SRCHFILE $IMDb) ]; then
+        if [ $XLATE ]; then
+            perl -p -f $XLATE $IMDb | rg -wSIN --color always -f $SRCHFILE |
+                awk -F\t '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$3,$6)}' >>$TMPFILE
+        else
+            rg -wSIN --color always -f $SRCHFILE $IMDb |
+                awk -F\t '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$3,$6)}' >>$TMPFILE
+        fi
+    fi
 fi
 #
-sort -fu $TMPFILE
+sort -fu $TMPFILE | awk -F\t '{printf ("%-20s\t%-8s\t%-35s\t%-20s\n",$1,$2,$3,$4)}'
 
 printf "\n==> Duplicated names (Name|Job|Show|Role):\n"
 # Spacing is sometimes erratic due to UTF-8 characters
