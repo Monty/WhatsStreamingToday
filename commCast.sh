@@ -111,12 +111,16 @@ if [ $IMDb ]; then
         fi
     fi
 fi
-#
-sort -fu $TMPFILE | awk -F\t '{printf ("%-20s\t%-8s\t%-35s\t%-20s\n",$1,$2,$3,$4)}'
+
+# Print all search results
+TAB=$(printf "\t")
+sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu $TMPFILE |
+    awk -F\t '{printf ("%-20s\t%-8s\t%-35s\t%-20s\n",$1,$2,$3,$4)}'
 
 printf "\n==> Duplicated names (Name|Job|Show|Role):\n"
 # Spacing is sometimes erratic due to UTF-8 characters
-sort -fu $TMPFILE | awk -F\t 'BEGIN {p="%-20s\t%-8s\t%-35s\t%-20s\n"} {if($1==f[1]&&$3!=f[3])
+sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu $TMPFILE |
+    awk -F\t 'BEGIN {p="%-20s\t%-8s\t%-35s\t%-20s\n"} {if($1==f[1]&&$3!=f[3])
         {printf(p,f[1],f[2],f[3],f[4]); printf(p,$1,$2,$3,$4)} split($0,f)}' | sort -fu
 
 rm -rf $TMPFILE $SRCHFILE
