@@ -15,6 +15,5 @@ fi
 for file in name.basics.tsv.gz title.basics.tsv.gz title.principals.tsv.gz; do
     source="https://datasets.imdbws.com/$file"
     printf "Downloading $source\n"
-    curl -s -O $source
-    printf "\n"
+    curl -sS -O $source
 done
