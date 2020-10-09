@@ -1,0 +1,38 @@
+# This is a sample file of IMDb tconst identifiers of shows on OPB
+#       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
+#       tconst (string) - alphanumeric unique identifier of the title
+#
+# Create a similar tconst file of shows you've watched or are interested in, with any name and extension.
+# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
+# If you don't pass it a file parameter, it will process all *.tconst files
+
+# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# tconst	Service	Primary Title	Original Title
+tt0094416	OPB	American Experience	American Experience
+tt1008108	OPB	Ashes to Ashes	Ashes to Ashes
+tt8259142	OPB	Baptiste	Baptiste
+tt5598192	OPB	Before We Die	Innan vi dör
+tt2249364	OPB	Broadchurch	Broadchurch
+tt0974077	OPB	Cranford	Cranford
+tt1606375	OPB	Downton Abbey	Downton Abbey
+tt0079073	OPB	Dracula	Dracula
+tt2701582	OPB	Endeavour	Endeavour
+tt9704798	OPB	Flesh and Blood	Flesh and Blood
+tt6881870	OPB	Frankie Drake Mysteries	Frankie Drake Mysteries
+tt3747572	OPB	Grantchester	Grantchester
+tt0472027	OPB	John Adams	John Adams
+tt1077744	OPB	Lark Rise to Candleford	Lark Rise to Candleford
+tt2216156	OPB	Last Tango in Halifax	Last Tango in Halifax
+tt4600404	OPB	Modus	Modus
+tt2310212	OPB	Mr Selfridge	Mr Selfridge
+tt6859806	OPB	Mrs. Wilson	Mrs Wilson
+tt0206501	OPB	Nova	Nova
+tt0094525	OPB	Poirot	Poirot
+tt5014882	OPB	The Durrells in Corfu	The Durrells
+tt1399664	OPB	The Night Manager	The Night Manager
+tt0118497	OPB	Touching Evil	Touching Evil
+tt4192812	OPB	Unforgotten	Unforgotten
+tt9128874	OPB	Van der Valk	Van der Valk
+tt1186356	OPB	Whitechapel	Whitechapel

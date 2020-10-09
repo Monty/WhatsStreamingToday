@@ -1,0 +1,52 @@
+# This is a sample file of IMDb tconst identifiers of shows on Britbox
+#       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
+#       tconst (string) - alphanumeric unique identifier of the title
+#
+# Create a similar tconst file of shows you've watched or are interested in, with any name and extension.
+# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
+# If you don't pass it a file parameter, it will process all *.tconst files
+
+# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# tconst	Service	Primary Title	Original Title
+tt9426390	Britbox	15 Days	15 Days
+tt3919200	Britbox	35 Days	35 Diwrnod
+tt9131050	Britbox	A Confession	A Confession
+tt0108967	Britbox	A Touch of Frost	A Touch of Frost
+tt1888075	Britbox	Death in Paradise	Death in Paradise
+tt2215842	Britbox	Father Brown	Father Brown
+tt6131920	Britbox	In Plain Sight	In Plain Sight
+tt5729304	Britbox	In the Dark	In the Dark
+tt0092379	Britbox	Inspector Morse	Inspector Morse
+tt3428912	Britbox	Happy Valley	Happy Valley
+tt0478942	Britbox	Life on Mars	Life on Mars
+tt2303687	Britbox	Line of Duty	Line of Duty
+tt1474684	Britbox	Luther	Luther
+tt6429934	Britbox	Maigret in Montmartre	Maigret in Montmartre
+tt5012394	Britbox	Maigret Sets a Trap	Maigret Sets a Trap
+tt6326286	Britbox	Maigret: Night at the Crossroads	Maigret: Night at the Crossroads
+tt5017060	Britbox	Maigret's Dead Man	Maigret's Dead Man
+tt10720914	Britbox	McDonald & Dodds	McDonald & Dodds
+tt0160904	Britbox	MI-5	Spooks
+tt4513868	Britbox	New Blood	New Blood
+tt0094525	Britbox	Poirot	Poirot
+tt0098898	Britbox	Prime Suspect	Prime Suspect
+tt4258440	Britbox	River	River
+tt0377253	Britbox	Rosemary and Thyme	Rosemary & Thyme
+tt1843678	Britbox	Scott & Bailey	Scott & Bailey
+tt7526498	Britbox	Shakespeare & Hathaway	Shakespeare & Hathaway: Private Investigators
+tt2396135	Britbox	Shetland	Shetland
+tt0115355	Britbox	Silent Witness	Silent Witness
+tt4274822	Britbox	Stonemouth	Stonemouth
+tt8425404	Britbox	The Bay	The Bay
+tt8517292	Britbox	The Blake Mysteries: Ghost Stories	The Blake Mysteries: Ghost Stories
+tt2275990	Britbox	The Bletchley Circle	The Bletchley Circle
+tt7978912	Britbox	The Bletchley Circle: San Francisco	The Bletchley Circle: San Francisco
+tt2375720	Britbox	The Doctor Blake Mysteries	The Doctor Blake Mysteries
+tt0119348	Britbox	The Ice House	The Ice House
+tt0988820	Britbox	The Inspector Lynley Mysteries	The Inspector Lynley Mysteries
+tt9204128	Britbox	The Mallorca Files	The Mallorca Files
+tt5327216	Britbox	The Moorside	The Moorside
+tt1693592	Britbox	Vera	Vera
+tt0259733	Britbox	Waking the Dead	Waking the Dead

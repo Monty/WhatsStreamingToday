@@ -1,0 +1,44 @@
+# This is a sample file of IMDb tconst identifiers of shows I've watched on other networks.
+#       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
+#       tconst (string) - alphanumeric unique identifier of the title
+#
+# Create a similar tconst file of shows you've watched or are interested in, with any name and extension.
+# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
+# If you don't pass it a file parameter, it will process all *.tconst files
+
+# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# tconst	Service	Primary Title	Original Title
+tt4271918	Amazon	An Inspector Calls	An Inspector Calls
+tt2992876	Amazon	Black Widows	Mustat lesket
+tt13057860	Amazon	Deadly Seasons	Les Saisons meurtrières
+tt6118426	Amazon	Ordeal by Innocence	Ordeal by Innocence
+tt3561180	Amazon	Trapped	Ófærð
+tt2802850	FX	Fargo	Fargo
+tt9724094	FX	Raddoppiarlo	Fargo
+tt3097534	FX	The Crocodile's Dilemma	Fargo
+tt9724086	FX	The Land of Talking and Killing	Fargo
+tt5223488	FX	The Law of Vacant Places	Fargo
+tt3836974	FX	Waiting for Dutch	Fargo
+tt8052820	FX	Welcome to the Alternate Economy	Fargo
+tt4080728	Netflix	A Man Called Ove	En man som heter Ove
+tt6616260	Netflix	Deadwind	Karppi
+tt0120663	Netflix	Eyes Wide Shut	Eyes Wide Shut
+tt0109831	Netflix	Four Weddings and a Funeral	Four Weddings and a Funeral
+tt0280707	Netflix	Gosford Park	Gosford Park
+tt1614989	Netflix	Headhunters	Hodejegerne
+tt4698684	Netflix	Hunt for the Wilderpeople	Hunt for the Wilderpeople
+tt1226774	Netflix	In the Loop	In the Loop
+tt2802144	Netflix	Kingsman: The Secret Service	Kingsman: The Secret Service
+tt0100263	Netflix	La Femme Nikita	Nikita
+tt5269594	Netflix	Marcella	Marcella
+tt1634549	Netflix	Millennium	Millennium
+tt0948530	Netflix	Moscow, Belgium	Aanrijding in Moscou
+tt3168230	Netflix	Mr. Holmes	Mr. Holmes
+tt2442560	Netflix	Peaky Blinders	Peaky Blinders
+tt0830515	Netflix	Quantum of Solace	Quantum of Solace
+tt1441952	Netflix	Salmon Fishing in the Yemen	Salmon Fishing in the Yemen
+tt1045658	Netflix	Silver Linings Playbook	Silver Linings Playbook
+tt9100822	Netflix	The Valhalla Murders	The Valhalla Murders
+tt9359220	Netflix	Young Wallander	Young Wallander

@@ -1,0 +1,31 @@
+# This is a sample file of IMDb tconst identifiers of shows on Acorn TV
+#       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
+#       tconst (string) - alphanumeric unique identifier of the title
+#
+# Create a similar tconst file of shows you've watched or are interested in, with any name and extension.
+# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
+# If you don't pass it a file parameter, it will process all *.tconst files
+
+# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# tconst	Service	Primary Title	Original Title
+tt4380324	Acorn	800 Words	800 Words
+tt5015548	Acorn	Agatha Raisin	Agatha Raisin
+tt3581932	Acorn	And Then There Were None	And Then There Were None
+tt9293466	Acorn	Balthazar	Balthazar
+tt8991526	Acorn	Blood	Blood
+tt9704568	Acorn	Deadwater Fell	Deadwater Fell
+tt1430509	Acorn	Inspector George Gently	Inspector George Gently
+tt7801964	Acorn	Manhunt	Manhunt
+tt1091909	Acorn	Murdoch Mysteries	Murdoch Mysteries
+tt3922704	Acorn	No Offence	No Offence
+tt6623682	Acorn	Rebecka Martinsson	Rebecka Martinsson
+tt3149010	Acorn	Suspects	Suspects
+tt3640276	Acorn	The Brokenwood Mysteries	The Brokenwood Mysteries
+tt9855482	Acorn	The Gulf	The Gulf
+tt11081102	Acorn	The Sommerdahl Murders	The Sommerdahl Murders
+tt10505762	Acorn	The Sounds	The Sounds
+tt8066878	Acorn	The Truth Will Out	Det som göms i snö
+tt7875794	Acorn	Wisting	Wisting
+tt0337792	Acorn	Wire in the Blood	Wire in the Blood

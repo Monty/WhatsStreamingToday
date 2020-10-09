@@ -1,0 +1,11 @@
+# This is a sample file of tab separated translations from foreign film titles to their English equivalents
+#
+# Create a similar file for titles you want translated, with any name and extension.
+# Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t Netflix-xlate.txt
+
+35 Diwrnod	35 Days
+Maigret in Montmartre	Maigret
+Maigret Sets a Trap	Maigret
+Maigret: Night at the Crossroads	Maigret
+Maigret's Dead Man	Maigret
+Shakespeare & Hathaway: Private Investigators	Shakespeare & Hathaway

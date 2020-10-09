@@ -1,0 +1,19 @@
+# This is a sample file of tab separated translations from foreign film titles to their English equivalents
+#
+# Create a similar file for titles you want translated, with any name and extension.
+# Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t Netflix-xlate.txt
+
+Aanrijding in Moscou	Moscow, Belgium
+En man som heter Ove	A Man Called Ove
+En pilgrims död	Death of a Pilgrim
+Hodejegerne	Headhunters
+Karppi	Deadwind
+Les Saisons meurtrières	Deadly Seasons
+Mustat lesket	Black Widows
+Ófærð	Trapped
+Raddoppiarlo	Fargo
+The Crocodile's Dilemma	Fargo
+The Land of Talking and Killing	Fargo
+The Law of Vacant Places	Fargo
+Waiting for Dutch	Fargo
+Welcome to the Alternate Economy	Fargo
