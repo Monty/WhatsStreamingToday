@@ -24,9 +24,6 @@
     gsub (/&quot;/,"\"\"",showTitle)
     gsub (/&#039;/,"'",showTitle)
     gsub (/&euml;/,"ë",showTitle)
-    if (match (showTitle, /^The /)) {
-        showTitle = substr(showTitle, 5) ", The"
-    }
     print showTitle >> RAW_TITLES
     # print "==> showTitle = " showTitle > "/dev/stderr"
     next

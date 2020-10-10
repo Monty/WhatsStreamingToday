@@ -58,9 +58,6 @@
     showTitle = fld[3]
     sub (/ - MHz Choice/,"",showTitle)
     gsub (/&#x27;/,"'",showTitle)
-    if (match (showTitle, /^The /)) {
-        showTitle = substr(showTitle, 5) ", The"
-    }
     print showTitle >> RAW_TITLES
     # print "==> showTitle = " showTitle > "/dev/stderr"
     next
