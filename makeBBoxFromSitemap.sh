@@ -196,8 +196,8 @@ grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
 
 # Generate SHORT_SPREADSHEET by processing LONG_SPREADSHEET to calculate and include durations
-tail -r $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
-    -f calculateBBoxShowDurations.awk | tail -r >$SHORT_SPREADSHEET
+sed -n '1!G;h;$p' $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
+    -f calculateBBoxShowDurations.awk | sed -n '1!G;h;$p' >$SHORT_SPREADSHEET
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines

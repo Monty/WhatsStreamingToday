@@ -148,12 +148,12 @@ done <"$SEASON_URLS"
 
 # Create both SHORT_SPREADSHEET and LONG_SPREADSHEET
 # Roll up seasons episodes into show episodes, don't print seasons lines
-sort -fu --key=4 --field-separator=\" $UNSORTED | tail -r | awk -v ERRORS=$ERRORS \
+sort -fu --key=4 --field-separator=\" $UNSORTED | sed -n '1!G;h;$p' | awk -v ERRORS=$ERRORS \
     -v DURATION="$DURATION" -v LONG_SPREADSHEET=$LONG_SPREADSHEET -f calculateMHzShowDurations.awk |
-    tail -r >$SHORT_SPREADSHEET
+    sed -n '1!G;h;$p' >$SHORT_SPREADSHEET
 #
 mv $LONG_SPREADSHEET $UNSORTED
-tail -r $UNSORTED >$LONG_SPREADSHEET
+sed -n '1!G;h;$p' $UNSORTED >$LONG_SPREADSHEET
 rm -f $UNSORTED
 
 # Sort the titles produced by getMHzFromSitemap.awk
