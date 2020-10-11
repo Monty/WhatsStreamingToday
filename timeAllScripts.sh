@@ -27,10 +27,6 @@ if [ ! -x "$(which rg 2>/dev/null)" ]; then
     exit 1
 fi
 
-# Download fresh .gz files from IMDb, even if they already exist.
-# They are updated daily, and this script is normally run weekly.
-./downloadFromIMDb.sh
-
 printf -- "----------------------------------------\n"
 printf "==> time ./makeIMDbFromFiles.sh\n"
 date
