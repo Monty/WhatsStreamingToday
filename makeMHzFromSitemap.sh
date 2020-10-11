@@ -192,11 +192,11 @@ printf "%8d people credited\n" "$numPersons"
 # for i in $(cut -f 2 BBox_TV_Credits-200820.csv | tail -n +2 | sort -u); do
 # for i in actor producer director writer other guest narrator; do
 for i in actor director; do
-    count=$(cut -f 1,2 $CREDITS | sort -fu | grep -c "\t$i$")
+    count=$(cut -f 1,2 $CREDITS | sort -fu | grep -cw "$i$")
     printf "%8d as %ss\n" "$count" "$i"
 done
 printf "%8d characters portrayed (in at most" "$numCharacters"
-count=$(cut -f 3,4 $CREDITS | sort -fu | grep -c "^tv_show\t")
+count=$(cut -f 3,4 $CREDITS | sort -fu | grep -cw "^tv_show")
 printf " %d TV shows)\n" "$count"
 
 # Output some stats, adjust by 1 if header line is included.
