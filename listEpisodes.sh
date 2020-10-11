@@ -68,5 +68,5 @@ if [ $MHZ ] && [ $(cut -f 1,9 $MHZ | grep -i -c "$*") != 0 ]; then
     if [ "$linesFound" = "yes" ]; then printf "\n"; fi
     printf "==> From $MHZ\n"
     grep -i "$*" $MHZ | cut -f 1,4,9 | awk -v FMT=$FMT -v WIDTH=$WIDTH \
-                -f printList.awk | $cmd
+        -f printList.awk | $cmd
 fi
