@@ -143,7 +143,7 @@
         gsub (/&quot;/,"\"\"",episodeDescription)
         gsub (/&#039;/,"'",episodeDescription)
     }
-    close cmd
+    close (cmd)
     next
 }
 

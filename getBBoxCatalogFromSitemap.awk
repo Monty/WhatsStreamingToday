@@ -310,14 +310,13 @@ BEGIN {
         sortkey = sprintf ("%s (1) S%s %s", title, EntityId, contentId)
         # print "sortkey = " sortkey > "/dev/stderr"
         print title >> RAW_TITLES
+        cmd1 = "grep -c " contentId " " IDS_SEASONS
+        cmd1 | getline numSeasons
+        close (cmd1)
         #
-        str = "grep -c " contentId " " IDS_SEASONS
-        str | getline numSeasons
-        close str
-        #
-        str = "grep -c " contentId " " IDS_EPISODES
-        str | getline numEpisodes
-        close str
+        cmd2 = "grep -c " contentId " " IDS_EPISODES
+        cmd2 | getline numEpisodes
+        close (cmd2)
     }
 
     if (contentType == "tv_season") {
