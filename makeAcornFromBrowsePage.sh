@@ -146,10 +146,9 @@ function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
-    filesize=$(ls -loh $1 | cut -c 22-26)
-    filedate=$(ls -loh $1 | cut -c 28-39)
     numlines=$(($(sed -n '$=' $1) - $2))
-    printf "%-45s%6s%15s%9d lines\n" "$1" "$filesize" "$filedate" "$numlines"
+    ls -loh $1 |
+        awk -v nl=$numlines '{ printf ("%-46s %s %s %s %9d lines\n", $8, $5, $6, $7, nl); }'
 }
 
 # Output some stats, adjust by 1 if header line is included.
