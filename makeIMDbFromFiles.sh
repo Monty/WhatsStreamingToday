@@ -281,7 +281,7 @@ function printAdjustedFileInfo() {
     #   INVOCATION: printAdjustedFileInfo filename adjustment
     numlines=$(($(sed -n '$=' $1) - $2))
     ls -loh $1 |
-        awk -v nl=$numlines '{ printf ("%-46s %s %s %s %9d lines\n", $8, $5, $6, $7, nl); }'
+        awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
 # Output some stats, adjust by 1 if header line is included.
