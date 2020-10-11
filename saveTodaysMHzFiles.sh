@@ -29,14 +29,14 @@ while getopts ":d:v" opt; do
     esac
 done
 
-COLUMNS="MHz-columns"
+COLS="MHz-columns"
 BASELINE="MHz-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
-cp -p $VERBOSE $COLUMNS/MHz_urls-$DATE.txt $BASELINE/MHz_urls.txt
-cp -p $VERBOSE $COLUMNS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
-cp -p $VERBOSE $COLUMNS/season_urls-$DATE.txt $BASELINE/season_urls.txt
-cp -p $VERBOSE $COLUMNS/total_duration-$DATE.txt $BASELINE/total_duration.txt
+cp -p $VERBOSE $COLS/MHz_urls-$DATE.txt $BASELINE/MHz_urls.txt
+cp -p $VERBOSE $COLS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
+cp -p $VERBOSE $COLS/season_urls-$DATE.txt $BASELINE/season_urls.txt
+cp -p $VERBOSE $COLS/total_duration-$DATE.txt $BASELINE/total_duration.txt
 
 cp -p $VERBOSE MHz_uniqCharacters-$DATE.txt $BASELINE/uniqCharacters.txt
 cp -p $VERBOSE MHz_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt

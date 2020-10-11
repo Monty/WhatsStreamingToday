@@ -29,12 +29,12 @@ while getopts ":d:v" opt; do
     esac
 done
 
-COLUMNS="Acorn-columns"
+COLS="Acorn-columns"
 BASELINE="Acorn-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
-cp -p $VERBOSE $COLUMNS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
-cp -p $VERBOSE $COLUMNS/show_urls-$DATE.txt $BASELINE/show_urls.txt
+cp -p $VERBOSE $COLS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
+cp -p $VERBOSE $COLS/show_urls-$DATE.txt $BASELINE/show_urls.txt
 
 cp -p $VERBOSE Acorn_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE Acorn_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt

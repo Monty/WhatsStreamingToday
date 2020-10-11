@@ -53,9 +53,9 @@ if ! curl -o /dev/null -Isf $SITEMAP_URL; then
 fi
 
 # Required subdirectories
-COLUMNS="BBox-columns"
+COLS="BBox-columns"
 BASELINE="BBox-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
 # File names are used in saveTodaysBBoxFiles.sh
 # so if you change them here, change them there as well
@@ -71,7 +71,7 @@ POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
 ERRORS="BBox_anomalies$LONGDATE.txt"
 
 # Downloaded XML file to process
-SITEMAP="$COLUMNS/BBox-sitemap$DATE_ID.xml"
+SITEMAP="$COLS/BBox-sitemap$DATE_ID.xml"
 
 # Final output spreadsheets
 CREDITS="BBox_TV_Credits$DATE_ID.csv"
@@ -79,29 +79,29 @@ SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Intermediate but useful spreadsheet files
-CATALOG_SPREADSHEET="$COLUMNS/BBoxCatalog$DATE_ID.csv"
-EPISODES_SPREADSHEET="$COLUMNS/BBoxEpisodes$DATE_ID.csv"
-MOVIES_SPREADSHEET="$COLUMNS/BBoxMovies$DATE_ID.csv"
-PROGRAMS_SPREADSHEET="$COLUMNS/BBoxPrograms$DATE_ID.csv"
+CATALOG_SPREADSHEET="$COLS/BBoxCatalog$DATE_ID.csv"
+EPISODES_SPREADSHEET="$COLS/BBoxEpisodes$DATE_ID.csv"
+MOVIES_SPREADSHEET="$COLS/BBoxMovies$DATE_ID.csv"
+PROGRAMS_SPREADSHEET="$COLS/BBoxPrograms$DATE_ID.csv"
 
 # XML files segregated by item type
-TV_MOVIE_ITEMS="$COLUMNS/tv_movies$DATE_ID.xml"
-TV_SHOW_ITEMS="$COLUMNS/tv_shows$DATE_ID.xml"
-TV_SEASON_ITEMS="$COLUMNS/tv_seasons$DATE_ID.xml"
-TV_EPISODE_ITEMS="$COLUMNS/tv_episodes$DATE_ID.xml"
+TV_MOVIE_ITEMS="$COLS/tv_movies$DATE_ID.xml"
+TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.xml"
+TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.xml"
+TV_EPISODE_ITEMS="$COLS/tv_episodes$DATE_ID.xml"
 
 # Text files containing only <item lines (much shorter than xml files to use when searching for contentIds)
-IDS_SEASONS="$COLUMNS/ids_seasons$DATE_ID.txt"
-IDS_EPISODES="$COLUMNS/ids_episodes$DATE_ID.txt"
+IDS_SEASONS="$COLS/ids_seasons$DATE_ID.txt"
+IDS_EPISODES="$COLS/ids_episodes$DATE_ID.txt"
 
 # Intermediate working files
-SORTED_SITEMAP="$COLUMNS/BBox-sitemap_sorted$DATE_ID.xml"
-RAW_CREDITS="$COLUMNS/rawCredits$DATE_ID.txt"
-RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
+SORTED_SITEMAP="$COLS/BBox-sitemap_sorted$DATE_ID.xml"
+RAW_CREDITS="$COLS/rawCredits$DATE_ID.txt"
+RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_PERSONS="BBox_uniqPersons$DATE_ID.txt"
 UNIQUE_CHARACTERS="BBox_uniqCharacters$DATE_ID.txt"
 UNIQUE_TITLES="BBox_uniqTitles$DATE_ID.txt"
-DURATION="$COLUMNS/total_duration$DATE_ID.txt"
+DURATION="$COLS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_CREDITS="$BASELINE/credits.txt"

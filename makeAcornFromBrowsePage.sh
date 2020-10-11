@@ -53,9 +53,9 @@ if ! curl -o /dev/null -Isf $BROWSE_URL; then
 fi
 
 # Required subdirectories
-COLUMNS="Acorn-columns"
+COLS="Acorn-columns"
 BASELINE="Acorn-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
 # File names are used in saveTodaysAcornFiles.sh
 # so if you change them here, change them there as well
@@ -75,20 +75,20 @@ SHORT_SPREADSHEET="Acorn_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="Acorn_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Basic URL files - all, episodes only, seasons only
-SHOW_URLS="$COLUMNS/show_urls$DATE_ID.txt"
-EPISODE_URLS="$COLUMNS/episode_urls$DATE_ID.txt"
+SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
+EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
 
 # Intermediate working files
-UNSORTED="$COLUMNS/unsorted$DATE_ID.txt"
-RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
+UNSORTED="$COLS/unsorted$DATE_ID.txt"
+RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_TITLES="Acorn_uniqTitles$DATE_ID.txt"
-DURATION="$COLUMNS/total_duration$DATE_ID.txt"
+DURATION="$COLS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_SHOW_URLS="$COLUMNS/show_urls$DATE_ID.txt"
+PUBLISHED_SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"

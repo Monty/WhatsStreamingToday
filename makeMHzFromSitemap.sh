@@ -53,9 +53,9 @@ if ! curl -o /dev/null -Isf $SITEMAP_URL; then
 fi
 
 # Required subdirectories
-COLUMNS="MHz-columns"
+COLS="MHz-columns"
 BASELINE="MHz-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
 # File names are used in saveTodaysMHzFiles.sh
 # so if you change them here, change them there as well
@@ -76,18 +76,18 @@ SHORT_SPREADSHEET="MHz_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="MHz_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Basic URL files - all, episodes only, seasons only
-MHZ_URLS="$COLUMNS/MHz_urls$DATE_ID.txt"
-EPISODE_URLS="$COLUMNS/episode_urls$DATE_ID.txt"
-SEASON_URLS="$COLUMNS/season_urls$DATE_ID.txt"
+MHZ_URLS="$COLS/MHz_urls$DATE_ID.txt"
+EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
+SEASON_URLS="$COLS/season_urls$DATE_ID.txt"
 
 # Intermediate working files
-UNSORTED="$COLUMNS/unsorted$DATE_ID.txt"
-RAW_CREDITS="$COLUMNS/rawCredits$DATE_ID.txt"
-RAW_TITLES="$COLUMNS/rawTitles$DATE_ID.txt"
+UNSORTED="$COLS/unsorted$DATE_ID.txt"
+RAW_CREDITS="$COLS/rawCredits$DATE_ID.txt"
+RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_PERSONS="MHz_uniqPersons$DATE_ID.txt"
 UNIQUE_CHARACTERS="MHz_uniqCharacters$DATE_ID.txt"
 UNIQUE_TITLES="MHz_uniqTitles$DATE_ID.txt"
-DURATION="$COLUMNS/total_duration$DATE_ID.txt"
+DURATION="$COLS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_CREDITS="$BASELINE/credits.txt"

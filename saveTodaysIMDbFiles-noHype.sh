@@ -29,17 +29,17 @@ while getopts ":d:v" opt; do
     esac
 done
 
-COLUMNS="IMDb-columns"
+COLS="IMDb-columns"
 BASELINE="IMDb-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
 # Copy -noHype files
-cp -p $VERBOSE $COLUMNS/tconst_all-noHype-$DATE.txt $BASELINE/tconst_all-noHype.txt
-cp -p $VERBOSE $COLUMNS/tconst-noHype-$DATE.txt $BASELINE/tconst-noHype.txt
-cp -p $VERBOSE $COLUMNS/nconst-noHype-$DATE.txt $BASELINE/nconst-noHype.txt
-cp -p $VERBOSE $COLUMNS/raw_shows-noHype-$DATE.csv $BASELINE/raw_shows-noHype.csv
-cp -p $VERBOSE $COLUMNS/raw_persons-noHype-$DATE.csv $BASELINE/raw_persons-noHype.csv
-cp -p $VERBOSE $COLUMNS/tconst_known-noHype-$DATE.txt $BASELINE/tconst_known-noHype.txt
+cp -p $VERBOSE $COLS/tconst_all-noHype-$DATE.txt $BASELINE/tconst_all-noHype.txt
+cp -p $VERBOSE $COLS/tconst-noHype-$DATE.txt $BASELINE/tconst-noHype.txt
+cp -p $VERBOSE $COLS/nconst-noHype-$DATE.txt $BASELINE/nconst-noHype.txt
+cp -p $VERBOSE $COLS/raw_shows-noHype-$DATE.csv $BASELINE/raw_shows-noHype.csv
+cp -p $VERBOSE $COLS/raw_persons-noHype-$DATE.csv $BASELINE/raw_persons-noHype.csv
+cp -p $VERBOSE $COLS/tconst_known-noHype-$DATE.txt $BASELINE/tconst_known-noHype.txt
 
 cp -p $VERBOSE IMDb_uniqTitles-noHype-$DATE.txt $BASELINE/uniqTitles-noHype.txt
 cp -p $VERBOSE IMDb_uniqPersons-noHype-$DATE.txt $BASELINE/uniqPersons-noHype.txt

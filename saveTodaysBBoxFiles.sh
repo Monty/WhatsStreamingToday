@@ -29,12 +29,12 @@ while getopts ":d:v" opt; do
     esac
 done
 
-COLUMNS="BBox-columns"
+COLS="BBox-columns"
 BASELINE="BBox-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
-cp -p $VERBOSE $COLUMNS/BBoxCatalog-$DATE.csv $BASELINE/BBoxCatalog.txt
-cp -p $VERBOSE $COLUMNS/total_duration-$DATE.txt $BASELINE/total_duration.txt
+cp -p $VERBOSE $COLS/BBoxCatalog-$DATE.csv $BASELINE/BBoxCatalog.txt
+cp -p $VERBOSE $COLS/total_duration-$DATE.txt $BASELINE/total_duration.txt
 
 cp -p $VERBOSE BBox_uniqCharacters-$DATE.txt $BASELINE/uniqCharacters.txt
 cp -p $VERBOSE BBox_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt

@@ -121,9 +121,9 @@ DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
 # Required subdirectories
-COLUMNS="IMDb-columns"
+COLS="IMDb-columns"
 BASELINE="IMDb-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
 # Error and debugging info (per run)
 POSSIBLE_DIFFS="IMDb_diffs$LONGDATE.txt"
@@ -141,19 +141,19 @@ UNIQUE_PERSONS="IMDb_uniqPersons$DATE_ID.txt"
 UNIQUE_TITLES="IMDb_uniqTitles$DATE_ID.txt"
 
 # Intermediate working files
-TCONST_ALL="$COLUMNS/tconst_all$DATE_ID.txt"
-TCONST_LIST="$COLUMNS/tconst$DATE_ID.txt"
-KNOWNFOR_LIST="$COLUMNS/tconst_known$DATE_ID.txt"
-NCONST_LIST="$COLUMNS/nconst$DATE_ID.txt"
-RAW_SHOWS="$COLUMNS/raw_shows$DATE_ID.csv"
-RAW_PERSONS="$COLUMNS/raw_persons$DATE_ID.csv"
-UNSORTED_CREDITS="$COLUMNS/unsorted_credits$DATE_ID.csv"
+TCONST_ALL="$COLS/tconst_all$DATE_ID.txt"
+TCONST_LIST="$COLS/tconst$DATE_ID.txt"
+KNOWNFOR_LIST="$COLS/tconst_known$DATE_ID.txt"
+NCONST_LIST="$COLS/nconst$DATE_ID.txt"
+RAW_SHOWS="$COLS/raw_shows$DATE_ID.csv"
+RAW_PERSONS="$COLS/raw_persons$DATE_ID.csv"
+UNSORTED_CREDITS="$COLS/unsorted_credits$DATE_ID.csv"
 #
-TCONST_PRIM_PL="$COLUMNS/tconst-prim-pl$DATE_ID.txt"
-TCONST_ORIG_PL="$COLUMNS/tconst-orig-pl$DATE_ID.txt"
-TCONST_KNOWN_PL="$COLUMNS/tconst-known-pl$DATE_ID.txt"
-NCONST_PL="$COLUMNS/nconst-pl$DATE_ID.txt"
-XLATE_PL="$COLUMNS/xlate-pl$DATE_ID.txt"
+TCONST_PRIM_PL="$COLS/tconst-prim-pl$DATE_ID.txt"
+TCONST_ORIG_PL="$COLS/tconst-orig-pl$DATE_ID.txt"
+TCONST_KNOWN_PL="$COLS/tconst-known-pl$DATE_ID.txt"
+NCONST_PL="$COLS/nconst-pl$DATE_ID.txt"
+XLATE_PL="$COLS/xlate-pl$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_CREDITS_SHOW="$BASELINE/credits-show.csv"

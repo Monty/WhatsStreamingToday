@@ -29,17 +29,17 @@ while getopts ":d:v" opt; do
     esac
 done
 
-COLUMNS="IMDb-columns"
+COLS="IMDb-columns"
 BASELINE="IMDb-baseline"
-mkdir -p $COLUMNS $BASELINE
+mkdir -p $COLS $BASELINE
 
 # Copy standard files
-cp -p $VERBOSE $COLUMNS/tconst_all-$DATE.txt $BASELINE/tconst_all.txt
-cp -p $VERBOSE $COLUMNS/tconst-$DATE.txt $BASELINE/tconst.txt
-cp -p $VERBOSE $COLUMNS/nconst-$DATE.txt $BASELINE/nconst.txt
-cp -p $VERBOSE $COLUMNS/raw_shows-$DATE.csv $BASELINE/raw_shows.csv
-cp -p $VERBOSE $COLUMNS/raw_persons-$DATE.csv $BASELINE/raw_persons.csv
-cp -p $VERBOSE $COLUMNS/tconst_known-$DATE.txt $BASELINE/tconst_known.txt
+cp -p $VERBOSE $COLS/tconst_all-$DATE.txt $BASELINE/tconst_all.txt
+cp -p $VERBOSE $COLS/tconst-$DATE.txt $BASELINE/tconst.txt
+cp -p $VERBOSE $COLS/nconst-$DATE.txt $BASELINE/nconst.txt
+cp -p $VERBOSE $COLS/raw_shows-$DATE.csv $BASELINE/raw_shows.csv
+cp -p $VERBOSE $COLS/raw_persons-$DATE.csv $BASELINE/raw_persons.csv
+cp -p $VERBOSE $COLS/tconst_known-$DATE.txt $BASELINE/tconst_known.txt
 
 cp -p $VERBOSE IMDb_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE IMDb_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt
