@@ -45,5 +45,6 @@ yesnodelete "all anomalies reports" "Acorn_anomalies*.txt" "MHz_anomalies*.txt" 
     "BBox_anomalies*.txt" "IMDb_anomalies*.txt"
 yesnodelete "all diff results" "Acorn_diffs*.txt" "MHz_diffs*.txt" "BBox_diffs*.txt" "IMDb_diffs*.txt"
 yesnodelete "all diff baselines" "Acorn-baseline" "MHz-baseline" "BBox-baseline" "IMDb-baseline"
-yesnodelete "all credits" "MHz_TV_Credits*.csv" "BBox_TV_Credits*.csv" "IMDb_Credits*.csv"
+yesnodelete "all credits" "MHz_TV_Credits*.csv" "BBox_TV_Credits*.csv" "IMDb_Credits*.csv" \
+    "IMDb_Persons-Titles*.csv" "IMDb_associatedTitles*.csv"
 yesnodelete "all uniq files" "Acorn_uniq*.txt" "MHz_uniq*.txt" "BBox_uniq*.txt" "IMDb_uniq*.txt"
