@@ -30,14 +30,14 @@ $1 == "" || $1 == "Sortkey" {
 # this includes all movies and all episodes
 $5 != "" {
     # Check all durations for strict HH:MM:SS format
-    if ($5 !~ /^[[:digit:]]{2}:[[:digit:]]{2}:[[:digit:]]{2}$/) {
+    if ($5 !~ /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]$/) {
         print "==> Bad duration " $5 " in " $0 >> ERRORS
         print
         next
     } else {
         split ($5, tm, ":")
         totalTime[3] += tm[3]
-        totalTime[2] += tm[2] + int(totalTime[3] / 60)  
+        totalTime[2] += tm[2] + int(totalTime[3] / 60)
         totalTime[1] += tm[1] + int(totalTime[2] / 60)
         totalTime[3] %= 60; totalTime[2] %= 60
     }
