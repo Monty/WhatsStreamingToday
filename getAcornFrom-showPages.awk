@@ -248,7 +248,7 @@
     # The season number should match that in the URL
     # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, Vera, and others have problems
     if (episodeURL ~ \
-           /\/series[0-9]{1,2}\/|[0-9]{1,2}bonus\/|\/murdoch\/season[0-9]{1,2}/) {
+           /\/series[0-9]+\/|[0-9]+bonus\/|\/murdoch\/season[0-9]+/) {
         split (episodeURL, part, "/")
         URLseasonNumber = part[5]
         sub (/bonus/,"",URLseasonNumber)
@@ -267,7 +267,7 @@
     #
     # Wrap up this episode
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
-    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\"\)", episodeURL, showTitle,
+    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\")", episodeURL, showTitle,
                     showType, seasonNumber, episodeType, episodeNumber, episodeTitle)
     # Print "episode" line to UNSORTED
     # But don't include duration for trailers

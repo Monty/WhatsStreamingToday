@@ -13,6 +13,9 @@ function cleanup() {
 DIRNAME=$(dirname "$0")
 cd $DIRNAME
 
+# Make sort consistent between Mac and Linux
+export LC_COLLATE="C"
+
 # Create some timestamps
 DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
