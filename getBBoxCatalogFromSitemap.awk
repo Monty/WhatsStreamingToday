@@ -260,11 +260,11 @@ BEGIN {
     if (title == "A Midsummer Night's Dream") {
         if (EntityId == "_26179") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (1981)'\n", title) >> ERRORS
+            printf ("==> Changed title '%s' to 'A Midsummer Night's Dream (1981)'\n", title) >> ERRORS
             title = "A Midsummer Night's Dream (1981)"
         } else if (EntityId == "_15999") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'A Midsummer Night\'s Dream (2016)'\n", title) >> ERRORS
+            printf ("==> Changed title '%s' to 'A Midsummer Night's Dream (2016)'\n", title) >> ERRORS
             title = "A Midsummer Night's Dream (2016)"
         }
         # print "==> title = " title > "/dev/stderr"
