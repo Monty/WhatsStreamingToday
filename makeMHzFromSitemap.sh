@@ -13,6 +13,9 @@ function cleanup() {
 DIRNAME=$(dirname "$0")
 cd $DIRNAME
 
+# Make sort consistent between Mac and Linux
+export LC_COLLATE="C"
+
 # Create some timestamps
 DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
@@ -117,7 +120,7 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 if [ ! -e "$MHZ_URLS" ]; then
     printf "==> Downloading new $MHZ_URLS\n"
     curl -s $SITEMAP_URL | grep '<loc>https://watch.mhzchoice.com.*/season:' |
-        sed 's+^[ \t]*<loc>++;s+</loc>++' | sort >$MHZ_URLS
+        sed 's+^[ \t]*<loc>++;s+</loc>++' | sort -f >$MHZ_URLS
 else
     printf "==> using existing $MHZ_URLS\n"
 fi
@@ -189,7 +192,6 @@ numPersons=$(sed -n '$=' $UNIQUE_PERSONS)
 numCharacters=$(sed -n '$=' $UNIQUE_CHARACTERS)
 printf "%8d people credited\n" "$numPersons"
 #
-# for i in $(cut -f 2 BBox_TV_Credits-200820.csv | tail -n +2 | sort -u); do
 # for i in actor producer director writer other guest narrator; do
 for i in actor director; do
     count=$(cut -f 1,2 $CREDITS | sort -fu | grep -cw "$i$")

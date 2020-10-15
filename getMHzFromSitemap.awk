@@ -76,12 +76,12 @@
         sub (/.*name="description" content="/,"")
     }
     # If we find a header, clean it up and put it before the description
-    if ($0 ~ /\| {1,2}TV-/) {
+    if ($0 ~ /\|[ ]+TV-/) {
         sub (/WITH ENGLISH SUBTITLES /,"")
         sub (/SCANDINAVIAN CRIME FICTION/,"Sweden")
         sub (/NONFICTION - DOCUMENTARY/,"Documentary")
         sub (/NON-FICTION - DOCUMENTARY/,"Documentary")
-        gsub (/ \| {1,2}/,"|")
+        gsub (/ \|[ ]+/,"|")
         sub (/\r/,"")
         # Split out header fields
         numFields = split ($0,fld,"\|")
@@ -207,10 +207,10 @@
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
     # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
     if (match (episodeTitle,\
-        /[ ]*\(S[Nnm]*[ ]*[[:digit:]]{1,2}[ ]+[Ee][Pp]*[ ]*[[:digit:]]{1,3}[[:space:]]*\)/))  {
-            if (episodeTitle !~ / \(Sn [[:digit:]]{1,2} Ep [[:digit:]]{1,3}\)/)
+        /[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/))  {
+            if (episodeTitle !~ / \(Sn [[:digit:]]+ Ep [[:digit:]]+\)/)
                 printf ("==> Malformed Sn/Ep in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
-            sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]{1,2}[ ]+[Ee][Pp]*[ ]*[[:digit:]]{1,3}[[:space:]]*\)/,\
+            sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/,\
                 "",episodeTitle)
             # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     }
@@ -284,7 +284,7 @@
         if (episodeDescription ~ /^PR \|/)
             sub (/^PR \| /,"",episodeDescription)
         # print "==> episodeDescription = \n" episodeDescription > "/dev/stderr"
-        episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\"\)", episodeURL, showTitle,
+        episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
         #
         # Make sure episodeDuration is valid
@@ -310,7 +310,7 @@
         if (director_name ~ /[Dd]irected by /) {
             sub (/.*[Dd]irected by /,"",director_name)
             sub (/,.*$/,"",director_name)
-            sub (/ [[:digit:]]{4}\./,"",director_name)
+            sub (/ [0-9][0-9][0-9][0-9]\./,"",director_name)
             sub (/[[:space:]]+$/,"",director_name)
             sub (/\.$/,"",director_name)
             # Special cases
@@ -374,7 +374,7 @@
     #
     #  =HYPERLINK("https://watch.mhzchoice.com/gasmamman/season:1";"Gasmamman, S01, Season 1")
     if (page2 != "yes") {
-        seasonLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\"\)", seasonURL, showTitle, seasonNumber,
+        seasonLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\")", seasonURL, showTitle, seasonNumber,
                    seasonTitle)
         # print "==> seasonURL = " seasonURL  > "/dev/stderr"
         # print "==> seasonLink = " seasonLink  > "/dev/stderr"

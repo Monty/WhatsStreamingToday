@@ -46,7 +46,7 @@ $4 != "" {
     # print "==> episodesCounted = " episodesCounted > "/dev/stderr"
     print >> LONG_SPREADSHEET
     # Check all durations for strict HH:MM:SS format
-    if ($4 !~ /^[[:digit:]]{1,2}:[[:digit:]]{2}:[[:digit:]]{2}$/) {
+    if ($4 !~ /^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]$/) {
         print "==> Bad duration " $4 " in " $0 >> ERRORS
         next
     }
