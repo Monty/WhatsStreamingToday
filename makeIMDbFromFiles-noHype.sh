@@ -129,8 +129,8 @@ BASELINE="IMDb-baseline"
 mkdir -p $COLS $BASELINE
 
 # Error and debugging info (per run)
-POSSIBLE_DIFFS="IMDb_diffs$LONGDATE.txt"
-ERRORS="IMDb_anomalies$LONGDATE.txt"
+POSSIBLE_DIFFS="IMDb_diffs-noHype$LONGDATE.txt"
+ERRORS="IMDb_anomalies-noHype$LONGDATE.txt"
 
 # Final output spreadsheets
 CREDITS_SHOW="IMDb_Credits-Show-noHype$DATE_ID.csv"
