@@ -171,7 +171,8 @@ done <"$EPISODE_URLS"
 
 # Generate credits spreadsheets
 head -1 $RAW_CREDITS >$CREDITS
-tail -n +2 $RAW_CREDITS | sort -fu >>$CREDITS
+# Need sort -fu to get rid of dupes, followed by sort -fb to make Mac/Linux the same
+tail -n +2 $RAW_CREDITS | sort -fu | sort -fb >>$CREDITS
 tail -n +2 $CREDITS | cut -f 1 | sort -fu >>$UNIQUE_PERSONS
 tail -n +2 $CREDITS | cut -f 5 | sort -fu >>$UNIQUE_CHARACTERS
 # rm -f $RAW_CREDITS
