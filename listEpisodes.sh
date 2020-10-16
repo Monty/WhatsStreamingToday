@@ -45,9 +45,9 @@ shift $((OPTIND - 1))
 # -f followed by -w doesn't work, so wait until all switches are processed
 if [ $FMT ]; then cmd="fmt -w $WIDTH"; else cmd="cat"; fi
 
-ACORN=$(find . -d 1 -name "Acorn_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c 3-)
-BBOX=$(find . -d 1 -name "BBox_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c 3-)
-MHZ=$(find . -depth 1 -name "MHz_TV_ShowsEpisodes*csv" | sort | tail -1 | cut -c 3-)
+ACORN="$(ls -1t Acorn_TV_ShowsEpisodes*csv 2>/dev/null | head -1)"
+BBOX="$(ls -1t BBox_TV_ShowsEpisodes*csv 2>/dev/null | head -1)"
+MHZ="$(ls -1t MHz_TV_ShowsEpisodes*csv 2>/dev/null | head -1)"
 
 if [ $ACORN ] && [ $(cut -f 1,5 $ACORN | grep -i -c "$*") != 0 ]; then
     printf "==> From $ACORN\n"
