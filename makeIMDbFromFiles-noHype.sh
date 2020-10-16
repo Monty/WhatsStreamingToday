@@ -35,6 +35,9 @@ function cleanup() {
 DIRNAME=$(dirname "$0")
 cd $DIRNAME
 
+# Make sort consistent between Mac and Linux
+export LC_COLLATE="C"
+
 # Default translation files to all .xlate files, but allow user to override
 XLATE_FILES="*.xlate"
 while getopts ":t:h" opt; do
