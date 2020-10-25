@@ -193,7 +193,7 @@ rg -IN "^tt" $TCONST_FILES | cut -f 1 | sort -u >$TCONST_LIST
 # Create a perl "substitute" script to translate any known non-English titles to their English equivalent
 # Regex delimiter needs to avoid any characters present in the input, use {} for readability
 rg -INv -e "^#" -e "^$" $XLATE_FILES | cut -f 1,2 | sort -fu |
-    perl -p -e 's+\t+\\t}{\\t+; s+^+s{\\t+; s+$+\\t};+' >$XLATE_PL
+    perl -p -e 's+\t+\\t}\{\\t+; s+^+s{\\t+; s+$+\\t};+' >$XLATE_PL
 
 # Generate a csv of titles from the tconst list, remove the "adult" field,
 # translate any known non-English titles to their English equivalent,
@@ -219,13 +219,13 @@ cut -f 1 $UNSORTED_CREDITS | sort -u >$NCONST_LIST
 
 # Create a perl script to convert the 1st tconst to a primary title
 cut -f 1,3 $RAW_SHOWS | perl -F"\t" -lane \
-    'print "s{\\b" . @F[0] . "\\b}{@F[1]};";' >$TCONST_PRIM_PL
+    'print "s{\\b" . @F[0] . "\\b}\{@F[1]};";' >$TCONST_PRIM_PL
 # Create a perl script to convert the 2nd tconst to an original title
 cut -f 1,4 $RAW_SHOWS | perl -F"\t" -lane \
-    'print "s{\\t" . @F[0] . "\\t}{\\t" . @F[1] . "\\t};";' >$TCONST_ORIG_PL
+    'print "s{\\t" . @F[0] . "\\t}\{\\t" . @F[1] . "\\t};";' >$TCONST_ORIG_PL
 # Create a perl script to convert an nconst to a name
 rg -wNz -f $NCONST_LIST name.basics.tsv.gz | cut -f 1-2,6 | sort -fu --key=2 | tee $RAW_PERSONS |
-    perl -F"\t" -lane 'print "s{\\b" . @F[0] . "\\b}{@F[1]};";' >$NCONST_PL
+    perl -F"\t" -lane 'print "s{\\b" . @F[0] . "\\b}\{@F[1]};";' >$NCONST_PL
 
 # Get rid of ugly \N fields, unneeded characters, and make sure commas are followed by spaces
 perl -pi -e 's+\\N++g; tr+"[]++d; s+,+, +g; s+,  +, +g;' $ALL_CSV
@@ -239,11 +239,11 @@ cut -f 3 $RAW_PERSONS | rg "^tt" | perl -p -e 's+, +\n+g' | sort -u >$KNOWNFOR_L
 # Create a perl script to convert a known tconst to a primary title
 rg -wNz -f $KNOWNFOR_LIST title.basics.tsv.gz | perl -p -f $XLATE_PL | cut -f 1,3 |
     perl -F"\t" -lane \
-        'print "s{\\b" . @F[0] . "\\b}{@F[1]};";' >$TCONST_KNOWN_PL
+        'print "s{\\b" . @F[0] . "\\b}\{@F[1]};";' >$TCONST_KNOWN_PL
 
 # Create a spreadsheet of associated titles gained from IMDb knownFor data
 printf "tconst\tPrimary Title\tLink to Title\n" >$ASSOCIATED_TITLES
-perl -p -e 's+^.*btt+tt+; s+\\b}{+\t+; s+}.*++;' $TCONST_KNOWN_PL |
+perl -p -e 's+^.*btt+tt+; s+\\b}\{+\t+; s+}.*++;' $TCONST_KNOWN_PL |
     perl -F"\t" -lane 'print @F[0] . "\t" . @F[1] . "\t=HYPERLINK(\"https://www.imdb.com/title/"
     . @F[0] . "\";\"" . @F[1] ."\")"' |
     sort -fu --field-separator="$TAB" --key=2,2 | rg -wv -f $TCONST_ALL >>$ASSOCIATED_TITLES
