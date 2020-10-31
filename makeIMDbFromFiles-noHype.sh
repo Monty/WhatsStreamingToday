@@ -217,14 +217,14 @@ perl -p -e 's+$+;+' $UNIQUE_TITLES | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s
 
 # Use the tconst list to lookup principal titles and generate a tconst/nconst credits csv
 # Fix bogus nconst nm0745728, it should be m0745694. Rearrange fields
-rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -wN -e actor -e actress -e writer -e director |
+rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -w -e actor -e actress -e writer -e director |
     sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' |
     perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' >$UNSORTED_CREDITS
 
 # Use the tconst list to lookup episode IDs and generate an episode tconst file
 rg -wNz -f $TCONST_LIST title.episode.tsv.gz |
     sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n |
-    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -INwv -f skipEpisodes.txt |
+    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -wv -f skipEpisodes.txt |
     tee $UNSORTED_EPISODES | cut -f 1 >$EPISODES_LIST
 
 # Generate an nconst list for later processing
@@ -284,8 +284,7 @@ cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
 
 # Create the suggested episodes spreadsheet, remove previously translated tconsts
 printf "Episode tconst\tShow Title\tSn_#\tEp_#\tEpisode Title\tShow tconst\n" >$EPISODES
-sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n $UNSORTED_EPISODES |
-    rg -IN "^tt" >>$EPISODES
+sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n $UNSORTED_EPISODES | rg "^tt" >>$EPISODES
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
