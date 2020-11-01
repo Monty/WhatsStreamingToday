@@ -9,6 +9,8 @@
 # Only the tconst column is used, the other colums are considered comments. You can add those columns
 # after processing by using the data in IMDb-columns/raw_shows*.csv
 
+# Avoid tvEpisodes that have a parent tvSeries, put those in Episode.tconst instead
+
 # tconst	Service	Primary Title	Original Title
 tt5759648	MHz	Aber Bergen	Aber Bergen
 tt3582458	MHz	Acquitted	Frikjent

@@ -3,6 +3,8 @@
 # Create a similar file for titles you want translated, with any name and extension.
 # Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t Netflix-xlate.txt
 
+# Avoid using this to translate tvEpisodes into their parent tvSeries, put those in Episode.xlate instead
+
 Aanrijding in Moscou	Moscow, Belgium
 En man som heter Ove	A Man Called Ove
 En pilgrims död	Death of a Pilgrim
