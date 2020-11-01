@@ -139,6 +139,7 @@ CREDITS_PERSON="IMDb_Credits-Person-noHype$DATE_ID.csv"
 PERSONS="IMDb_Persons-Titles-noHype$DATE_ID.csv"
 SHOWS="IMDb_Shows-noHype$DATE_ID.csv"
 EPISODES="IMDb_suggestedEpisodes-noHype$DATE_ID.csv"
+EPISODES_XLATE="IMDb_suggestedXlate-noHype$DATE_ID.csv"
 ASSOCIATED_TITLES="IMDb_associatedTitles-noHype$DATE_ID.csv"
 
 # Final output lists
@@ -282,9 +283,13 @@ perl -pi -f $NCONST_PL $PERSONS
 # Create UNIQUE_PERSONS
 cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
 
-# Create the suggested episodes spreadsheet, remove previously translated tconsts
+# Create the suggested episodes spreadsheet, remove previously translated and untranslatable tconsts
 printf "Episode tconst\tShow Title\tSn_#\tEp_#\tEpisode Title\tShow tconst\n" >$EPISODES
-sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n $UNSORTED_EPISODES | rg "^tt" >>$EPISODES
+sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n $UNSORTED_EPISODES |
+    awk -F "\t" '$1 ~ /^tt/ && $5 !~ /^tt/' >>$EPISODES
+# Create the suggested translations spreadsheet
+printf "Episode Title\tShow Title\tSn_#\tEp_#\Episode tconst\tShow tconst\n" >$EPISODES_XLATE
+rg "^tt" $EPISODES | awk -F "\t" '{printf ("%s\t%s\t%s\t%s\t%s\t%s\n",$5,$2,$3,$4,$1,$6)}' >>$EPISODES_XLATE
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
@@ -301,8 +306,7 @@ function printAdjustedFileInfo() {
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
     numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
-        awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
+    ls -loh $1 | awk -v nl=$numlines '{printf ("%-45s%6s%6s %s %s %8d lines\n",$8,$4,$5,$6,$7,nl)}'
 }
 
 # Output some stats, adjust by 1 if header line is included.

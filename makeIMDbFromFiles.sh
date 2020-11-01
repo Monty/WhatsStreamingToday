@@ -290,7 +290,8 @@ cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
 
 # Create the suggested episodes spreadsheet, remove previously translated tconsts
 printf "Episode tconst\tShow Title\tSn_#\tEp_#\tEpisode Title\tShow tconst\n" >$EPISODES
-sort -f --field-separator=\" --key=4,4 --key=5,5 $UNSORTED_EPISODES | rg "^tt" >>$EPISODES
+sort -f --field-separator=\" --key=4,4 --key=5,5 $UNSORTED_EPISODES |
+    awk -F "\t" '$1 ~ /^tt/ && $5 !~ /^tt/' >>$EPISODES
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
@@ -307,8 +308,7 @@ function printAdjustedFileInfo() {
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
     numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
-        awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
+    ls -loh $1 | awk -v nl=$numlines '{printf ("%-45s%6s%6s %s %s %8d lines\n",$8,$4,$5,$6,$7,nl)}'
 }
 
 # Output some stats, adjust by 1 if header line is included.

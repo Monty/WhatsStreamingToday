@@ -1,0 +1,35 @@
+# This file of translations from episode titles to show titles extracted from IMDb_suggestedXlate-noHype
+#
+# To add to it, copy/paste or search IMDb_suggestedXlate-noHype, e.g.
+#       grep Quirke IMDb_suggestedXlate-noHype-201031.csv >>Episodes.xlate
+#
+# Make sure to keep Episodes.tconst in sync before running makeIMDbFromFiles-noHype.sh
+#       grep Quirke IMDb_suggestedEpisodes-noHype-201031.csv >>Episodes.tconst
+#
+# Manually check for errors before running!
+
+# Episode Title	Show Title	Sn_#	Ep_#pisode tconst	Show tconst
+Christine Falls	Quirke	1	1	Christine Falls	tt2357908
+The Silver Swan	Quirke	1	2	The Silver Swan	tt2357908
+Elegy for April	Quirke	1	3	Elegy for April	tt2357908
+Philippe Muir	Captain Marleau	1	1	tt4461422	tt5684214
+Le domaine des soeurs Meyer	Captain Marleau	1	2	tt5702782	tt5684214
+Les mystères de la foi	Captain Marleau	1	3	tt5820158	tt5684214
+Brouillard en thalasso	Captain Marleau	1	4	tt6033644	tt5684214
+En trompe-l'oeil	Captain Marleau	1	5	tt6679248	tt5684214
+La nuit de la lune rousse	Captain Marleau	1	6	tt6712652	tt5684214
+À ciel ouvert	Captain Marleau	1	7	tt6742818	tt5684214
+Chambre avec vue	Captain Marleau	2	1	tt7230838	tt5684214
+La mémoire enfouie	Captain Marleau	2	2	tt7230870	tt5684214
+Sang & Lumière	Captain Marleau	2	3	tt7230884	tt5684214
+Le jeune homme et la mort	Captain Marleau	2	4	tt8266764	tt5684214
+Double jeu	Captain Marleau	2	5	tt8785840	tt5684214
+Les roseaux noirs	Captain Marleau	2	6	tt8779726	tt5684214
+Ne plus mourir, jamais	Captain Marleau	2	7	tt9841674	tt5684214
+Une voix dans la nuit	Captain Marleau	3	1	tt10137720	tt5684214
+Grand Huit	Captain Marleau	3	2	tt10159920	tt5684214
+Quelques maux d'amour	Captain Marleau	3	3	tt10352692	tt5684214
+Pace e salute, Marleau!	Captain Marleau	3	4	tt10635622	tt5684214
+Veuves mais pas trop	Captain Marleau	3	5	tt10897490	tt5684214
+L'Arbre aux esclaves	Captain Marleau	3	6	tt11115888	tt5684214
+La Reine des glaces	Captain Marleau	3	7	tt13050828	tt5684214
