@@ -301,6 +301,11 @@ sort -f --field-separator="$TAB" --key=1,2 --key=4,4 --key=3,3 \
 # Sort by Primary Title (2), Original Title (3), Rank (4)
 sort -f --field-separator="$TAB" --key=2,4 $UNSORTED_CREDITS >>$CREDITS_SHOW
 
+# Check for new episodes
+rg -v -e '^#' -e '^$' Episodes.tconst | cut -f 2 | sort -u >alreadyAdded.txt
+rg -N -f alreadyAdded.txt $EPISODES | tee checkEpisodes.txt | cut -f 1 >ignoreEpisodes.txt
+rg -N -f alreadyAdded.txt $EPISODES_XLATE >checkXlate.txt
+
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
