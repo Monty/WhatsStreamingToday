@@ -225,7 +225,7 @@ rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -w -e actor -e actress -e w
 # Use the tconst list to lookup episode IDs and generate an episode tconst file
 rg -wNz -f $TCONST_LIST title.episode.tsv.gz |
     sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n |
-    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -wv -f skipEpisodes.list |
+    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -wv -f skipEpisodes.TCONST |
     tee $UNSORTED_EPISODES | cut -f 1 >$EPISODES_LIST
 
 # Generate an nconst list for later processing
