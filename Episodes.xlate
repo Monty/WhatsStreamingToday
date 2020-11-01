@@ -52,7 +52,7 @@ Room service	Magellan	4	1	tt3173604	tt1548331
 Les Étoiles de Saignac	Magellan	4	3	tt3204170	tt1548331
 Chaud devant	Magellan	5	1	tt3267906	tt1548331
 Reflets de cristal	Magellan	5	2	tt3783748	tt1548331
-Régime mortel	Magellan	5	3	tt4183976	tt1548331
+Régime Mortel	Magellan	5	3	tt4183976	tt1548331
 À l'épreuve du feu	Magellan	5	4	tt4042448	tt1548331
 L'âge ingrat	Magellan	6	1	tt5131732	tt1548331
 Confession Mortelle	Magellan	6	2	tt6318616	tt1548331
@@ -67,6 +67,8 @@ Rêve Brisé	Magellan	8	3	tt10177614	tt1548331
 Espèces protégées	Magellan	9	1	tt11223346	tt1548331
 La nébuleuse d'Orion	Magellan	9	2	tt11261360	tt1548331
 Du sang sur la glace	Magellan	9	3	tt11548322	tt1548331
+Sang d'encre	Magellan	10	1	tt13249598	tt1548331
+Le bonheur des autres	Magellan	10	2	tt13293876	tt1548331
 La maga di Piazza Navona	Bulletproof Heart	1	1	tt3907320	tt3175512
 La ragazza del parco	Bulletproof Heart	1	2	tt3909818	tt3175512
 Il passato che ritorna	Bulletproof Heart	1	3	tt3909844	tt3175512
@@ -192,3 +194,44 @@ L'altro capo del filo	Detective Montalbano	13	1	tt9773050	tt0920489
 Un diario del '43	Detective Montalbano	13	2	tt9773056	tt0920489
 Salvo amato, Livia mia	Detective Montalbano	14	1	tt12076880	tt0920489
 La rete di protezione	Detective Montalbano	14	2	tt12076882	tt0920489
+The Crocodile's Dilemma	Fargo	1	1	tt3097534	tt2802850
+The Rooster Prince	Fargo	1	2	tt3296848	tt2802850
+A Muddy Road	Fargo	1	3	tt3519062	tt2802850
+Eating the Blame	Fargo	1	4	tt3578722	tt2802850
+The Six Ungraspables	Fargo	1	5	tt3514096	tt2802850
+Buridan's Ass	Fargo	1	6	tt3551076	tt2802850
+Who Shaves the Barber\?	Fargo	1	7	tt3578728	tt2802850
+The Heap	Fargo	1	8	tt3468290	tt2802850
+A Fox, a Rabbit, and a Cabbage	Fargo	1	9	tt3599898	tt2802850
+Morton's Fork	Fargo	1	10	tt3599918	tt2802850
+Waiting for Dutch	Fargo	2	1	tt3836974	tt2802850
+Before the Law	Fargo	2	2	tt4001064	tt2802850
+The Myth of Sisyphus	Fargo	2	3	tt4001074	tt2802850
+Fear and Trembling	Fargo	2	4	tt4001070	tt2802850
+The Gift of the Magi	Fargo	2	5	tt4001084	tt2802850
+Rhinoceros	Fargo	2	6	tt4001082	tt2802850
+Did You Do This\? No, You Did It!	Fargo	2	7	tt4001092	tt2802850
+Loplop	Fargo	2	8	tt4001088	tt2802850
+The Castle	Fargo	2	9	tt4001090	tt2802850
+Palindrome	Fargo	2	10	tt3886622	tt2802850
+The Law of Vacant Places	Fargo	3	1	tt5223488	tt2802850
+The Principle of Restricted Choice	Fargo	3	2	tt5273758	tt2802850
+The Law of Non-Contradiction	Fargo	3	3	tt5273760	tt2802850
+The Narrow Escape Problem	Fargo	3	4	tt5273762	tt2802850
+The House of Special Purpose	Fargo	3	5	tt5273774	tt2802850
+The Lord of No Mercy	Fargo	3	6	tt5273764	tt2802850
+The Law of Inevitability	Fargo	3	7	tt5273770	tt2802850
+Who Rules the Land of Denial\?	Fargo	3	8	tt5273772	tt2802850
+Aporia	Fargo	3	9	tt5273778	tt2802850
+Somebody to Love	Fargo	3	10	tt5273780	tt2802850
+Welcome to the Alternate Economy	Fargo	4	1	tt8052820	tt2802850
+The Land of Taking and Killing	Fargo	4	2	tt9724086	tt2802850
+Raddoppiarlo	Fargo	4	3	tt9724094	tt2802850
+The Pretend War	Fargo	4	4	tt9724096	tt2802850
+The Birthplace of Civilization	Fargo	4	5	tt9724098	tt2802850
+Camp Elegance	Fargo	4	6	tt9724100	tt2802850
+Lay Away	Fargo	4	7	tt9724104	tt2802850
+The Nadir	Fargo	4	8	tt9724106	tt2802850
+East/West	Fargo	4	9	tt9724108	tt2802850
+Happy	Fargo	4	10	tt9724110	tt2802850
+Storia Americana	Fargo	4	11	tt12863336	tt2802850
