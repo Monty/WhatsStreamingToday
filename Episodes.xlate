@@ -8,10 +8,10 @@
 #
 # Manually check for errors before running!
 
-# Episode Title	Show Title	Sn_#	Ep_#pisode tconst	Show tconst
-Christine Falls	Quirke	1	1	Christine Falls	tt2357908
-The Silver Swan	Quirke	1	2	The Silver Swan	tt2357908
-Elegy for April	Quirke	1	3	Elegy for April	tt2357908
+# Episode Title	Show Title	Sn_#	Ep_#	Episode tconst	Show tconst
+Christine Falls	Quirke	1	1	tt2364564	tt2357908
+The Silver Swan	Quirke	1	2	tt2520420	tt2357908
+Elegy for April	Quirke	1	3	tt2520424	tt2357908
 Philippe Muir	Captain Marleau	1	1	tt4461422	tt5684214
 Le domaine des soeurs Meyer	Captain Marleau	1	2	tt5702782	tt5684214
 Les mystères de la foi	Captain Marleau	1	3	tt5820158	tt5684214
@@ -33,6 +33,8 @@ Pace e salute, Marleau!	Captain Marleau	3	4	tt10635622	tt5684214
 Veuves mais pas trop	Captain Marleau	3	5	tt10897490	tt5684214
 L'Arbre aux esclaves	Captain Marleau	3	6	tt11115888	tt5684214
 La Reine des glaces	Captain Marleau	3	7	tt13050828	tt5684214
+Au nom du fils	Captain Marleau	4	1	tt13215536	tt5684214
+La Cité des âmes en peine	Captain Marleau	4	2	tt13216098	tt5684214
 Roman noir	Magellan	1	1	tt1553455	tt1548331
 Théâtre de sang	Magellan	1	2	tt1716044	tt1548331
 Noces funèbres	Magellan	1	3	tt1822460	tt1548331
