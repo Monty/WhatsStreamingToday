@@ -6,7 +6,7 @@
 # Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
 # If you don't pass it a file parameter, it will process all *.tconst files
 
-# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# Only the tconst column is used, the other columns are considered comments. You can add those columns
 # after processing by using the data in IMDb-columns/raw_shows*.csv
 
 # Avoid tvEpisodes that have a parent tvSeries, put those in Episode.tconst instead

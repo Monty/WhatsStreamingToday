@@ -164,7 +164,20 @@ TCONST_KNOWN_PL="$COLS/tconst-known-pl-noHype$DATE_ID.txt"
 NCONST_PL="$COLS/nconst-pl-noHype$DATE_ID.txt"
 XLATE_PL="$COLS/xlate-pl-noHype$DATE_ID.txt"
 
+# Files used to check for new episodes
+PREVIOUS_TITLES="$COLS/previouslyAdded-noHype$DATE_ID.txt"
+IGNORE_EPISODES="$COLS/ignoreEpisodes-noHype$DATE_ID.txt"
+CHECK_EPISODES="checkEpisodes-noHype$DATE_ID.csv"
+CHECK_XLATE="checkXlate-noHype$DATE_ID.csv"
+PREVIOUS_LIST="Episodes.tconst" # Manually maintained list extracted from IMDb_suggestedEpisodes-noHype
+
+# Manually entered list of tconst ID's that we don't want tvEpisodes for
+# either because they have too many episodes, or the episodes don't translate well
+SKIP_EPISODES="skipEpisodes.TCONST"
+SKIP_TCONST="$COLS/tconst-skip$DATE_ID.txt"
+
 # Saved files used for comparison with current files
+PUBLISHED_SKIP_EPISODES="$BASELINE/skipEpisodes.TCONST"
 PUBLISHED_CREDITS_SHOW="$BASELINE/credits-show-noHype.csv"
 PUBLISHED_CREDITS_PERSON="$BASELINE/credits-person-noHype.csv"
 PUBLISHED_PERSONS="$BASELINE/persons-titles-noHype.csv"
@@ -183,8 +196,15 @@ PUBLISHED_NCONST_LIST="$BASELINE/nconst-noHype.txt"
 PUBLISHED_RAW_SHOWS="$BASELINE/raw_shows-noHype.csv"
 PUBLISHED_RAW_PERSONS="$BASELINE/raw_persons-noHype.csv"
 
+# Files used to check for new episodes
+PUBLISHED_PREVIOUS_TITLES="$BASELINE/previouslyAdded-noHype.txt"
+PUBLISHED_IGNORE_EPISODES="$BASELINE/ignoreEpisodes-noHype.txt"
+PUBLISHED_CHECK_EPISODES="$BASELINE/checkEpisodes-noHype.csv"
+PUBLISHED_CHECK_XLATE="$BASELINE/checkXlate-noHype.csv"
+
 # Filename groups used for cleanup
-ALL_WORKING="$TCONST_LIST $TCONST_ALL $NCONST_LIST $EPISODES_LIST $KNOWNFOR_LIST "
+ALL_WORKING="$SKIP_TCONST $PREVIOUS_TITLES $IGNORE_EPISODES $CHECK_EPISODES $CHECK_XLATE "
+ALL_WORKING+="$TCONST_LIST $TCONST_ALL $NCONST_LIST $EPISODES_LIST $KNOWNFOR_LIST "
 ALL_WORKING+="$XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL $TCONST_EPISODES_PL $TCONST_KNOWN_PL"
 ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
 ALL_CSV="$RAW_SHOWS $RAW_PERSONS $UNSORTED_CREDITS $UNSORTED_EPISODES"
@@ -222,10 +242,15 @@ rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -w -e actor -e actress -e w
     sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' |
     perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' >$UNSORTED_CREDITS
 
+# We don't want to check for episodes in any tvSeries that has hundreds of tvEpisodes
+# or that has episodes with titles that aren't uniaue like "Episode 1" that can't be "translated"
+# back to the original show. Manually maintain a skip list in $SKIP_EPISODES.
+rg -v -e "^#" -e "^$" $SKIP_EPISODES | cut -f 1 >$SKIP_TCONST
+
 # Use the tconst list to lookup episode IDs and generate an episode tconst file
 rg -wNz -f $TCONST_LIST title.episode.tsv.gz |
     sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n |
-    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -wv -f skipEpisodes.TCONST |
+    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -wv -f $SKIP_TCONST |
     tee $UNSORTED_EPISODES | cut -f 1 >$EPISODES_LIST
 
 # Generate an nconst list for later processing
@@ -302,9 +327,9 @@ sort -f --field-separator="$TAB" --key=1,2 --key=4,4 --key=3,3 \
 sort -f --field-separator="$TAB" --key=2,4 $UNSORTED_CREDITS >>$CREDITS_SHOW
 
 # Check for new episodes
-rg -v -e '^#' -e '^$' Episodes.tconst | cut -f 2 | sort -u >alreadyAdded.txt
-rg -N -f alreadyAdded.txt $EPISODES | tee checkEpisodes.txt | cut -f 1 >ignoreEpisodes.txt
-rg -N -f alreadyAdded.txt $EPISODES_XLATE >checkXlate.txt
+rg -v -e '^#' -e '^$' $PREVIOUS_LIST | cut -f 2 | sort -u >$PREVIOUS_TITLES
+rg -N -f $PREVIOUS_TITLES $EPISODES | tee $CHECK_EPISODES | cut -f 1 >$IGNORE_EPISODES
+rg -N -f $PREVIOUS_TITLES $EPISODES_XLATE >$CHECK_XLATE
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
@@ -368,6 +393,10 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Check the diffs to see if any changes are meaningful
+$(checkdiffs $PUBLISHED_SKIP_EPISODES $SKIP_EPISODES)
+$(checkdiffs $PUBLISHED_PREVIOUS_TITLES $PREVIOUS_TITLES)
+$(checkdiffs $PUBLISHED_CHECK_EPISODES $CHECK_EPISODES)
+$(checkdiffs $PUBLISHED_CHECK_XLATE $CHECK_XLATE)
 $(checkdiffs $PUBLISHED_TCONST_LIST $TCONST_LIST)
 $(checkdiffs $PUBLISHED_TCONST_ALL $TCONST_ALL)
 $(checkdiffs $PUBLISHED_EPISODES_LIST $EPISODES_LIST)

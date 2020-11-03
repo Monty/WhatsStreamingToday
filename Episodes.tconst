@@ -1,4 +1,4 @@
-# This is a tab sepatated file of IMDb tconst IDs extracted from IMDb_suggestedEpisodes-noHype
+# This is a tab separated file of IMDb tconst IDs extracted from IMDb_suggestedEpisodes-noHype
 #
 # To add to it, copy/paste or search IMDb_suggestedEpisodes-noHype, e.g.
 #       grep Quirke IMDb_suggestedEpisodes-noHype-201031.csv >>Episodes.tconst
@@ -254,3 +254,67 @@ tt12645472	Murder by the Lake	1	12	Der Wegspuk	tt8648176
 tt12645756	Murder by the Lake	1	13	Der Seelenkreis	tt8648176
 tt3397910	Sebastian Bergman	2	1	Tredje fallet	tt1790954
 tt3397912	Sebastian Bergman	2	2	Fjärde fallet	tt1790954
+tt9702620	The Valhalla Murders	1	1	Never Before Seen	tt9100822
+tt9702622	The Valhalla Murders	1	2	The Return	tt9100822
+tt9702624	The Valhalla Murders	1	3	Valhalla	tt9100822
+tt9702626	The Valhalla Murders	1	4	Scars	tt9100822
+tt9702630	The Valhalla Murders	1	6	Hidden Place	tt9100822
+tt9702634	The Valhalla Murders	1	7	Crossroads	tt9100822
+tt9702636	The Valhalla Murders	1	8	Monster in the Dark	tt9100822
+tt9133964	Van der Valk	1	1	Love in Amsterdam	tt9128874
+tt9222852	Van der Valk	1	2	Only in Amsterdam	tt9128874
+tt9222856	Van der Valk	1	3	Death in Amsterdam	tt9128874
+tt1764075	Vera	1	1	Hidden Depths	tt1693592
+tt1763140	Vera	1	2	Telling Tales	tt1693592
+tt1753036	Vera	1	3	The Crow Trap	tt1693592
+tt1764076	Vera	1	4	Little Lazarus	tt1693592
+tt2051747	Vera	2	1	The Ghost Position	tt1693592
+tt2118476	Vera	2	2	Silent Voices	tt1693592
+tt2123814	Vera	2	3	A Certain Samaritan	tt1693592
+tt2051748	Vera	2	4	Sandancers	tt1693592
+tt2896420	Vera	3	1	Castles in the Air	tt1693592
+tt2377542	Vera	3	2	Poster Child	tt1693592
+tt2769370	Vera	3	3	Young Gods	tt1693592
+tt2649560	Vera	3	4	Prodigal Son	tt1693592
+tt3181368	Vera	4	1	On Harbour Street	tt1693592
+tt3115858	Vera	4	2	Protected	tt1693592
+tt3280456	Vera	4	3	The Deer Hunters	tt1693592
+tt3280458	Vera	4	4	Death of a Family Man	tt1693592
+tt3724382	Vera	5	1	Changing Tides	tt1693592
+tt3843490	Vera	5	2	Old Wounds	tt1693592
+tt3979914	Vera	5	3	Muddy Waters	tt1693592
+tt4018600	Vera	5	4	Shadows in the Sky	tt1693592
+tt4777516	Vera	6	1	Dark Road	tt1693592
+tt4810566	Vera	6	2	Tuesday's Child	tt1693592
+tt4824592	Vera	6	3	The Moth Catcher	tt1693592
+tt4824596	Vera	6	4	The Sea Glass	tt1693592
+tt5542414	Vera	7	1	Natural Selection	tt1693592
+tt5896952	Vera	7	2	Dark Angel	tt1693592
+tt5994848	Vera	7	3	Broken Promise	tt1693592
+tt6121620	Vera	7	4	The Blanket Mire	tt1693592
+tt7077344	Vera	8	1	Blood and Bone	tt1693592
+tt7077350	Vera	8	2	Black Ice	tt1693592
+tt7077352	Vera	8	3	Home	tt1693592
+tt7077356	Vera	8	4	Darkwater	tt1693592
+tt8038424	Vera	9	1	Blind Spot	tt1693592
+tt8616118	Vera	9	2	Cuckoo	tt1693592
+tt8673030	Vera	9	3	Cold River	tt1693592
+tt9020778	Vera	9	4	The Seagull	tt1693592
+tt9896764	Vera	10	1	Blood Will Tell	tt1693592
+tt10815432	Vera	10	2	Parent Not Expected	tt1693592
+tt11041312	Vera	10	3	Dirty	tt1693592
+tt11108422	Vera	10	4	The Escape Turn	tt1693592
+tt4405622	Winter	1	1	Skeletons	tt4397640
+tt4405626	Winter	1	2	Gone Girl	tt4397640
+tt4405616	Winter	1	3	The Bridge	tt4397640
+tt4405628	Winter	1	4	The Inside Man	tt4397640
+tt4405638	Winter	1	5	Blow Up	tt4397640
+tt4405630	Winter	1	6	Back to the Start	tt4397640
+tt1633156	Inspector Winter	1	1	Vänaste land: Del 1	tt1534083
+tt1633157	Inspector Winter	1	2	Vänaste land: Del 2	tt1534083
+tt1638995	Inspector Winter	1	3	Rum nummer 10: Del 1	tt1534083
+tt1638994	Inspector Winter	1	4	Rum nummer 10: Del 2	tt1534083
+tt1646585	Inspector Winter	1	5	Nästan död man: Del 1	tt1534083
+tt1678633	Inspector Winter	1	6	Nästan död man: Del 2	tt1534083
+tt1687464	Inspector Winter	1	7	Den sista vintern: Del 1	tt1534083
+tt1687466	Inspector Winter	1	8	Den sista vintern: Del 2	tt1534083
