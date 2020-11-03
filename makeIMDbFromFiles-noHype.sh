@@ -315,7 +315,7 @@ sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n $UNSORTED_EPISO
 # Create the suggested translations spreadsheet and escape question marks
 printf "Episode Title\tShow Title\tSn_#\tEp_#\Episode tconst\tShow tconst\n" >$EPISODES_XLATE
 rg "^tt" $EPISODES | awk -F "\t" '{printf ("%s\t%s\t%s\t%s\t%s\t%s\n",$5,$2,$3,$4,$1,$6)}' |
-    perl -p -e 's+\?+\\\?+' >>$EPISODES_XLATE
+    perl -p -e 's+\?+\\\?+;s+\(+\\\(+;s+\)+\\\)+;' >>$EPISODES_XLATE
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
