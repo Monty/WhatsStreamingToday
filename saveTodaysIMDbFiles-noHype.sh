@@ -33,7 +33,14 @@ COLS="IMDb-columns"
 BASELINE="IMDb-baseline"
 mkdir -p $COLS $BASELINE
 
+# Manually maintained skip episodes file
+cp -p $VERBOSE skipEpisodes.TCONST $BASELINE/skipEpisodes.TCONST
+
 # Copy -noHype files
+cp -p $VERBOSE $COLS/previouslyAdded-noHype-$DATE.txt $BASELINE/previouslyAdded-noHype.txt
+cp -p $VERBOSE checkEpisodes-noHype-$DATE.csv $BASELINE/checkEpisodes-noHype.csv
+cp -p $VERBOSE checkXlate-noHype-$DATE.csv $BASELINE/checkXlate-noHype.csv
+
 cp -p $VERBOSE $COLS/tconst_all-noHype-$DATE.txt $BASELINE/tconst_all-noHype.txt
 cp -p $VERBOSE $COLS/tconst-noHype-$DATE.txt $BASELINE/tconst-noHype.txt
 cp -p $VERBOSE $COLS/nconst-noHype-$DATE.txt $BASELINE/nconst-noHype.txt
