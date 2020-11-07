@@ -322,11 +322,11 @@ perl -pi -f $NCONST_PL $PERSONS
 cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
 
 # Create the suggested episodes spreadsheet, remove previously translated and untranslatable tconsts
-printf "Episode tconst\tShow Title\tSn_#\tEp_#\tEpisode Title\tShow tconst\n" >$EPISODES
+printf "# Episode tconst\tShow Title\tSn_#\tEp_#\tEpisode Title\tShow tconst\n" >$EPISODES
 sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n $UNSORTED_EPISODES |
     awk -F "\t" '$1 ~ /^tt/ && $5 !~ /^tt/ && $5 !~ /^Episod/' >>$EPISODES
 # Create the suggested translations spreadsheet and escape question marks
-printf "Episode Title\tShow Title\tSn_#\tEp_#\Episode tconst\tShow tconst\n" >$EPISODES_XLATE
+printf "# Episode Title\tShow Title\tSn_#\tEp_#\tEpisode tconst\tShow tconst\n" >$EPISODES_XLATE
 rg "^tt" $EPISODES | awk -F "\t" '{printf ("%s\t%s\t%s\t%s\t%s\t%s\n",$5,$2,$3,$4,$1,$6)}' |
     perl -p -e 's+\?+\\\?+;s+\(+\\\(+;s+\)+\\\)+;' >>$EPISODES_XLATE
 
