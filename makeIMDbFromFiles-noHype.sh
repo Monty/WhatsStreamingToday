@@ -147,6 +147,8 @@ UNIQUE_PERSONS="IMDb_uniqPersons-noHype$DATE_ID.txt"
 UNIQUE_TITLES="IMDb_uniqTitles-noHype$DATE_ID.txt"
 
 # Intermediate working files
+DUPES="$COLS/dupes-noHype$DATE_ID.txt"
+CONFLICTS="$COLS/conflicts-noHype$DATE_ID.txt"
 TCONST_ALL="$COLS/tconst_all-noHype$DATE_ID.txt"
 TCONST_LIST="$COLS/tconst-noHype$DATE_ID.txt"
 EPISODES_LIST="$COLS/tconst-episodes-noHype$DATE_ID.txt"
@@ -163,8 +165,6 @@ TCONST_EPISODES_PL="$COLS/tconst-episodes-pl-noHype$DATE_ID.txt"
 TCONST_KNOWN_PL="$COLS/tconst-known-pl-noHype$DATE_ID.txt"
 NCONST_PL="$COLS/nconst-pl-noHype$DATE_ID.txt"
 XLATE_PL="$COLS/xlate-pl-noHype$DATE_ID.txt"
-DUPES_PL="$COLS/dupes-pl-noHype$DATE_ID.txt"
-CONFLICTS_PL="$COLS/conflicts-pl-noHype$DATE_ID.txt"
 
 # Files used to check for new episodes
 PREVIOUS_TITLES="$COLS/previouslyAdded-noHype$DATE_ID.txt"
@@ -205,7 +205,7 @@ PUBLISHED_CHECK_EPISODES="$BASELINE/checkEpisodes-noHype.csv"
 PUBLISHED_CHECK_XLATE="$BASELINE/checkXlate-noHype.csv"
 
 # Filename groups used for cleanup
-ALL_WORKING="$CONFLICTS_PL $DUPES_PL $SKIP_TCONST $PREVIOUS_TITLES $IGNORE_EPISODES $CHECK_EPISODES "
+ALL_WORKING="$CONFLICTS $DUPES $SKIP_TCONST $PREVIOUS_TITLES $IGNORE_EPISODES $CHECK_EPISODES "
 ALL_WORKING+="$CHECK_XLATE $TCONST_LIST $TCONST_ALL $NCONST_LIST $EPISODES_LIST $KNOWNFOR_LIST "
 ALL_WORKING+="$XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL $TCONST_EPISODES_PL $TCONST_KNOWN_PL"
 ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
@@ -220,17 +220,6 @@ rg -IN "^tt" *.tconst | cut -f 1 | sort -u >$TCONST_ALL
 # Coalesce a single tconst input list
 rg -IN "^tt" $TCONST_FILES | cut -f 1 | sort -u >$TCONST_LIST
 
-# Check for translation conflicts
-rg -INv -e "^#" -e "^$" $XLATE_FILES | cut -f 1 | sort -f | uniq -d >$DUPES_PL
-rg -IN -f $DUPES_PL $XLATE_FILES | sort -fu | cut -f 1 | sort -f | uniq -d >$CONFLICTS_PL
-if [ -s $CONFLICTS_PL ]; then
-    printf "\n==> [Error] Translation conflicts are listed below. Fix them then rerun this script.\n"
-    printf "              Episode.tconst and Episode.xlate should only differ in their field order.\n\n"
-    rg -f $CONFLICTS_PL $XLATE_FILES $TCONST_FILES
-    printf "\n"
-    exit 1
-fi
-
 # Create a perl "substitute" script to translate any known non-English titles to their English equivalent
 # Regex delimiter needs to avoid any characters present in the input, use {} for readability
 rg -INv -e "^#" -e "^$" $XLATE_FILES | cut -f 1,2 | sort -fu |
@@ -243,7 +232,22 @@ TAB=$(printf "\t")
 rg -wNz -f $TCONST_LIST title.basics.tsv.gz | cut -f 1-4,6-9 | perl -p -f $XLATE_PL |
     sort -f --field-separator="$TAB" --key=3,3 --key=5,5 --key=4,4 | tee $RAW_SHOWS | cut -f 3 |
     sort -fu >$UNIQUE_TITLES
-#
+
+# Check for translation conflicts
+rg -INv -e "^#" -e "^$" $XLATE_FILES | cut -f 1 | sort -f | uniq -d >$DUPES
+rg -IN -f $DUPES $XLATE_FILES | sort -fu | cut -f 1 | sort -f | uniq -d >$CONFLICTS
+cut -f 4 $RAW_SHOWS | sort -f | uniq -d >>$CONFLICTS
+if [ -s $CONFLICTS ]; then
+    printf "\n==> [Error] Translation conflicts are listed below. Fix them then rerun this script.\n"
+    printf "\n==> These shows have more than one tconst.\n"
+    rg -H -f $CONFLICTS $RAW_SHOWS
+    printf "\n"
+    printf "==> Make sure to delete corresponding lines in Episode.tconst and Episode.xlate.\n"
+    rg -f $CONFLICTS $XLATE_FILES $TCONST_FILES
+    printf "\n"
+    exit 1
+fi
+
 # Let us know what shows we're processing - format for readability, separate with ";"
 num_titles=$(sed -n '$=' $UNIQUE_TITLES)
 printf "\n==> Processing $num_titles shows found in $TCONST_FILES:\n"
@@ -338,10 +342,6 @@ sort -f --field-separator="$TAB" --key=1,2 --key=4,4 --key=3,3 \
     $UNSORTED_CREDITS >>$CREDITS_PERSON
 # Sort by Primary Title (2), Original Title (3), Rank (4)
 sort -f --field-separator="$TAB" --key=2,4 $UNSORTED_CREDITS >>$CREDITS_SHOW
-
-# Check for duplicates
-printf "### Possible duplicates from $PREVIOUS_LIST are listed below.\n" >$ERRORS
-rg -v -e '^#' -e '^$' $PREVIOUS_LIST | cut -f 5 | sort -f | uniq -d >>$ERRORS
 
 # Check for new episodes
 rg -v -e '^#' -e '^$' $PREVIOUS_LIST | cut -f 2 | sort -u >$PREVIOUS_TITLES
