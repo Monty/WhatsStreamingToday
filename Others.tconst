@@ -6,8 +6,10 @@
 # Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
 # If you don't pass it a file parameter, it will process all *.tconst files
 
-# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# Only the tconst column is used, the other columns are considered comments. You can add those columns
 # after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# Avoid tvEpisodes that have a parent tvSeries, put those in Episode.tconst instead
 
 # tconst	Service	Primary Title	Original Title
 tt4271918	Amazon	An Inspector Calls	An Inspector Calls
@@ -16,12 +18,6 @@ tt13057860	Amazon	Deadly Seasons	Les Saisons meurtrières
 tt6118426	Amazon	Ordeal by Innocence	Ordeal by Innocence
 tt3561180	Amazon	Trapped	Ófærð
 tt2802850	FX	Fargo	Fargo
-tt9724094	FX	Raddoppiarlo	Fargo
-tt3097534	FX	The Crocodile's Dilemma	Fargo
-tt9724086	FX	The Land of Talking and Killing	Fargo
-tt5223488	FX	The Law of Vacant Places	Fargo
-tt3836974	FX	Waiting for Dutch	Fargo
-tt8052820	FX	Welcome to the Alternate Economy	Fargo
 tt4080728	Netflix	A Man Called Ove	En man som heter Ove
 tt6616260	Netflix	Deadwind	Karppi
 tt0120663	Netflix	Eyes Wide Shut	Eyes Wide Shut

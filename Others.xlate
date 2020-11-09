@@ -3,6 +3,8 @@
 # Create a similar file for titles you want translated, with any name and extension.
 # Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t Netflix-xlate.txt
 
+# Avoid using this to translate tvEpisodes into their parent tvSeries, put those in Episode.xlate instead
+
 Aanrijding in Moscou	Moscow, Belgium
 En man som heter Ove	A Man Called Ove
 En pilgrims död	Death of a Pilgrim
@@ -11,9 +13,3 @@ Karppi	Deadwind
 Les Saisons meurtrières	Deadly Seasons
 Mustat lesket	Black Widows (2014)
 Ófærð	Trapped
-Raddoppiarlo	Fargo
-The Crocodile's Dilemma	Fargo
-The Land of Talking and Killing	Fargo
-The Law of Vacant Places	Fargo
-Waiting for Dutch	Fargo
-Welcome to the Alternate Economy	Fargo

@@ -72,7 +72,8 @@ if [ ! -x "$(which rg 2>/dev/null)" ]; then
 fi
 
 # Make sure we have downloaded the IMDb files
-if [ -e "name.basics.tsv.gz" ] && [ -e "title.basics.tsv.gz" ] && [ -e "title.principals.tsv.gz" ]; then
+if [ -e "name.basics.tsv.gz" ] && [ -e "title.basics.tsv.gz" ] && [ -e "title.principals.tsv.gz" ] &&
+    [ -e "title.episode.tsv.gz" ]; then
     printf "==> Using existing IMDb .gz files.\n"
 else
     printf "==> Downloading new IMDb .gz files.\n"
@@ -82,7 +83,7 @@ else
         printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
         exit 1
     fi
-    for file in name.basics.tsv.gz title.basics.tsv.gz title.principals.tsv.gz; do
+    for file in name.basics.tsv.gz title.basics.tsv.gz title.episode.tsv.gz title.principals.tsv.gz; do
         if [ ! -e "$file" ]; then
             source="https://datasets.imdbws.com/$file"
             printf "Downloading $source\n"
@@ -137,6 +138,8 @@ CREDITS_SHOW="IMDb_Credits-Show-noHype$DATE_ID.csv"
 CREDITS_PERSON="IMDb_Credits-Person-noHype$DATE_ID.csv"
 PERSONS="IMDb_Persons-Titles-noHype$DATE_ID.csv"
 SHOWS="IMDb_Shows-noHype$DATE_ID.csv"
+EPISODES="IMDb_suggestedEpisodes-noHype$DATE_ID.csv"
+EPISODES_XLATE="IMDb_suggestedXlate-noHype$DATE_ID.csv"
 ASSOCIATED_TITLES="IMDb_associatedTitles-noHype$DATE_ID.csv"
 
 # Final output lists
@@ -144,25 +147,44 @@ UNIQUE_PERSONS="IMDb_uniqPersons-noHype$DATE_ID.txt"
 UNIQUE_TITLES="IMDb_uniqTitles-noHype$DATE_ID.txt"
 
 # Intermediate working files
+DUPES="$COLS/dupes-noHype$DATE_ID.txt"
+CONFLICTS="$COLS/conflicts-noHype$DATE_ID.txt"
 TCONST_ALL="$COLS/tconst_all-noHype$DATE_ID.txt"
 TCONST_LIST="$COLS/tconst-noHype$DATE_ID.txt"
+EPISODES_LIST="$COLS/tconst-episodes-noHype$DATE_ID.txt"
 KNOWNFOR_LIST="$COLS/tconst_known-noHype$DATE_ID.txt"
 NCONST_LIST="$COLS/nconst-noHype$DATE_ID.txt"
 RAW_SHOWS="$COLS/raw_shows-noHype$DATE_ID.csv"
 RAW_PERSONS="$COLS/raw_persons-noHype$DATE_ID.csv"
 UNSORTED_CREDITS="$COLS/unsorted_credits-noHype$DATE_ID.csv"
+UNSORTED_EPISODES="$COLS/unsorted_episodes-noHype$DATE_ID.csv"
 #
 TCONST_PRIM_PL="$COLS/tconst-prim-pl-noHype$DATE_ID.txt"
 TCONST_ORIG_PL="$COLS/tconst-orig-pl-noHype$DATE_ID.txt"
+TCONST_EPISODES_PL="$COLS/tconst-episodes-pl-noHype$DATE_ID.txt"
 TCONST_KNOWN_PL="$COLS/tconst-known-pl-noHype$DATE_ID.txt"
 NCONST_PL="$COLS/nconst-pl-noHype$DATE_ID.txt"
 XLATE_PL="$COLS/xlate-pl-noHype$DATE_ID.txt"
 
+# Files used to check for new episodes
+PREVIOUS_TITLES="$COLS/previouslyAdded-noHype$DATE_ID.txt"
+IGNORE_EPISODES="$COLS/ignoreEpisodes-noHype$DATE_ID.txt"
+CHECK_EPISODES="checkEpisodes-noHype$DATE_ID.csv"
+CHECK_XLATE="checkXlate-noHype$DATE_ID.csv"
+PREVIOUS_LIST="Episodes.tconst" # Manually maintained list extracted from IMDb_suggestedEpisodes-noHype
+
+# Manually entered list of tconst ID's that we don't want tvEpisodes for
+# either because they have too many episodes, or the episodes don't translate well
+SKIP_EPISODES="skipEpisodes.TCONST"
+SKIP_TCONST="$COLS/tconst-skip$DATE_ID.txt"
+
 # Saved files used for comparison with current files
+PUBLISHED_SKIP_EPISODES="$BASELINE/skipEpisodes.TCONST"
 PUBLISHED_CREDITS_SHOW="$BASELINE/credits-show-noHype.csv"
 PUBLISHED_CREDITS_PERSON="$BASELINE/credits-person-noHype.csv"
 PUBLISHED_PERSONS="$BASELINE/persons-titles-noHype.csv"
 PUBLISHED_SHOWS="$BASELINE/shows-noHype.csv"
+PUBLISHED_EPISODES="$BASELINE/suggestedEpisodes-noHype.csv"
 PUBLISHED_ASSOCIATED_TITLES="$BASELINE/associatedTitles-noHype.csv"
 #
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons-noHype.txt"
@@ -170,17 +192,25 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles-noHype.txt"
 #
 PUBLISHED_TCONST_ALL="$BASELINE/tconst_all-noHype.txt"
 PUBLISHED_TCONST_LIST="$BASELINE/tconst-noHype.txt"
+PUBLISHED_EPISODES_LIST="$BASELINE/tconst-episodes-noHype.csv"
 PUBLISHED_KNOWNFOR_LIST="$BASELINE/tconst_known-noHype.txt"
 PUBLISHED_NCONST_LIST="$BASELINE/nconst-noHype.txt"
 PUBLISHED_RAW_SHOWS="$BASELINE/raw_shows-noHype.csv"
 PUBLISHED_RAW_PERSONS="$BASELINE/raw_persons-noHype.csv"
 
+# Files used to check for new episodes
+PUBLISHED_PREVIOUS_TITLES="$BASELINE/previouslyAdded-noHype.txt"
+PUBLISHED_IGNORE_EPISODES="$BASELINE/ignoreEpisodes-noHype.txt"
+PUBLISHED_CHECK_EPISODES="$BASELINE/checkEpisodes-noHype.csv"
+PUBLISHED_CHECK_XLATE="$BASELINE/checkXlate-noHype.csv"
+
 # Filename groups used for cleanup
-ALL_WORKING="$TCONST_LIST $NCONST_LIST $TCONST_ALL $KNOWNFOR_LIST "
-ALL_WORKING+="$XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL $TCONST_KNOWN_PL"
+ALL_WORKING="$CONFLICTS $DUPES $SKIP_TCONST $PREVIOUS_TITLES $IGNORE_EPISODES $CHECK_EPISODES "
+ALL_WORKING+="$CHECK_XLATE $TCONST_LIST $TCONST_ALL $NCONST_LIST $EPISODES_LIST $KNOWNFOR_LIST "
+ALL_WORKING+="$XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL $TCONST_EPISODES_PL $TCONST_KNOWN_PL"
 ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
-ALL_CSV="$RAW_SHOWS $RAW_PERSONS $UNSORTED_CREDITS"
-ALL_SPREADSHEETS="$SHOWS $PERSONS $CREDITS_SHOW $CREDITS_PERSON $ASSOCIATED_TITLES"
+ALL_CSV="$RAW_SHOWS $RAW_PERSONS $UNSORTED_CREDITS $UNSORTED_EPISODES"
+ALL_SPREADSHEETS="$SHOWS $PERSONS $CREDITS_SHOW $CREDITS_PERSON $EPISODES $ASSOCIATED_TITLES"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS
@@ -202,7 +232,22 @@ TAB=$(printf "\t")
 rg -wNz -f $TCONST_LIST title.basics.tsv.gz | cut -f 1-4,6-9 | perl -p -f $XLATE_PL |
     sort -f --field-separator="$TAB" --key=3,3 --key=5,5 --key=4,4 | tee $RAW_SHOWS | cut -f 3 |
     sort -fu >$UNIQUE_TITLES
-#
+
+# Check for translation conflicts
+rg -INv -e "^#" -e "^$" $XLATE_FILES | cut -f 1 | sort -f | uniq -d >$DUPES
+rg -IN -f $DUPES $XLATE_FILES | sort -fu | cut -f 1 | sort -f | uniq -d >$CONFLICTS
+cut -f 4 $RAW_SHOWS | sort -f | uniq -d >>$CONFLICTS
+if [ -s $CONFLICTS ]; then
+    printf "\n==> [Error] Translation conflicts are listed below. Fix them then rerun this script.\n"
+    printf "\n==> These shows have more than one tconst.\n"
+    rg -H -f $CONFLICTS $RAW_SHOWS
+    printf "\n"
+    printf "==> Make sure to delete corresponding lines in Episode.tconst and Episode.xlate.\n"
+    rg -f $CONFLICTS $XLATE_FILES $TCONST_FILES
+    printf "\n"
+    exit 1
+fi
+
 # Let us know what shows we're processing - format for readability, separate with ";"
 num_titles=$(sed -n '$=' $UNIQUE_TITLES)
 printf "\n==> Processing $num_titles shows found in $TCONST_FILES:\n"
@@ -210,9 +255,20 @@ perl -p -e 's+$+;+' $UNIQUE_TITLES | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s
 
 # Use the tconst list to lookup principal titles and generate a tconst/nconst credits csv
 # Fix bogus nconst nm0745728, it should be m0745694. Rearrange fields
-rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -wN -e actor -e actress -e writer -e director |
+rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -w -e actor -e actress -e writer -e director |
     sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' |
     perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' >$UNSORTED_CREDITS
+
+# We don't want to check for episodes in any tvSeries that has hundreds of tvEpisodes
+# or that has episodes with titles that aren't uniaue like "Episode 1" that can't be "translated"
+# back to the original show. Manually maintain a skip list in $SKIP_EPISODES.
+rg -v -e "^#" -e "^$" $SKIP_EPISODES | cut -f 1 >$SKIP_TCONST
+
+# Use the tconst list to lookup episode IDs and generate an episode tconst file
+rg -wNz -f $TCONST_LIST title.episode.tsv.gz |
+    sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n |
+    perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -wv -f $SKIP_TCONST |
+    tee $UNSORTED_EPISODES | cut -f 1 >$EPISODES_LIST
 
 # Generate an nconst list for later processing
 cut -f 1 $UNSORTED_CREDITS | sort -u >$NCONST_LIST
@@ -244,9 +300,13 @@ rg -wNz -f $KNOWNFOR_LIST title.basics.tsv.gz | perl -p -f $XLATE_PL | cut -f 1,
 # Create a spreadsheet of associated titles gained from IMDb knownFor data
 printf "tconst\tPrimary Title\tLink to Title\n" >$ASSOCIATED_TITLES
 perl -p -e 's+^.*btt+tt+; s+\\b}\{+\t+; s+}.*++;' $TCONST_KNOWN_PL |
-    perl -F"\t" -lane 'print @F[0] . "\t" . @F[1] . "\t=HYPERLINK(\"https://www.imdb.com/title/"
-    . @F[0] . "\";\"" . @F[1] ."\")"' |
+    perl -F"\t" -lane 'print @F[0] . "\t" . @F[1]' |
     sort -fu --field-separator="$TAB" --key=2,2 | rg -wv -f $TCONST_ALL >>$ASSOCIATED_TITLES
+
+# Create a perl script to convert an episode tconst to its primary title
+rg -wNz -f $EPISODES_LIST title.basics.tsv.gz | cut -f 1,3 |
+    perl -F"\t" -lane \
+        'print "s{\\t" . @F[0] . "\\t}\{\\t" . @F[1] . "\\t};";' >$TCONST_EPISODES_PL
 
 # Create the SHOWS spreadsheet by removing "Original Title" field from RAW_SHOWS
 printf "Primary Title\tShow Type\tOriginal Title\tStart\tEnd\tMinutes\tGenres\n" >$SHOWS
@@ -254,6 +314,8 @@ cut -f 1,2,4-8 $RAW_SHOWS >>$SHOWS
 
 # Translate tconst and nconst into titles and names
 perl -pi -f $TCONST_PRIM_PL $SHOWS
+perl -pi -f $TCONST_PRIM_PL $UNSORTED_EPISODES
+perl -pi -f $TCONST_EPISODES_PL $UNSORTED_EPISODES
 perl -pi -f $TCONST_PRIM_PL $UNSORTED_CREDITS
 perl -pi -f $TCONST_ORIG_PL $UNSORTED_CREDITS
 perl -pi -f $NCONST_PL $UNSORTED_CREDITS
@@ -262,6 +324,15 @@ perl -pi -f $NCONST_PL $PERSONS
 
 # Create UNIQUE_PERSONS
 cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
+
+# Create the suggested episodes spreadsheet, remove previously translated and untranslatable tconsts
+printf "# Episode tconst\tShow Title\tSn_#\tEp_#\tEpisode Title\tShow tconst\n" >$EPISODES
+sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n $UNSORTED_EPISODES |
+    awk -F "\t" '$1 ~ /^tt/ && $5 !~ /^tt/ && $5 !~ /^Episod/' >>$EPISODES
+# Create the suggested translations spreadsheet and escape question marks
+printf "# Episode Title\tShow Title\tSn_#\tEp_#\tEpisode tconst\tShow tconst\n" >$EPISODES_XLATE
+rg "^tt" $EPISODES | awk -F "\t" '{printf ("%s\t%s\t%s\t%s\t%s\t%s\n",$5,$2,$3,$4,$1,$6)}' |
+    perl -p -e 's+\?+\\\?+;s+\(+\\\(+;s+\)+\\\)+;' >>$EPISODES_XLATE
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
@@ -272,14 +343,18 @@ sort -f --field-separator="$TAB" --key=1,2 --key=4,4 --key=3,3 \
 # Sort by Primary Title (2), Original Title (3), Rank (4)
 sort -f --field-separator="$TAB" --key=2,4 $UNSORTED_CREDITS >>$CREDITS_SHOW
 
+# Check for new episodes
+rg -v -e '^#' -e '^$' $PREVIOUS_LIST | cut -f 2 | sort -u >$PREVIOUS_TITLES
+rg -N -f $PREVIOUS_TITLES $EPISODES | tee $CHECK_EPISODES | cut -f 1 >$IGNORE_EPISODES
+rg -N -f $PREVIOUS_TITLES $EPISODES_XLATE >$CHECK_XLATE
+
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
     numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
-        awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
+    ls -loh $1 | awk -v nl=$numlines '{printf ("%-45s%6s%6s %s %s %8d lines\n",$8,$4,$5,$6,$7,nl)}'
 }
 
 # Output some stats, adjust by 1 if header line is included.
@@ -294,7 +369,8 @@ printAdjustedFileInfo $UNIQUE_PERSONS 0
 printAdjustedFileInfo $PERSONS 1
 printAdjustedFileInfo $CREDITS_SHOW 1
 printAdjustedFileInfo $CREDITS_PERSON 1
-printAdjustedFileInfo $ASSOCIATED_TITLES 0
+printAdjustedFileInfo $EPISODES 1
+printAdjustedFileInfo $ASSOCIATED_TITLES 1
 # printAdjustedFileInfo $KNOWNFOR_LIST 0
 
 # Shortcut for checking differences between two files.
@@ -334,8 +410,13 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Check the diffs to see if any changes are meaningful
+$(checkdiffs $PUBLISHED_SKIP_EPISODES $SKIP_EPISODES)
+$(checkdiffs $PUBLISHED_PREVIOUS_TITLES $PREVIOUS_TITLES)
+$(checkdiffs $PUBLISHED_CHECK_EPISODES $CHECK_EPISODES)
+$(checkdiffs $PUBLISHED_CHECK_XLATE $CHECK_XLATE)
 $(checkdiffs $PUBLISHED_TCONST_LIST $TCONST_LIST)
 $(checkdiffs $PUBLISHED_TCONST_ALL $TCONST_ALL)
+$(checkdiffs $PUBLISHED_EPISODES_LIST $EPISODES_LIST)
 $(checkdiffs $PUBLISHED_KNOWNFOR_LIST $KNOWNFOR_LIST)
 $(checkdiffs $PUBLISHED_NCONST_LIST $NCONST_LIST)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
@@ -346,6 +427,7 @@ $(checkdiffs $PUBLISHED_SHOWS $SHOWS)
 $(checkdiffs $PUBLISHED_PERSONS $PERSONS)
 $(checkdiffs $PUBLISHED_CREDITS_SHOW $CREDITS_SHOW)
 $(checkdiffs $PUBLISHED_CREDITS_PERSON $CREDITS_PERSON)
+$(checkdiffs $PUBLISHED_EPISODES $EPISODES)
 $(checkdiffs $PUBLISHED_ASSOCIATED_TITLES $ASSOCIATED_TITLES)
 
 ### Any funny stuff with file lengths?

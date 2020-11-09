@@ -40,6 +40,7 @@ cp -p $VERBOSE $COLS/nconst-$DATE.txt $BASELINE/nconst.txt
 cp -p $VERBOSE $COLS/raw_shows-$DATE.csv $BASELINE/raw_shows.csv
 cp -p $VERBOSE $COLS/raw_persons-$DATE.csv $BASELINE/raw_persons.csv
 cp -p $VERBOSE $COLS/tconst_known-$DATE.txt $BASELINE/tconst_known.txt
+cp -p $VERBOSE $COLS/tconst-episodes-$DATE.txt $BASELINE/tconst-episodes.csv
 
 cp -p $VERBOSE IMDb_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE IMDb_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt
@@ -49,3 +50,4 @@ cp -p $VERBOSE IMDb_Credits-Show-$DATE.csv $BASELINE/credits-show.csv
 cp -p $VERBOSE IMDb_Credits-Person-$DATE.csv $BASELINE/credits-person.csv
 cp -p $VERBOSE IMDb_Persons-Titles-$DATE.csv $BASELINE/persons-titles.csv
 cp -p $VERBOSE IMDb_associatedTitles-$DATE.csv $BASELINE/associatedTitles.csv
+cp -p $VERBOSE IMDb_suggestedEpisodes-$DATE.csv $BASELINE/suggestedEpisodes.csv

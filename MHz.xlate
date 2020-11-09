@@ -3,6 +3,8 @@
 # Create a similar file for titles you want translated, with any name and extension.
 # Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t Netflix-xlate.txt
 
+# Avoid using this to translate tvEpisodes into their parent tvSeries, put those in Episode.xlate instead
+
 ...es wird Trauer sein und Schmerz	Tatort: Lindholm
 A Place in the Sun	Annika Bengtzon: Crime Reporter
 Angst heiligt die Mittel	Bukow and König
@@ -138,12 +140,14 @@ Nobel's Last Will	Annika Bengtzon: Crime Reporter
 Ófærð	Trapped
 Paolo Borsellino: The 57 Days	Borsellino
 Paradise	Annika Bengtzon: Crime Reporter
+Perfect Crimes	Perfect Murders
 Petits meurtres en famille	Agatha Christie's Family Murder Party
 Remember Me	Mary Higgins Clark Mysteries
 Salzleiche	Tatort: Lindholm
 Schneewittchen muss sterben	Nele Neuhaus Mysteries
 Schwarze Tiger, weiße Löwen	Tatort: Lindholm
 Spielverderber	Tatort: Lindholm
+Spuren des Bösen	Anatomy of Evil
 Stillschweigen	Bukow and König
 Sturm im Kopf	Bukow and König
 Svalan, katten, rosen, döden	Van Veeteren

@@ -6,8 +6,10 @@
 # Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
 # If you don't pass it a file parameter, it will process all *.tconst files
 
-# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# Only the tconst column is used, the other columns are considered comments. You can add those columns
 # after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# Avoid tvEpisodes that have a parent tvSeries, put those in Episode.tconst instead
 
 # tconst	Service	Primary Title	Original Title
 tt5759648	MHz	Aber Bergen	Aber Bergen
@@ -147,7 +149,9 @@ tt3297484	MHz	Nele Neuhaus Mysteries	Tiefe Wunden
 tt2164423	MHz	Nero Wolfe	Nero Wolfe
 tt0101152	MHz	Nestor Burma	Nestor Burma
 tt1726834	MHz	Palermo Connection	Il segreto dell'acqua
+tt7770794	MHz	Perfect Murders	Perfect Crimes
 tt8924868	MHz	Piégés	Piégés
+tt0806901	MHz	Polizeiruf 110	Polizeiruf 110
 tt1836210	MHz	Private Eye Vares	Vares - Huhtikuun tytöt
 tt1625350	MHz	Private Eye Vares	Vares - Kaidan tien kulkijat
 tt1604231	MHz	Private Eye Vares	Vares - Pahan suudelma
@@ -167,6 +171,7 @@ tt9816692	MHz	Tatort: Borowski	Inspector Borowski
 tt0197942	MHz	Tatort: Cologne	Kinder der Gewalt
 tt0205447	MHz	Tatort: Cologne	Licht und Schatten
 tt0152922	MHz	Tatort: Cologne	Manila
+tt0806910	MHz	Tatort	Tatort
 tt1416310	MHz	Tatort: Lindholm	...es wird Trauer sein und Schmerz
 tt1361253	MHz	Tatort: Lindholm	Das Gespenst
 tt2455992	MHz	Tatort: Lindholm	Das goldene Band

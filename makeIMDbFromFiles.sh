@@ -72,7 +72,8 @@ if [ ! -x "$(which rg 2>/dev/null)" ]; then
 fi
 
 # Make sure we have downloaded the IMDb files
-if [ -e "name.basics.tsv.gz" ] && [ -e "title.basics.tsv.gz" ] && [ -e "title.principals.tsv.gz" ]; then
+if [ -e "name.basics.tsv.gz" ] && [ -e "title.basics.tsv.gz" ] && [ -e "title.principals.tsv.gz" ] &&
+    [ -e "title.episode.tsv.gz" ]; then
     printf "==> Using existing IMDb .gz files.\n"
 else
     printf "==> Downloading new IMDb .gz files.\n"
@@ -82,7 +83,7 @@ else
         printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
         exit 1
     fi
-    for file in name.basics.tsv.gz title.basics.tsv.gz title.principals.tsv.gz; do
+    for file in name.basics.tsv.gz title.basics.tsv.gz title.episode.tsv.gz title.principals.tsv.gz; do
         if [ ! -e "$file" ]; then
             source="https://datasets.imdbws.com/$file"
             printf "Downloading $source\n"
@@ -137,6 +138,7 @@ CREDITS_SHOW="IMDb_Credits-Show$DATE_ID.csv"
 CREDITS_PERSON="IMDb_Credits-Person$DATE_ID.csv"
 PERSONS="IMDb_Persons-Titles$DATE_ID.csv"
 SHOWS="IMDb_Shows$DATE_ID.csv"
+EPISODES="IMDb_suggestedEpisodes$DATE_ID.csv"
 ASSOCIATED_TITLES="IMDb_associatedTitles$DATE_ID.csv"
 
 # Final output lists
@@ -146,14 +148,17 @@ UNIQUE_TITLES="IMDb_uniqTitles$DATE_ID.txt"
 # Intermediate working files
 TCONST_ALL="$COLS/tconst_all$DATE_ID.txt"
 TCONST_LIST="$COLS/tconst$DATE_ID.txt"
+EPISODES_LIST="$COLS/tconst-episodes$DATE_ID.txt"
 KNOWNFOR_LIST="$COLS/tconst_known$DATE_ID.txt"
 NCONST_LIST="$COLS/nconst$DATE_ID.txt"
 RAW_SHOWS="$COLS/raw_shows$DATE_ID.csv"
 RAW_PERSONS="$COLS/raw_persons$DATE_ID.csv"
 UNSORTED_CREDITS="$COLS/unsorted_credits$DATE_ID.csv"
+UNSORTED_EPISODES="$COLS/unsorted_episodes$DATE_ID.csv"
 #
 TCONST_PRIM_PL="$COLS/tconst-prim-pl$DATE_ID.txt"
 TCONST_ORIG_PL="$COLS/tconst-orig-pl$DATE_ID.txt"
+TCONST_EPISODES_PL="$COLS/tconst-episodes-pl$DATE_ID.txt"
 TCONST_KNOWN_PL="$COLS/tconst-known-pl$DATE_ID.txt"
 NCONST_PL="$COLS/nconst-pl$DATE_ID.txt"
 XLATE_PL="$COLS/xlate-pl$DATE_ID.txt"
@@ -163,6 +168,7 @@ PUBLISHED_CREDITS_SHOW="$BASELINE/credits-show.csv"
 PUBLISHED_CREDITS_PERSON="$BASELINE/credits-person.csv"
 PUBLISHED_PERSONS="$BASELINE/persons-titles.csv"
 PUBLISHED_SHOWS="$BASELINE/shows.csv"
+PUBLISHED_EPISODES="$BASELINE/suggestedEpisodes.csv"
 PUBLISHED_ASSOCIATED_TITLES="$BASELINE/associatedTitles.csv"
 #
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
@@ -170,17 +176,18 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 #
 PUBLISHED_TCONST_ALL="$BASELINE/tconst_all.txt"
 PUBLISHED_TCONST_LIST="$BASELINE/tconst.txt"
+PUBLISHED_EPISODES_LIST="$BASELINE/tconst-episodes.csv"
 PUBLISHED_KNOWNFOR_LIST="$BASELINE/tconst_known.txt"
 PUBLISHED_NCONST_LIST="$BASELINE/nconst.txt"
 PUBLISHED_RAW_SHOWS="$BASELINE/raw_shows.csv"
 PUBLISHED_RAW_PERSONS="$BASELINE/raw_persons.csv"
 
 # Filename groups used for cleanup
-ALL_WORKING="$TCONST_LIST $NCONST_LIST $TCONST_ALL $KNOWNFOR_LIST "
-ALL_WORKING+="$XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL $TCONST_KNOWN_PL"
+ALL_WORKING="$TCONST_LIST $TCONST_ALL $NCONST_LIST $KNOWNFOR_LIST $EPISODES_LIST "
+ALL_WORKING+="$XLATE_PL $TCONST_PRIM_PL $TCONST_ORIG_PL $NCONST_PL $TCONST_KNOWN_PL $TCONST_EPISODES_PL"
 ALL_TXT="$UNIQUE_TITLES $UNIQUE_PERSONS"
-ALL_CSV="$RAW_SHOWS $RAW_PERSONS $UNSORTED_CREDITS"
-ALL_SPREADSHEETS="$SHOWS $PERSONS $CREDITS_SHOW $CREDITS_PERSON $ASSOCIATED_TITLES"
+ALL_CSV="$RAW_SHOWS $RAW_PERSONS $UNSORTED_CREDITS $UNSORTED_EPISODES"
+ALL_SPREADSHEETS="$SHOWS $PERSONS $CREDITS_SHOW $CREDITS_PERSON $ASSOCIATED_TITLES $EPISODES"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_CSV $ALL_SPREADSHEETS
@@ -210,9 +217,15 @@ perl -p -e 's+$+;+' $UNIQUE_TITLES | fmt -w 80 | perl -p -e 's+^+\t+' | sed '$ s
 
 # Use the tconst list to lookup principal titles and generate a tconst/nconst credits csv
 # Fix bogus nconst nm0745728, it should be m0745694. Rearrange fields
-rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -wN -e actor -e actress -e writer -e director |
+rg -wNz -f $TCONST_LIST title.principals.tsv.gz | rg -w -e actor -e actress -e writer -e director |
     sort --key=1,1 --key=2,2n | perl -p -e 's+nm0745728+nm0745694+' |
     perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' >$UNSORTED_CREDITS
+
+# Use the tconst list to lookup episode IDs and generate an episode tconst file
+rg -wNz -f $TCONST_LIST title.episode.tsv.gz |
+    sort -f --field-separator="$TAB" --key=2,2 --key=3,3n --key=4,4n |
+    perl -F"\t" -lane 'printf "%s\t%s\t%02d\t%04d\t%s\t%s\n", @F[0,1,2,3,0,1]' | rg -wv -f skipEpisodes.TCONST |
+    tee $UNSORTED_EPISODES | cut -f 1 >$EPISODES_LIST
 
 # Generate an nconst list for later processing
 cut -f 1 $UNSORTED_CREDITS | sort -u >$NCONST_LIST
@@ -247,11 +260,16 @@ rg -wNz -f $KNOWNFOR_LIST title.basics.tsv.gz | perl -p -f $XLATE_PL | cut -f 1,
 
 # Create a spreadsheet of associated titles gained from IMDb knownFor data
 printf "tconst\tPrimary Title\tLink to Title\n" >$ASSOCIATED_TITLES
-# s{\btt0024710\b}\{=HYPERLINK("https://www.imdb.com/title/tt0024710";"La tête d'un homme")};
 perl -p -e 's+^.*/tt+tt+; s+"+\t+g;' $TCONST_KNOWN_PL | cut -f 1,3 |
     perl -F"\t" -lane 'print @F[0] . "\t" . @F[1] . "\t=HYPERLINK(\"https://www.imdb.com/title/"
     . @F[0] . "\";\"" . @F[1] ."\")"' |
     sort -fu --field-separator="$TAB" --key=2,2 | rg -wv -f $TCONST_ALL >>$ASSOCIATED_TITLES
+
+# Create a perl script to convert an episode tconst to its primary title
+rg -wNz -f $EPISODES_LIST title.basics.tsv.gz | cut -f 1,3 |
+    perl -F"\t" -lane \
+        'print "s{\\t" . @F[0] . "\\t}\{\\t=HYPERLINK(\"https://www.imdb.com/title/" . @F[0] . "\";\""
+    .@F[1] . "\")\\t};";' >$TCONST_EPISODES_PL
 
 # Create the SHOWS spreadsheet by removing "Original Title" field from RAW_SHOWS
 printf "Primary Title\tShow Type\tOriginal Title\tStart\tEnd\tMinutes\tGenres\n" >$SHOWS
@@ -259,6 +277,8 @@ cut -f 1,2,4-8 $RAW_SHOWS >>$SHOWS
 
 # Translate tconst and nconst into titles and names
 perl -pi -f $TCONST_PRIM_PL $SHOWS
+perl -pi -f $TCONST_PRIM_PL $UNSORTED_EPISODES
+perl -pi -f $TCONST_EPISODES_PL $UNSORTED_EPISODES
 perl -pi -f $TCONST_PRIM_PL $UNSORTED_CREDITS
 perl -pi -f $TCONST_ORIG_PL $UNSORTED_CREDITS
 perl -pi -f $NCONST_PL $UNSORTED_CREDITS
@@ -267,6 +287,11 @@ perl -pi -f $NCONST_PL $PERSONS
 
 # Create UNIQUE_PERSONS
 cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
+
+# Create the suggested episodes spreadsheet, remove previously translated tconsts
+printf "Episode tconst\tShow Title\tSn_#\tEp_#\tEpisode Title\tShow tconst\n" >$EPISODES
+sort -f --field-separator=\" --key=4,4 --key=5,5 $UNSORTED_EPISODES |
+    awk -F "\t" '$1 ~ /^tt/ && $5 !~ /^tt/' >>$EPISODES
 
 # Create the sorted CREDITS spreadsheets
 printf "Person\tPrimary Title\tOriginal Title\tRank\tJob\tCharacter Name\n" |
@@ -283,8 +308,7 @@ function printAdjustedFileInfo() {
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
     numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
-        awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
+    ls -loh $1 | awk -v nl=$numlines '{printf ("%-45s%6s%6s %s %s %8d lines\n",$8,$4,$5,$6,$7,nl)}'
 }
 
 # Output some stats, adjust by 1 if header line is included.
@@ -299,7 +323,8 @@ printAdjustedFileInfo $UNIQUE_PERSONS 0
 printAdjustedFileInfo $PERSONS 1
 printAdjustedFileInfo $CREDITS_SHOW 1
 printAdjustedFileInfo $CREDITS_PERSON 1
-printAdjustedFileInfo $ASSOCIATED_TITLES 0
+printAdjustedFileInfo $ASSOCIATED_TITLES 1
+printAdjustedFileInfo $EPISODES 1
 # printAdjustedFileInfo $KNOWNFOR_LIST 0
 
 # Shortcut for checking differences between two files.
@@ -341,6 +366,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_TCONST_LIST $TCONST_LIST)
 $(checkdiffs $PUBLISHED_TCONST_ALL $TCONST_ALL)
+$(checkdiffs $PUBLISHED_EPISODES_LIST $EPISODES_LIST)
 $(checkdiffs $PUBLISHED_KNOWNFOR_LIST $KNOWNFOR_LIST)
 $(checkdiffs $PUBLISHED_NCONST_LIST $NCONST_LIST)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
@@ -351,6 +377,7 @@ $(checkdiffs $PUBLISHED_SHOWS $SHOWS)
 $(checkdiffs $PUBLISHED_PERSONS $PERSONS)
 $(checkdiffs $PUBLISHED_CREDITS_SHOW $CREDITS_SHOW)
 $(checkdiffs $PUBLISHED_CREDITS_PERSON $CREDITS_PERSON)
+$(checkdiffs $PUBLISHED_EPISODES $EPISODES)
 $(checkdiffs $PUBLISHED_ASSOCIATED_TITLES $ASSOCIATED_TITLES)
 
 ### Any funny stuff with file lengths?

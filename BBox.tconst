@@ -6,8 +6,10 @@
 # Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
 # If you don't pass it a file parameter, it will process all *.tconst files
 
-# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# Only the tconst column is used, the other columns are considered comments. You can add those columns
 # after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# Avoid tvEpisodes that have a parent tvSeries, put those in Episode.tconst instead
 
 # tconst	Service	Primary Title	Original Title
 tt9426390	Britbox	15 Days	15 Days
@@ -32,6 +34,7 @@ tt0160904	Britbox	MI-5	Spooks
 tt4513868	Britbox	New Blood	New Blood
 tt0094525	Britbox	Poirot	Poirot
 tt0098898	Britbox	Prime Suspect	Prime Suspect
+tt2357908	Britbox	Quirke	Quirke
 tt4258440	Britbox	River	River
 tt0377253	Britbox	Rosemary and Thyme	Rosemary & Thyme
 tt1843678	Britbox	Scott & Bailey	Scott & Bailey

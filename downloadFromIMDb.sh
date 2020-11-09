@@ -12,7 +12,7 @@ if [ ! -x "$(which curl 2>/dev/null)" ]; then
     exit 1
 fi
 
-for file in name.basics.tsv.gz title.basics.tsv.gz title.principals.tsv.gz; do
+for file in name.basics.tsv.gz title.basics.tsv.gz title.episode.tsv.gz title.principals.tsv.gz; do
     source="https://datasets.imdbws.com/$file"
     printf "Downloading $source\n"
     curl -O $source

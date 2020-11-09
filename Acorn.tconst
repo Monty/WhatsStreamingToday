@@ -6,8 +6,10 @@
 # Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
 # If you don't pass it a file parameter, it will process all *.tconst files
 
-# Only the tconst column is used, the other colums are considered comments. You can add those columns
+# Only the tconst column is used, the other columns are considered comments. You can add those columns
 # after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# Avoid tvEpisodes that have a parent tvSeries, put those in Episode.tconst instead
 
 # tconst	Service	Primary Title	Original Title
 tt4380324	Acorn	800 Words	800 Words
@@ -76,3 +78,4 @@ tt2078467	Acorn	What To Do When Someone Dies	Without You
 tt0337792	Acorn	Wire in the Blood	Wire in the Blood
 tt4397640	Acorn	Winter	Winter
 tt7875794	Acorn	Wisting	Wisting
+tt1650028	Acorn	Wreckers	Wreckers
