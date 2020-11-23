@@ -356,7 +356,8 @@ function printAdjustedFileInfo() {
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
     numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 | awk -v nl=$numlines '{printf ("%-45s%6s%6s %s %s %8d lines\n",$8,$4,$5,$6,$7,nl)}'
+    ls -loh $1 | perl -lane 'printf "%-45s%6s%6s %s %s ",@F[7,3,4,5,6];'
+    printf "%8d lines\n" "$numlines"
 }
 
 # Output some stats from $SHOWS
