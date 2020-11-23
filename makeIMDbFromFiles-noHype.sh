@@ -279,14 +279,14 @@ rg -wNz -f $EPISODES_LIST title.principals.tsv.gz | rg -w -e actor -e actress -e
     perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' | tee -a $UNSORTED_CREDITS |
     cut -f 1 | sort -u | rg -v -f $NCONST_LIST >>$NCONST_LIST
 
-# Create a perl script to convert a shows tconst to a primary title
+# Create a perl script to globally convert a show tconst to a show title
 cut -f 1,5 $RAW_SHOWS | perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[1]}g;";' >$TCONST_SHOWS_PL
 
-# Create a perl script to convert an episode tconst to its parent show
+# Create a perl script to convert an episode tconst to its parent show title
 perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[1]\\t@F[2]\\t@F[3]};";' $UNSORTED_EPISODES |
     perl -p -f $TCONST_SHOWS_PL >$TCONST_EPISODES_PL
 
-# Create a perl script to convert an episode tconst to its episode name
+# Create a perl script to convert an episode tconst to its episode title
 perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[2]};";' $RAW_EPISODES >$TCONST_EPISODE_NAMES_PL
 
 # Convert raw episodes to raw shows
@@ -310,9 +310,9 @@ cut -f 1,3 $RAW_PERSONS | perl -p -e 's+, +\t+g' >>$PERSONS
 # Create a tconst list of the knownForTitles
 cut -f 3 $RAW_PERSONS | rg "^tt" | perl -p -e 's+, +\n+g' | sort -u >$KNOWNFOR_LIST
 
-# Create a perl script to convert a known tconst to a primary title
+# Create a perl script to globally convert a known show tconst to a show title
 rg -wNz -f $KNOWNFOR_LIST title.basics.tsv.gz | perl -p -f $XLATE_PL | cut -f 1,3 |
-    perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[1]};";' >$TCONST_KNOWN_PL
+    perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[1]}g;";' >$TCONST_KNOWN_PL
 
 # Create a spreadsheet of associated titles gained from IMDb knownFor data
 printf "tconst\tShow Title\n" >$ASSOCIATED_TITLES
