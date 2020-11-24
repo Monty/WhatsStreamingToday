@@ -280,14 +280,14 @@ rg -wNz -f $EPISODES_LIST title.principals.tsv.gz | rg -w -e actor -e actress -e
     cut -f 1 | sort -u | rg -v -f $NCONST_LIST >>$NCONST_LIST
 
 # Create a perl script to globally convert a show tconst to a show title
-cut -f 1,5 $RAW_SHOWS | perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[1]}g;";' >$TCONST_SHOWS_PL
+cut -f 1,5 $RAW_SHOWS | perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{'\''@F[1]}g;";' >$TCONST_SHOWS_PL
 
 # Create a perl script to convert an episode tconst to its parent show title
 perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[1]\\t@F[2]\\t@F[3]};";' $UNSORTED_EPISODES |
     perl -p -f $TCONST_SHOWS_PL >$TCONST_EPISODES_PL
 
 # Create a perl script to convert an episode tconst to its episode title
-perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[2]};";' $RAW_EPISODES >$TCONST_EPISODE_NAMES_PL
+perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{'\''@F[2]};";' $RAW_EPISODES >$TCONST_EPISODE_NAMES_PL
 
 # Convert raw episodes to raw shows
 perl -pi -f $TCONST_EPISODES_PL $RAW_EPISODES
@@ -312,7 +312,7 @@ cut -f 3 $RAW_PERSONS | rg "^tt" | perl -p -e 's+, +\n+g' | sort -u >$KNOWNFOR_L
 
 # Create a perl script to globally convert a known show tconst to a show title
 rg -wNz -f $KNOWNFOR_LIST title.basics.tsv.gz | perl -p -f $XLATE_PL | cut -f 1,3 |
-    perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{@F[1]}g;";' >$TCONST_KNOWN_PL
+    perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{'\''@F[1]}g;";' >$TCONST_KNOWN_PL
 
 # Create a spreadsheet of associated titles gained from IMDb knownFor data
 printf "tconst\tShow Title\n" >$ASSOCIATED_TITLES
@@ -338,7 +338,7 @@ cut -f 2 $RAW_PERSONS | sort -fu >$UNIQUE_PERSONS
 # Create the SHOWS spreadsheet by removing duplicate field from RAW_SHOWS
 printf "Show Title\tShow Type\tOriginal or Episode Title\tSn_#\tEp_#\tStart\tEnd\tMinutes\tGenres\n" >$SHOWS
 # Sort by Show Title (1), Show Type (2r), Sn_# (4n), Ep_# (5n), Start (6)
-perl -F"\t" -lane 'printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,3,5,1,2,6,7,8,9]' $RAW_SHOWS |
+perl -F"\t" -lane 'printf "%s\t%s\t'\''%s\t%s\t%s\t%s\t%s\t%s\t%s\n", @F[0,3,5,1,2,6,7,8,9]' $RAW_SHOWS |
     sort -f --field-separator="$TAB" --key=1,1 --key=2,2r --key=4,4n --key=5,5n --key=6,6 >>$SHOWS
 
 # Create the sorted CREDITS spreadsheets
