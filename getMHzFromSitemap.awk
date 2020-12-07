@@ -172,17 +172,28 @@
 }
 
 # Episode Duration(s)
+# Used to be on one line
 #    <div class="duration-container is-locked">44:15</div>
+#
+# Now it's on six
+#    <div class="duration-container
+#      is-locked
+#      "
+#    >
+#      47:58
+#    </div>
 # Extract the duration
-/<div class="duration-container/ {
-    split ($0,fld,"[<>]")
-    episodeDuration = fld[3]
-    gsub (/ /,"",episodeDuration)
+/<div class="duration-container/,/<\/div>/ {
+    gsub (/ /,"")
+    if ($0 ~ /[[:digit:]]+:[[:digit:]]+/)
+        episodeDuration = $0
     # Spreadsheets decipher 2 part durations as time-of-day so make sure they're 3 parts
     if (split (episodeDuration, tm, ":") == 2)
         episodeDuration = "00:" episodeDuration
-    # print "==> episodeDuration = " episodeDuration > "/dev/stderr"
-    next
+    if ($0 ~ /<\/div>/) {
+        # print "==> episodeDuration = " episodeDuration > "/dev/stderr"
+        next
+    }
 }
 
 # Episode Title(s)
