@@ -246,7 +246,7 @@
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
     # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
     if (match (episodeTitle,\
-        /[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/))  {
+        /[Ss][Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/))  {
             if (episodeTitle !~ / \(Sn [[:digit:]]+ Ep [[:digit:]]+\)/)
                 printf ("==> Malformed Sn/Ep in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
             sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/,\
