@@ -23,8 +23,11 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":dst" opt; do
+while getopts ":dqst" opt; do
     case $opt in
+    q)
+        QUICK="yes"
+        ;;
     d)
         DEBUG="yes"
         ;;
@@ -162,6 +165,9 @@ rm -f $UNSORTED
 # Sort the titles produced by getMHzFromSitemap.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
+
+# For the shortest runtime, exit here
+[ -n "$QUICK" ] && exit
 
 # loop through the list of URLs from $EPISODE_URLS and generate an unsorted credits spreadsheet
 while read -r line; do

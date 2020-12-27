@@ -207,25 +207,8 @@
     gsub (/&amp;/,"\\&",episodeTitle)
     sub (/^[[:space:]]/,"",episodeTitle)
     sub (/[[:space:]]+$/,"",episodeTitle)
-    # If start of episodeTitle == showTitle followed by ": " or " - ", remove the redundant part.
-    if (match (episodeTitle, showTitle ": ") == 1 || \
-        (match (episodeTitle, showTitle " - ") == 1)) {
-        episodeTitle = substr(episodeTitle, RLENGTH + 1)
-    }
-    # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     #
-    # If there is a trailing (Sn 1 Ep 1), remove it
-    # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
-    # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
-    if (match (episodeTitle,\
-        /[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/))  {
-            if (episodeTitle !~ / \(Sn [[:digit:]]+ Ep [[:digit:]]+\)/)
-                printf ("==> Malformed Sn/Ep in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
-            sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/,\
-                "",episodeTitle)
-            # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
-    }
-    #
+    # Episode Types(s)
     # Default episodeType to "E"
     episodeType = "E"
     # If episode is a BONUS:, set episodeType to "X"
@@ -237,29 +220,46 @@
         seasonEpisodes = seasonEpisodes - 1
     }
     # print "==> episodeType = " episodeType > "/dev/stderr"
+    #
+    # Season and episode numbers
+    #
+    # Special episode number cases...
+    # Montalbano episodes have no season, make them season 1
+    if (episodeTitle ~ /^Montalbano|^Detective Montalbano:/) {
+        sub (/\(Ep/,"(Sn 1 Ep",episodeTitle)
+        sub (/^Montalbano:/,"Detective Montalbano:",episodeTitle)
+        sub (/^Montalbano and Me/,"Detective Montalbano: Montalbano and Me",episodeTitle)
+    }
+
+    # Grab the Episode Number from the trailing (Sn 1 Ep 1)
+    # Episode Number(s)
+    if (match (episodeTitle,/\(.*[Ee][Pp][ ]*[[:digit:]]+[[:space:]]*\)/)) {
+        # print "==> showTitle = " showTitle > "/dev/stderr"
+        episodeNumber = substr(episodeTitle, RSTART, RLENGTH)
+        # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
+        sub (/.*[[:space:]]/,"",episodeNumber)
+        sub (/\).*/,"",episodeNumber)
+        # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
+    }
+
+    # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
+    # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
+    # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
+    if (match (episodeTitle,\
+        /[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/))  {
+            if (episodeTitle !~ / \(Sn [[:digit:]]+ Ep [[:digit:]]+\)/)
+                printf ("==> Malformed Sn/Ep in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
+            sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/,\
+                "",episodeTitle)
+            # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
+    }
     next
 }
 
-# Episode Number(s)
-#    <h4 class="transparent"><span class='media-identifier media-episode'>
-#         Episode 1
-#    </span> </h4>
-/<h4 class="transparent"><span class='media-identifier/,/<\/div>/ {
-    sub (/^ */,"")
-    if ($0 ~ /Episode /) {
-        episodeNumber = $2
-        if (showTitle == "Detective Montalbano" && page2 == "yes") {
-            oldEpisodeNumber = episodeNumber
-            episodeNumber += 24
-            printf ("==> Changed E%02d to %s%02d: %s\n", oldEpisodeNumber, episodeType, \
-                    episodeNumber, shortEpisodeURL) >> ERRORS
-        }
-        # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
-        next
-    }
-
 ### Wrap-up episode processing when Episode Description is found
 ### print only on LONG_SPREADSHEET
+/<h4 class="transparent"><span class='media-identifier/,/<\/div>/ {
+    sub (/^ */,"")
     # print $0 > "/dev/stderr"
 
     # Episode Description(s)
@@ -313,11 +313,12 @@
         #
         # Look for directors
         director_name = episodeDescription
-        if (gsub (/\xc2\xa0/," ",director_name)) {
-            printf ("==> UTF-8 non-breaking-space in %s, S%02d%s%02d, %s\n", showTitle, seasonNumber,
-                    episodeType, episodeNumber, episodeTitle) >> ERRORS
-            print "    " episodeDescription >> ERRORS
-        }
+        # Skip UTF-8 for now...
+        # if (gsub (/\xc2\xa0/," ",director_name)) {
+            # printf ("==> UTF-8 non-breaking-space in %s, S%02d%s%02d, %s\n", showTitle, seasonNumber,
+                    # episodeType, episodeNumber, episodeTitle) >> ERRORS
+            # print "    " episodeDescription >> ERRORS
+        # }
         if (director_name ~ /[Dd]irected by /) {
             sub (/.*[Dd]irected by /,"",director_name)
             sub (/,.*$/,"",director_name)
@@ -363,14 +364,14 @@
     # Shows with only one season have a blank showSeasons
     if (showSeasons == "")
         showSeasons = 1
-    # in most cases, showSeasons = the final season number, i.e. 
+    # in most cases, showSeasons = the final season number, i.e.
     # a show with two seasons would have seasons 1 and 2
     finalSeason = showSeasons
     # Special case any discontinuous seasons, e.g. 2 seasons, but numbered 1 and 3
     if (showURL ~ /\/wallander$/)
         finalSeason = 3
     #
-    # Wrap show, i.e. but only on final season in order to prevent multiples 
+    # Wrap show, i.e. but only on final season in order to prevent multiples
     # print "==> " showURL " - seasonNumber = " seasonNumber  > "/dev/stderr"
     # print "==> " showTitle " - finalSeason = " finalSeason  > "/dev/stderr"
     if (seasonNumber > finalSeason ) {
