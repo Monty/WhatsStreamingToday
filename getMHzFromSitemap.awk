@@ -265,6 +265,14 @@
     # A Night in ... is missing episode numbers
     if (shortEpisodeURL ~ /season:1\/videos\/a-night-in/)
         snEpisodeNumber = 1
+    # Wallander episode 6
+    if (shortEpisodeURL ~ /\/wallander\/season:1\/videos\/mastermind/)
+        snEpisodeNumber = 6
+    # Bureau of Sexist Affairs confuses two episodes
+    if (shortEpisodeURL ~ /\/bureau-of-sexist-affairs\/season:1\/videos\/feminist-contradictions/)
+        snEpisodeNumber = 15
+    if (shortEpisodeURL ~ /\/bureau-of-sexist-affairs\/season:1\/videos\/violation-of-privacy/)
+        snEpisodeNumber = 16
 
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
