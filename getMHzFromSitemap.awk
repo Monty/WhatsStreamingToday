@@ -155,7 +155,7 @@
 
 ### Begin episode processing
 
-# Episode URL(s)
+# Episode URL(s) and -c-x Episode Number
 #     <div class="grid-item-padding">
 #    <a href="https://watch.mhzchoice.com/gasmamman/season:1/videos/gasmamman-episode-01-sn-1-ep-1-1" \
 #        ...
@@ -167,6 +167,10 @@
         shortEpisodeURL = episodeURL
         sub (/.*watch/,"watch",shortEpisodeURL)
         # print "==> episodeURL = " episodeURL > "/dev/stderr"
+        if (match (shortEpisodeURL, /-c-x[[:digit:]]{3,4}$/)) {
+            cxEpisodeNumber = substr(shortEpisodeURL, RSTART+RLENGTH-2, 2)
+            # print shortEpisodeURL " cx " cxEpisodeNumber >"/dev/stderr"
+        }
         next
     }
 }
@@ -212,12 +216,20 @@
     # Default episodeType to "E"
     episodeType = "E"
     # If episode is a BONUS:, set episodeType to "X"
-    if (episodeTitle ~ /BONUS|Montalbano and Me/)
+    if (episodeTitle ~ /BONUS|Montalbano and Me/) {
         episodeType = "X"
+    }
     # If episode is a Trailer (i.e. First look), set episodeType to "T"
     if (episodeTitle ~ /^PR \|/) {
-        episodeType = "T"
         seasonEpisodes = seasonEpisodes - 1
+        episodeType = "T"
+        prEpisodeNumber += 1
+        # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
+    }
+    # If episode is a upcoming, i.e. - EP 507" Available... use its episode number
+        if (match (episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}\"/)) {
+            snEpisodeNumber = substr(episodeTitle, RSTART+RLENGTH-3, 2)
+        # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
     }
     # print "==> episodeType = " episodeType > "/dev/stderr"
     #
@@ -235,11 +247,10 @@
     # Episode Number(s)
     if (match (episodeTitle,/\(.*[Ee][Pp][ ]*[[:digit:]]+[[:space:]]*\)/)) {
         # print "==> showTitle = " showTitle > "/dev/stderr"
-        episodeNumber = substr(episodeTitle, RSTART, RLENGTH)
-        # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
-        sub (/.*[[:space:]]/,"",episodeNumber)
-        sub (/\).*/,"",episodeNumber)
-        # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
+        snEpisodeNumber = substr(episodeTitle, RSTART, RLENGTH)
+        sub (/.*[[:space:]]/,"",snEpisodeNumber)
+        sub (/\).*/,"",snEpisodeNumber)
+        # print shortEpisodeURL " sn " snEpisodeNumber >"/dev/stderr"
     }
 
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
@@ -295,6 +306,20 @@
         if (episodeDescription ~ /^PR \|/)
             sub (/^PR \| /,"",episodeDescription)
         # print "==> episodeDescription = \n" episodeDescription > "/dev/stderr"
+        #
+        # Check for valid seasonNumber and episodeNumber before using them
+        if (seasonNumber == "")
+            printf ("==> Missing seasonNumber in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
+        #
+        episodeNumber = snEpisodeNumber
+        if (cxEpisodeNumber != "") 
+            episodeNumber = cxEpisodeNumber
+        if (prEpisodeNumber != "" && cxEpisodeNumber == "") 
+            episodeNumber = prEpisodeNumber
+        #
+        if (episodeNumber == "")
+            printf ("==> Missing episodeNumber in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
+        #
         episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
         #
@@ -345,6 +370,8 @@
         shortEpisodeURL = ""
         episodeType = ""
         episodeNumber = ""
+        cxEpisodeNumber = ""
+        snEpisodeNumber = ""
         episodeTitle = ""
         episodeDuration = ""
         episodeDescription =""
