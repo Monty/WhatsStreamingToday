@@ -227,21 +227,26 @@
         # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
     }
     # If episode is a upcoming, i.e. - EP 507" Available... use its episode number
-        if (match (episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}\"/)) {
-            snEpisodeNumber = substr(episodeTitle, RSTART+RLENGTH-3, 2)
+        if (match (episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}/)) {
+            snEpisodeNumber = substr(episodeTitle, RSTART+RLENGTH-2, 2)
         # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
     }
     # print "==> episodeType = " episodeType > "/dev/stderr"
     #
     # Season and episode numbers
     #
-    # Special episode number cases...
+    # Special case episode numbers
     # Montalbano episodes have no season, make them season 1
     if (episodeTitle ~ /^Montalbano|^Detective Montalbano:/) {
         sub (/\(Ep/,"(Sn 1 Ep",episodeTitle)
         sub (/^Montalbano:/,"Detective Montalbano:",episodeTitle)
         sub (/^Montalbano and Me/,"Detective Montalbano: Montalbano and Me",episodeTitle)
     }
+    # Baantjer Sn 1 Ep 12 is missing a parens
+    sub (/Brotherhood of Blood Murder Sn/, "Brotherhood of Blood Murder (Sn",episodeTitle)
+    # A Night in ... is missing episode numbers
+    if (shortEpisodeURL ~ /season:1\/videos\/a-night-in/)
+        snEpisodeNumber = 1
 
     # Grab the Episode Number from the trailing (Sn 1 Ep 1)
     # Episode Number(s)
@@ -251,6 +256,14 @@
         sub (/.*[[:space:]]/,"",snEpisodeNumber)
         sub (/\).*/,"",snEpisodeNumber)
         # print shortEpisodeURL " sn " snEpisodeNumber >"/dev/stderr"
+    }
+
+    # Octopus and some others uses -c-0
+    if (match (shortEpisodeURL, /-c-[[:digit:]]{5}/)) {
+        if (snEpisodeNumber == "" && prEpisodeNumber == "") {
+            cxEpisodeNumber = substr(shortEpisodeURL, RSTART+RLENGTH-3, 3)
+            # print shortEpisodeURL " c- " snEpisodeNumber >"/dev/stderr"
+         }
     }
 
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
@@ -309,16 +322,18 @@
         #
         # Check for valid seasonNumber and episodeNumber before using them
         if (seasonNumber == "")
-            printf ("==> Missing seasonNumber in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
+            printf ("==> Missing seasonNumber in \"%s: %s\" %s\n", showTitle,
+                    episodeTitle, shortEpisodeURL) >> ERRORS
         #
         episodeNumber = snEpisodeNumber
-        if (cxEpisodeNumber != "") 
+        if (cxEpisodeNumber != "")
             episodeNumber = cxEpisodeNumber
-        if (prEpisodeNumber != "" && cxEpisodeNumber == "") 
+        if (prEpisodeNumber != "" && cxEpisodeNumber == "")
             episodeNumber = prEpisodeNumber
         #
         if (episodeNumber == "")
-            printf ("==> Missing episodeNumber in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
+            printf ("==> Missing episodeNumber in \"%s: %s\" %s\n", showTitle,
+                    episodeTitle, shortEpisodeURL) >> ERRORS
         #
         episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
@@ -350,7 +365,7 @@
             sub (/ [0-9][0-9][0-9][0-9]\./,"",director_name)
             sub (/[[:space:]]+$/,"",director_name)
             sub (/\.$/,"",director_name)
-            # Special cases
+            # Special case director names
             if (director_name ~ /Manetti Bros/)
                 director_name = "The Manetti Bros."
             if (director_name ~ /Andrea and Antonio Frazzi/)
@@ -394,7 +409,7 @@
     # in most cases, showSeasons = the final season number, i.e.
     # a show with two seasons would have seasons 1 and 2
     finalSeason = showSeasons
-    # Special case any discontinuous seasons, e.g. 2 seasons, but numbered 1 and 3
+    # Special case discontinuous seasons, e.g. 2 seasons, but numbered 1 and 3
     if (showURL ~ /\/wallander$/)
         finalSeason = 3
     #
