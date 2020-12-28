@@ -211,7 +211,13 @@
     gsub (/&amp;/,"\\&",episodeTitle)
     sub (/^[[:space:]]/,"",episodeTitle)
     sub (/[[:space:]]+$/,"",episodeTitle)
-    #
+
+    # Make Montalbano titles agree with MHz listing
+    if (episodeTitle ~ /^Montalbano|^Detective Montalbano:/) {
+        sub (/^Montalbano:/,"Detective Montalbano:",episodeTitle)
+        sub (/^Montalbano and Me/,"Detective Montalbano: Montalbano and Me",episodeTitle)
+    }
+
     # Episode Types(s)
     # Default episodeType to "E"
     episodeType = "E"
@@ -226,38 +232,27 @@
         prEpisodeNumber += 1
         # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
     }
-    # If episode is a upcoming, i.e. - EP 507" Available... use its episode number
+    # print "==> episodeType = " episodeType > "/dev/stderr"
+
+    # Season and episode numbers
+    # If season only has one episode, set snEpisodeNumber to 1
+    if (seasonEpisodes == 1)
+        snEpisodeNumber = 1
+    # If episode is upcoming, i.e. - EP 507" Available... use its episode number
         if (match (episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}/)) {
             snEpisodeNumber = substr(episodeTitle, RSTART+RLENGTH-2, 2)
         # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
     }
-    # print "==> episodeType = " episodeType > "/dev/stderr"
-    #
-    # Season and episode numbers
-    #
-    # Special case episode numbers
-    # Montalbano episodes have no season, make them season 1
-    if (episodeTitle ~ /^Montalbano|^Detective Montalbano:/) {
-        sub (/\(Ep/,"(Sn 1 Ep",episodeTitle)
-        sub (/^Montalbano:/,"Detective Montalbano:",episodeTitle)
-        sub (/^Montalbano and Me/,"Detective Montalbano: Montalbano and Me",episodeTitle)
-    }
+    # Grab the Episode Number from the trailing (Sn 1 Ep 1)
     # Baantjer Sn 1 Ep 12 is missing a parens
     sub (/Brotherhood of Blood Murder Sn/, "Brotherhood of Blood Murder (Sn",episodeTitle)
-    # A Night in ... is missing episode numbers
-    if (shortEpisodeURL ~ /season:1\/videos\/a-night-in/)
-        snEpisodeNumber = 1
-
-    # Grab the Episode Number from the trailing (Sn 1 Ep 1)
     # Episode Number(s)
     if (match (episodeTitle,/\(.*[Ee][Pp][ ]*[[:digit:]]+[[:space:]]*\)/)) {
-        # print "==> showTitle = " showTitle > "/dev/stderr"
         snEpisodeNumber = substr(episodeTitle, RSTART, RLENGTH)
         sub (/.*[[:space:]]/,"",snEpisodeNumber)
         sub (/\).*/,"",snEpisodeNumber)
         # print shortEpisodeURL " sn " snEpisodeNumber >"/dev/stderr"
     }
-
     # Octopus and some others uses -c-0
     if (match (shortEpisodeURL, /-c-[[:digit:]]{5}/)) {
         if (snEpisodeNumber == "" && prEpisodeNumber == "") {
@@ -265,6 +260,11 @@
             # print shortEpisodeURL " c- " snEpisodeNumber >"/dev/stderr"
          }
     }
+
+    # Special case episode numbers
+    # A Night in ... is missing episode numbers
+    if (shortEpisodeURL ~ /season:1\/videos\/a-night-in/)
+        snEpisodeNumber = 1
 
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
