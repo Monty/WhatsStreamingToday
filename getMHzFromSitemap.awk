@@ -410,6 +410,7 @@
         episodeType = ""
         episodeNumber = ""
         cxEpisodeNumber = ""
+        prEpisodeNumber = ""
         snEpisodeNumber = ""
         episodeTitle = ""
         episodeDuration = ""
