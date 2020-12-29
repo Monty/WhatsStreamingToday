@@ -169,7 +169,7 @@
         # print "==> episodeURL = " episodeURL > "/dev/stderr"
         if (match (shortEpisodeURL, /-c-x[[:digit:]]{3,4}$/)) {
             cxEpisodeNumber = substr(shortEpisodeURL, RSTART+RLENGTH-2, 2)
-            # print shortEpisodeURL " cx " cxEpisodeNumber >"/dev/stderr"
+            # print shortEpisodeURL " cx " cxEpisodeNumber > "/dev/stderr"
         }
         next
     }
@@ -200,7 +200,7 @@
     }
 }
 
-# Episode Title(s)
+# Episode Titles, Types, and Numbers
 #    <h3 class="tooltip-item-title site-font-primary-family"> \
 #        <strong>Gåsmamman: Episode 01 (Sn 1 Ep 1)</strong></h3>
 /<h3 class="tooltip-item-title/{
@@ -214,15 +214,23 @@
 
     # Make Montalbano titles agree with MHz listing
     if (episodeTitle ~ /^Montalbano|^Detective Montalbano:/) {
+        sub (/\(Ep/,"(Sn 1 Ep",episodeTitle)
         sub (/^Montalbano:/,"Detective Montalbano:",episodeTitle)
         sub (/^Montalbano and Me/,"Detective Montalbano: Montalbano and Me",episodeTitle)
+        # print "==> Montalbano episodeTitle = " episodeTitle > "/dev/stderr"
+    }
+
+    # If start of episodeTitle == showTitle followed by ": " or " - ", remove the redundant part.
+    if (match (episodeTitle, showTitle ": ") == 1 || \
+        (match (episodeTitle, showTitle " - ") == 1)) {
+        episodeTitle = substr(episodeTitle, RLENGTH + 1)
     }
 
     # Episode Types(s)
     # Default episodeType to "E"
     episodeType = "E"
     # If episode is a BONUS:, set episodeType to "X"
-    if (episodeTitle ~ /BONUS|Montalbano and Me/) {
+    if (episodeTitle ~ /BONUS/ && showTitle !~ /^Detective Montalbano/) {
         episodeType = "X"
     }
     # If episode is a Trailer (i.e. First look), set episodeType to "T"
@@ -230,7 +238,7 @@
         seasonEpisodes = seasonEpisodes - 1
         episodeType = "T"
         prEpisodeNumber += 1
-        # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
+        # print shortEpisodeURL " pr " prEpisodeNumber > "/dev/stderr"
     }
     # print "==> episodeType = " episodeType > "/dev/stderr"
 
@@ -241,23 +249,26 @@
     # If episode is upcoming, i.e. - EP 507" Available... use its episode number
         if (match (episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}/)) {
             snEpisodeNumber = substr(episodeTitle, RSTART+RLENGTH-2, 2)
-        # print shortEpisodeURL " pr " prEpisodeNumber >"/dev/stderr"
+        # print shortEpisodeURL " pr " prEpisodeNumber > "/dev/stderr"
     }
     # Grab the Episode Number from the trailing (Sn 1 Ep 1)
     # Baantjer Sn 1 Ep 12 is missing a parens
-    sub (/Brotherhood of Blood Murder Sn/, "Brotherhood of Blood Murder (Sn",episodeTitle)
+    if (episodeTitle ~ /Brotherhood of Blood Murder Sn/) {
+        printf ("==> Malformed Sn/Ep in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
+        sub (/Brotherhood of Blood Murder Sn/, "Brotherhood of Blood Murder (Sn",episodeTitle)
+    }
     # Episode Number(s)
     if (match (episodeTitle,/\(.*[Ee][Pp][ ]*[[:digit:]]+[[:space:]]*\)/)) {
         snEpisodeNumber = substr(episodeTitle, RSTART, RLENGTH)
         sub (/.*[[:space:]]/,"",snEpisodeNumber)
         sub (/\).*/,"",snEpisodeNumber)
-        # print shortEpisodeURL " sn " snEpisodeNumber >"/dev/stderr"
+        # print shortEpisodeURL " sn " snEpisodeNumber > "/dev/stderr"
     }
     # Octopus and some others uses -c-0
     if (match (shortEpisodeURL, /-c-[[:digit:]]{5}/)) {
         if (snEpisodeNumber == "" && prEpisodeNumber == "") {
             cxEpisodeNumber = substr(shortEpisodeURL, RSTART+RLENGTH-3, 3)
-            # print shortEpisodeURL " c- " snEpisodeNumber >"/dev/stderr"
+            # print shortEpisodeURL " c- " snEpisodeNumber > "/dev/stderr"
          }
     }
 
@@ -281,8 +292,10 @@
         /[Ss][Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/))  {
             if (episodeTitle !~ / \(Sn [[:digit:]]+ Ep [[:digit:]]+\)/)
                 printf ("==> Malformed Sn/Ep in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
-            sub (/[ ]*\(S[Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/,\
+            sub (/[ ]*\([ ]*[Ss][Nnm]*[ ]*[[:digit:]]+[ ]+[Ee][Pp]*[ ]*[[:digit:]]+[[:space:]]*\)/,\
                 "",episodeTitle)
+            # print shortEpisodeURL " sn " snEpisodeNumber > "/dev/stderr"
+            # print shortEpisodeURL " = " episodeNumber > "/dev/stderr"
             # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     }
     next
@@ -334,7 +347,9 @@
                     episodeTitle, shortEpisodeURL) >> ERRORS
         #
         episodeNumber = snEpisodeNumber
-        if (cxEpisodeNumber != "")
+        # print shortEpisodeURL " = " episodeNumber > "/dev/stderr"
+        # Special case for Montalbano
+        if (cxEpisodeNumber != "" && showTitle !~ /^Detective Montalbano/ )
             episodeNumber = cxEpisodeNumber
         if (prEpisodeNumber != "" && cxEpisodeNumber == "")
             episodeNumber = prEpisodeNumber
@@ -343,6 +358,7 @@
             printf ("==> Missing episodeNumber in \"%s: %s\" %s\n", showTitle,
                     episodeTitle, shortEpisodeURL) >> ERRORS
         #
+        print shortEpisodeURL " = " episodeNumber >> "NUMBERS.csv"
         episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
         #
