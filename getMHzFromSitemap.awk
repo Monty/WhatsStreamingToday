@@ -76,12 +76,12 @@
         sub (/.*name="description" content="/,"")
     }
     # If we find a header, clean it up and put it before the description
-    if ($0 ~ /\|[ ]+TV-/) {
+    if ($0 ~ /\|[ ]+TV[ ]*-/) {
         sub (/WITH ENGLISH SUBTITLES /,"")
+        sub (/with English Subtitles /,"")
         sub (/SCANDINAVIAN CRIME FICTION/,"Sweden")
-        sub (/NONFICTION - DOCUMENTARY/,"Documentary")
-        sub (/NON-FICTION - DOCUMENTARY/,"Documentary")
-        gsub (/ \|[ ]+/,"|")
+        sub (/NON[-]*FICTION[ ]*-[ ]*DOCUMENTARY/,"Documentary")
+        gsub (/[ ]*\|[ ]+/,"|")
         sub (/\r/,"")
         # Split out header fields
         numFields = split ($0,fld,"\|")
@@ -358,7 +358,7 @@
             printf ("==> Missing episodeNumber in \"%s: %s\" %s\n", showTitle,
                     episodeTitle, shortEpisodeURL) >> ERRORS
         #
-        print shortEpisodeURL " = " episodeNumber >> "NUMBERS.csv"
+        # print shortEpisodeURL " = " episodeNumber >> "NUMBERS.csv"
         episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
         #
