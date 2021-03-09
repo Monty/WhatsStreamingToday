@@ -20,3 +20,6 @@ BEGIN {
     printf ("%s\t%s\t%s\t%s\t%d\t%s\t%s\t%s\t%s\t%s\n",
             $1,$2,$3,$4,eplen,$5,$6,$7,$8,$9)
 }
+
+/^Non-blank values/ || /^Total seasons & episodes/ { print }
+
