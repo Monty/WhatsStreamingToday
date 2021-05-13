@@ -128,6 +128,15 @@
     sub (/.*acorn\.tv/,"acorn.tv",shortEpisodeURL)
     split (episodeURL, part, "/")
     shortSeasonURL = "acorn.tv/" part[4] "/" part[5]
+    # If episode is a Jack Irish movie, set showType to "M"
+    if (episodeURL ~ /\/jackirish\/themovies\//) {
+        showType = "M"
+        printf ("==> Changed showType to movie '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
+    }
+    # but don't make the series a movie
+    if (episodeURL ~ /\/jackirish\/series/) {
+        showType = "S"
+    }
     # extract the episode description
     cmd = "curl -s " episodeURL " | grep '<meta itemprop=\"description\"' | tail -1"
     while ((cmd | getline desc ) > 0) {
