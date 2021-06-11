@@ -52,16 +52,16 @@
             sub (/\.$/,"",pname)
             person_name = substr(person_name,RSTART+RLENGTH)
             printf ("%s\t%s\t%s\t%s\t%s\n", pname, person_role, tvShowType, title, char_name)
-            if (pname !~ " ")
-                print "==> Single name '" pname "' in " shortURL >> ERRORS
+            # if (pname !~ " ")
+                # print "==> Single name '" pname "' in " shortURL >> ERRORS
         }
         # Special case
         if (person_name ~ /Hendrik Toompere/)
             person_name = "Hendrik Toompere Jr."
         #
         printf ("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, char_name)
-        if (person_name !~ " ")
-            print "==> Single name '" person_name "' in " shortURL >> ERRORS
+        # if (person_name !~ " ")
+            # print "==> Single name '" person_name "' in " shortURL >> ERRORS
         person_role = ""
         person_name = ""
         char_name = ""
