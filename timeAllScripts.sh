@@ -18,6 +18,8 @@ printf "==> time ./makeAcornFromBrowsePage.sh -td\n"
 date
 time ./makeAcornFromBrowsePage.sh -td
 printf "\n"
+printf "========================================\n"
+exit
 
 # Make sure we can execute rg.
 if [ ! -x "$(which rg 2>/dev/null)" ]; then
