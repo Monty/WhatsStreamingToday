@@ -58,6 +58,7 @@
     showTitle = fld[3]
     sub (/ - MHz Choice/,"",showTitle)
     gsub (/&#x27;/,"'",showTitle)
+    gsub (/&#39;/,"'",showTitle)
     print showTitle >> RAW_TITLES
     # print "==> showTitle = " showTitle > "/dev/stderr"
     next
@@ -109,6 +110,7 @@
         # We found a description, clean it up and add it
         gsub (/  */," ")
         gsub (/&#x27;/,"'")
+        gsub (/&#39;/,"'")
         gsub (/&quot;/,"\"")
         gsub (/&amp;/,"\\&")
         gsub (/&lsquo;/,"’")
@@ -207,6 +209,7 @@
     split ($0,fld,"[<>]")
     episodeTitle = fld[5]
     gsub (/&#x27;/,"'",episodeTitle)
+    gsub (/&#39;/,"'",episodeTitle)
     gsub (/&quot;/,"\"\"",episodeTitle)
     gsub (/&amp;/,"\\&",episodeTitle)
     sub (/^[[:space:]]/,"",episodeTitle)
@@ -321,6 +324,7 @@
             episodeDescription = episodeDescription (descriptionLinesFound == 1 ? "" : " ") paragraph
         gsub (/&amp;/,"\\&",episodeDescription)
         gsub (/&#x27;/,"'",episodeDescription)
+        gsub (/&#39;/,"'",episodeDescription)
         # print "descriptionLinesFound = " descriptionLinesFound > "/dev/stderr"
         # print "==> episodeDescription from <p> = \n" episodeDescription > "/dev/stderr"
         next
