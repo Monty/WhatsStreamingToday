@@ -297,7 +297,7 @@ BEGIN {
         # print "\ntv_movie" > "/dev/stderr"
         # Wish I didn't have to do this, but "movie" is too common to be in a key field
         contentType = "tv_movie"
-        sortkey = sprintf ("%s (1) %s M%s", title, originalDate, contentId)
+        sortkey = sprintf ("%s (1) %s M %s", title, originalDate, contentId)
         # print "sortkey = " sortkey > "/dev/stderr"
         print title >> RAW_TITLES
     }
