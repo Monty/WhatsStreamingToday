@@ -297,7 +297,7 @@ BEGIN {
         # print "\ntv_movie" > "/dev/stderr"
         # Wish I didn't have to do this, but "movie" is too common to be in a key field
         contentType = "tv_movie"
-        sortkey = sprintf ("%s (1) %s M%s", title, originalDate, EntityId)
+        sortkey = sprintf ("%s (1) %s M%s", title, originalDate, contentId)
         # print "sortkey = " sortkey > "/dev/stderr"
         print title >> RAW_TITLES
     }
@@ -366,20 +366,21 @@ BEGIN {
     }
 
     # Generate a link that will lead to the show on BritBox
-    # https://www.britbox.com/us/movie/A_Queen_Is_Crowned_13551
-    # https://www.britbox.com/us/movie/_13551
+    # https://www.britbox.com/us/movie/63_Up_p09668r0
+    # https://www.britbox.com/us/movie/A_Childs_Christmases_in_Wales_b00pgr8x
     #
-    # https://www.britbox.com/us/show/All_Creatures_Great_and_Small_23737
-    # https://www.britbox.com/us/show/_23737
+    # https://www.britbox.com/us/show/A_Confession_p0891f13
+    # https://www.britbox.com/us/show/A_Touch_of_Frost_p04lpx3q
     #
-    # https://www.britbox.com/us/season/All_Creatures_Great_and_Small_S2_23752
-    # https://www.britbox.com/us/season/_23752
+    # https://www.britbox.com/us/show/A_Touch_of_Frost_p04lpx3q
+    # https://www.britbox.com/us/show/Scott_and_Bailey_p046k2z1
     #
-    # https://www.britbox.com/us/episode/All_Creatures_Great_and_Small_S2_E2_23764
-    # https://www.britbox.com/us/episode/_23764
     showType_URL = contentType "/"
     sub (/tv_/,"",showType_URL)
-    full_URL = "https://www.britbox.com/us/" showType_URL EntityId
+    URL_Title = title " " contentId
+    gsub (/[[:space:]]/,"_",URL_Title)
+    gsub (/'/,"",URL_Title)
+    full_URL = "https://www.britbox.com/us/" showType_URL URL_Title
     fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
