@@ -168,9 +168,9 @@ rm -f $RAW_TITLES
 
 # Field numbers returned by getBBoxCatalogFromSitemap.awk
 #     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre
-#     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Entity_ID
-#    13 Show_Type    14 Date_Type    15 Original_Date   16 Show_ID         17 Season_ID    18 Sn_#
-#    19 Ep_#         20 1st_#        21 Last_#
+#     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Show_Type
+#    13 Date_Type    14 Date_Type    15 Show_ID         16 Season_ID       17 Sn_#         18 Ep_#
+#    19 1st_#        20 Last_#
 titleCol="2"
 
 # Pick columns to display
@@ -178,7 +178,7 @@ titleCol="2"
 if [ "$DEBUG" != "yes" ]; then
     spreadsheet_columns="1-10"
 else
-    spreadsheet_columns="1-13,16-19"
+    spreadsheet_columns="1-13,16-18"
 fi
 
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets

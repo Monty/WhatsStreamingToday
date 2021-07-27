@@ -9,14 +9,14 @@
 
 # Field numbers
 #     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre
-#     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Entity_ID
-#    13 Show_Type    14 Date_Type    15 Original_Date   16 Show_ID         17 Season_ID    18 Sn_#
-#    19 Ep_#         20 1st_#        21 Last_#
+#     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Show_Type
+#    13 Date_Type    14 Date_Type    15 Show_ID         16 Season_ID       17 Sn_#         18 Ep_#
+#    19 1st_#        20 Last_#
 
 BEGIN {
     # Print spreadsheet header
     printf ("Sortkey\tTitle\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
-    printf ("Content_Type\tContent_ID\tEntity_ID\tShow_Type\tDate_Type\tOriginal_Date\t")
+    printf ("Content_Type\tContent_ID\tShow_Type\tDate_Type\tOriginal_Date\t")
     printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 
     # Print credits  header
@@ -90,7 +90,6 @@ BEGIN {
     # Make sure no fields will be carried over due to missing keys
     sortkey = ""
     title = ""
-    EntityId = ""
     genre = ""
     rating = ""
     showType = ""
@@ -217,15 +216,6 @@ BEGIN {
     # print "episodeNumber = " episodeNumber > "/dev/stderr"
 }
 
-# Grab EntityId from artwork
-# <artwork url="https://us.britbox.com/isl/api/v1/dataservice/ResizeImage/$value?Format=&apos;jpg&apos;&amp;Quality=45&amp;ImageId=&apos;176236&apos;&amp;EntityType=&apos;Item&apos;&amp;EntityId=&apos;16103&apos;&amp;Width=1920&amp;Height=1080&amp;ResizeAction=&apos;fit&apos;" type="tile_artwork" />
-/<artwork url=.*EntityId=&apos;/ {
-    sub (/.*EntityId=&apos;/,"")
-    sub (/&apos.*/,"")
-    EntityId = "_" $0
-    # print "EntityId = " EntityId > "/dev/stderr"
-}
-
 # Do any special end of item processing, then print raw data spreadsheet row
 /<\/item>/ {
     lastLineNum = NR
@@ -284,13 +274,7 @@ BEGIN {
             title = "Maigret (2016–2017)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> contentId = " EntityId > "/dev/stderr"
-    }
-
-    if (EntityId == "") {
-        missingEntityIds += 1
-        printf ("==> Missing EntityId for %s %s '%s' in show %s at line %d\n", contentType, contentId,
-                title, showContentId, firstLineNum) >> ERRORS
+        # print "==> contentId = " contentId > "/dev/stderr"
     }
 
     if (contentType == "movie") {
@@ -308,7 +292,7 @@ BEGIN {
         # print "\ntv_show" > "/dev/stderr"
         showArray[totalShows] = contentId
         titleArray[totalShows] = title
-        sortkey = sprintf ("%s (1) S%s %s", title, EntityId, contentId)
+        sortkey = sprintf ("%s (1) S %s", title, contentId)
         # print "sortkey = " sortkey > "/dev/stderr"
         print title >> RAW_TITLES
         cmd1 = "grep -c " contentId " " IDS_SEASONS
@@ -393,9 +377,9 @@ BEGIN {
     sub (/S00E/,"E",fullTitle)
     # Print everything except tv_seasons
     if (contentType != "tv_season")
-        printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
+        printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%06d\t%06d\n",
                 sortkey, fullTitle, numSeasons, numEpisodes, duration, genre, year, rating, description,
-                contentType, contentId, EntityId, showType, dateType, originalDate, showContentId,
+                contentType, contentId, showType, dateType, originalDate, showContentId,
                 seasonContentId, seasonNumber, episodeNumber, firstLineNum, lastLineNum)
 }
 
@@ -411,11 +395,6 @@ END {
     printf ("    Processed %d %s, %d %s, %d %s, %d %s, %d %s\n", totalMovies, pluralMovies,
             totalShows, pluralShows, totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes,
             totalCredits, pluralCredits) > "/dev/stderr"
-
-    if (missingEntityIds > 0 ) {
-        missingEntityIds == 1 ? plural = "EntityId" : plural = "EntityIds"
-        printf ("%8d missing %s in %s\n", missingEntityIds, plural, FILENAME) > "/dev/stderr"
-    }
 
     if (missingShowContentIds > 0 ) {
         missingShowContentIds == 1 ? plural = "showContentId" : plural = "showContentIds"
