@@ -378,6 +378,7 @@ BEGIN {
     showType_URL = contentType "/"
     sub (/tv_/,"",showType_URL)
     URL_Title = title " " contentId
+    gsub (/[[:punct:]]/,"",URL_Title)
     gsub (/[[:space:]]/,"_",URL_Title)
     gsub (/'/,"",URL_Title)
     full_URL = "https://www.britbox.com/us/" showType_URL URL_Title
