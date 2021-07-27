@@ -377,11 +377,10 @@ BEGIN {
     #
     showType_URL = contentType "/"
     sub (/tv_/,"",showType_URL)
-    URL_Title = title " " contentId
+    URL_Title = title
     gsub (/[[:punct:]]/,"",URL_Title)
     gsub (/[[:space:]]/,"_",URL_Title)
-    gsub (/'/,"",URL_Title)
-    full_URL = "https://www.britbox.com/us/" showType_URL URL_Title
+    full_URL = "https://www.britbox.com/us/" showType_URL URL_Title "_" contentId
     fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
