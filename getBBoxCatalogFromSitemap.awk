@@ -231,59 +231,60 @@ BEGIN {
     lastLineNum = NR
 
     # "The Moonstone" needs to be revised to avoid duplicate names
+    # "The Moonstone (1972) already has an embedded date
     if (title == "The Moonstone") {
-        if (EntityId == "_9283") {
+        if (contentId == "FS_b0824cbr") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'The Moonstone (2016)'\n", title) >> ERRORS
             title = "The Moonstone (2016)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> EntityId = " EntityId > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
     }
 
     # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
-        if (EntityId == "_9509") {
+        if (contentId == "b006m9kn") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Porridge (1974-1977)'\n", title) >> ERRORS
             title = "Porridge (1974-1977)"
-        } else if (EntityId == "_14747") {
+        } else if (contentId == "p05dsmwl") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n", title) >> ERRORS
             title = "Porridge (2016-2017)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> EntityId = " EntityId > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
     }
 
     # "A Midsummer Night's Dream" needs to be revised to avoid duplicate names
     if (title == "A Midsummer Night's Dream") {
-        if (EntityId == "_26179") {
+        if (contentId == "p089tsfc") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'A Midsummer Night's Dream (1981)'\n", title) >> ERRORS
             title = "A Midsummer Night's Dream (1981)"
-        } else if (EntityId == "_15999") {
+        } else if (contentId == "p05t7hx2") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'A Midsummer Night's Dream (2016)'\n", title) >> ERRORS
             title = "A Midsummer Night's Dream (2016)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> EntityId = " EntityId > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
     }
 
     # "Maigret" needs to be revised to clarify timeframe
     if (title ~ /^Maigret/ && contentType == "tv_show") {
-        if (EntityId == "_15928") {
+        if (contentId == "p05t7c9c") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n", title) >> ERRORS
             title = "Maigret (1992-1993)"
-        } else if (EntityId == "_15974") {
+        } else if (contentId == "p05vcgph") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Maigret (2016–2017)'\n", title) >> ERRORS
             title = "Maigret (2016–2017)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> EntityId = " EntityId > "/dev/stderr"
+        # print "==> contentId = " EntityId > "/dev/stderr"
     }
 
     if (EntityId == "") {
