@@ -220,6 +220,18 @@ BEGIN {
 /<\/item>/ {
     lastLineNum = NR
 
+    # <title locale="en-US">Too Old… Or Too Nosy?</title>
+    if (contentId == "p04dqy0m") {
+        # print "title = " title > "/dev/stderr"
+        title = "Too Old... Or Too Nosy?"
+    }
+
+    # <title locale="en-US">Llŷn Peninsula</title
+    if (contentId == "m000wn8z") {
+        # print "title = " title > "/dev/stderr"
+        title = "Llyn Peninsula"
+    }
+
     # "The Moonstone" needs to be revised to avoid duplicate names
     # "The Moonstone (1972) already has an embedded date
     if (title == "The Moonstone") {
