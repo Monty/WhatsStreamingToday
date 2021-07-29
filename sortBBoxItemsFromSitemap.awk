@@ -16,6 +16,7 @@
 /<item contentType="/ {
     split ($0,fld,"\"")
     contentType = fld[2]
+    contentId = fld[4]
 }
 
 # Grab showContentId
@@ -41,14 +42,29 @@
 
     if (contentType == "tv_season") {
         totalSeasons += 1
+        seasonArray[totalSeasons] = contentId
+        showArray[totalSeasons] = showContentId
         print wholeItem >> TV_SEASON_ITEMS
         print showContentId >> IDS_SEASONS
     }
 
     if (contentType == "tv_episode") {
         totalEpisodes += 1
+        # showContentId is actually a seasonContentId - look up real showContentId
+        for ( i = 1; i <= totalSeasons; i++ ) {
+            if (seasonArray[i] == showContentId) {
+                correctedContentId = showArray[i]
+                break
+            }
+        }
+        print correctedContentId >> IDS_EPISODES
+        # <showContentId>p053g1qb</showContentId> 
+        badString = "<showContentId>" showContentId "<"
+        goodString ="<showContentId>" correctedContentId  "<"
+        # print "badString = " badString > "/dev/stderr"
+        # print "goodString = " goodString > "/dev/stderr"
+        sub (badString, goodString, wholeItem)
         print wholeItem >> TV_EPISODE_ITEMS
-        print showContentId >> IDS_EPISODES
     }
 
     # Make sure the wholeItem <item .. item> isn't carried over to the next item
