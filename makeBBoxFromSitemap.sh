@@ -21,12 +21,16 @@ DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
 # Use "-d" switch to output a "diffs" file useful for debugging
+# Use "-r" switch to remove shows that are no longer available
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":dst" opt; do
+while getopts ":drst" opt; do
     case $opt in
     d)
         DEBUG="yes"
+        ;;
+    r)
+        REMOVE="yes"
         ;;
     s)
         SUMMARY="yes"
@@ -93,9 +97,15 @@ TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.xml"
 TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.xml"
 TV_EPISODE_ITEMS="$COLS/tv_episodes$DATE_ID.xml"
 
-# Text files containing only <item lines (much shorter than xml files to use when searching for contentIds)
+# Text files containing only <item lines
+# (much shorter than xml files to use when searching for contentIds)
 IDS_SEASONS="$COLS/ids_seasons$DATE_ID.txt"
 IDS_EPISODES="$COLS/ids_episodes$DATE_ID.txt"
+
+# Files used to remove missing shows
+ALL_URLS="$COLS/all_URLs$DATE_ID.txt"
+MISSING_URLS="$COLS/missing_URLs$DATE_ID.txt"
+MISSING_IDS="$COLS/missing_IDs$DATE_ID.txt"
 
 # Intermediate working files
 SORTED_SITEMAP="$COLS/BBox-sitemap_sorted$DATE_ID.xml"
@@ -120,16 +130,23 @@ PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
 PUBLISHED_UNIQUE_CHARACTERS="$BASELINE/uniqCharacters.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
+#
+PUBLISHED_ALL_URLS="$BASELINE/all_URLs$DATE_ID.txt"
+PUBLISHED_MISSING_URLS="$BASELINE/missing_URLs$DATE_ID.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$SORTED_SITEMAP $RAW_CREDITS $RAW_TITLES $UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
+ALL_WORKING="$SORTED_SITEMAP $RAW_CREDITS $RAW_TITLES $UNIQUE_PERSONS "
+ALL_WORKING+="$UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
 #
 ALL_XML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
 ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
+if [ "$REMOVE" = "yes" ]; then
+    ALL_TXT+=" $ALL_URLS $MISSING_URLS $MISSING_IDS"
+fi
 #
 ALL_SPREADSHEETS="$CREDITS $SHORT_SPREADSHEET $LONG_SPREADSHEET "
-ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
-ALL_SPREADSHEETS+="$PROGRAMS_SPREADSHEET"
+ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET "
+ALL_SPREADSHEETS+="$MOVIES_SPREADSHEET $PROGRAMS_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
@@ -288,6 +305,12 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $EPISODES_SPREADSHEET "sum"
     addTotalsToSpreadsheet $MOVIES_SPREADSHEET "sum"
     addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET "skip"
+fi
+
+# Generate list of missing URLs
+if [ "$REMOVE" = "yes" ]; then
+    rg '=HYPERLINK' $SHORT_SPREADSHEET | cut -f 1-2 |
+        sed -e 's/=HYPERLINK("//' -e 's/".*//' -e 's/.* //' >$ALL_URLS
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
