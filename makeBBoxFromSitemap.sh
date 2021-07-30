@@ -103,6 +103,7 @@ IDS_SEASONS="$COLS/ids_seasons$DATE_ID.txt"
 IDS_EPISODES="$COLS/ids_episodes$DATE_ID.txt"
 
 # Files used to remove missing shows
+TEMP_SPREADSHEET="$COLS/temp_spreadsheet.csv"
 ALL_URLS="$COLS/all_URLs$DATE_ID.csv"
 MISSING_URLS="$COLS/missing_URLs$DATE_ID.txt"
 MISSING_IDS="$COLS/missing_IDs$DATE_ID.txt"
@@ -229,6 +230,15 @@ if [ "$REMOVE" = "yes" ]; then
             printf " ${show_id}\t\n" >>$MISSING_IDS
         fi
     done <$ALL_URLS
+    #
+    numRemoved=$(sed -n '$=' $MISSING_IDS)
+    printf "%8d unavailable shows removed.\n" "$numRemoved"
+    #
+    rg -v -f $MISSING_IDS $SHORT_SPREADSHEET >$TEMP_SPREADSHEET
+    mv $TEMP_SPREADSHEET $SHORT_SPREADSHEET
+    #
+    rg -v -f $MISSING_IDS $LONG_SPREADSHEET >$TEMP_SPREADSHEET
+    mv $TEMP_SPREADSHEET $LONG_SPREADSHEET
 fi
 
 function printAdjustedFileInfo() {
@@ -380,6 +390,7 @@ $(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS $UNIQUE_CHARACTERS)
 $(checkdiffs $PUBLISHED_CREDITS $CREDITS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_MISSING_URLS $MISSING_URLS)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 
 ### These counts should not vary significantly over time
