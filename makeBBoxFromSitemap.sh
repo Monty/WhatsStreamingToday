@@ -103,7 +103,7 @@ IDS_SEASONS="$COLS/ids_seasons$DATE_ID.txt"
 IDS_EPISODES="$COLS/ids_episodes$DATE_ID.txt"
 
 # Files used to remove missing shows
-ALL_URLS="$COLS/all_URLs$DATE_ID.txt"
+ALL_URLS="$COLS/all_URLs$DATE_ID.csv"
 MISSING_URLS="$COLS/missing_URLs$DATE_ID.txt"
 MISSING_IDS="$COLS/missing_IDs$DATE_ID.txt"
 
@@ -131,7 +131,7 @@ PUBLISHED_UNIQUE_CHARACTERS="$BASELINE/uniqCharacters.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 #
-PUBLISHED_ALL_URLS="$BASELINE/all_URLs$DATE_ID.txt"
+PUBLISHED_ALL_URLS="$BASELINE/all_URLs$DATE_ID.csv"
 PUBLISHED_MISSING_URLS="$BASELINE/missing_URLs$DATE_ID.txt"
 
 # Filename groups used for cleanup
@@ -219,6 +219,18 @@ grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
 sed -n '1!G;h;$p' $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
     -f calculateBBoxShowDurations.awk | sed -n '1!G;h;$p' >$SHORT_SPREADSHEET
 
+# Generate list of missing URLs
+if [ "$REMOVE" = "yes" ]; then
+    rg '=HYPERLINK' $SHORT_SPREADSHEET | cut -f 1-2 |
+        sed -e 's/=HYPERLINK("//' -e 's/".*//' -e 's/.* //' >$ALL_URLS
+    while read -r show_id show_url; do
+        if curl -s --head --request GET ${show_url} | rg 'HTTP/2 404' >/dev/null; then
+            printf "${show_url}\n" >>$MISSING_URLS
+            printf " ${show_id}\t\n" >>$MISSING_IDS
+        fi
+    done <$ALL_URLS
+fi
+
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
@@ -260,6 +272,7 @@ printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $PROGRAMS_SPREADSHEET 1
 printAdjustedFileInfo $MOVIES_SPREADSHEET 1
+printAdjustedFileInfo $MISSING_URLS 0
 #
 # Details from SORTED_SITEMAP
 grep -m 1 '<totalItemCount>' $SORTED_SITEMAP | awk -F"[<>]" '{printf ("    %s:    %s\n", $2, $3)}'
@@ -305,12 +318,6 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $EPISODES_SPREADSHEET "sum"
     addTotalsToSpreadsheet $MOVIES_SPREADSHEET "sum"
     addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET "skip"
-fi
-
-# Generate list of missing URLs
-if [ "$REMOVE" = "yes" ]; then
-    rg '=HYPERLINK' $SHORT_SPREADSHEET | cut -f 1-2 |
-        sed -e 's/=HYPERLINK("//' -e 's/".*//' -e 's/.* //' >$ALL_URLS
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
