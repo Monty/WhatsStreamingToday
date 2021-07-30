@@ -2,9 +2,9 @@
 # Time shell scripts that make spreadsheets -- fastest to slowest so first results are available quickly
 
 printf "========================================\n"
-printf "==> time ./makeBBoxFromSitemap.sh -td\n"
+printf "==> time ./makeBBoxFromSitemap.sh -tdr\n"
 date
-time ./makeBBoxFromSitemap.sh -td
+time ./makeBBoxFromSitemap.sh -tdr
 printf "\n"
 
 printf -- "----------------------------------------\n"
