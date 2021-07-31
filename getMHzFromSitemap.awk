@@ -304,6 +304,19 @@
     next
 }
 
+### Find media-episode number if one exists
+# <h4 class="transparent"><span class='media-identifier media-episode'>Episode 1</span> </h4>
+# But keep other processing if it is missing
+# <h4 class="transparent"><span class='media-identifier media-episode'></span> </h4>
+/<h4 class="transparent"><span class='media-identifier media-episode'>Episode/ {
+    split ($0,fld,"[<>]")
+    media_episode = fld[5]
+    sub (/Episode /,"",media_episode)
+    # print $0 > "/dev/stderr"
+    # print "media_episode = " media_episode > "/dev/stderr"
+}
+
+
 ### Wrap-up episode processing when Episode Description is found
 ### print only on LONG_SPREADSHEET
 /<h4 class="transparent"><span class='media-identifier/,/<\/div>/ {
@@ -358,11 +371,16 @@
         if (prEpisodeNumber != "" && cxEpisodeNumber == "")
             episodeNumber = prEpisodeNumber
         #
-        if (episodeNumber == "")
-            printf ("==> Missing episodeNumber in \"%s: %s\" %s\n", showTitle,
-                    episodeTitle, shortEpisodeURL) >> ERRORS
+        if (episodeNumber == "") {
+            printf ("==> Missing episodeNumber %s in \"%s: %s\" %s\n", media_episode,
+                    showTitle, episodeTitle, shortEpisodeURL) >> ERRORS
+            episodeNumber = media_episode
+        }
         #
-        # print shortEpisodeURL " = " episodeNumber >> "NUMBERS.csv"
+        # if (media_episode != "" && media_episode != episodeNumber) {
+        #     print shortEpisodeURL " = " episodeNumber >> "NUMBERS.csv"
+        #     print "media_episode = " media_episode >> "NUMBERS.csv"
+        # }
         episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
         #
@@ -414,6 +432,7 @@
         episodeType = ""
         episodeNumber = ""
         cxEpisodeNumber = ""
+        media_episode = ""
         prEpisodeNumber = ""
         snEpisodeNumber = ""
         episodeTitle = ""
