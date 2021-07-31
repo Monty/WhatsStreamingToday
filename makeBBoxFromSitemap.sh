@@ -231,6 +231,7 @@ if [ "$REMOVE" = "yes" ]; then
         fi
     done <$ALL_URLS
     #
+    printf "\n==> Stats from removing shows:\n"
     numRemoved=$(sed -n '$=' $MISSING_IDS)
     printf "%8d unavailable shows removed.\n" "$numRemoved"
     #
