@@ -283,7 +283,9 @@ printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $PROGRAMS_SPREADSHEET 1
 printAdjustedFileInfo $MOVIES_SPREADSHEET 1
-printAdjustedFileInfo $MISSING_URLS 0
+if [ "$REMOVE" = "yes" ]; then
+    printAdjustedFileInfo $MISSING_URLS 0
+fi
 #
 # Details from SORTED_SITEMAP
 grep -m 1 '<totalItemCount>' $SORTED_SITEMAP | awk -F"[<>]" '{printf ("    %s:    %s\n", $2, $3)}'
@@ -348,31 +350,33 @@ function countOccurrences() {
 # Shortcut for checking differences between two files.
 # checkdiffs basefile newfile
 function checkdiffs() {
-    printf "\n"
-    if [ ! -e "$1" ]; then
-        # If the basefile file doesn't yet exist, assume no differences
-        # and copy the newfile to the basefile so it can serve
-        # as a base for diffs in the future.
-        printf "==> $1 does not exist. Creating it, assuming no diffs.\n"
-        cp -p "$2" "$1"
-    else
-        printf "==> what changed between $1 and $2:\n"
-        # first the stats
-        diff -c "$1" "$2" | diffstat -sq \
-            -D $(cd $(dirname "$2") && pwd -P) |
-            sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
-        # then the diffs
-        diff \
-            --unchanged-group-format='' \
-            --old-group-format='==> deleted %dn line%(n=1?:s) at line %df <==
+    if [ -e "$2" ]; then
+        printf "\n"
+        if [ ! -e "$1" ]; then
+            # If the basefile file doesn't yet exist, assume no differences
+            # and copy the newfile to the basefile so it can serve
+            # as a base for diffs in the future.
+            printf "==> $1 does not exist. Creating it, assuming no diffs.\n"
+            cp -p "$2" "$1"
+        else
+            printf "==> what changed between $1 and $2:\n"
+            # first the stats
+            diff -c "$1" "$2" | diffstat -sq \
+                -D $(cd $(dirname "$2") && pwd -P) |
+                sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
+            # then the diffs
+            diff \
+                --unchanged-group-format='' \
+                --old-group-format='==> deleted %dn line%(n=1?:s) at line %df <==
 %<' \
-            --new-group-format='==> added %dN line%(N=1?:s) after line %de <==
+                --new-group-format='==> added %dN line%(N=1?:s) after line %de <==
 %>' \
-            --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
+                --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
 %<------ to:
 %>' "$1" "$2"
-        if [ $? == 0 ]; then
-            printf "==> no diffs found.\n"
+            if [ $? == 0 ]; then
+                printf "==> no diffs found.\n"
+            fi
         fi
     fi
 }
