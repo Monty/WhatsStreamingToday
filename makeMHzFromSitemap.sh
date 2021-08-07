@@ -134,6 +134,7 @@ grep -v 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$EPISODE_URLS
 grep 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$SEASON_URLS
 # Special processing for Montalbano which has episodes on page 2
 printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>$SEASON_URLS
+printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>$SEASON_URLS
 
 # Print header for error file
 printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\n" >$ERRORS

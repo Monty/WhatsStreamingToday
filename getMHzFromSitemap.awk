@@ -476,8 +476,8 @@
     #
     #  =HYPERLINK("https://watch.mhzchoice.com/gasmamman/season:1";"Gasmamman, S01, Season 1")
     if (page2 != "yes") {
-        seasonLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\")", seasonURL, showTitle, seasonNumber,
-                   seasonTitle)
+        seasonLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\")", seasonURL, showTitle,
+                   seasonNumber, seasonTitle)
         # print "==> seasonURL = " seasonURL  > "/dev/stderr"
         # print "==> seasonLink = " seasonLink  > "/dev/stderr"
         # Don't print redundant showDescriptor for season 1
