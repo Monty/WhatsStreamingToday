@@ -136,7 +136,7 @@ BEGIN {
     description = fld[3]
     # print "description = " description > "/dev/stderr"
     gsub (/&amp;/,"\\&",description)
-    gsub (/\t/," – ",description)
+    gsub (/\t/," - ",description)
 }
 
 # Grab rating
@@ -282,8 +282,8 @@ BEGIN {
             title = "Maigret (1992-1993)"
         } else if (contentId == "p05vcgph") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Maigret (2016–2017)'\n", title) >> ERRORS
-            title = "Maigret (2016–2017)"
+            printf ("==> Changed title '%s' to 'Maigret (2016-2017)'\n", title) >> ERRORS
+            title = "Maigret (2016-2017)"
         }
         # print "==> title = " title > "/dev/stderr"
         # print "==> contentId = " contentId > "/dev/stderr"
