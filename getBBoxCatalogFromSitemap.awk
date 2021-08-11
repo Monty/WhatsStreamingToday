@@ -232,6 +232,12 @@ BEGIN {
         title = "Llyn Peninsula"
     }
 
+    # <title locale="en-US">Boylé Boylé Boylé</title>
+    if (contentId == "p096kt29") {
+        # print "title = " title > "/dev/stderr"
+        title = "Boyle Boyle Boyle"
+    }
+
     # "The Moonstone" needs to be revised to avoid duplicate names
     # "The Moonstone (1972) already has an embedded date
     if (title == "The Moonstone") {
