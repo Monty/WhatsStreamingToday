@@ -165,6 +165,24 @@ fi
 printf "### Possible anomalies from processing $SITEMAP are listed below.\n\n" >$ERRORS
 
 # Pre-sort XML catalog file into four files sorted by item type
+# Don't make any corrections yet!!!
+# Presort is required to make second sort with correction work, as in the
+# downloaded file, episodes can precede seasons.
+awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
+    -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
+    -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
+    -f presortBBoxItemsFromSitemap.awk $SITEMAP
+
+# Create sorted XML catalog file which is sorted by item type, preserving lines preceding first item
+grep -B99 -m 1 "<item" $SITEMAP | grep -v "<item" >$SORTED_SITEMAP
+printf "\n" >>$SORTED_SITEMAP
+cat $ALL_XML >>$SORTED_SITEMAP
+rm -f $ALL_XML $ALL_TXT
+
+# Copy sorted sitemap over original sitemap
+cp $SORTED_SITEMAP $SITEMAP
+
+# Sort XML catalog file into four files sorted by item type
 awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
     -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
     -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
