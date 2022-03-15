@@ -19,7 +19,7 @@
     split ($0,fld,"\"")
     showTitle = fld[4]
     sub (/^Watch /,"",showTitle)
-    sub (/ on Acorn TV$/,"",showTitle)
+    sub (/ [Oo]n Acorn TV$/,"",showTitle)
     gsub (/&amp;/,"\\&",showTitle)
     gsub (/&quot;/,"\"\"",showTitle)
     gsub (/&#039;/,"'",showTitle)
