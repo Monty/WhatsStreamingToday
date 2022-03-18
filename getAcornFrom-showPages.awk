@@ -301,7 +301,7 @@
 }
 
 # Wrap up this show
-/<footer>/ {
+/<footer/ {
     if (episodeLinesFound == 0) {
         printf ("==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
