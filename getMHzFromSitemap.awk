@@ -257,11 +257,6 @@
         # print shortEpisodeURL " pr " prEpisodeNumber > "/dev/stderr"
     }
     # Grab the Episode Number from the trailing (Sn 1 Ep 1)
-    # Baantjer Sn 1 Ep 12 is missing a parens
-    if (episodeTitle ~ /Brotherhood of Blood Murder Sn/) {
-        printf ("==> Malformed Sn/Ep in \"%s: %s\"\n", showTitle, episodeTitle) >> ERRORS
-        sub (/Brotherhood of Blood Murder Sn/, "Brotherhood of Blood Murder (Sn",episodeTitle)
-    }
     # Episode Number(s)
     if (match (episodeTitle,/\(.*[Ee][Pp][ ]*[[:digit:]]+[[:space:]]*\)/)) {
         snEpisodeNumber = substr(episodeTitle, RSTART, RLENGTH)
@@ -284,11 +279,6 @@
     # Wallander episode 6
     if (shortEpisodeURL ~ /\/wallander\/season:1\/videos\/mastermind/)
         snEpisodeNumber = 6
-    # Bureau of Sexist Affairs confuses two episodes
-    if (shortEpisodeURL ~ /\/bureau-of-sexist-affairs\/season:1\/videos\/feminist-contradictions/)
-        snEpisodeNumber = 15
-    if (shortEpisodeURL ~ /\/bureau-of-sexist-affairs\/season:1\/videos\/violation-of-privacy/)
-        snEpisodeNumber = 16
 
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
