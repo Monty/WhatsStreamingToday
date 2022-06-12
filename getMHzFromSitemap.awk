@@ -79,7 +79,9 @@
     # If we find a header, clean it up and put it before the description
     if ($0 ~ /\|[ ]+TV[ ]*-/) {
         sub (/WITH ENGLISH SUBTITLES /,"")
-        sub (/with English Subtitles /,"")
+        # Special case for Spitfire
+        sub (/WITH ENGISH SUBTITLES /,"")
+        sub (/[Ww]ith [Ee]nglish [Ss]ubtitles /,"")
         sub (/SCANDINAVIAN CRIME FICTION/,"Sweden")
         sub (/NON[-]*FICTION[ ]*-[ ]*DOCUMENTARY/,"Documentary")
         gsub (/[ ]*\|[ ]+/,"|")
