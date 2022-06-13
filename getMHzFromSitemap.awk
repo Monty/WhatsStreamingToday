@@ -225,6 +225,16 @@
         # print "==> Montalbano episodeTitle = " episodeTitle > "/dev/stderr"
     }
 
+    # Fix inconsistencies in "Murder In..."
+    if (showTitle ~ /^Murder In/) {
+        sub (/^Murder In…: /,"",episodeTitle)
+        sub (/^Murder In… /,"",episodeTitle)
+        sub (/^Murder In\.\.: /,"",episodeTitle)
+        sub (/^Murder In\.\.\.: /,"",episodeTitle)
+        sub (/^Murder In\.\.\. /,"",episodeTitle)
+        sub (/^Murder In\.\.\./,"",episodeTitle)
+    }
+
     # If start of episodeTitle == showTitle followed by ": " or " - ", remove the redundant part.
     if (match (episodeTitle, showTitle ": ") == 1 || \
         match (episodeTitle, showTitle ":") == 1 || \
