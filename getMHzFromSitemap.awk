@@ -462,6 +462,8 @@
     # a show with two seasons would have seasons 1 and 2
     finalSeason = showSeasons
     # Special case discontinuous seasons, e.g. 2 seasons, but numbered 1 and 3
+    if (showURL ~ /\/mammon$/)
+        finalSeason = 2
     if (showURL ~ /\/wallander$/)
         finalSeason = 3
     #
