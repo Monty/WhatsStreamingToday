@@ -235,7 +235,7 @@
         # printf ("==> Bonus to '%s': %s\n", showTitle, shortEpisodeURL) > "/dev/stderr"
     }
     # If episode is a Trailer, set episodeType to "T" - even though not all these have episodes
-    if (episodeURL ~ /_cs\//) {
+    if (episodeURL ~ /_cs\/|\/trailer$/) {
         episodeType = "T"
         # printf ("==> Trailer '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
     }
