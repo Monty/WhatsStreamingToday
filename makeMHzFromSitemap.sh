@@ -131,9 +131,11 @@ fi
 
 # Separate URLs into seasons and episodes
 grep -v 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS |
-    grep -v '/codename-hunter/' >$EPISODE_URLS
+    grep -v '/codename-hunter/' | grep -v '/mary-higgins-clark-mysteries/' |
+    grep -v '/arne-dahl/' | grep -v '/thicker-than-water/' >$EPISODE_URLS
 grep 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS |
-    grep -v '/codename-hunter/' >$SEASON_URLS
+    grep -v '/codename-hunter/' | grep -v '/mary-higgins-clark-mysteries/' |
+    grep -v '/arne-dahl/' | grep -v '/thicker-than-water/' >$SEASON_URLS
 # Special processing for Montalbano which has episodes on page 2
 printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>$SEASON_URLS
 printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>$SEASON_URLS
