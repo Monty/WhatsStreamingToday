@@ -290,15 +290,8 @@ function checkdiffs() {
             -D $(cd $(dirname "$2") && pwd -P) |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
-        diff \
-            --unchanged-group-format='' \
-            --old-group-format='==> deleted %dn line%(n=1?:s) at line %df <==
-%<' \
-            --new-group-format='==> added %dN line%(N=1?:s) after line %de <==
-%>' \
-            --changed-group-format='==> changed %dn line%(n=1?:s) at line %df <==
-%<------ to:
-%>' "$1" "$2"
+        printf "diff \"$1\" \"$2\"\n"
+        diff -q "$1" "$2" >/dev/null 2>&1
         if [ $? == 0 ]; then
             printf "==> no diffs found.\n"
         fi
