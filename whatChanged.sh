@@ -44,7 +44,7 @@ function sanitize() {
 
 printf "==> changes between $1 and $2:\n"
 # first the stats
-diff -c <(sanitize "$1") <(sanitize "$2") | diffstat -sq |
+diff -u <(sanitize "$1") <(sanitize "$2") | diffstat -sq |
     sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
 if [ "$SUMMARY" = "yes" ]; then
     exit
