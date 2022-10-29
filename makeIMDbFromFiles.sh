@@ -345,7 +345,7 @@ function checkdiffs() {
             sed -e "s+ 1 file changed,+==>+" -e "s+([+-=\!])++g"
         # then the diffs
         printf "diff \"$1\" \"$2\"\n"
-        diff -q "$1" "$2" >/dev/null 2>&1
+        cmp --quiet "$1" "$2"
         if [ $? == 0 ]; then
             printf "==> no diffs found.\n"
         fi
