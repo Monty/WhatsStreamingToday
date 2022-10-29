@@ -387,6 +387,8 @@ function checkdiffs() {
             cmp --quiet "$1" "$2"
             if [ $? == 0 ]; then
                 printf "==> no diffs found.\n"
+            else
+                diff -U 0 "$1" "$2"
             fi
         fi
     fi
