@@ -29,7 +29,8 @@
 }
 
 /=HYPERLINK/ {
-    sub (/.*=HYPERLINK.*;"/,"")
+    sub (/-.*=HYPERLINK.*;"/,"- ")
+    sub (/\+.*=HYPERLINK.*;"/,"+ ")
     sub (/"\)/,"")
 }
 
