@@ -28,16 +28,13 @@
     next
 }
 
+/--- / {next}
+/\+\+\+ / {next}
+
 /=HYPERLINK/ {
-    sub (/-.*=HYPERLINK.*;"/,"- ")
-    sub (/\+.*=HYPERLINK.*;"/,"+ ")
+    sub (/-.*=HYPERLINK.*;"/,"-")
+    sub (/\+.*=HYPERLINK.*;"/,"+")
     sub (/"\)/,"")
 }
 
-{
-    sub (/\+/,"> ")
-    sub (/-/,"< ")
-    sub (/< -- /,"< ")
-    sub (/> \+\+ /,"> ")
-    print
-}
+{ print }
