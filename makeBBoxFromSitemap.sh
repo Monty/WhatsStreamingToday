@@ -368,28 +368,30 @@ function countOccurrences() {
 # Shortcut for checking differences between two files.
 # checkdiffs basefile newfile
 function checkdiffs() {
-    if [ -e "$2" ]; then
-        printf "\n"
-        if [ ! -e "$1" ]; then
-            # If the basefile file doesn't yet exist, assume no differences
-            # and copy the newfile to the basefile so it can serve
-            # as a base for diffs in the future.
-            printf "==> $1 does not exist. Creating it, assuming no diffs.\n"
-            cp -p "$2" "$1"
+    printf "\n"
+    if [ ! -e "$2" ]; then
+        printf "==> $2 does not exist. Skipping diff.\n"
+        return 1
+    fi
+    if [ ! -e "$1" ]; then
+        # If the basefile file doesn't yet exist, assume no differences
+        # and copy the newfile to the basefile so it can serve
+        # as a base for diffs in the future.
+        printf "==> $1 does not exist. Creating it, assuming no diffs.\n"
+        cp -p "$2" "$1"
+    else
+        printf "==> what changed between $1 and $2:\n"
+        # first the stats
+        diff -u "$1" "$2" | diffstat -sq \
+            -D $(cd $(dirname "$2") && pwd -P) |
+            sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
+        # then the diffs
+        printf "./whatChanged.sh \"$1\" \"$2\"\n"
+        cmp --quiet "$1" "$2"
+        if [ $? == 0 ]; then
+            printf "==> no diffs found.\n"
         else
-            printf "==> what changed between $1 and $2:\n"
-            # first the stats
-            diff -u "$1" "$2" | diffstat -sq \
-                -D $(cd $(dirname "$2") && pwd -P) |
-                sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
-            # then the diffs
-            printf "./whatChanged.sh \"$1\" \"$2\"\n"
-            cmp --quiet "$1" "$2"
-            if [ $? == 0 ]; then
-                printf "==> no diffs found.\n"
-            else
-                diff -U 0 "$1" "$2" | awk -f formatUnifiedDiffOutput.awk
-            fi
+            diff -U 0 "$1" "$2" | awk -f formatUnifiedDiffOutput.awk
         fi
     fi
 }

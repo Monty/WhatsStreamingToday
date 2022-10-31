@@ -277,6 +277,10 @@ function countOccurrences() {
 # checkdiffs basefile newfile
 function checkdiffs() {
     printf "\n"
+    if [ ! -e "$2" ]; then
+        printf "==> $2 does not exist. Skipping diff.\n"
+        return 1
+    fi
     if [ ! -e "$1" ]; then
         # If the basefile file doesn't yet exist, assume no differences
         # and copy the newfile to the basefile so it can serve
