@@ -290,6 +290,7 @@ function checkdiffs() {
             -D $(cd $(dirname "$2") && pwd -P) |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
+        printf "./whatChanged.sh \"$1\" \"$2\"\n"
         cmp --quiet "$1" "$2"
         if [ $? == 0 ]; then
             printf "==> no diffs found.\n"
