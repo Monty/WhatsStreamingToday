@@ -36,15 +36,10 @@ while getopts ":bls" opt; do
 done
 shift $((OPTIND - 1))
 
-# Only keep lines containing "=HYPERLINK" then get rid of leading sequence numbers
-# Only keep fields 1-3 unless -l is specified
-function sanitize() {
-    sed -e /=HYPER/!D -e /=HYPER/s/^.*=HYPER/=HYPER/ "$1" | cut -f 1-3"${LONG}"
-}
-
 printf "==> changes between $1 and $2:\n"
 # first the stats
-diff -u <(sanitize "$1") <(sanitize "$2") | diffstat -sq |
+diff -u "$1" "$2" | diffstat -sq \
+    -D $(cd $(dirname "$2") && pwd -P) |
     sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
 if [ "$SUMMARY" = "yes" ]; then
     exit
@@ -52,28 +47,22 @@ fi
 
 # Now the diffs
 function checkdiffs() {
-    diff \
-        --unchanged-group-format='' \
-        --old-group-format='#   ==> deleted %dn show%(n=1?:s) at line %df <==
-%<' \
-        --new-group-format='#   ==> added %dN show%(N=1?:s) after line %de <==
-%>' \
-        --changed-group-format='#   ==> changed %dn show%(n=1?:s) at line %df <==
-%<------ to:
-%>' "$1" "$2"
+    cmp --quiet "$1" "$2"
+    if [ $? == 0 ]; then
+        printf "==> no diffs found.\n"
+    else
+        diff -U 0 "$1" "$2" |
+            diffr --colors refine-added:foreground:none --colors refine-removed:foreground:none |
+            awk -f formatUnifiedDiffOutput.awk
+    fi
 }
 
 if [ "$BRIEF" = "yes" ]; then
-    # Only print lines beginning with "#   ==>"
-    # but delete the "#   ==>" and terminating "<=="
+    # Only print lines beginning with "==>"
+    # but delete the "==>"
     # since that looks better in this context
-    checkdiffs <(sanitize "$1") <(sanitize "$2") |
-        sed -e "/#   ==>/!D" -e "s/#   ==> /    /" -e "s/ <==//"
-    if [ ${PIPESTATUS[0]} == 0 ]; then
-        printf "==> nothing changed.\n"
-    fi
+    checkdiffs "$1" "$2" |
+        sed -e "/==>/!D" -e "s/==> /    /"
 else
-    if checkdiffs <(sanitize "$1") <(sanitize "$2"); then
-        printf "==> nothing changed.\n"
-    fi
+    checkdiffs "$1" "$2"
 fi
