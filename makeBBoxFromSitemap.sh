@@ -405,13 +405,13 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
+$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_MISSING_URLS $MISSING_URLS)
+$(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
 $(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS $UNIQUE_CHARACTERS)
 $(checkdiffs $PUBLISHED_CREDITS $CREDITS)
-$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
-$(checkdiffs $PUBLISHED_MISSING_URLS $MISSING_URLS)
-$(checkdiffs $PUBLISHED_DURATION $DURATION)
 
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.

@@ -244,11 +244,11 @@ cat >>$POSSIBLE_DIFFS <<EOF
 $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
-$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_DURATION $DURATION)
+$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
 ### Any funny stuff with file lengths?
