@@ -348,8 +348,7 @@ function checkdiffs() {
             -D $(cd $(dirname "$2") && pwd -P) |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
-        cmp --quiet "$1" "$2"
-        if [ $? == 0 ]; then
+        if cmp --quiet "$1" "$2"; then
             printf "==> no diffs found.\n"
         else
             diff -U 0 "$1" "$2" | awk -f formatUnifiedDiffOutput.awk
