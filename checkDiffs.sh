@@ -18,9 +18,11 @@ MHZ_ANOMS_OLD=$(find MHz_anomalies-*txt | tail -2 | head -1)
 MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 
 function waitForKey() {
-    read -r -n 1 -s -p "Hit any key to continue, '^C' to quit. "
-    printf "\n\n"
+    read -r -n 1 -s -p "Hit any key to clear screen and continue, '^C' to quit. "
+    clear
 }
+
+clear
 
 ./whatChanged.sh "$ACORN_ANOMS" "$ACORN_ANOMS_OLD"
 waitForKey
