@@ -24,13 +24,13 @@ function waitForKey() {
 
 clear
 
-./whatChanged.sh "$ACORN_ANOMS" "$ACORN_ANOMS_OLD"
+./whatChanged "$ACORN_ANOMS" "$ACORN_ANOMS_OLD"
 waitForKey
 
-./whatChanged.sh "$BBOX_ANOMS" "$BBOX_ANOMS_OLD"
+./whatChanged "$BBOX_ANOMS" "$BBOX_ANOMS_OLD"
 waitForKey
 
-./whatChanged.sh "$MHZ_ANOMS" "$MHZ_ANOMS_OLD"
+./whatChanged "$MHZ_ANOMS" "$MHZ_ANOMS_OLD"
 waitForKey
 
 view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS"

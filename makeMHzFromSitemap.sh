@@ -289,7 +289,7 @@ function checkdiffs() {
         cp -p "$2" "$1"
     else
         # first the stats
-        printf "./whatChanged.sh \"$1\" \"$2\"\n"
+        printf "./whatChanged \"$1\" \"$2\"\n"
         diff -u "$1" "$2" | diffstat -sq \
             -D $(cd $(dirname "$2") && pwd -P) |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"

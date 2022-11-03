@@ -61,7 +61,7 @@ change. Then rerun the formatting script.
 
 #### To see what has changed since a previous run:
 
-Run **whatChanged.sh [-bs] oldSpreadsheet.csv newSpreadsheet.csv**  
+Run **whatChanged [-bs] oldSpreadsheet.csv newSpreadsheet.csv**  
 &nbsp;&nbsp;&nbsp;&nbsp;
 **-b**
 &nbsp;&nbsp;&nbsp;&nbsp;
