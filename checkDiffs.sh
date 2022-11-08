@@ -30,7 +30,7 @@ waitForKey
 ./whatChanged "$BBOX_ANOMS_OLD" "$BBOX_ANOMS"
 waitForKey
 
-./whatChanged "$MHZ_ANOMS_OLD "$MHZ_ANOMS""
+./whatChanged "$MHZ_ANOMS_OLD" "$MHZ_ANOMS"
 waitForKey
 
 view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS"
