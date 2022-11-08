@@ -34,3 +34,9 @@ waitForKey
 waitForKey
 
 view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS"
+clear
+waitForKey
+
+./saveTodaysAcornFiles.sh
+./saveTodaysBBoxFiles.sh
+./saveTodaysMHzFiles.sh
