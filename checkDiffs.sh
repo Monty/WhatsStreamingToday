@@ -37,6 +37,7 @@ view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS"
 clear
 waitForKey
 
+printf "OK. Saving today's files...\n"
 ./saveTodaysAcornFiles.sh
 ./saveTodaysBBoxFiles.sh
 ./saveTodaysMHzFiles.sh
