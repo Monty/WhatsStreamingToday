@@ -156,7 +156,7 @@ while read -r line; do
             awk -v ERRORS=$ERRORS -v RAW_CREDITS=$RAW_CREDITS -v RAW_TITLES=$RAW_TITLES \
                 -f getMHzFromSitemap.awk >>$UNSORTED
     else
-        printf "==> HTTP status for $line is $http_status\n" >>$ERRORS
+        printf "==> HTTP status for $line is $http_status\n" | tee -a "$ERRORS"
     fi
 done <"$SEASON_URLS"
 
