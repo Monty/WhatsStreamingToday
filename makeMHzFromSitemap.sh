@@ -148,10 +148,16 @@ printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDe
 printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >$RAW_CREDITS
 
 # loop through the list of URLs from $SEASON_URLS and generate a full but unsorted spreadsheet
+# output any URLs that don't work to $ERRORS
 while read -r line; do
-    curl -sS "$line" |
-        awk -v ERRORS=$ERRORS -v RAW_CREDITS=$RAW_CREDITS -v RAW_TITLES=$RAW_TITLES \
-            -f getMHzFromSitemap.awk >>$UNSORTED
+    http_status=$(curl -o /dev/null -s -w "%{response_code}" "$line")
+    if [ "$http_status" = "200" ]; then
+        curl -sS "$line" |
+            awk -v ERRORS=$ERRORS -v RAW_CREDITS=$RAW_CREDITS -v RAW_TITLES=$RAW_TITLES \
+                -f getMHzFromSitemap.awk >>$UNSORTED
+    else
+        printf "==> HTTP status for $line is $http_status\n" >>$ERRORS
+    fi
 done <"$SEASON_URLS"
 
 # Create both SHORT_SPREADSHEET and LONG_SPREADSHEET
