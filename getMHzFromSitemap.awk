@@ -284,14 +284,6 @@
          }
     }
 
-    # Special case episode numbers
-    # A Night in ... is missing episode numbers
-    if (shortEpisodeURL ~ /season:1\/videos\/a-night-in/)
-        snEpisodeNumber = 1
-    # Wallander episode 6
-    if (shortEpisodeURL ~ /\/wallander\/season:1\/videos\/mastermind/)
-        snEpisodeNumber = 6
-
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
     # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
@@ -314,10 +306,10 @@
 # <h4 class="transparent"><span class='media-identifier media-episode'></span> </h4>
 /<h4 class="transparent"><span class='media-identifier media-episode'>Episode/ {
     split ($0,fld,"[<>]")
-    media_episode = fld[5]
-    sub (/Episode /,"",media_episode)
+    mdEpisodeNumber = fld[5]
+    sub (/Episode /,"",mdEpisodeNumber)
     # print $0 > "/dev/stderr"
-    # print "media_episode = " media_episode > "/dev/stderr"
+    # print "mdEpisodeNumber = " mdEpisodeNumber > "/dev/stderr"
 }
 
 
@@ -376,14 +368,14 @@
             episodeNumber = prEpisodeNumber
         #
         if (episodeNumber == "") {
-            printf ("==> Missing episodeNumber %s in \"%s: %s\" %s\n", media_episode,
+            printf ("==> Missing episodeNumber %s in \"%s: %s\" %s\n", mdEpisodeNumber,
                     showTitle, episodeTitle, shortEpisodeURL) >> ERRORS
-            episodeNumber = media_episode
+            episodeNumber = mdEpisodeNumber
         }
         #
-        # if (media_episode != "" && media_episode != episodeNumber) {
+        # if (mdEpisodeNumber != "" && mdEpisodeNumber != episodeNumber) {
         #     print shortEpisodeURL " = " episodeNumber >> "NUMBERS.csv"
-        #     print "media_episode = " media_episode >> "NUMBERS.csv"
+        #     print "mdEpisodeNumber = " mdEpisodeNumber >> "NUMBERS.csv"
         # }
         episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")", episodeURL, showTitle,
                     seasonNumber, episodeType, episodeNumber, episodeTitle)
@@ -436,7 +428,7 @@
         episodeType = ""
         episodeNumber = ""
         cxEpisodeNumber = ""
-        media_episode = ""
+        mdEpisodeNumber = ""
         prEpisodeNumber = ""
         snEpisodeNumber = ""
         episodeTitle = ""
