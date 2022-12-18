@@ -309,7 +309,7 @@
     mdEpisodeNumber = fld[5]
     sub (/Episode /,"",mdEpisodeNumber)
     # print $0 > "/dev/stderr"
-    # print "mdEpisodeNumber = " mdEpisodeNumber > "/dev/stderr"
+    # print "==> " showTitle " mdEpisodeNumber " mdEpisodeNumber > "/dev/stderr"
 }
 
 
@@ -391,6 +391,9 @@
         }
         #
         # Print "episode" line
+        # printf ("%s\t%s\t%d\t%d\t%d\t%d\t%d\n", showTitle, shortEpisodeURL,
+        #    mdEpisodeNumber, prEpisodeNumber, cxEpisodeNumber, snEpisodeNumber,
+        #    episodeNumber)  >> "MHz-columns/episodeNumbers.csv"
         printf ("%s\t\t\t%s\t\t\t\t\t%s\n", episodeLink, episodeDuration, episodeDescription)
         #
         # Look for directors
