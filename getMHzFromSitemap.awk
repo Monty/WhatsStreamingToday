@@ -391,7 +391,7 @@
         }
         #
         # Print "episode" line
-        # printf ("%s\t%s\t%d\t%d\t%d\t%d\t%d\n", showTitle, shortEpisodeURL,
+        # printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", showTitle, shortEpisodeURL,
         #    mdEpisodeNumber, prEpisodeNumber, cxEpisodeNumber, snEpisodeNumber,
         #    episodeNumber)  >> "MHz-columns/episodeNumbers.csv"
         printf ("%s\t\t\t%s\t\t\t\t\t%s\n", episodeLink, episodeDuration, episodeDescription)
