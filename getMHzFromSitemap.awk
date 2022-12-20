@@ -260,9 +260,12 @@
     # print "==> episodeType = " episodeType > "/dev/stderr"
 
     # Season and episode numbers
+    #
+    # snEpisodeNumber processing
     # If season only has one episode, set snEpisodeNumber to 1
-    if (seasonEpisodes == 1)
+    if (seasonEpisodes == 1) {
         snEpisodeNumber = 1
+    }
     # If episode is upcoming, i.e. - EP 507" Available... use its episode number
         if (match (episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}/)) {
             snEpisodeNumber = substr(episodeTitle, RSTART+RLENGTH-2, 2)
@@ -283,6 +286,12 @@
             # print shortEpisodeURL " sn " snEpisodeNumber > "/dev/stderr"
         }
     }
+    # Special case for voiceless-episode-04
+    if (shortEpisodeURL ~ /voiceless-episode-04/) {
+        snEpisodeNumber = 4
+    }
+    #
+    # cxEpisodeNumber processing
     # Octopus and some others uses -c-0
     if (match (shortEpisodeURL, /-c-[[:digit:]]{5}/)) {
         if (snEpisodeNumber == "" && prEpisodeNumber == "") {
@@ -290,9 +299,12 @@
             # print shortEpisodeURL " cx " cxEpisodeNumber > "/dev/stderr"
          }
     }
-    # Special c-x case for Maigret
-    if (shortEpisodeURL ~ /maigrt-c-x0110/)
+    # Special case for Maigret
+    if (shortEpisodeURL ~ /maigrt-c-x0110/) {
         cxEpisodeNumber = 1
+    }
+    # 
+    # Episode title season/episode verification and standardization
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
     # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
@@ -320,7 +332,6 @@
     # print $0 > "/dev/stderr"
     # print "==> " showTitle " mdEpisodeNumber " mdEpisodeNumber > "/dev/stderr"
 }
-
 
 ### Wrap-up episode processing when Episode Description is found
 ### print only on LONG_SPREADSHEET
