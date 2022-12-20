@@ -286,6 +286,10 @@
             # print shortEpisodeURL " sn " snEpisodeNumber > "/dev/stderr"
         }
     }
+    # Special case for inspector-labrea-deadly-dreams-in-montparnasse
+    if (shortEpisodeURL ~ /inspector-labrea-deadly-dreams-in-montparnasse/) {
+        snEpisodeNumber = 3
+    }
     # Special case for voiceless-episode-04
     if (shortEpisodeURL ~ /voiceless-episode-04/) {
         snEpisodeNumber = 4
