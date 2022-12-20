@@ -266,7 +266,7 @@
     # If episode is upcoming, i.e. - EP 507" Available... use its episode number
         if (match (episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}/)) {
             snEpisodeNumber = substr(episodeTitle, RSTART+RLENGTH-2, 2)
-        # print shortEpisodeURL " pr " prEpisodeNumber > "/dev/stderr"
+        # print shortEpisodeURL " sn " snEpisodeNumber > "/dev/stderr"
     }
     # Grab the Episode Number from the trailing (Sn 1 Ep 1)
     # Episode Number(s)
@@ -276,14 +276,23 @@
         sub (/\).*/,"",snEpisodeNumber)
         # print shortEpisodeURL " sn " snEpisodeNumber > "/dev/stderr"
     }
+    # Special case for Special Division (sn-1-ep-1)
+    if (shortEpisodeURL ~ /special-division-/) {
+        if (match (shortEpisodeURL,/-ep-[[:digit:]]+/)) {
+            snEpisodeNumber = substr(shortEpisodeURL, RSTART+4, RLENGTH-4)
+            # print shortEpisodeURL " sn " snEpisodeNumber > "/dev/stderr"
+        }
+    }
     # Octopus and some others uses -c-0
     if (match (shortEpisodeURL, /-c-[[:digit:]]{5}/)) {
         if (snEpisodeNumber == "" && prEpisodeNumber == "") {
             cxEpisodeNumber = substr(shortEpisodeURL, RSTART+RLENGTH-3, 3)
-            # print shortEpisodeURL " c- " snEpisodeNumber > "/dev/stderr"
+            # print shortEpisodeURL " cx " cxEpisodeNumber > "/dev/stderr"
          }
     }
-
+    # Special c-x case for Maigret
+    if (shortEpisodeURL ~ /maigrt-c-x0110/)
+        cxEpisodeNumber = 1
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     # Handle normal (Sn 1 Ep 1) with variations in spacing and capitalization
     # and ones missing the second letter (Sn 1 E 1), (S1 E1), or wrong second letter (Sm 1 Ep 1)
@@ -359,18 +368,21 @@
             printf ("==> Missing seasonNumber in \"%s: %s\" %s\n", showTitle,
                     episodeTitle, shortEpisodeURL) >> ERRORS
         #
-        episodeNumber = snEpisodeNumber
-        # print shortEpisodeURL " = " episodeNumber > "/dev/stderr"
+        # Pick episode number using hierarchy of priorities
         # Special case for Montalbano
         if (cxEpisodeNumber != "" && showTitle !~ /^Detective Montalbano/ )
             episodeNumber = cxEpisodeNumber
-        if (prEpisodeNumber != "" && cxEpisodeNumber == "")
+        if (prEpisodeNumber != "" && episodeNumber == "")
             episodeNumber = prEpisodeNumber
+        if (mdEpisodeNumber != "" && episodeNumber == "")
+            episodeNumber = mdEpisodeNumber
+        if (snEpisodeNumber != "" && episodeNumber == "")
+            episodeNumber = snEpisodeNumber
         #
         if (episodeNumber == "") {
             printf ("==> Missing episodeNumber %s in \"%s: %s\" %s\n", mdEpisodeNumber,
                     showTitle, episodeTitle, shortEpisodeURL) >> ERRORS
-            episodeNumber = mdEpisodeNumber
+            episodeNumber = 0
         }
         #
         # if (mdEpisodeNumber != "" && mdEpisodeNumber != episodeNumber) {
