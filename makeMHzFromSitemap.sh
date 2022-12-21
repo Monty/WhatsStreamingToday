@@ -86,6 +86,10 @@ LONG_SPREADSHEET="MHz_TV_ShowsEpisodes$DATE_ID.csv"
 MHZ_URLS="$COLS/MHz_urls$DATE_ID.txt"
 EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
 SEASON_URLS="$COLS/season_urls$DATE_ID.txt"
+MODIFIED_URLS="$COLS/MHz_urls$DATE_ID-modified.txt"
+
+# sed script to modify URL's before processing
+MODIFY_URLS="modify_urls.sed"
 
 # Intermediate working files
 UNSORTED="$COLS/unsorted$DATE_ID.txt"
@@ -112,7 +116,8 @@ PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED $RAW_CREDITS $RAW_TITLES"
 #
-ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
+ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES "
+ALL_TXT+="$DURATION $MODIFIED_URLS"
 #
 ALL_SPREADSHEETS="$CREDITS $AVG_SPREADSHEET $SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
@@ -129,9 +134,12 @@ else
     printf "==> using existing $MHZ_URLS\n"
 fi
 
+# Fix known problem URLs
+sed -f "$MODIFY_URLS" "$MHZ_URLS" >"$MODIFIED_URLS"
+
 # Separate URLs into seasons and episodes
-grep -v 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$EPISODE_URLS
-grep 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$SEASON_URLS
+grep -v 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MODIFIED_URLS >$EPISODE_URLS
+grep 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MODIFIED_URLS >$SEASON_URLS
 # Special processing for Montalbano which has episodes on page 2
 printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>$SEASON_URLS
 printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>$SEASON_URLS
