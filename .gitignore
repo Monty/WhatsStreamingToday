@@ -9,6 +9,9 @@
 *.txt
 *.xml
 
+# To fix kino-lorber problems
+!kino-lorber*
+
 # In case you save a spreadsheet
 *.xls
 *.ods

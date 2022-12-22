@@ -168,6 +168,10 @@ while read -r line; do
     fi
 done <"$SEASON_URLS"
 
+# Fixes for films-from-kino-lorber collection
+cat kino-lorber_titles.txt >>$RAW_TITLES
+cat kino-lorber_ShowsEpisodes.csv >>$UNSORTED
+
 # Create both SHORT_SPREADSHEET and LONG_SPREADSHEET
 # Roll up seasons episodes into show episodes, don't print seasons lines
 sort -fu --key=4 --field-separator=\" $UNSORTED | sed -n '1!G;h;$p' | awk -v ERRORS=$ERRORS \
