@@ -13,7 +13,7 @@
 # 1140         >
 # 1141           Corinne Masiero
 # 1142         </a>
-# 1143         <span class="small-8 capitalize">Captain Marleau</span>
+# 1143         <span class="small-8">Captain Marleau</span>
 #
 # 1219           data-meta-field-name="crew"
 # 1220           data-meta-field-value="Josée Dayan"
@@ -23,7 +23,7 @@
 # 1224         >
 # 1225           Josée Dayan
 # 1226         </a>
-# 1227         <span class="small-8 capitalize">director</span>
+# 1227         <span class="small-8">director</span>
 
 /<meta property="og:url" content/ {
     split ($0,fld,"/")
@@ -33,7 +33,7 @@
     sub (/.*watch/,"watch",shortURL)
 }
 
-/data-meta-field-name="casts"/,/<span class="small-8 capitalize">/ {
+/data-meta-field-name="casts"/,/<span class="small-8">/ {
     if ($0 ~ /data-meta-field-value=/) {
         tvShowType = "tv_show"
         person_role = "actor"
@@ -44,7 +44,7 @@
         gsub (/&#39;/,"'",person_name)
         next
     }
-    if ($0 ~ /<span class="small-8 capitalize/) {
+    if ($0 ~ /<span class="small-8/) {
         split ($0,fld,"[<>]")
         char_name = fld[3]
         gsub (/&#x27;/,"'",char_name)
@@ -71,7 +71,7 @@
     }
 }
 
-/data-meta-field-name="crew"/,/<span class="small-8 capitalize">/ {
+/data-meta-field-name="crew"/,/<span class="small-8">/ {
         if ($0 ~ /data-meta-field-value=/) {
         tvShowType = "tv_show"
         split ($0,fld,"\"")
@@ -81,7 +81,7 @@
             person_name = "The Manetti Bros."
         #
     }
-    if ($0 ~ /<span class="small-8 capitalize/) {
+    if ($0 ~ /<span class="small-8/) {
         split ($0,fld,"[<>]")
         person_role = fld[3]
         printf ("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, char_name)
