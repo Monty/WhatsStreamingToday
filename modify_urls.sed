@@ -6,3 +6,6 @@ s+/oss-117-panic-in-bangkok/season:1/videos/+/videos/+
 s+/oss-117-unleashed/season:1/videos/+/videos/+
 s+/rapt/season:1/videos/+/videos/+
 s+/serial-killer-1/season:1/videos/+/videos/+
+$a\
+https://watch.mhzchoice.com/wife-of-a-spy/season:1\
+https://watch.mhzchoice.com/videos/wife-of-a-spy-wife-of-a-spy
