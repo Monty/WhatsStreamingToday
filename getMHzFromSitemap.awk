@@ -290,6 +290,14 @@
     if (shortEpisodeURL ~ /inspector-labrea-deadly-dreams-in-montparnasse/) {
         snEpisodeNumber = 3
     }
+    # Special case for frozen-dead-episode-04-1
+    if (shortEpisodeURL ~ /frozen-dead-episode-04-1/) {
+        snEpisodeNumber = 4
+    }
+    # Special case for the-promise-episode-06
+    if (shortEpisodeURL ~ /the-promise-episode-06/) {
+        snEpisodeNumber = 6
+    }
     # Special case for voiceless-episode-04
     if (shortEpisodeURL ~ /voiceless-episode-04/) {
         snEpisodeNumber = 4
