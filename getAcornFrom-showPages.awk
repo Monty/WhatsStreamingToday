@@ -83,10 +83,10 @@
 # Extract the show description
 /id="franchise-description"/ {
     descriptionLinesFound += 1
-    # get rid of boilerplate
-    split ($0,fld,"[<>]")
-    showDescription = fld[3]
+    getline showDescription
     # fix sloppy input spacing
+    gsub (/\t/,"",showDescription)
+    sub (/<.*$/,"",showDescription)
     gsub (/ \./,".",showDescription)
     gsub (/  */," ",showDescription)
     sub (/^ */,"",showDescription)
@@ -138,7 +138,7 @@
         showType = "S"
     }
     # extract the episode description
-    cmd = "curl -s " episodeURL " | grep '<meta itemprop=\"description\"' | tail -1"
+    cmd = "curl -s " episodeURL " | grep '<meta itemprop=\"description\"' | head -1"
     while ((cmd | getline desc ) > 0) {
         split (desc,fld,"\"")
         episodeDescription = fld[4]
@@ -153,6 +153,14 @@
         gsub (/&#039;/,"'",episodeDescription)
     }
     close (cmd)
+    # Get episodeNumber which is no longer available from showURL
+    cmd = "curl -s " episodeURL " | grep '<meta itemprop=\"episodeNumber\"'"
+    while ((cmd | getline epNum ) > 0) {
+        # print "==> epNum = " epNum > "/dev/stderr"
+        split (epNum,fld,"\"")
+        episodeNumber = fld[4]
+    }
+    # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
     next
 }
 
@@ -217,13 +225,6 @@
     gsub (/&amp;/,"\\&", episodeTitle)
     gsub (/&#039;/,"'",episodeTitle)
     # print "==> episodeTitle = " episodeTitle " " shortEpisodeURL > "/dev/stderr"
-    next
-}
-
-# Extract episode number
-/<h6>.*span itemprop="episodeNumber">/ {
-    split ($0,fld,"[<>]")
-    episodeNumber = fld[5]
     # print "==> episodeNumber = " episodeNumber " " shortEpisodeURL > "/dev/stderr"
     # 
     # Setup episodeType so episodes group/sort properly
