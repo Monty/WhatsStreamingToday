@@ -161,6 +161,7 @@
         episodeNumber = fld[4]
     }
     # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
+    close (cmd)
     next
 }
 
