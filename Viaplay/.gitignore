@@ -1,2 +1,5 @@
 # Don't preserve modules loaded by npm
 /node_modules/
+
+# Don't preserve cookies or auth data
+/auth/
