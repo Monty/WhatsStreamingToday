@@ -1,0 +1,2 @@
+# Don't preserve modules loaded by npm
+/node_modules/
