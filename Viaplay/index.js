@@ -12,12 +12,38 @@ const { chromium } = require('playwright');
   await page.goto('https://viaplay.com/us-en/series/all');
   await page.getByRole('button', { name: 'Popular' }).click();
   await page.getByRole('link', { name: 'Last added' }).click();
-  await page.waitForTimeout(15000); // wait for 15 seconds
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(5000); // wait for 5 seconds
   // Grab data from all movies
   await page.goto('https://viaplay.com/us-en/movies/all');
   await page.getByRole('button', { name: 'Popular' }).click();
   await page.getByRole('link', { name: 'Last added' }).click();
-  await page.waitForTimeout(15000); // wait for 15 seconds
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.mouse.wheel(0, 4000)
+  await page.waitForTimeout(5000); // wait for 5 seconds
   await context.storageState({ path: 'auth/cookies.json' });
   // ---------------------
   await context.close();
