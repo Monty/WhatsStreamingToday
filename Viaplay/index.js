@@ -33,7 +33,7 @@ let fs = require('fs');
   const series = await page.content();
   fs.writeFile(
     'allSeries.html',
-    '<!-- Data from https://viaplay.com/us-en/series/all-->\n\n' +
+    '<!-- Data from https://viaplay.com/us-en/series/all -->\n\n' +
       series +
       '\n',
     (err) => {
@@ -61,7 +61,7 @@ let fs = require('fs');
   const movies = await page.content();
   fs.writeFile(
     'allMovies.html',
-    '<!--Data from https://viaplay.com/us-en/movies/all-->\n\n' + movies + '\n',
+    '<!-- Data from https://viaplay.com/us-en/movies/all -->\n\n' + movies + '\n',
     (err) => {
       if (err) throw err;
       console.log('<== Done writting allMovies.html');
