@@ -16,7 +16,7 @@ let fs = require('fs');
     '<!-- Data from https://www.pbs.org/show/murder-sweden/ -->\n\n' + show + '\n',
     (err) => {
       if (err) throw err;
-      console.log('<== Done writting murder-sweden-show.html');
+      console.log('<== Done writing murder-sweden-show.html');
     }
   );
 

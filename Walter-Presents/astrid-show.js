@@ -16,7 +16,7 @@ let fs = require('fs');
     '<!-- Data from https://www.pbs.org/show/astrid/ -->\n\n' + show + '\n',
     (err) => {
       if (err) throw err;
-      console.log('<== Done writting astrid-show.html');
+      console.log('<== Done writing astrid-show.html');
     }
   );
 

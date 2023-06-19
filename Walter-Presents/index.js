@@ -22,7 +22,7 @@ let fs = require('fs');
       '\n',
     (err) => {
       if (err) throw err;
-      console.log('<== Done writting allShows.html');
+      console.log('<== Done writing allShows.html');
     }
   );
 
