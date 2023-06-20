@@ -115,6 +115,8 @@ rg -N 'data-show-slug="' $RAW_HTML | awk \
         print "https://www.pbs.org/show/" fld[2]
     }' >$SHOW_URLS
 
+rm -f $RAW_HTML
+
 exit
 ## curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
 ##     sort -f >$SHOW_URLS
