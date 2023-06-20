@@ -3,3 +3,6 @@
 
 # Don't preserve cookies or auth data
 /auth/
+
+# Keep the PBS-only.csv file
+!PBS-only.csv

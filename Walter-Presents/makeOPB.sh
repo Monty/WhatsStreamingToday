@@ -117,6 +117,7 @@ rg -N 'data-show-slug="' $RAW_HTML | awk \
 
 rm -f $RAW_HTML
 
+cut -f 2 PBS-only.csv >>$SHOW_URLS
 exit
 ## curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
 ##     sort -f >$SHOW_URLS
