@@ -19,7 +19,7 @@ console.log('<== TARGET = ' + series_name);
         .locator('#splide01')
         .getByRole('button', { name: 'Next slide' })
         .click({ timeout: 1000 });
-      await page.waitForTimeout(1000); // wait for 1 seconds
+      await page.waitForTimeout(1500); // wait for 1.5 seconds
     }
     console.log('<== ' + series_name + ' Not enough "Next slide" clicks!');
   } catch {}
