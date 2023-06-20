@@ -109,6 +109,11 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 node getWalter.js
 prettier-eslint --write $RAW_HTML
+rg -N 'data-show-slug="' $RAW_HTML | awk \
+    '/data-show-slug=/ {
+        split ($0,fld,"\"")
+        print "https://www.pbs.org/show/" fld[2]
+    }' >$SHOW_URLS
 
 exit
 ## curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
