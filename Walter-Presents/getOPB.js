@@ -16,7 +16,7 @@ console.log('==> TARGET = ' + series_URL);
   console.log('==> Processing ' + series_URL);
   await page.goto(series_URL);
   try {
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 100; i++) {
       await page
         .locator('#splide01')
         .getByRole('button', { name: 'Next slide' })
@@ -36,7 +36,7 @@ console.log('==> TARGET = ' + series_URL);
     (err) => {
       // It's normal to throw an error from running out of clicks
       if (err) throw err;
-      console.log('==> Success!');
+      console.log('==> Completed ' + series_URL);
     }
   );
 
