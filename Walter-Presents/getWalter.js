@@ -28,7 +28,7 @@ let browse_url = process.env.BROWSE_URL;
     '<!-- Data from ' + browse_url + ' -->\n\n' + shows + '\n',
     (err) => {
       if (err) throw err;
-      console.log('<== Done writing ' + raw_html);
+      console.log('==> Done writing ' + raw_html);
     }
   );
 

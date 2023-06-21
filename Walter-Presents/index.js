@@ -25,7 +25,7 @@ let fs = require('fs');
       '\n',
     (err) => {
       if (err) throw err;
-      console.log('<== Done writing allShows.html');
+      console.log('==> Done writing allShows.html');
     }
   );
 

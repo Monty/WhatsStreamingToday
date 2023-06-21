@@ -33,7 +33,7 @@ console.log('<== TARGET = ' + series_name);
       '\n',
     (err) => {
       if (err) throw err;
-      console.log('<== Done writing ' + series_name + '-show.html');
+      console.log('==> Done writing ' + series_name + '-show.html');
     }
   );
 

@@ -27,7 +27,7 @@ let fs = require('fs');
     '<!-- Data from https://www.pbs.org/show/endeavour/ -->\n\n' + show + '\n',
     (err) => {
       if (err) throw err;
-      console.log('<== Done writing endeavour-show.html');
+      console.log('==> Done writing endeavour-show.html');
     }
   );
 
