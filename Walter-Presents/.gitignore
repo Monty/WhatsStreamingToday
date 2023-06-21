@@ -6,3 +6,4 @@
 
 # Keep the PBS-only.csv file
 !PBS-only.csv
+!searchterms.txt
