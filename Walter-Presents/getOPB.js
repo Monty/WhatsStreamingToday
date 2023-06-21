@@ -3,7 +3,6 @@ let fs = require('fs');
 
 let series_URL = process.env.TARGET;
 let output_file = process.env.RAW_HTML;
-console.log('==> TARGET = ' + series_URL);
 
 (async () => {
   const browser = await chromium.launch({
@@ -13,7 +12,7 @@ console.log('==> TARGET = ' + series_URL);
     storageState: 'auth/cookies.json',
   });
   const page = await context.newPage();
-  console.log('==> Processing ' + series_URL);
+  console.log('\n==> Processing ' + series_URL);
   await page.goto(series_URL);
   try {
     for (let i = 0; i < 100; i++) {
