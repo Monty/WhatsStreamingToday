@@ -82,7 +82,7 @@ SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
 
 # Intermediate working files
-UNSORTED="$COLS/unsorted$DATE_ID.txt"
+RAW_DATA="$COLS/raw_data$DATE_ID.txt"
 export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_TITLES="OPB_uniqTitles$DATE_ID.txt"
@@ -98,7 +98,7 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_TITLES $DURATION"
+ALL_WORKING="$RAW_DATA $RAW_HTML $RAW_TITLES $DURATION"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_URLS"
 #
@@ -109,15 +109,23 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 node getWalter.js
 prettier-eslint --write $RAW_HTML
-rg -N 'data-show-slug="' $RAW_HTML | awk \
-    '/data-show-slug=/ {
-        split ($0,fld,"\"")
-        print "https://www.pbs.org/show/" fld[2]
-    }' >$SHOW_URLS
+rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getOPB.awk >$SHOW_URLS
+cat PBS-only.csv >>$SHOW_URLS
+printf "==> Done writing $SHOW_URLS\n"
 
 rm -f $RAW_HTML
 
-cut -f 2 PBS-only.csv >>$SHOW_URLS
+while read -r line; do
+    read field1 field2 <<<"$line"
+    echo "$line" >>"$RAW_DATA"
+    export TARGET="$field1"
+    node getOPB.js
+    prettier-eslint --write "$RAW_HTML"
+    rg -N -A 90 'id="splide01-slide' "$RAW_HTML" |
+        rg -f searchterms.txt >>"$RAW_DATA"
+    rm -f $RAW_HTML
+done <"$SHOW_URLS"
+
 exit
 ## curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
 ##     sort -f >$SHOW_URLS
