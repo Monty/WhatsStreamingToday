@@ -1,7 +1,15 @@
-^                              id="splide01-slide
+^https:
+meta property="og:title" content=
+link rel="canonical" href=
+"description": "
+"genre":
+id="splide01-slide
 aria-label=
 data-ancestor=
 data-title=
 data-video-type=
 data-video-slug=
+class="video-summary__meta-data"
  \| 
+<div class="vertical-sponsorship">
+<!-- start medium-rectangle-half-page -->
