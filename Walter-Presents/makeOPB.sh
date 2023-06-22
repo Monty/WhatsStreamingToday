@@ -109,7 +109,7 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 node getWalter.js
 prettier-eslint --write $RAW_HTML
-rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getOPB.awk >$SHOW_URLS
+rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getWalter.awk >$SHOW_URLS
 cat PBS-only.csv >>$SHOW_URLS
 printf "==> Done writing $SHOW_URLS\n"
 
