@@ -14,7 +14,7 @@ console.log('<== TARGET = ' + series_name);
   const page = await context.newPage();
   await page.goto('https://www.pbs.org/show/' + series_name);
   try {
-    for (let i = 0; i < 11; i++) {
+    for (let i = 0; i < 100; i++) {
       await page
         .locator('#splide01')
         .getByRole('button', { name: 'Next slide' })
