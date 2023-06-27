@@ -19,6 +19,13 @@ date
 time ./makeAcornFromBrowsePage.sh -td
 printf "\n"
 printf "========================================\n"
+
+printf -- "----------------------------------------\n"
+printf "==> time Walter-Presents/makeOPB.sh -td\n"
+date
+time Walter-Presents/makeOPB.sh -td
+printf "\n"
+
 exit
 
 # Make sure we can execute rg.
