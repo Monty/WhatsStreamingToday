@@ -82,6 +82,7 @@ SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
 
 # Intermediate working files
+UNSORTED="$COLS/unsorted$DATE_ID.csv"
 RAW_DATA="$COLS/raw_data$DATE_ID.txt"
 export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
@@ -98,7 +99,7 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$RAW_DATA $RAW_HTML $RAW_TITLES $DURATION"
+ALL_WORKING="$UNSORTED $RAW_DATA $RAW_HTML $RAW_TITLES $DURATION"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_URLS"
 #
@@ -125,22 +126,22 @@ while read -r line; do
     rm -f $RAW_HTML
 done <"$SHOW_URLS"
 
-exit
-## curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
-##     sort -f >$SHOW_URLS
-
 # Print header for possible errors from processing shows
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
-# loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
-sed -e 's+^+url = "+' -e 's+$+"+' $SHOW_URLS | curl -sS --config - |
-    awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
-        -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
-        -f getOPBFrom-showPages.awk >$UNSORTED
+# Print header for SHORT_SPREADSHEET
+printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
+
+# loop through the RAW_DATA generate a full but unsorted spreadsheet
+awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
+    -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
+    -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED
 
 # Field numbers returned by getOPBFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
 titleCol="1"
+
+exit
 
 # Print header for $LONG_SPREADSHEET
 printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$LONG_SPREADSHEET
