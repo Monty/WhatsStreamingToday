@@ -127,7 +127,7 @@ while read -r line; do
 done <"$SHOW_URLS"
 
 # Print header for possible errors from processing shows
-printf "\n### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
+printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
