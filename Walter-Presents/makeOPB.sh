@@ -93,7 +93,7 @@ DURATION="$COLS/total_duration$DATE_ID.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
+PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
@@ -101,9 +101,9 @@ PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED $RAW_DATA $RAW_HTML $RAW_TITLES $DURATION"
 #
-ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_URLS"
+ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -140,6 +140,7 @@ titleCol="1"
 
 # Print header for SHORT_SPREADSHEET
 printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
+# Output $SHORT_SPREADSHEET body sorted by title, not URL
 sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
 
 # rm -f $UNSORTED
@@ -147,30 +148,6 @@ sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
 # Sort the titles produced by getAcornFrom-showPages.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
-
-exit
-
-# Print header for $LONG_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$LONG_SPREADSHEET
-# Create $LONG_SPREADSHEET sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED >>$LONG_SPREADSHEET
-rm -f $UNSORTED
-
-# Generate $SHORT_SPREADSHEET
-mv $SHORT_SPREADSHEET $UNSORTED
-# Output $SHORT_SPREADSHEET header
-printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
-# Output $SHORT_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
-rm -f $UNSORTED
-
-# Sort the titles produced by getOPBFrom-showPages.awk
-sort -fu $RAW_TITLES >$UNIQUE_TITLES
-rm -f $RAW_TITLES
-# Sort episode URLs produced by getOPBFrom-showPages.awk
-mv $EPISODE_URLS $UNSORTED
-sort -fu $UNSORTED >$EPISODE_URLS
-rm -f $UNSORTED
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
@@ -184,8 +161,6 @@ function printAdjustedFileInfo() {
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $EPISODE_URLS 0
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
@@ -209,7 +184,9 @@ function addTotalsToSpreadsheet() {
         printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
         ;;
     total)
-        TXT_TOTAL=$(cat $DURATION)
+        # TXT_TOTAl Not Yet Available
+        # TXT_TOTAL=$(cat $DURATION)
+        TXT_TOTAL=0
         printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
         ;;
     *)
@@ -222,7 +199,6 @@ function addTotalsToSpreadsheet() {
 # Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
-    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -257,7 +233,7 @@ function checkdiffs() {
         if cmp --quiet "$1" "$2"; then
             printf "==> no diffs found.\n"
         else
-            diff -U 0 "$1" "$2" | awk -f formatUnifiedDiffOutput.awk
+            diff -U 0 "$1" "$2" | awk -f ../formatUnifiedDiffOutput.awk
         fi
     fi
 }
@@ -273,9 +249,6 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_DURATION $DURATION)
-$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
-$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
 ### Any funny stuff with file lengths?
 
