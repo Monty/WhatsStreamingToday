@@ -1,7 +1,5 @@
 # Grab fields from Walter Presents HTML files
-# Title  Seasons  Episodes  Duration  Description
-
-# =HYPERLINK("https://acorn.tv/50shadesofgreen";"50 Shades Of Green")	1	=+1  	00h 46m	Britain's favorite gardener, Alan Titchmarsh, celebrates horticulture around the UK as he counts down his 50 favorite things. With appearances from friends and experts who share his passion--including Mary Berry and Griff Rhys Jones--Alan visits the gorgeous greenery at Kew Gardens, Blenheim Palace, Chatsworth House, and even the place where it all began for him: his grandfather's vegetable garden.
+# Title  Seasons  Episodes  Duration  Language Description
 
 # Title  Seasons  Episodes  Duration  Genre  Country  Language  Rating  Description
 
@@ -10,12 +8,17 @@
 /^https:/ {
     split ($0,fld,"\t")
     showURL = fld[1]
+    # print "==> showURL = " showURL > "/dev/stderr"
+    # Create shorter URL by removing https://
+    shortURL = showURL
+    sub (/.*pbs.org/,"pbs.org",shortURL)
     showTitle = fld[2]
     print showTitle >> RAW_TITLES
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
 }
 
 / "description":/ {
+    descriptionLinesFound++
     split ($0,fld,"\"")
     showDescription = fld[4]
     gsub (/&#x27;/,"'",showDescription)
@@ -37,23 +40,44 @@
 
 / S.[0-9]* Ep[0-9]* \| / {
     episodeLinesFound++
+    durationLinesFound++
     next
 }
 
 / Ep[0-9]* \| / {
     episodeLinesFound++
+    durationLinesFound++
     next
 }
 
 / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     episodeLinesFound++
+    durationLinesFound++
     next
 }
 
 
 /-- start medium-rectangle-half-page --/ {
-    printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, episodeLinesFound, \
-            showDurationText, showDescription)
+    if (episodeLinesFound == 0) {
+        printf ("==> No episodes found: %s '%s'\n", \
+                shortURL, showTitle) >> ERRORS
+    }
+    if (episodeLinesFound == 1) {
+        printf ("==> Only one episode: %s '%s'\n", \
+                shortURL, showTitle) >> ERRORS
+    }
+    if (descriptionLinesFound == 0) {
+        printf ("==> No description found: %s '%s'\n", \
+                shortURL, showTitle) >> ERRORS
+    }
+    if (durationLinesFound == 0) {
+        printf ("==> No durations found: %s '%s'\n", \
+                shortURL, showTitle) >> ERRORS
+    }
+
+
+    printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
+            episodeLinesFound, showDurationText, showDescription)
     # Make sure there is no carryover
     showURL = ""
     showTitle = ""
