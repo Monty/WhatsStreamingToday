@@ -18,7 +18,6 @@ printf "==> time ./makeAcornFromBrowsePage.sh -td\n"
 date
 time ./makeAcornFromBrowsePage.sh -td
 printf "\n"
-printf "========================================\n"
 
 printf -- "----------------------------------------\n"
 printf "==> time Walter-Presents/makeOPB.sh -td\n"
