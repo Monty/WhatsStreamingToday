@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Time shell scripts that make spreadsheets -- fastest to slowest so first results are available quickly
 
+PATH=${PATH}:/usr/local/bin
+
 printf "========================================\n"
 printf "==> time ./makeBBoxFromSitemap.sh -tdr\n"
 date
