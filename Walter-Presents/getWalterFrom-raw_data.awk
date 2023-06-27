@@ -11,12 +11,16 @@
     split ($0,fld,"\t")
     showURL = fld[1]
     showTitle = fld[2]
+    print showTitle >> RAW_TITLES
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
 }
 
 / "description":/ {
     split ($0,fld,"\"")
     showDescription = fld[4]
+    gsub (/&#x27;/,"'",showDescription)
+    sub (/ with English subtitles/,"",showDescription)
+    sub (/ From Walter Presents, in/," In",showDescription)
     # print showDescription
     next
 }
