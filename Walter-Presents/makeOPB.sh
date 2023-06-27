@@ -129,9 +129,6 @@ done <"$SHOW_URLS"
 # Print header for possible errors from processing shows
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
-# Print header for SHORT_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
-
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
     -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
@@ -140,6 +137,16 @@ awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
 # Field numbers returned by getOPBFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
 titleCol="1"
+
+# Print header for SHORT_SPREADSHEET
+printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
+sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
+
+# rm -f $UNSORTED
+
+# Sort the titles produced by getAcornFrom-showPages.awk
+sort -fu $RAW_TITLES >$UNIQUE_TITLES
+rm -f $RAW_TITLES
 
 exit
 
