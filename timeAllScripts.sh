@@ -3,29 +3,29 @@
 
 PATH=${PATH}:/usr/local/bin
 
-printf "========================================\n"
-printf "==> time ./makeBBoxFromSitemap.sh -tdr\n"
-date
+printf "========================================\n" | tee /dev/stderr
+printf "==> time ./makeBBoxFromSitemap.sh -tdr\n" | tee /dev/stderr
+date | tee /dev/stderr
 time ./makeBBoxFromSitemap.sh -tdr
-printf "\n"
+printf "\n" | tee /dev/stderr
 
-printf -- "----------------------------------------\n"
-printf "==> time ./makeMHzFromSitemap.sh -td\n"
-date
+printf -- "----------------------------------------\n" | tee /dev/stderr
+printf "==> time ./makeMHzFromSitemap.sh -td\n" | tee /dev/stderr
+date | tee /dev/stderr
 time ./makeMHzFromSitemap.sh -td
-printf "\n"
+printf "\n" | tee /dev/stderr
 
-printf -- "----------------------------------------\n"
-printf "==> time ./makeAcornFromBrowsePage.sh -td\n"
-date
+printf -- "----------------------------------------\n" | tee /dev/stderr
+printf "==> time ./makeAcornFromBrowsePage.sh -td\n" | tee /dev/stderr
+date | tee /dev/stderr
 time ./makeAcornFromBrowsePage.sh -td
-printf "\n"
+printf "\n" | tee /dev/stderr
 
-printf -- "----------------------------------------\n"
-printf "==> time Walter-Presents/makeOPB.sh -td\n"
-date
+printf -- "----------------------------------------\n" | tee /dev/stderr
+printf "==> time Walter-Presents/makeOPB.sh -td\n" | tee /dev/stderr
+date | tee /dev/stderr
 time Walter-Presents/makeOPB.sh -td
-printf "\n"
+printf "\n" | tee /dev/stderr
 
 exit
 
