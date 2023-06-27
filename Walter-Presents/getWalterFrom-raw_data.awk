@@ -15,6 +15,11 @@
     showTitle = fld[2]
     print showTitle >> RAW_TITLES
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
+    showLanguage = "English"
+}
+
+/ with English subtitles/ {
+    showLanguage = $(NF - 3)
 }
 
 / "description":/ {
@@ -76,8 +81,8 @@
     }
 
 
-    printf ("%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
-            episodeLinesFound, showDurationText, showDescription)
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
+            episodeLinesFound, showDurationText, showLanguage, showDescription)
     # Make sure there is no carryover
     showURL = ""
     showTitle = ""
@@ -87,6 +92,7 @@
     showHrs = 0
     showDuration = ""
     showDescription = ""
+    showLanguage = ""
     #
     episodeLinesFound = 0
     seasonLinesFound = 0
