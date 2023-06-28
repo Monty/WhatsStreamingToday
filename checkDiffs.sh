@@ -16,6 +16,10 @@ BBOX_DIFFS=$(find BBox_diffs-*txt | tail -1)
 MHZ_ANOMS=$(find MHz_anomalies-*txt | tail -1)
 MHZ_ANOMS_OLD=$(find MHz_anomalies-*txt | tail -2 | head -1)
 MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
+#
+OPB_ANOMS=$(find Walter-Presents/OPB_anomalies-*txt | tail -1)
+OPB_ANOMS_OLD=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
+OPB_DIFFS=$(find Walter-Presents/OPB_diffs-*txt | tail -1)
 
 function waitForKey() {
     read -r -n 1 -s -p "Hit any key to clear screen and continue, '^C' to quit. "
@@ -33,7 +37,10 @@ waitForKey
 ./whatChanged "$MHZ_ANOMS_OLD" "$MHZ_ANOMS"
 waitForKey
 
-view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS"
+./whatChanged "$OPB_ANOMS_OLD" "$OPB_ANOMS"
+waitForKey
+
+view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS"
 clear
 waitForKey
 
@@ -41,3 +48,4 @@ printf "OK. Saving today's files...\n"
 ./saveTodaysAcornFiles.sh
 ./saveTodaysBBoxFiles.sh
 ./saveTodaysMHzFiles.sh
+./saveTodaysOPBFiles.sh
