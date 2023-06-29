@@ -80,6 +80,10 @@
                 shortURL, showTitle) >> ERRORS
     }
 
+    # Fix any known issues
+    if (showTitle == "La Otra Mirada" && showLanguage != "Spanish") {
+        printf ("==> Setting '%s' language to Spanish\n", showTitle) >> ERRORS
+    }
 
     printf ("%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showDurationText, showLanguage, showDescription)
