@@ -47,21 +47,28 @@
     next
 }
 
-# Duration of shows with more than one season
+# Durations from shows with more than one season
 / S.[0-9]* Ep[0-9]* \| / {
     episodeLinesFound++
     durationLinesFound++
     next
 }
 
-# Duration of shows with only one season
+# Durations from shows with only one season
 / Ep[0-9]* \| / {
     episodeLinesFound++
     durationLinesFound++
     next
 }
 
-# Duration of shows with dates instead of seasons
+# Durations of Special episodes
+/ Special \| / {
+    episodeLinesFound++
+    durationLinesFound++
+    next
+}
+
+# Duration from shows that use dates instead of seasons
 / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     episodeLinesFound++
     durationLinesFound++
