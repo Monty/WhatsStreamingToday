@@ -34,27 +34,34 @@
 }
 
 # Don't include Previews
-/Preview: S[0-9]* Ep[0-9]* \| / || /Preview: Ep[0-9]* \| / {
+/Preview: S[0-9]* Ep[0-9]* \| / \
+    || /Preview: Ep[0-9]* \| / \
+    || /Preview: [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     next
 }
 
 # Don't include Clips
-/Clip: S[0-9]* Ep[0-9]* \| / || /Clip: Ep[0-9]* \| / {
+/Clip: S[0-9]* Ep[0-9]* \| / \
+    || /Clip: Ep[0-9]* \| / \
+    || /Clip: [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     next
 }
 
+# Duration of shows with more than one season
 / S.[0-9]* Ep[0-9]* \| / {
     episodeLinesFound++
     durationLinesFound++
     next
 }
 
+# Duration of shows with only one season
 / Ep[0-9]* \| / {
     episodeLinesFound++
     durationLinesFound++
     next
 }
 
+# Duration of shows with dates instead of seasons
 / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     episodeLinesFound++
     durationLinesFound++
