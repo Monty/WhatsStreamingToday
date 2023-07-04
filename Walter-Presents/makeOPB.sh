@@ -88,6 +88,7 @@ export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_TITLES="OPB_uniqTitles$DATE_ID.txt"
 DURATION="$COLS/total_duration$DATE_ID.txt"
+LOGFILE="$COLS/logfile$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
@@ -97,9 +98,10 @@ PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
+PUBLISHED_LOGFILE="$BASELINE/logfile.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_DATA $RAW_HTML $RAW_TITLES $DURATION"
+ALL_WORKING="$UNSORTED $RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
@@ -120,8 +122,8 @@ while read -r line; do
     read field1 field2 <<<"$line"
     echo "$line" >>"$RAW_DATA"
     export TARGET="$field1"
-    node getOPB.js
-    prettier-eslint --write "$RAW_HTML"
+    node getOPB.js >>"$LOGFILE"
+    prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
     awk -f getOPB.awk "$RAW_HTML" | rg -f searchterms.txt >>"$RAW_DATA"
     rm -f $RAW_HTML
 done <"$SHOW_URLS"
@@ -165,6 +167,7 @@ printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
+printAdjustedFileInfo $LOGFILE 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
@@ -250,6 +253,7 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_LOGFILE $LOGFILE)
 
 ### Any funny stuff with file lengths?
 

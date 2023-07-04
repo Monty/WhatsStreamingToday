@@ -22,7 +22,7 @@ let output_file = process.env.RAW_HTML;
         .click({ timeout: 1000 });
       await page.waitForTimeout(1500); // wait for 1.5 seconds
     }
-    console.log('==> ' + series_URL + ' Not enough clicks!');
+    console.error('==> ' + series_URL + ' Not enough clicks!');
   } catch {}
   const raw_html = await page.content();
   fs.writeFile(
