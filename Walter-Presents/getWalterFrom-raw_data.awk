@@ -6,6 +6,7 @@
 # Title  Seasons  Episodes  Duration  Genre  Year  Rating  Description  Content_Type  Content_ID  Show_Type  Date_Type  Season_ID  Sn_#  Ep_#
 
 /^https:/ {
+    totalShows += 1
     split ($0,fld,"\t")
     showURL = fld[1]
     # print "==> showURL = " showURL > "/dev/stderr"
@@ -47,34 +48,75 @@
     next
 }
 
-# Durations from shows with more than one season
+# Durations
+/ S.[0-9]* Ep[0-9]* \| / \
+    || / Ep[0-9]* \| / \
+    || / Special \| / \
+    || / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+    durationLinesFound++
+    split ($0,fld,"|")
+    # print fld[2]
+    numFields = split (fld[2],tm," ")
+    # Initialize fields to 0 in case any are missing
+    secs = mins = hrs = 0
+    for (i = 1; i <= numFields; ++i) {
+        if (tm[i] ~ /s/) {
+            sub (/s/, "", tm[i])
+            secs = tm[i]
+        }
+        if (tm[i] ~ /m/) {
+            sub (/m/, "", tm[i])
+            mins = tm[i]
+        }
+        if (tm[i] ~ /h/) {
+            sub (/h/, "", tm[i])
+            hrs = tm[i]
+        }
+    }
+
+    showSecs += secs
+    showMins += mins + int(showSecs / 60)
+    showHrs += hrs + int(showMins / 60)
+    showSecs %= 60; showMins %= 60
+
+    totalTime[3] += secs
+    totalTime[2] += mins + int(totalTime[3] / 60)
+    totalTime[1] += hrs + int(totalTime[2] / 60)
+    totalTime[3] %= 60; totalTime[2] %= 60
+
+    # printf ("%02d:%02d:%02d\n", hrs, mins, secs)
+    # printf ("totalTime = %02dh %02dm\n", totalTime[1], totalTime[2])
+    # showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
+    # showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
+}
+
+# Episodes from shows with more than one season
 / S.[0-9]* Ep[0-9]* \| / {
     episodeLinesFound++
-    durationLinesFound++
+    totalEpisodes++
     next
 }
 
-# Durations from shows with only one season
+# Episodes from shows with only one season
 / Ep[0-9]* \| / {
     episodeLinesFound++
-    durationLinesFound++
+    totalEpisodes++
     next
 }
 
-# Durations of Special episodes
+# Special episodes
 / Special \| / {
     episodeLinesFound++
-    durationLinesFound++
+    totalEpisodes++
     next
 }
 
-# Duration from shows that use dates instead of seasons
+# Episodes from shows that use dates instead of seasons
 / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     episodeLinesFound++
-    durationLinesFound++
+    totalEpisodes++
     next
 }
-
 
 /-- start medium-rectangle-half-page --/ {
     if (episodeLinesFound == 0) {
@@ -100,6 +142,8 @@
         showLanguage = "Spanish"
     }
 
+    # Wrap up show
+    showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
     printf ("%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showDurationText, showLanguage, showDescription)
     # Make sure there is no carryover
@@ -117,4 +161,14 @@
     seasonLinesFound = 0
     descriptionLinesFound  = 0
     durationLinesFound = 0
+}
+
+END {
+    printf ("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION  
+    printf ("In getWalterFrom-raw_data.awk\n") > "/dev/stderr"
+    totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
+    totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
+    totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
+    printf ("    Processed %d %s, %d %s, %d %s\n", totalShows, pluralShows,
+        totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes) > "/dev/stderr"
 }

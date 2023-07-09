@@ -188,9 +188,7 @@ function addTotalsToSpreadsheet() {
         printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
         ;;
     total)
-        # TXT_TOTAl Not Yet Available
-        # TXT_TOTAL=$(cat $DURATION)
-        TXT_TOTAL=0
+        TXT_TOTAL=$(cat $DURATION)
         printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
         ;;
     *)
