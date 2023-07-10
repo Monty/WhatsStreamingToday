@@ -140,7 +140,7 @@
     if (descriptionLinesFound == 0) {
         printf ("==> No description found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
-sub (/ */, "")    }
+    }
     if (durationLinesFound == 0) {
         printf ("==> No durations found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
