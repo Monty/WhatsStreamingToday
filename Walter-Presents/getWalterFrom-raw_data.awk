@@ -90,29 +90,30 @@
     # showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
 }
 
+# Special episodes
+/ Special \| / {
+    showSeasons = 1
+    episodeLinesFound++
+    totalEpisodes++
+    next
+}
+
 # Episodes from shows with more than one season
 / S.[0-9]* Ep[0-9]* \| / {
+    sub (/^ */, "")
+    split ($0,fld," ")
+    seasonField = fld[1]
+    sub (/S/, "", seasonField)
+    showSeasons = seasonField
     episodeLinesFound++
     totalEpisodes++
     next
 }
 
 # Episodes from shows with only one season
-/ Ep[0-9]* \| / {
-    episodeLinesFound++
-    totalEpisodes++
-    next
-}
-
-# Special episodes
-/ Special \| / {
-    episodeLinesFound++
-    totalEpisodes++
-    next
-}
-
-# Episodes from shows that use dates instead of seasons
-/ [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+/ Ep[0-9]* \| / \
+    || / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+    showSeasons = 1
     episodeLinesFound++
     totalEpisodes++
     next
@@ -144,6 +145,7 @@
 
     # Wrap up show
     showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
+    totalSeasons += showSeasons
     printf ("%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showDurationText, showLanguage, showDescription)
     # Make sure there is no carryover
@@ -153,6 +155,7 @@
     showSecs = 0
     showMins = 0
     showHrs = 0
+    showSeasons = 0
     showDuration = ""
     showDescription = ""
     showLanguage = ""
