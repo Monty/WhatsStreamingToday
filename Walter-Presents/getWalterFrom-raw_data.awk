@@ -118,7 +118,11 @@
 
 # Episodes from shows that use dates instead of seasons
 /[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    showSeasons = 1
+    sub (/^ */, "")
+    sub (/ .*/, "")
+    split ($0,fld,"/")
+    seasonsArray[fld[3]]++
+    showSeasons = length(seasonsArray)
     episodeLinesFound++
     totalEpisodes++
     next
@@ -136,7 +140,7 @@
     if (descriptionLinesFound == 0) {
         printf ("==> No description found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
-    }
+sub (/ */, "")    }
     if (durationLinesFound == 0) {
         printf ("==> No durations found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
