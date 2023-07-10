@@ -92,7 +92,6 @@
 
 # Special episodes
 / Special \| / {
-    showSeasons = 1
     episodeLinesFound++
     totalEpisodes++
     next
@@ -111,8 +110,15 @@
 }
 
 # Episodes from shows with only one season
-/ Ep[0-9]* \| / \
-    || / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+/ Ep[0-9]* \| / {
+    showSeasons = 1
+    episodeLinesFound++
+    totalEpisodes++
+    next
+}
+
+# Episodes from shows that use dates instead of seasons
+/[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     showSeasons = 1
     episodeLinesFound++
     totalEpisodes++
