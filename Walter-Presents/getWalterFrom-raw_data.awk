@@ -101,9 +101,8 @@
 / S.[0-9]* Ep[0-9]* \| / {
     sub (/^ */, "")
     split ($0,fld," ")
-    seasonField = fld[1]
-    sub (/S/, "", seasonField)
-    showSeasons = seasonField
+    seasonsArray[fld[1]]++
+    showSeasons = length(seasonsArray)
     episodeLinesFound++
     totalEpisodes++
     next
@@ -165,6 +164,7 @@
     showDuration = ""
     showDescription = ""
     showLanguage = ""
+    delete seasonsArray
     #
     episodeLinesFound = 0
     seasonLinesFound = 0
