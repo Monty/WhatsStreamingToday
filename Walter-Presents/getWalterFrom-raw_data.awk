@@ -23,6 +23,12 @@
     showLanguage = $(NF - 3)
 }
 
+/"genre":/ {
+    genreLinesFound++
+    split ($0,fld,"\"")
+    showGenre = fld[4]
+}
+
 / "description":/ {
     descriptionLinesFound++
     split ($0,fld,"\"")
@@ -141,6 +147,10 @@
         printf ("==> No description found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
     }
+    if (genreLinesFound == 0) {
+        printf ("==> No genre found: %s '%s'\n", \
+                shortURL, showTitle) >> ERRORS
+    }
     if (durationLinesFound == 0) {
         printf ("==> No durations found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
@@ -151,12 +161,17 @@
         printf ("==> Setting '%s' language to Spanish\n", showTitle) >> ERRORS
         showLanguage = "Spanish"
     }
+    if (showTitle == "Superabundant" && showGenre == "") {
+        printf ("==> Setting '%s' genre to Food\n", showTitle) >> ERRORS
+        showGenre = "Food"
+    }
 
     # Wrap up show
     showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
     totalSeasons += showSeasons
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
-            episodeLinesFound, showDurationText, showLanguage, showDescription)
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
+            episodeLinesFound, showDurationText, showGenre, showLanguage, \
+            showDescription)
     # Make sure there is no carryover
     showURL = ""
     showTitle = ""
@@ -167,12 +182,14 @@
     showSeasons = 0
     showDuration = ""
     showDescription = ""
+    showGenre = ""
     showLanguage = ""
     delete seasonsArray
     #
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound  = 0
+    genreLinesFound = 0
     durationLinesFound = 0
 }
 

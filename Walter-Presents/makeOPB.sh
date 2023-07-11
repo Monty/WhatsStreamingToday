@@ -141,7 +141,7 @@ awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
 titleCol="1"
 
 # Print header for SHORT_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tLanguage\tDescription\n" \
+printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tDescription\n" \
     >$SHORT_SPREADSHEET
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
 sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
