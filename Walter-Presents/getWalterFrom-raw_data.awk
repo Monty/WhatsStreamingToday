@@ -60,7 +60,7 @@
 # Durations
 / S.[0-9]* Ep[0-9]* \| / \
     || / Ep[0-9]* \| / \
-    || / Special \| / \
+    || /                                    Special \| / \
     || / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     durationLinesFound++
     split ($0,fld,"|")
@@ -103,7 +103,7 @@
 }
 
 # Special episodes
-/ Special \| / {
+/                                    Special \| / {
     episodeLinesFound++
     totalEpisodes++
     next
