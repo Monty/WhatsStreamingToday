@@ -39,4 +39,4 @@ cp -p $VERBOSE $COLS/logfile-$DATE.txt $BASELINE/logfile.txt
 
 cp -p $VERBOSE OPB_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE OPB_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
-# cp -p $VERBOSE OPB_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt
+cp -p $VERBOSE OPB_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt
