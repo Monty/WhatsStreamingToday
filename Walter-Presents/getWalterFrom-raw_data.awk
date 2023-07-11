@@ -23,12 +23,6 @@
     showLanguage = $(NF - 3)
 }
 
-/"genre":/ {
-    genreLinesFound++
-    split ($0,fld,"\"")
-    showGenre = fld[4]
-}
-
 / "description":/ {
     descriptionLinesFound++
     split ($0,fld,"\"")
@@ -38,6 +32,24 @@
     sub (/ From Walter Presents, in/," In",showDescription)
     # print showDescription
     next
+}
+
+/"genre":/ {
+    genreLinesFound++
+    split ($0,fld,"\"")
+    showGenre = fld[4]
+}
+
+/data-title=/ {
+    split ($0,fld,"\"")
+    episodeTitle = fld[2]
+}
+
+/data-video-slug=/ {
+    split ($0,fld,"\"")
+    episodeURL = sprintf ("https://www.pbs.org/video/%s/",fld[2])
+    episodeLink = \
+        "=HYPERLINK(\"" episodeURL "\";\"" showTitle ", " episodeTitle "\")"
 }
 
 # Don't include Previews
@@ -90,10 +102,13 @@
     totalTime[1] += hrs + int(totalTime[2] / 60)
     totalTime[3] %= 60; totalTime[2] %= 60
 
-    # printf ("%02d:%02d:%02d\n", hrs, mins, secs)
-    # printf ("totalTime = %02dh %02dm\n", totalTime[1], totalTime[2])
-    # showDuration = sprintf ("%02d:%02d:%02d", showHrs, showMins, showSecs)
-    # showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
+    # Wrap up episode
+    episodeDuration = sprintf ("%02d:%02d:%02d",hrs,mins,secs)
+    episodeString = sprintf ("%s\t\t\t%s\n", episodeLink, episodeDuration)
+    episodeList = episodeList episodeString
+    episodeLink = ""
+    episodeDuration = ""
+    episodeString = ""
 }
 
 # Special episodes
@@ -172,6 +187,10 @@
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showDurationText, showGenre, showLanguage, \
             showDescription)
+    printf ("%s\t%s\t%s\t\t%s\t%s\t%s\n", showLink, showSeasons, \
+            episodeLinesFound, showGenre, showLanguage, \
+            showDescriListption) >> LONG_SPREADSHEET
+    printf ("%s", episodeList) >> LONG_SPREADSHEET
     # Make sure there is no carryover
     showURL = ""
     showTitle = ""
@@ -186,6 +205,7 @@
     showLanguage = ""
     delete seasonsArray
     #
+    episodeList = ""
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound  = 0
