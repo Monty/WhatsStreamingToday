@@ -43,6 +43,7 @@
 /data-title=/ {
     split ($0,fld,"\"")
     episodeTitle = fld[2]
+    sub (/&amp;/,"\\&",episodeTitle)
 }
 
 /data-video-type="clip"/ \
