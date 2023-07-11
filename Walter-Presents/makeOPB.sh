@@ -105,7 +105,7 @@ ALL_WORKING="$UNSORTED $RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET"
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -131,18 +131,23 @@ done <"$SHOW_URLS"
 # Print header for possible errors from processing shows
 printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
+# Print header for LONG_SPREADSHEET
+printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tDescription\n" \
+    >$LONG_SPREADSHEET
+
+# Print header for SHORT_SPREADSHEET
+printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tDescription\n" \
+    >$SHORT_SPREADSHEET
+
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
-    -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
+    -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED
 
 # Field numbers returned by getOPBFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
 titleCol="1"
 
-# Print header for SHORT_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tDescription\n" \
-    >$SHORT_SPREADSHEET
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
 sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
 
@@ -166,6 +171,7 @@ function printAdjustedFileInfo() {
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
+printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
 
