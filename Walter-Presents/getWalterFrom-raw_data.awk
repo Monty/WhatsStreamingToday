@@ -45,25 +45,16 @@
     episodeTitle = fld[2]
 }
 
+/data-video-type="clip"/ \
+    ||  /data-video-type="preview"/,/data-ancestor/ {
+    next
+}
+
 /data-video-slug=/ {
     split ($0,fld,"\"")
     episodeURL = sprintf ("https://www.pbs.org/video/%s/",fld[2])
     episodeLink = \
         "=HYPERLINK(\"" episodeURL "\";\"" showTitle ", " episodeTitle "\")"
-}
-
-# Don't include Previews
-/Preview: S[0-9]* Ep[0-9]* \| / \
-    || /Preview: Ep[0-9]* \| / \
-    || /Preview: [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    next
-}
-
-# Don't include Clips
-/Clip: S[0-9]* Ep[0-9]* \| / \
-    || /Clip: Ep[0-9]* \| / \
-    || /Clip: [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    next
 }
 
 # Durations
