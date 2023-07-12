@@ -82,7 +82,8 @@ SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
 
 # Intermediate working files
-UNSORTED="$COLS/unsorted$DATE_ID.csv"
+UNSORTED_SHORT="$COLS/unsorted_short$DATE_ID.csv"
+UNSORTED_LONG="$COLS/unsorted_long$DATE_ID.csv"
 RAW_DATA="$COLS/raw_data$DATE_ID.txt"
 export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
@@ -101,7 +102,8 @@ PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 PUBLISHED_LOGFILE="$BASELINE/logfile.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED $RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE"
+ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML $RAW_TITLES "
+ALL_WORKING+="$DURATION $LOGFILE"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
@@ -142,16 +144,18 @@ printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tDescription\n" \
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
-    -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED
+    -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
 
 # Field numbers returned by getOPBFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
 titleCol="1"
 
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
+sort -fu --key=4 --field-separator=\" $UNSORTED_SHORT >>$SHORT_SPREADSHEET
 
-# rm -f $UNSORTED
+# Output $LONG_SPREADSHEET body sorted by title, not URL
+mv $LONG_SPREADSHEET $UNSORTED_LONG
+sort -fu --key=4 --field-separator=\" $UNSORTED_LONG >>$LONG_SPREADSHEET
 
 # Sort the titles produced by getAcornFrom-showPages.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
