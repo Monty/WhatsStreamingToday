@@ -14,6 +14,9 @@
     shortURL = showURL
     sub (/.*pbs.org/,"pbs.org",shortURL)
     showTitle = fld[2]
+    if (shortURL ~ /before-we-die-uk/) {
+        showTitle = "Before We Die (UK)"
+    }
     print showTitle >> RAW_TITLES
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showLanguage = "English"
