@@ -17,13 +17,14 @@
     print showTitle >> RAW_TITLES
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showLanguage = "English"
+    next
 }
 
 / with English subtitles/ {
     showLanguage = $(NF - 3)
 }
 
-/ "description":/ {
+/"description":/ {
     descriptionLinesFound++
     split ($0,fld,"\"")
     showDescription = fld[4]
@@ -38,16 +39,21 @@
     genreLinesFound++
     split ($0,fld,"\"")
     showGenre = fld[4]
+    next
 }
 
 /data-title=/ {
     split ($0,fld,"\"")
     episodeTitle = fld[2]
     sub (/&amp;/,"\\&",episodeTitle)
+    next
 }
 
-/data-video-type="clip"/ \
-    ||  /data-video-type="preview"/,/data-ancestor/ {
+/data-video-type="clip"/,/Clip:/ {
+    next
+}
+
+/data-video-type="preview"/,/Preview:/ {
     next
 }
 
@@ -56,6 +62,7 @@
     episodeURL = sprintf ("https://www.pbs.org/video/%s/",fld[2])
     episodeLink = \
         "=HYPERLINK(\"" episodeURL "\";\"" showTitle ", " episodeTitle "\")"
+    next
 }
 
 # Durations
@@ -142,6 +149,7 @@
 }
 
 /-- start medium-rectangle-half-page --/ {
+    # print showTitle > "/dev/stderr"
     if (episodeLinesFound == 0) {
         printf ("==> No episodes found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
