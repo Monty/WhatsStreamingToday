@@ -211,6 +211,7 @@ function addTotalsToSpreadsheet() {
 # Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
+    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
