@@ -79,6 +79,8 @@
     # If we find a header, clean it up and put it before the description
     if ($0 ~ /\|[ ]+TV[ ]*-/) {
         sub (/WITH ENGLISH SUBTITLES /,"")
+        # Special case for Maigret: The Classic BBC Series
+        sub (/ With english captions/,"")
         # Special case for Spitfire
         sub (/WITH ENGISH SUBTITLES /,"")
         sub (/[Ww]ith [Ee]nglish [Ss]ubtitles /,"")
