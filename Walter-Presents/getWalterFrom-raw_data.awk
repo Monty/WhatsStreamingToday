@@ -52,11 +52,9 @@
     next
 }
 
-/data-video-type="clip"/,/Clip:/ {
-    next
-}
-
-/data-video-type="preview"/,/Preview:/ {
+/data-video-type=/ {
+    split ($0,fld,"\"")
+    episodeType = fld[2]
     next
 }
 
@@ -73,6 +71,10 @@
     || / Ep[0-9]* \| / \
     || /                                    Special \| / \
     || / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+    # Don't count clips or episodes
+    if (episodeType == "clip" || episodeType == "preview")
+        next
+    #
     durationLinesFound++
     split ($0,fld,"|")
     # print fld[2]
@@ -111,6 +113,7 @@
     episodeLink = ""
     episodeDuration = ""
     episodeString = ""
+    episodeType = ""
 }
 
 # Special episodes
