@@ -150,6 +150,12 @@
     episodeDuration = sprintf ("%02d:%02d:%02d",hrs,mins,secs)
     if (episodeType == "X")
         episodeNumber = specialEpisodeNumber
+    # Special case for Central Florida Roadtrip season 2
+    if (episodeNumber + 0 >= 18000)
+        episodeNumber = episodeNumber - 18000
+    # Special case for episodeNumbers that include season number
+    if (episodeNumber + 0 >= 100)
+        episodeNumber = episodeNumber - seasonNumber * 100
     episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")",
         episodeURL, showTitle, seasonNumber, episodeType, episodeNumber,
         episodeTitle)
