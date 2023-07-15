@@ -50,8 +50,10 @@
 }
 
 /data-video-type=/ {
+    episodeType = "X"
     split ($0,fld,"\"")
-    episodeType = fld[2]
+    if (fld[2] == "episode")
+        episodeType = "E"
     next
 }
 
@@ -63,14 +65,17 @@
 
 # Special episodes
 /^                                    Special \| / {
+    specialEpisodeNumber++
     episodeLinesFound++
     totalEpisodes++
 }
 
 # Episodes from shows with only one season
 /^ *Ep[0-9]* \| / {
-    # Don't count clips or previews
     sub (/^ */, "")
+    split ($0,fld," ")
+    episodeNumber = fld[1]
+    sub (/Ep/, "", episodeNumber)
     seasonNumber = 1
     showSeasons = 1
     episodeLinesFound++
@@ -79,13 +84,14 @@
 
 # Episodes from shows with more than one season
 /^ *S.[0-9]* Ep[0-9]* \| / {
-    # Don't count clips or previews
     sub (/^ */, "")
     split ($0,fld," ")
     seasonNumber = fld[1]
-    sub (/S/,"",seasonNumber)
-    seasonsArray[fld[1]]++
+    seasonsArray[seasonNumber]++
     showSeasons = length(seasonsArray)
+    sub (/S/,"",seasonNumber)
+    episodeNumber = fld[2]
+    sub (/Ep/, "", episodeNumber)
     episodeLinesFound++
     totalEpisodes++
 }
@@ -98,6 +104,8 @@
     sub (/ .*/, "",seasonNumber)
     seasonsArray[seasonNumber]++
     showSeasons = length(seasonsArray)
+    episodeArray[seasonNumber]++
+    episodeNumber = episodeArray[seasonNumber]
     episodeLinesFound++
     totalEpisodes++
 }
@@ -140,8 +148,11 @@
     totalTime[3] %= 60; totalTime[2] %= 60
 
     episodeDuration = sprintf ("%02d:%02d:%02d",hrs,mins,secs)
-    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\")",
-        episodeURL, showTitle, seasonNumber, episodeTitle)
+    if (episodeType == "X")
+        episodeNumber = specialEpisodeNumber
+    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")",
+        episodeURL, showTitle, seasonNumber, episodeType, episodeNumber,
+        episodeTitle)
     printf ("%s\t\t\t%s\n", episodeLink, episodeDuration) >> LONG_SPREADSHEET
 
     episodeTitle = ""
@@ -207,7 +218,10 @@
     showGenre = ""
     showLanguage = ""
     delete seasonsArray
+    delete episodeArray
     #
+    episodeNumber = 0
+    specialEpisodeNumber = 0
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound  = 0
