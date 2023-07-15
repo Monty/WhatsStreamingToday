@@ -64,15 +64,60 @@
     next
 }
 
-# Durations
-/ S.[0-9]* Ep[0-9]* \| / \
-    || / Ep[0-9]* \| / \
-    || /                                    Special \| / \
-    || / [0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+# Special episodes
+/                                    Special \| / {
+    episodeLinesFound++
+    totalEpisodes++
+}
+
+# Episodes from shows with only one season
+/ Ep[0-9]* \| / {
     # Don't count clips or episodes
     if (episodeType == "clip" || episodeType == "preview")
         next
-    #
+    sub (/^ */, "")
+    seasonNumber = 1
+    showSeasons = 1
+    episodeLinesFound++
+    totalEpisodes++
+}
+
+# Episodes from shows with more than one season
+/S.[0-9]* Ep[0-9]* \| / {
+    # Don't count clips or episodes
+    if (episodeType == "clip" || episodeType == "preview")
+        next
+    sub (/^ */, "")
+    split ($0,fld," ")
+    seasonNumber = fld[1]
+    sub (/S/,"",seasonNumber)
+    seasonsArray[fld[1]]++
+    showSeasons = length(seasonsArray)
+    episodeLinesFound++
+    totalEpisodes++
+}
+
+# Episodes from shows that use dates instead of seasons
+/[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+    # Don't count clips or episodes
+    if (episodeType == "clip" || episodeType == "preview")
+        next
+    sub (/^ */, "")
+    split ($0,fld,"/")
+    seasonNumber = fld[3]
+    sub (/ .*/, "",seasonNumber)
+    seasonsArray[seasonNumber]++
+    showSeasons = length(seasonsArray)
+    episodeLinesFound++
+    totalEpisodes++
+}
+
+# Wrap up episode
+# Leading spaces have been deleted in episode logic
+/S.[0-9]* Ep[0-9]* \| / \
+      || /Ep[0-9]* \| / \
+      || /                                    Special \| / \
+      || /[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     durationLinesFound++
     split ($0,fld,"|")
     # print fld[2]
@@ -103,64 +148,19 @@
     totalTime[2] += mins + int(totalTime[3] / 60)
     totalTime[1] += hrs + int(totalTime[2] / 60)
     totalTime[3] %= 60; totalTime[2] %= 60
-}
 
-# Special episodes
-/                                    Special \| / {
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows with only one season
-/ Ep[0-9]* \| / {
-    sub (/^ */, "")
-    seasonNumber = 1
-    showSeasons = 1
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows with more than one season
-/ S.[0-9]* Ep[0-9]* \| / {
-    sub (/^ */, "")
-    split ($0,fld," ")
-    seasonNumber = fld[1]
-    sub (/S/,"",seasonNumber)
-    seasonsArray[fld[1]]++
-    showSeasons = length(seasonsArray)
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows that use dates instead of seasons
-/[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    sub (/^ */, "")
-    split ($0,fld,"/")
-    seasonNumber = fld[3]
-    sub (/ .*/, "",seasonNumber)
-    seasonsArray[seasonNumber]++
-    showSeasons = length(seasonsArray)
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Wrap up episode
-# Leading spaces have been deleted in episode logic
-/S.[0-9]* Ep[0-9]* \| / \
-      || /Ep[0-9]* \| / \
-      || /                                    Special \| / \
-      || /[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-      episodeDuration = sprintf ("%02d:%02d:%02d",hrs,mins,secs)
-      episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\")",
+    episodeDuration = sprintf ("%02d:%02d:%02d",hrs,mins,secs)
+    episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\")",
         episodeURL, showTitle, seasonNumber, episodeTitle)
-      printf ("%s\t\t\t%s\n", episodeLink, episodeDuration) >> LONG_SPREADSHEET
-      episodeLink = ""
-      episodeDuration = ""
-      episodeString = ""
-      episodeType = ""
-      next
-  }
+    printf ("%s\t\t\t%s\n", episodeLink, episodeDuration) >> LONG_SPREADSHEET
 
+    episodeTitle = ""
+    episodeType = ""
+    episodeURL = ""
+    episodeDuration = ""
+    episodeLink = ""
+    next
+  }
 
 /-- start medium-rectangle-half-page --/ {
     # print showTitle > "/dev/stderr"
