@@ -1,9 +1,6 @@
 # Grab fields from Walter Presents HTML files
-# Title  Seasons  Episodes  Duration  Language Description
-
-# Title  Seasons  Episodes  Duration  Genre  Country  Language  Rating  Description
-
-# Title  Seasons  Episodes  Duration  Genre  Year  Rating  Description  Content_Type  Content_ID  Show_Type  Date_Type  Season_ID  Sn_#  Ep_#
+# 
+# Title  Seasons  Episodes  Duration  Genre  Language  Description
 
 /^https:/ {
     totalShows += 1
@@ -72,7 +69,7 @@
 
 # Episodes from shows with only one season
 / Ep[0-9]* \| / {
-    # Don't count clips or episodes
+    # Don't count clips or previews
     if (episodeType == "clip" || episodeType == "preview")
         next
     sub (/^ */, "")
@@ -84,7 +81,7 @@
 
 # Episodes from shows with more than one season
 /S.[0-9]* Ep[0-9]* \| / {
-    # Don't count clips or episodes
+    # Don't count clips or previews
     if (episodeType == "clip" || episodeType == "preview")
         next
     sub (/^ */, "")
@@ -99,7 +96,7 @@
 
 # Episodes from shows that use dates instead of seasons
 /[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    # Don't count clips or episodes
+    # Don't count clips or previews
     if (episodeType == "clip" || episodeType == "preview")
         next
     sub (/^ */, "")
