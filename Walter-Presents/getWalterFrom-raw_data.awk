@@ -62,16 +62,14 @@
 }
 
 # Special episodes
-/                                    Special \| / {
+/^                                    Special \| / {
     episodeLinesFound++
     totalEpisodes++
 }
 
 # Episodes from shows with only one season
-/ Ep[0-9]* \| / {
+/^ *Ep[0-9]* \| / {
     # Don't count clips or previews
-    if (episodeType == "clip" || episodeType == "preview")
-        next
     sub (/^ */, "")
     seasonNumber = 1
     showSeasons = 1
@@ -80,10 +78,8 @@
 }
 
 # Episodes from shows with more than one season
-/S.[0-9]* Ep[0-9]* \| / {
+/^ *S.[0-9]* Ep[0-9]* \| / {
     # Don't count clips or previews
-    if (episodeType == "clip" || episodeType == "preview")
-        next
     sub (/^ */, "")
     split ($0,fld," ")
     seasonNumber = fld[1]
@@ -95,10 +91,7 @@
 }
 
 # Episodes from shows that use dates instead of seasons
-/[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    # Don't count clips or previews
-    if (episodeType == "clip" || episodeType == "preview")
-        next
+/^ *[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     sub (/^ */, "")
     split ($0,fld,"/")
     seasonNumber = fld[3]
@@ -111,10 +104,10 @@
 
 # Wrap up episode
 # Leading spaces have been deleted in episode logic
-/S.[0-9]* Ep[0-9]* \| / \
-      || /Ep[0-9]* \| / \
-      || /                                    Special \| / \
-      || /[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+/^S.[0-9]* Ep[0-9]* \| / \
+      || /^Ep[0-9]* \| / \
+      || /^                                    Special \| / \
+      || /^[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     durationLinesFound++
     split ($0,fld,"|")
     # print fld[2]
