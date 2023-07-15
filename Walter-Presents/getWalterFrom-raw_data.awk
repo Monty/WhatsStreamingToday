@@ -61,8 +61,6 @@
 /data-video-slug=/ {
     split ($0,fld,"\"")
     episodeURL = sprintf ("https://www.pbs.org/video/%s/",fld[2])
-    episodeLink = \
-        "=HYPERLINK(\"" episodeURL "\";\"" showTitle ", " episodeTitle "\")"
     next
 }
 
@@ -105,54 +103,64 @@
     totalTime[2] += mins + int(totalTime[3] / 60)
     totalTime[1] += hrs + int(totalTime[2] / 60)
     totalTime[3] %= 60; totalTime[2] %= 60
-
-    # Wrap up episode
-    episodeDuration = sprintf ("%02d:%02d:%02d",hrs,mins,secs)
-    episodeString = sprintf ("%s\t\t\t%s\n", episodeLink, episodeDuration)
-    episodeList = episodeList episodeString
-    episodeLink = ""
-    episodeDuration = ""
-    episodeString = ""
-    episodeType = ""
 }
 
 # Special episodes
 /                                    Special \| / {
     episodeLinesFound++
     totalEpisodes++
-    next
+}
+
+# Episodes from shows with only one season
+/ Ep[0-9]* \| / {
+    sub (/^ */, "")
+    seasonNumber = 1
+    showSeasons = 1
+    episodeLinesFound++
+    totalEpisodes++
 }
 
 # Episodes from shows with more than one season
 / S.[0-9]* Ep[0-9]* \| / {
     sub (/^ */, "")
     split ($0,fld," ")
+    seasonNumber = fld[1]
+    sub (/S/,"",seasonNumber)
     seasonsArray[fld[1]]++
     showSeasons = length(seasonsArray)
     episodeLinesFound++
     totalEpisodes++
-    next
-}
-
-# Episodes from shows with only one season
-/ Ep[0-9]* \| / {
-    showSeasons = 1
-    episodeLinesFound++
-    totalEpisodes++
-    next
 }
 
 # Episodes from shows that use dates instead of seasons
 /[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
     sub (/^ */, "")
-    sub (/ .*/, "")
     split ($0,fld,"/")
-    seasonsArray[fld[3]]++
+    seasonNumber = fld[3]
+    sub (/ .*/, "",seasonNumber)
+    seasonsArray[seasonNumber]++
     showSeasons = length(seasonsArray)
     episodeLinesFound++
     totalEpisodes++
-    next
 }
+
+# Wrap up episode
+# Leading spaces have been deleted in episode logic
+/S.[0-9]* Ep[0-9]* \| / \
+      || /Ep[0-9]* \| / \
+      || /                                    Special \| / \
+      || /[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
+      episodeDuration = sprintf ("%02d:%02d:%02d",hrs,mins,secs)
+      episodeLink = sprintf ("=HYPERLINK(\"%s\";\"%s, S%02d, %s\")",
+        episodeURL, showTitle, seasonNumber, episodeTitle)
+      printf ("%s\t\t\t%s\n", episodeLink, episodeDuration) >> LONG_SPREADSHEET
+      episodeLink = ""
+      episodeDuration = ""
+      episodeString = ""
+      episodeType = ""
+      next
+  }
+
 
 /-- start medium-rectangle-half-page --/ {
     # print showTitle > "/dev/stderr"
@@ -196,7 +204,6 @@
     printf ("%s\t%s\t%s\t\t%s\t%s\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showGenre, showLanguage, \
             showDescriListption) >> LONG_SPREADSHEET
-    printf ("%s", episodeList) >> LONG_SPREADSHEET
     # Make sure there is no carryover
     showURL = ""
     showTitle = ""
@@ -211,7 +218,6 @@
     showLanguage = ""
     delete seasonsArray
     #
-    episodeList = ""
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound  = 0
