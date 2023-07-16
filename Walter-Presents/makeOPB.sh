@@ -105,7 +105,7 @@ PUBLISHED_LOGFILE="$BASELINE/logfile.txt"
 ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML $RAW_TITLES "
 ALL_WORKING+="$DURATION $LOGFILE"
 #
-ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
+ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_URLS"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
@@ -173,9 +173,10 @@ function printAdjustedFileInfo() {
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $SHOW_URLS 0
-printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $LONG_SPREADSHEET 1
+printAdjustedFileInfo $EPISODE_URLS 0
+printAdjustedFileInfo $SHORT_SPREADSHEET 1
+printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
 
@@ -263,6 +264,7 @@ $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
+$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LOGFILE $LOGFILE)
 

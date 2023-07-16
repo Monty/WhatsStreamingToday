@@ -60,6 +60,7 @@
 /data-video-slug=/ {
     split ($0,fld,"\"")
     episodeURL = sprintf ("https://www.pbs.org/video/%s/",fld[2])
+    print episodeURL >> EPISODE_URLS
     next
 }
 

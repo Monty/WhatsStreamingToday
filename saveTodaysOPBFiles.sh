@@ -33,7 +33,7 @@ COLS="OPB-columns"
 BASELINE="OPB-baseline"
 mkdir -p $COLS $BASELINE
 
-# cp -p $VERBOSE $COLS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
+cp -p $VERBOSE $COLS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
 cp -p $VERBOSE $COLS/show_urls-$DATE.txt $BASELINE/show_urls.txt
 cp -p $VERBOSE $COLS/logfile-$DATE.txt $BASELINE/logfile.txt
 
