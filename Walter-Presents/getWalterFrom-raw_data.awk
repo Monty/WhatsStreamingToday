@@ -60,7 +60,6 @@
 /data-video-slug=/ {
     split ($0,fld,"\"")
     episodeURL = sprintf ("https://www.pbs.org/video/%s/",fld[2])
-    print episodeURL >> EPISODE_URLS
     next
 }
 
@@ -161,6 +160,7 @@
         episodeURL, showTitle, seasonNumber, episodeType, episodeNumber,
         episodeTitle)
     printf ("%s\t\t\t%s\n", episodeLink, episodeDuration) >> LONG_SPREADSHEET
+    printf ("%s\t%s\n", episodeURL, showTitle) >> EPISODE_URLS
 
     episodeTitle = ""
     episodeType = ""
