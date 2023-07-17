@@ -27,6 +27,14 @@ date | tee /dev/stderr
 time Walter-Presents/makeOPB.sh -td
 printf "\n" | tee /dev/stderr
 
+printf -- "----------------------------------------\n"
+printf "==> time Walter-Presents/getEpisodeDescriptions.sh -td\n" | tee /dev/stderr
+date | tee /dev/stderr
+time Walter-Presents/getEpisodeDescriptions.sh -td
+printf "\n" | tee /dev/stderr
+
+date | tee /dev/stderr
+
 exit
 
 # Make sure we can execute rg.
