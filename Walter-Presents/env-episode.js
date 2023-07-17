@@ -2,7 +2,8 @@ const { chromium } = require('playwright');
 let fs = require('fs');
 
 let episode_URL = process.env.TARGET;
-console.log('==> TARGET = ' + episode_URL);
+let output_file = process.env.RAW_EPISODES;
+console.log('\n==> Processing ' + episode_URL);
 
 (async () => {
   const browser = await chromium.launch({
@@ -20,7 +21,7 @@ console.log('==> TARGET = ' + episode_URL);
     .locator('//*[@id="maincontent"]/div[1]/article/div/div[1]/div[2]/p[3]')
     .innerText();
   fs.appendFile(
-    'env-episode.txt',
+    output_file,
     'URL: ' +
       episode_URL +
       '\n' +
@@ -31,7 +32,7 @@ console.log('==> TARGET = ' + episode_URL);
       '\n\n',
     (err) => {
       if (err) throw err;
-      console.log('==> Done writing env-episode.txt');
+      console.log('==> Completed ' + episode_URL);
     }
   );
 
