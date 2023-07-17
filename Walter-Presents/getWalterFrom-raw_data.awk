@@ -1,6 +1,6 @@
 # Grab fields from Walter Presents HTML files
 # 
-# Title  Seasons  Episodes  Duration  Genre  Language  Description
+# Title  Seasons  Episodes  Duration  Genre  Language  Rating  Description
 
 /^https:/ {
     totalShows += 1
@@ -59,7 +59,8 @@
 
 /data-video-slug=/ {
     split ($0,fld,"\"")
-    episodeURL = sprintf ("https://www.pbs.org/video/%s/",fld[2])
+    episodeID = sprintf ("/%s/",fld[2])
+    episodeURL = sprintf ("https://www.pbs.org/video%s",episodeID)
     next
 }
 
@@ -160,7 +161,7 @@
         episodeURL, showTitle, seasonNumber, episodeType, episodeNumber,
         episodeTitle)
     printf ("%s\t\t\t%s\n", episodeLink, episodeDuration) >> LONG_SPREADSHEET
-    printf ("%s\t%s\n", episodeURL, showTitle) >> EPISODE_URLS
+    printf ("%s\t%s\n", episodeID, showTitle) >> EPISODE_IDS
 
     episodeTitle = ""
     episodeType = ""
@@ -206,12 +207,12 @@
     # Wrap up show
     showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
     totalSeasons += showSeasons
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", showLink, showSeasons, \
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showDurationText, showGenre, showLanguage, \
             showDescription)
-    printf ("%s\t%s\t%s\t\t%s\t%s\t%s\n", showLink, showSeasons, \
+    printf ("%s\t%s\t%s\t\t%s\t%s\t\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showGenre, showLanguage, \
-            showDescriListption) >> LONG_SPREADSHEET
+            showDescription) >> LONG_SPREADSHEET
     # Make sure there is no carryover
     showURL = ""
     showTitle = ""

@@ -1,9 +1,10 @@
 const { chromium } = require('playwright');
 let fs = require('fs');
 
-let episode_URL = process.env.TARGET;
-let output_file = process.env.RAW_EPISODES;
-console.log('\n==> Processing ' + episode_URL);
+let episode_ID = process.env.TARGET;
+let episode_URL = "https://www.pbs.org/video" + episode_ID;
+let output_file = process.env.AWK_EPISODES;
+console.log('\n==> Processing ' + episode_ID);
 
 (async () => {
   const browser = await chromium.launch({
@@ -22,17 +23,15 @@ console.log('\n==> Processing ' + episode_URL);
     .innerText();
   fs.appendFile(
     output_file,
-    'URL: ' +
-      episode_URL +
-      '\n' +
-      'Description: ' +
-      description +
-      '\n' +
+      episode_ID +
+      ' { $7="' +
       rating +
-      '\n\n',
+      '"; $8="' +
+      description +
+      '"; print; next }\n\n',
     (err) => {
       if (err) throw err;
-      console.log('==> Completed ' + episode_URL);
+      console.log('==> Completed ' + episode_ID);
     }
   );
 

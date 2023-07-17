@@ -79,7 +79,7 @@ LONG_SPREADSHEET="OPB_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
-EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
+EPISODE_IDS="$COLS/episode_ids$DATE_ID.csv"
 
 # Intermediate working files
 UNSORTED_SHORT="$COLS/unsorted_short$DATE_ID.csv"
@@ -96,7 +96,7 @@ PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
-PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
+PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 PUBLISHED_LOGFILE="$BASELINE/logfile.txt"
@@ -105,7 +105,7 @@ PUBLISHED_LOGFILE="$BASELINE/logfile.txt"
 ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML $RAW_TITLES "
 ALL_WORKING+="$DURATION $LOGFILE"
 #
-ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_URLS"
+ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_IDS"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
@@ -138,20 +138,23 @@ done <"$SHOW_URLS"
 printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
 
 # Print header for LONG_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tDescription\n" \
+printf \
+    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
     >$LONG_SPREADSHEET
 
 # Print header for SHORT_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tDescription\n" \
+printf \
+    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
     >$SHORT_SPREADSHEET
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
-awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
+awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_IDS=$EPISODE_IDS \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
 
 # Field numbers returned by getOPBFrom-showPages.awk
-#     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
+#     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
+#     6 Language  7 Rating    8 Description
 titleCol="1"
 
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
@@ -178,7 +181,7 @@ function printAdjustedFileInfo() {
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $EPISODE_URLS 0
+printAdjustedFileInfo $EPISODE_IDS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $UNIQUE_TITLES 0
@@ -268,7 +271,7 @@ $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
-$(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
+$(checkdiffs $PUBLISHED_EPISODE_IDS $EPISODE_IDS)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LOGFILE $LOGFILE)
 
