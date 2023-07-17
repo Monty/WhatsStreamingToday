@@ -14,13 +14,13 @@ let fs = require('fs');
     .locator('//*[@id="maincontent"]/div[1]/article/div/div[1]/p[3]')
     .innerText();
   fs.writeFile(
-    'fleshAndBlood-episode.html',
+    'fleshAndBlood-episode.txt',
     '<!-- Data from https://www.pbs.org/video/episode-1-0kkesa/ -->\n' +
       description +
       '\n',
     (err) => {
       if (err) throw err;
-      console.log('==> Done writing fleshAndBlood-episode.html');
+      console.log('==> Done writing fleshAndBlood-episode.txt');
     }
   );
 

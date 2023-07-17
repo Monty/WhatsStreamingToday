@@ -14,13 +14,13 @@ let fs = require('fs');
     .locator('//*[@id="maincontent"]/div[1]/article/div/div[1]/p[3]')
     .innerText();
   fs.writeFile(
-    'endeavour-episode.html',
+    'endeavour-episode.txt',
     '<!-- Data from https://www.pbs.org/video/episode-1-prelude-be5191/ -->\n' +
       description +
       '\n',
     (err) => {
       if (err) throw err;
-      console.log('==> Done writing endeavour-episode.html');
+      console.log('==> Done writing endeavour-episode.txt');
     }
   );
 
