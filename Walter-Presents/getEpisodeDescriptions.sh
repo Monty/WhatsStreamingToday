@@ -116,7 +116,6 @@ rm -f $LOGFILE $RAW_EPISODES
 
 while read -r line; do
     read field1 field2 <<<"$line"
-    echo "$line" >>"$RAW_DATA"
     export TARGET="$field1"
     export RAW_EPISODES=$RAW_EPISODES
     node env-episode.js >>"$LOGFILE"
