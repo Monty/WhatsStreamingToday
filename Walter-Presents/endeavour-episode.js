@@ -15,9 +15,7 @@ let fs = require('fs');
     .innerText();
   fs.writeFile(
     'endeavour-episode.txt',
-    '<!-- Data from https://www.pbs.org/video/episode-1-prelude-be5191/ -->\n' +
-      description +
-      '\n',
+    'Description: ' + description + '\n',
     (err) => {
       if (err) throw err;
       console.log('==> Done writing endeavour-episode.txt');

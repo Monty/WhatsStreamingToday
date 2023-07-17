@@ -15,9 +15,7 @@ let fs = require('fs');
     .innerText();
   fs.writeFile(
     'fleshAndBlood-episode.txt',
-    '<!-- Data from https://www.pbs.org/video/episode-1-0kkesa/ -->\n' +
-      description +
-      '\n',
+    'Description: ' + description + '\n',
     (err) => {
       if (err) throw err;
       console.log('==> Done writing fleshAndBlood-episode.txt');
