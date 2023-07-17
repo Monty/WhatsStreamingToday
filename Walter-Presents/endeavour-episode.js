@@ -3,7 +3,7 @@ let fs = require('fs');
 
 (async () => {
   const browser = await chromium.launch({
-    headless: false,
+    headless: true,
   });
   const context = await browser.newContext({
     storageState: 'auth/cookies.json',
