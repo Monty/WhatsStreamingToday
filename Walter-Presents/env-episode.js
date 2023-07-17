@@ -16,9 +16,19 @@ console.log('==> TARGET = ' + episode_URL);
   const description = await page
     .locator('//*[@id="maincontent"]/div[1]/article/div/div[1]/p[3]')
     .innerText();
+  const rating = await page
+    .locator('//*[@id="maincontent"]/div[1]/article/div/div[1]/div[2]/p[3]')
+    .innerText();
   fs.appendFile(
     'env-episode.txt',
-    'URL="' + episode_URL + '"\n' + 'Description="' + description + '"\n',
+    'URL="' +
+      episode_URL +
+      '"\n' +
+      'Description="' +
+      description +
+      '"\n' +
+      rating +
+      '\n\n',
     (err) => {
       if (err) throw err;
       console.log('==> Done writing env-episode.txt');
