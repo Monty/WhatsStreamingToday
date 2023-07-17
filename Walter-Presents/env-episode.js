@@ -21,12 +21,12 @@ console.log('==> TARGET = ' + episode_URL);
     .innerText();
   fs.appendFile(
     'env-episode.txt',
-    'URL="' +
+    'URL: ' +
       episode_URL +
-      '"\n' +
-      'Description="' +
+      '\n' +
+      'Description: ' +
       description +
-      '"\n' +
+      '\n' +
       rating +
       '\n\n',
     (err) => {
