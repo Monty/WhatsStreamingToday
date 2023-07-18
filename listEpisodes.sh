@@ -48,6 +48,7 @@ if [ $FMT ]; then cmd="fmt -w $WIDTH"; else cmd="cat"; fi
 ACORN="$(ls -1t Acorn_TV_ShowsEpisodes*csv 2>/dev/null | head -1)"
 BBOX="$(ls -1t BBox_TV_ShowsEpisodes*csv 2>/dev/null | head -1)"
 MHZ="$(ls -1t MHz_TV_ShowsEpisodes*csv 2>/dev/null | head -1)"
+OPB="$(ls -1t Walter-Presents/OPB_TV_ShowsEpisodes*csv 2>/dev/null | head -1)"
 
 if [ $ACORN ] && [ $(cut -f 1,5 $ACORN | grep -i -c "$*") != 0 ]; then
     printf "==> From $ACORN\n"
@@ -68,5 +69,12 @@ if [ $MHZ ] && [ $(cut -f 1,9 $MHZ | grep -i -c "$*") != 0 ]; then
     if [ "$linesFound" = "yes" ]; then printf "\n"; fi
     printf "==> From $MHZ\n"
     grep -i "$*" $MHZ | cut -f 1,4,9 | awk -v FMT=$FMT -v WIDTH=$WIDTH \
+        -f printList.awk | $cmd
+fi
+
+if [ $OPB ] && [ $(cut -f 1,8 $OPB | grep -i -c "$*") != 0 ]; then
+    printf "==> From $OPB\n"
+    linesFound="yes"
+    grep -i "$*" $OPB | cut -f 1,4,8 | awk -v FMT=$FMT -v WIDTH=$WIDTH \
         -f printList.awk | $cmd
 fi
