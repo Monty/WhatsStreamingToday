@@ -15,9 +15,10 @@ console.log('\n==> Processing ' + episode_ID);
   });
   const page = await context.newPage();
   await page.goto(episode_URL);
-  const description = await page
+  let description = await page
     .locator('//*[@id="maincontent"]/div[1]/article/div/div[1]/p[3]')
     .innerText();
+  description = description.replaceAll('"', '\\"');
   let rating = await page
     .locator('//*[@id="maincontent"]/div[1]/article/div/div[1]/div[2]/p[3]')
     .innerText();
