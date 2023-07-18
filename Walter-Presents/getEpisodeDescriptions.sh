@@ -23,16 +23,13 @@ export LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":dst" opt; do
+while getopts ":ds" opt; do
     case $opt in
     d)
         DEBUG="yes"
         ;;
     s)
         SUMMARY="yes"
-        ;;
-    t)
-        PRINT_TOTALS="yes"
         ;;
     \?)
         printf "Ignoring invalid option: -$OPTARG\n" >&2
@@ -74,40 +71,29 @@ POSSIBLE_DIFFS="OPB_diffs$LONGDATE.txt"
 ERRORS="OPB_anomalies$LONGDATE.txt"
 
 # Final output spreadsheets
-SHORT_SPREADSHEET="OPB_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="OPB_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Basic URL files - all, episodes only, seasons only
-SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 EPISODE_IDS="$COLS/episode_ids$DATE_ID.csv"
 
 # Intermediate working files
 TMP_DATA="$COLS/tmp_data$DATE_ID.csv"
-RAW_DATA="$COLS/raw_data$DATE_ID.txt"
 export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 export AWK_EPISODES="$COLS/awk_episodes$DATE_ID.txt"
-RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
-UNIQUE_TITLES="OPB_uniqTitles$DATE_ID.txt"
-DURATION="$COLS/total_duration$DATE_ID.txt"
 LOGFILE="$COLS/logfile_episodes$DATE_ID.txt"
 
 # Saved files used for comparison with current files
-PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
-PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
-PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 PUBLISHED_LOGFILE="$BASELINE/logfile_episodes.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$RAW_DATA $RAW_HTML $RAW_TITLES "
-ALL_WORKING+="$DURATION $LOGFILE"
+ALL_WORKING="$RAW_HTML $LOGFILE"
 #
-ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_IDS"
+ALL_TXT="$EPISODE_IDS"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
+ALL_SPREADSHEETS="$LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
 # rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -134,12 +120,10 @@ printf '{ print }\n' >>$AWK_EPISODES
 mv $LONG_SPREADSHEET $TMP_DATA
 awk -f $AWK_EPISODES $TMP_DATA >$LONG_SPREADSHEET
 # rm $TMP_DATA
-exit
 
 # Field numbers returned by getWalterFrom-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
 #     6 Language  7 Rating    8 Description
-titleCol="1"
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
@@ -152,12 +136,9 @@ function printAdjustedFileInfo() {
 }
 
 # Output some stats, adjust by 1 if header line is included.
-printf "\n==> Stats from downloading and processing raw sitemap data:\n"
+printf "\n==> Stats from processing episode data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $EPISODE_IDS 0
-printAdjustedFileInfo $SHORT_SPREADSHEET 1
-printAdjustedFileInfo $SHOW_URLS 0
-printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -201,14 +182,7 @@ function checkdiffs() {
 cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
-### Any duplicate titles?
-$(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
-
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
-$(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
-$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_EPISODE_IDS $EPISODE_IDS)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LOGFILE $LOGFILE)
