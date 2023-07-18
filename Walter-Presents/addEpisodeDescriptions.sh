@@ -88,14 +88,14 @@ PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
 PUBLISHED_LOGFILE="$BASELINE/logfile_episodes.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$LOGFILE"
+ALL_WORKING="$LOGFILE $AWK_EPISODES"
 #
 ALL_TXT="$EPISODE_IDS"
 #
 ALL_SPREADSHEETS="$LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
-rm -f "$LOGFILE" "$AWK_EPISODES"
+rm -f $ALL_WORKING
 
 # Print header for possible errors from processing shows
 printf \
