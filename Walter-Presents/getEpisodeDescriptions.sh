@@ -11,7 +11,7 @@ function cleanup() {
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Make sort consistent between Mac and Linux
 export LC_COLLATE="C"
@@ -82,8 +82,7 @@ SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 EPISODE_IDS="$COLS/episode_ids$DATE_ID.csv"
 
 # Intermediate working files
-UNSORTED_SHORT="$COLS/unsorted_short$DATE_ID.csv"
-UNSORTED_LONG="$COLS/unsorted_long$DATE_ID.csv"
+TMP_DATA="$COLS/tmp_data$DATE_ID.csv"
 RAW_DATA="$COLS/raw_data$DATE_ID.txt"
 export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 export AWK_EPISODES="$COLS/awk_episodes$DATE_ID.txt"
@@ -103,7 +102,7 @@ PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 PUBLISHED_LOGFILE="$BASELINE/logfile_episodes.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML $RAW_TITLES "
+ALL_WORKING="$RAW_DATA $RAW_HTML $RAW_TITLES "
 ALL_WORKING+="$DURATION $LOGFILE"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_IDS"
@@ -123,32 +122,24 @@ printf \
 printf 'BEGIN {\n\tFS = "\\t"\n\tOFS = "\\t"\n}\n\n' >$AWK_EPISODES
 
 while read -r line; do
-    read field1 field2 <<<"$line"
+    read -r field1 field2 <<<"$line"
     export TARGET="$field1"
     export AWK_EPISODES=$AWK_EPISODES
     node env-episode.js >>"$LOGFILE"
 done <"$EPISODE_IDS"
 
 # Print awk command to print any line not already matched
-printf '{ print }' >>$AWK_EPISODES
+printf '{ print }\n' >>$AWK_EPISODES
 
+mv $LONG_SPREADSHEET $TMP_DATA
+awk -f $AWK_EPISODES $TMP_DATA >$LONG_SPREADSHEET
+# rm $TMP_DATA
 exit
 
 # Field numbers returned by getWalterFrom-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
 #     6 Language  7 Rating    8 Description
 titleCol="1"
-
-# Output $SHORT_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED_SHORT >>$SHORT_SPREADSHEET
-
-# Output $LONG_SPREADSHEET body sorted by title, not URL
-mv $LONG_SPREADSHEET $UNSORTED_LONG
-sort -fu --key=4 --field-separator=\" $UNSORTED_LONG >>$LONG_SPREADSHEET
-
-# Sort the titles produced by getAcornFrom-showPages.awk
-sort -fu $RAW_TITLES >$UNIQUE_TITLES
-rm -f $RAW_TITLES
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
@@ -168,41 +159,6 @@ printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
-
-# Shortcut for adding totals to spreadsheets
-function addTotalsToSpreadsheet() {
-    # Add labels in column A
-    # Add totals formula in remaining columns
-    colNames=ABCDEFGHIJKLMNOPQRSTU
-    ((lastRow = $(sed -n '$=' $1)))
-    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 1))
-    TOTAL="Non-blank values"
-    for ((i = 1; i <= numCountA; i++)); do
-        x=${colNames:i:1}
-        TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
-    done
-    printf "$TOTAL\n" >>$1
-    #
-    case "$2" in
-    sum)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
-        ;;
-    total)
-        TXT_TOTAL=$(cat $DURATION)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
-        ;;
-    *)
-        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
-        ;;
-    esac
-}
-
-# Output spreadsheet footer if totals requested
-# Either sum or use computed totals from $DURATION
-if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
-    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
-fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
