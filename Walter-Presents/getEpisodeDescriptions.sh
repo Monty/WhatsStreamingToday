@@ -134,8 +134,9 @@ printf '{ print }' >>$AWK_EPISODES
 
 exit
 
-# Field numbers returned by getOPBFrom-showPages.awk
-#     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
+# Field numbers returned by getWalterFrom-raw_data.awk
+#     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
+#     6 Language  7 Rating    8 Description
 titleCol="1"
 
 # Output $SHORT_SPREADSHEET body sorted by title, not URL

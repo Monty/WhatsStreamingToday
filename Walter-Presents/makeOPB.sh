@@ -152,7 +152,7 @@ awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_IDS=$EPISODE_IDS \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
 
-# Field numbers returned by getOPBFrom-showPages.awk
+# Field numbers returned by getWalterFrom-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
 #     6 Language  7 Rating    8 Description
 titleCol="1"
