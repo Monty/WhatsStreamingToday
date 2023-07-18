@@ -28,9 +28,9 @@ time Walter-Presents/makeOPB.sh -td
 printf "\n" | tee /dev/stderr
 
 printf -- "----------------------------------------\n"
-printf "==> time Walter-Presents/getEpisodeDescriptions.sh -td\n" | tee /dev/stderr
+printf "==> time Walter-Presents/addEpisodeDescriptions.sh -d\n" | tee /dev/stderr
 date | tee /dev/stderr
-time Walter-Presents/getEpisodeDescriptions.sh -td
+time Walter-Presents/addEpisodeDescriptions.sh -d
 printf "\n" | tee /dev/stderr
 
 date | tee /dev/stderr
