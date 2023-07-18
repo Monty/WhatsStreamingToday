@@ -78,7 +78,6 @@ EPISODE_IDS="$COLS/episode_ids$DATE_ID.csv"
 
 # Intermediate working files
 TMP_DATA="$COLS/tmp_data$DATE_ID.csv"
-export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 export AWK_EPISODES="$COLS/awk_episodes$DATE_ID.txt"
 LOGFILE="$COLS/logfile_episodes$DATE_ID.txt"
 
@@ -89,23 +88,22 @@ PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
 PUBLISHED_LOGFILE="$BASELINE/logfile_episodes.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$RAW_HTML $LOGFILE"
+ALL_WORKING="$LOGFILE"
 #
 ALL_TXT="$EPISODE_IDS"
 #
 ALL_SPREADSHEETS="$LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
-# rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
-rm -f $LOGFILE $AWK_EPISODES
+rm -f "$LOGFILE" "$AWK_EPISODES"
 
 # Print header for possible errors from processing shows
 printf \
     "### Possible anomalies from processing episodes are listed below.\n\n" \
-    >$ERRORS
+    >"$ERRORS"
 
 # Print header for $AWK_EPISODES
-printf 'BEGIN {\n\tFS = "\\t"\n\tOFS = "\\t"\n}\n\n' >$AWK_EPISODES
+printf 'BEGIN {\n\tFS = "\\t"\n\tOFS = "\\t"\n}\n\n' >"$AWK_EPISODES"
 
 while read -r line; do
     read -r field1 field2 <<<"$line"
@@ -115,10 +113,10 @@ while read -r line; do
 done <"$EPISODE_IDS"
 
 # Print awk command to print any line not already matched
-printf '{ print }\n' >>$AWK_EPISODES
+printf '{ print }\n' >>"$AWK_EPISODES"
 
-mv $LONG_SPREADSHEET $TMP_DATA
-awk -f $AWK_EPISODES $TMP_DATA >$LONG_SPREADSHEET
+mv "$LONG_SPREADSHEET" "$TMP_DATA"
+awk -f "$AWK_EPISODES" "$TMP_DATA" >"$LONG_SPREADSHEET"
 # rm $TMP_DATA
 
 # Field numbers returned by getWalterFrom-raw_data.awk
@@ -130,16 +128,16 @@ function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
-    numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
+    numlines=$(($(sed -n '$=' "$1") - $2))
+    ls -loh "$1" |
         awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from processing episode data:\n"
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $EPISODE_IDS 0
-printAdjustedFileInfo $LOGFILE 0
+printAdjustedFileInfo "$LONG_SPREADSHEET" 1
+printAdjustedFileInfo "$EPISODE_IDS" 0
+printAdjustedFileInfo "$LOGFILE" 0
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
@@ -179,13 +177,13 @@ function checkdiffs() {
 }
 
 # Preserve any possible errors for debugging
-cat >>$POSSIBLE_DIFFS <<EOF
+cat >>"$POSSIBLE_DIFFS" <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_EPISODE_IDS $EPISODE_IDS)
-$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
-$(checkdiffs $PUBLISHED_LOGFILE $LOGFILE)
+$(checkdiffs $PUBLISHED_EPISODE_IDS "$EPISODE_IDS")
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET "$LONG_SPREADSHEET")
+$(checkdiffs $PUBLISHED_LOGFILE "$LOGFILE")
 
 ### Any funny stuff with file lengths?
 
