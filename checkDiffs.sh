@@ -19,7 +19,7 @@ MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 #
 OPB_ANOMS=$(find Walter-Presents/OPB_anomalies-*txt | tail -1)
 OPB_ANOMS_OLD=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
-OPB_DIFFS=$(find Walter-Presents/OPB_diffs-*txt | tail -1)
+OPB_DIFFS=$(find Walter-Presents/OPB_diffs-*txt | tail -2 | head -1)
 
 function waitForKey() {
     read -r -n 1 -s -p "Hit any key to clear screen and continue, '^C' to quit. "
