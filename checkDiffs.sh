@@ -17,8 +17,8 @@ MHZ_ANOMS=$(find MHz_anomalies-*txt | tail -1)
 MHZ_ANOMS_OLD=$(find MHz_anomalies-*txt | tail -2 | head -1)
 MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 #
-OPB_ANOMS=$(find Walter-Presents/OPB_anomalies-*txt | tail -1)
-OPB_ANOMS_OLD=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
+OPB_ANOMS=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
+OPB_ANOMS_OLD=$(find Walter-Presents/OPB_anomalies-*txt | tail -4 | head -1)
 OPB_DIFFS=$(find Walter-Presents/OPB_diffs-*txt | tail -2 | head -1)
 
 function waitForKey() {
