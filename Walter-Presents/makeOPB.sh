@@ -114,7 +114,7 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 node getWalter.js
 prettier-eslint --write $RAW_HTML
-rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getWalter.awk >$SHOW_URLS
+rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getWalter.awk | sort >$SHOW_URLS
 # Make sure no URLs added from PBS-only.csv are duplicates
 rg -v -f $SHOW_URLS PBS-only.csv >$UNSORTED_SHORT
 cat $UNSORTED_SHORT >>$SHOW_URLS
