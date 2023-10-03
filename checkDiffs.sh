@@ -12,7 +12,7 @@ function waitForKey() {
 
 clear
 
-tail -5 timeAllScripts.stdout.txt timeAllScripts.stderr.txt
+tail -8 timeAllScripts.stdout.txt timeAllScripts.stderr.txt
 printf "\n"
 waitForKey
 
