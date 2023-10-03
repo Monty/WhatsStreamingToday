@@ -5,6 +5,17 @@
 DIRNAME=$(dirname "$0")
 cd "$DIRNAME" || exit
 
+function waitForKey() {
+    read -r -n 1 -s -p "Hit any key to clear screen and continue, '^C' to quit. "
+    clear
+}
+
+clear
+
+tail -5 timeAllScripts.stdout.txt timeAllScripts.stderr.txt
+printf "\n"
+waitForKey
+
 ACORN_ANOMS=$(find Acorn_anomalies-*txt | tail -1)
 ACORN_ANOMS_OLD=$(find Acorn_anomalies-*txt | tail -2 | head -1)
 ACORN_DIFFS=$(find Acorn_diffs-*txt | tail -1)
@@ -20,13 +31,6 @@ MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 OPB_ANOMS=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
 OPB_ANOMS_OLD=$(find Walter-Presents/OPB_anomalies-*txt | tail -4 | head -1)
 OPB_DIFFS=$(find Walter-Presents/OPB_diffs-*txt | tail -2 | head -1)
-
-function waitForKey() {
-    read -r -n 1 -s -p "Hit any key to clear screen and continue, '^C' to quit. "
-    clear
-}
-
-clear
 
 ./whatChanged "$ACORN_ANOMS_OLD" "$ACORN_ANOMS"
 waitForKey
