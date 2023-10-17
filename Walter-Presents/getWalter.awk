@@ -4,6 +4,7 @@
 /data-title="/ {
     split ($0,fld,"\"")
     showTitle = fld[2]
+    sub (/&amp;/,"\\&",showTitle)
 }
 
 /data-show-slug=/ {
