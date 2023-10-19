@@ -4,6 +4,9 @@
 # Don't preserve cookies or auth data
 /auth/
 
-# Keep the PBS-only.csv file
+# Keep these files
 !PBS-only.csv
 !searchterms.txt
+!missing_titles.txt
+!missing_episodes.csv
+!missing_shows.csv

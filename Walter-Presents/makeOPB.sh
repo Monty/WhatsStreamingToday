@@ -77,6 +77,12 @@ ERRORS="OPB_anomalies$LONGDATE.txt"
 SHORT_SPREADSHEET="OPB_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="OPB_TV_ShowsEpisodes$DATE_ID.csv"
 
+# Fixer-uppers
+PBS_ONLY="PBS-only.csv"
+MISSING_EPISODES="missing_episodes.csv"
+MISSING_SHOWS="missing_shows.csv"
+MISSING_TITLES="missing_titles.txt"
+
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 EPISODE_IDS="$COLS/episode_ids$DATE_ID.csv"
@@ -116,7 +122,7 @@ node getWalter.js
 prettier-eslint --write $RAW_HTML
 rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getWalter.awk | sort >$SHOW_URLS
 # Make sure no URLs added from PBS-only.csv are duplicates
-rg -v -f $SHOW_URLS PBS-only.csv >$UNSORTED_SHORT
+rg -v -f $SHOW_URLS $PBS_ONLY >$UNSORTED_SHORT
 cat $UNSORTED_SHORT >>$SHOW_URLS
 rm $UNSORTED_SHORT
 #
@@ -151,6 +157,11 @@ printf \
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_IDS=$EPISODE_IDS \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
+
+# Add missing shows
+cat $MISSING_TITLES >>$RAW_TITLES
+cat $MISSING_SHOWS >>$UNSORTED_SHORT
+cat $MISSING_EPISODES >>$LONG_SPREADSHEET
 
 # Field numbers returned by getWalterFrom-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
