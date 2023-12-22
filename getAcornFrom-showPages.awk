@@ -93,7 +93,7 @@
     sub (/ *$/,"",showDescription)
     # fix funky HTML characters
     gsub (/&amp;/,"\\&",showDescription)
-    gsub (/&quot;/,"\"\"",showDescription)
+    gsub (/&quot;/,"\"",showDescription)
     gsub (/&#039;/,"'",showDescription)
     # fix unmatched quotes
     numQuotes = gsub(/"/,"\"",showDescription)
@@ -167,6 +167,9 @@
 
 # Set showType to "M" for Movies
 /<h6> Movie/ {
+    # Detectorists has a movie as its last season/episode
+    if (showURL ~ /\/detectorists$/)
+        next
     totalMovies += 1
     showType = "M"
     # Movies don't usually have seasons or episodes, but some do
