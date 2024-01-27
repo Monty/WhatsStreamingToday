@@ -29,6 +29,7 @@
     split ($0,fld,"\"")
     showDescription = fld[4]
     gsub (/&#x27;/,"'",showDescription)
+    gsub (/&quot;/,"\"",showDescription)
     sub (/ with English subtitles/,"",showDescription)
     sub (/ From Walter Presents, in/," In",showDescription)
     # print showDescription
@@ -207,6 +208,10 @@
     # Wrap up show
     showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
     totalSeasons += showSeasons
+    if (totalSeasons == 0) {
+        printf ("==> No seasons found: %s '%s'\n", \
+                shortURL, showTitle) >> ERRORS
+    }
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showDurationText, showGenre, showLanguage, \
             showDescription)
