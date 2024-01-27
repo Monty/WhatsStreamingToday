@@ -208,6 +208,10 @@
     # Wrap up show
     showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
     totalSeasons += showSeasons
+    if (totalSeasons == 0) {
+        printf ("==> No seasons found: %s '%s'\n", \
+                shortURL, showTitle) >> ERRORS
+    }
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\n", showLink, showSeasons, \
             episodeLinesFound, showDurationText, showGenre, showLanguage, \
             showDescription)
