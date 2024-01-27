@@ -76,6 +76,10 @@
         headerAdded = "no"
         sub (/.*name="description" content="/,"")
     }
+    # Special case for Preppers which has no rating
+    if (showTitle == "Preppers" && $0 ~ /\|[ ]+.*\|[ ]/) {
+        $0 = $0 " | TV-14"
+    }
     # If we find a header, clean it up and put it before the description
     if ($0 ~ /\|[ ]+TV[ ]*-/) {
         sub (/WITH ENGLISH SUBTITLES /,"")
