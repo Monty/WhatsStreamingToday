@@ -29,6 +29,7 @@
     split ($0,fld,"\"")
     showDescription = fld[4]
     gsub (/&#x27;/,"'",showDescription)
+    gsub (/&quot;/,"\"",showDescription)
     sub (/ with English subtitles/,"",showDescription)
     sub (/ From Walter Presents, in/," In",showDescription)
     # print showDescription
