@@ -208,7 +208,7 @@
     # Wrap up show
     showDurationText = sprintf ("%02dh %02dm", showHrs, showMins)
     totalSeasons += showSeasons
-    if (totalSeasons == 0) {
+    if (showSeasons == 0) {
         printf ("==> No seasons found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
     }
