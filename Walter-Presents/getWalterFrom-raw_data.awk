@@ -211,13 +211,14 @@
     if (showSeasons == 0) {
         printf ("==> No seasons found: %s '%s'\n", \
                 shortURL, showTitle) >> ERRORS
+    } else {
+        printf ("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\n", showLink, showSeasons, \
+             episodeLinesFound, showDurationText, showGenre, showLanguage, \
+             showDescription)
+        printf ("%s\t%s\t%s\t\t%s\t%s\t\t%s\n", showLink, showSeasons, \
+             episodeLinesFound, showGenre, showLanguage, \
+             showDescription) >> LONG_SPREADSHEET
     }
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t\t%s\n", showLink, showSeasons, \
-            episodeLinesFound, showDurationText, showGenre, showLanguage, \
-            showDescription)
-    printf ("%s\t%s\t%s\t\t%s\t%s\t\t%s\n", showLink, showSeasons, \
-            episodeLinesFound, showGenre, showLanguage, \
-            showDescription) >> LONG_SPREADSHEET
     # Make sure there is no carryover
     showURL = ""
     showTitle = ""
