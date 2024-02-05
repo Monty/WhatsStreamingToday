@@ -73,9 +73,6 @@ mkdir -p $COLS $BASELINE
 POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
 ERRORS="BBox_anomalies$LONGDATE.txt"
 
-# Downloaded XML file to process
-SITEMAP="$COLS/BBox-sitemap$DATE_ID.xml"
-
 # Final output spreadsheets
 SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
