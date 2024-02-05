@@ -108,7 +108,6 @@ MISSING_URLS="$COLS/missing_URLs$DATE_ID.txt"
 MISSING_IDS="$COLS/missing_IDs$DATE_ID.txt"
 
 # Intermediate working files
-SORTED_SITEMAP="$COLS/BBox-sitemap_sorted$DATE_ID.xml"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_TITLES="BBox_uniqTitles$DATE_ID.txt"
 DURATION="$COLS/total_duration$DATE_ID.txt"
@@ -129,7 +128,7 @@ PUBLISHED_ALL_URLS="$BASELINE/all_URLs.csv"
 PUBLISHED_MISSING_URLS="$BASELINE/missing_URLs.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$SORTED_SITEMAP $RAW_TITLES $UNIQUE_TITLES $DURATION"
+ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
 ALL_HTML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
 ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
@@ -237,7 +236,6 @@ function printAdjustedFileInfo() {
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $SORTED_SITEMAP 0
 printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $IDS_EPISODES 0
@@ -249,10 +247,6 @@ printAdjustedFileInfo $MOVIES_SPREADSHEET 1
 if [ "$REMOVE" = "yes" ]; then
     printAdjustedFileInfo $MISSING_URLS 0
 fi
-#
-# Details from SORTED_SITEMAP
-grep -m 1 '<totalItemCount>' $SORTED_SITEMAP | awk -F"[<>]" '{printf ("    %s:    %s\n", $2, $3)}'
-grep -m 1 '<lastBuildDate>' $SORTED_SITEMAP | awk -F"[<>]" '{printf ("    %s:     %s\n\n", $2, $3)}'
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
