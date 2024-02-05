@@ -96,16 +96,10 @@ TV_MOVIE_ITEMS="$COLS/tv_movies$DATE_ID.html"
 TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.html"
 TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.html"
 
-# Text files containing only <item lines
-# (much shorter than xml files to use when searching for contentIds)
-IDS_SEASONS="$COLS/ids_seasons$DATE_ID.txt"
-IDS_EPISODES="$COLS/ids_episodes$DATE_ID.txt"
-
 # Files used to remove missing shows
 TEMP_SPREADSHEET="$COLS/temp_spreadsheet.csv"
 ALL_URLS="$COLS/all_URLs$DATE_ID.csv"
 MISSING_URLS="$COLS/missing_URLs$DATE_ID.txt"
-MISSING_IDS="$COLS/missing_IDs$DATE_ID.txt"
 
 # Intermediate working files
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
@@ -131,17 +125,13 @@ PUBLISHED_MISSING_URLS="$BASELINE/missing_URLs.txt"
 ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
 ALL_HTML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
-ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
-if [ "$REMOVE" = "yes" ]; then
-    ALL_TXT+=" $ALL_URLS $MISSING_URLS $MISSING_IDS"
-fi
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
 ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $EPISODES_SPREADSHEET "
 ALL_SPREADSHEETS+="$MOVIES_SPREADSHEET $SHOWS_SPREADSHEET"
 
 # Cleanup any possible leftover files
-rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
+rm -f $ALL_WORKING $ALL_SPREADSHEETS
 
 # Grab the XML catalog file and extract the URLs for en-us items
 # Unless we already have one from today
@@ -262,7 +252,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
+        rm -f $ALL_WORKING $ALL_XML $ALL_SPREADSHEETS
     fi
     exit
 fi
@@ -330,12 +320,12 @@ $(countOccurrences "tv_show")
 
 ### Any funny stuff with file lengths?
 
-$(wc $ALL_TXT $ALL_SPREADSHEETS)
+$(wc $ALL_SPREADSHEETS)
 
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
+    rm -f $ALL_WORKING $ALL_XML $ALL_SPREADSHEETS
 fi
 
 exit
