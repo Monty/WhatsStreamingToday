@@ -85,16 +85,16 @@ SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Intermediate but useful spreadsheet files
-CATALOG_SPREADSHEET="$COLS/BBoxCatalog$DATE_ID.csv"
 EPISODES_SPREADSHEET="$COLS/BBoxEpisodes$DATE_ID.csv"
 MOVIES_SPREADSHEET="$COLS/BBoxMovies$DATE_ID.csv"
-PROGRAMS_SPREADSHEET="$COLS/BBoxPrograms$DATE_ID.csv"
+SEASONS_SPREADSHEET="$COLS/BBoxSeasons$DATE_ID.csv"
+SHOWS_SPREADSHEET="$COLS/BBoxShows$DATE_ID.csv"
 
 # HTML files segregated by item type
-TV_MOVIE_ITEMS="$COLS/tv_movies$DATE_ID.html"
-TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.html"
-TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.html"
 TV_EPISODE_ITEMS="$COLS/tv_episodes$DATE_ID.html"
+TV_MOVIE_ITEMS="$COLS/tv_movies$DATE_ID.html"
+TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.html"
+TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.html"
 
 # Text files containing only <item lines
 # (much shorter than xml files to use when searching for contentIds)
@@ -116,10 +116,10 @@ DURATION="$COLS/total_duration$DATE_ID.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_CATALOG_SPREADSHEET="$BASELINE/BBoxCatalog.txt"
+PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxCatalog.txt"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
 PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies.txt"
-PUBLISHED_PROGRAMS_SPREADSHEET="$BASELINE/BBoxPrograms.txt"
+PUBLISHED_SHOWS_SPREADSHEET="$BASELINE/BBoxShows.txt"
 #
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
@@ -137,8 +137,8 @@ if [ "$REMOVE" = "yes" ]; then
 fi
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
-ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET "
-ALL_SPREADSHEETS+="$MOVIES_SPREADSHEET $PROGRAMS_SPREADSHEET"
+ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $EPISODES_SPREADSHEET "
+ALL_SPREADSHEETS+="$MOVIES_SPREADSHEET $SHOWS_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -190,40 +190,14 @@ else
     spreadsheet_columns="1-17"
 fi
 
-# Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
-head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
-tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -fu >>$LONG_SPREADSHEET
-
 # Generate final spreadsheets
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
 grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
-grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$PROGRAMS_SPREADSHEET
+grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$SHOWS_SPREADSHEET
 
 # Generate SHORT_SPREADSHEET by processing LONG_SPREADSHEET to calculate and include durations
 sed -n '1!G;h;$p' $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
     -f calculateBBoxShowDurations.awk | sed -n '1!G;h;$p' >$SHORT_SPREADSHEET
-
-# Generate list of missing URLs
-if [ "$REMOVE" = "yes" ]; then
-    rg '=HYPERLINK' $SHORT_SPREADSHEET | cut -f 1-2 |
-        sed -e 's/=HYPERLINK("//' -e 's/".*//' -e 's/.* //' >$ALL_URLS
-    while read -r show_id show_url; do
-        if curl -s --head --request GET ${show_url} | rg 'HTTP/2 404' >/dev/null; then
-            printf "${show_url}\n" >>$MISSING_URLS
-            printf " ${show_id}\t\n" >>$MISSING_IDS
-        fi
-    done <$ALL_URLS
-    #
-    printf "\n==> Stats from removing shows:\n"
-    numRemoved=$(sed -n '$=' $MISSING_IDS)
-    printf "%8d unavailable shows removed.\n" "$numRemoved"
-    #
-    rg -v -f $MISSING_IDS $SHORT_SPREADSHEET >$TEMP_SPREADSHEET
-    mv $TEMP_SPREADSHEET $SHORT_SPREADSHEET
-    #
-    rg -v -f $MISSING_IDS $LONG_SPREADSHEET >$TEMP_SPREADSHEET
-    mv $TEMP_SPREADSHEET $LONG_SPREADSHEET
-fi
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -236,17 +210,12 @@ function printAdjustedFileInfo() {
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $IDS_EPISODES 0
-printAdjustedFileInfo $IDS_SEASONS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
-printAdjustedFileInfo $PROGRAMS_SPREADSHEET 1
+printAdjustedFileInfo $SHOWS_SPREADSHEET 1
 printAdjustedFileInfo $MOVIES_SPREADSHEET 1
-if [ "$REMOVE" = "yes" ]; then
-    printAdjustedFileInfo $MISSING_URLS 0
-fi
+printAdjustedFileInfo $SEASONS_SPREADSHEET 1
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
@@ -287,7 +256,7 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     #
     addTotalsToSpreadsheet $EPISODES_SPREADSHEET "sum"
     addTotalsToSpreadsheet $MOVIES_SPREADSHEET "sum"
-    addTotalsToSpreadsheet $PROGRAMS_SPREADSHEET "skip"
+    addTotalsToSpreadsheet $SHOWS_SPREADSHEET "skip"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -356,7 +325,7 @@ $(countOccurrences "tv_episode")
 ==> Number of Movies
 $(countOccurrences "tv_movie")
 
-==> Number of Programs
+==> Number of Shows
 $(countOccurrences "tv_show")
 
 ### Any funny stuff with file lengths?
