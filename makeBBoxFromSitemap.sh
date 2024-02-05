@@ -81,7 +81,6 @@ ERRORS="BBox_anomalies$LONGDATE.txt"
 SITEMAP="$COLS/BBox-sitemap$DATE_ID.xml"
 
 # Final output spreadsheets
-CREDITS="BBox_TV_Credits$DATE_ID.csv"
 SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
@@ -110,7 +109,6 @@ MISSING_IDS="$COLS/missing_IDs$DATE_ID.txt"
 
 # Intermediate working files
 SORTED_SITEMAP="$COLS/BBox-sitemap_sorted$DATE_ID.xml"
-RAW_CREDITS="$COLS/rawCredits$DATE_ID.txt"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_PERSONS="BBox_uniqPersons$DATE_ID.txt"
 UNIQUE_CHARACTERS="BBox_uniqCharacters$DATE_ID.txt"
@@ -118,7 +116,6 @@ UNIQUE_TITLES="BBox_uniqTitles$DATE_ID.txt"
 DURATION="$COLS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
-PUBLISHED_CREDITS="$BASELINE/credits.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
@@ -136,7 +133,7 @@ PUBLISHED_ALL_URLS="$BASELINE/all_URLs.csv"
 PUBLISHED_MISSING_URLS="$BASELINE/missing_URLs.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$SORTED_SITEMAP $RAW_CREDITS $RAW_TITLES $UNIQUE_PERSONS "
+ALL_WORKING="$SORTED_SITEMAP $RAW_TITLES $UNIQUE_PERSONS "
 ALL_WORKING+="$UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
 #
 ALL_HTML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
@@ -145,7 +142,7 @@ if [ "$REMOVE" = "yes" ]; then
     ALL_TXT+=" $ALL_URLS $MISSING_URLS $MISSING_IDS"
 fi
 #
-ALL_SPREADSHEETS="$CREDITS $SHORT_SPREADSHEET $LONG_SPREADSHEET "
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
 ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET "
 ALL_SPREADSHEETS+="$MOVIES_SPREADSHEET $PROGRAMS_SPREADSHEET"
 
@@ -183,34 +180,25 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 # rm -f $RAW_TITLES
 
-exit
 
-# Field numbers returned by getBBoxCatalogFromSitemap.awk
-#     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre
-#     7 Year          8 Rating        9 Description     10 Content_Type    11 Content_ID   12 Show_Type
-#    13 Date_Type    14 Date_Type    15 Show_ID         16 Season_ID       17 Sn_#         18 Ep_#
-#    19 1st_#        20 Last_#
-titleCol="2"
+# Field numbers returned by getBBo*MoviesFromHTML.awk
+#     1 Title           2 Seasons      3 Episodes       4 Duration     5 Genre       6 Year
+#     7 Rating          8 Description  9 Content_Type  10 Content_ID  11 Show_Type  12 Date_Type
+#    13 Original_Date  14 Sn_#        15 Ep_#          16 1st_#       17 Last_#
+
+titleCol="1"
 
 # Pick columns to display
 # NOTE: Content_Type is required for calculateBBoxShowDurations.awk
 if [ "$DEBUG" != "yes" ]; then
-    spreadsheet_columns="1-10"
+    spreadsheet_columns="1-9"
 else
-    spreadsheet_columns="1-13,16-18"
+    spreadsheet_columns="1-17"
 fi
 
 # Make sorted spreadsheet of all catalog fields that is used to generate final spreadsheets
 head -1 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns >$LONG_SPREADSHEET
 tail -n +2 $CATALOG_SPREADSHEET | cut -f $spreadsheet_columns | sort -fu >>$LONG_SPREADSHEET
-
-# Generate credits spreadsheets
-head -1 $RAW_CREDITS >$CREDITS
-cut -f 1 $CREDITS >$UNIQUE_PERSONS
-cut -f 5 $CREDITS >$UNIQUE_CHARACTERS
-tail -n +2 $RAW_CREDITS | sort -fu >>$CREDITS
-tail -n +2 $CREDITS | cut -f 1 | sort -fu >>$UNIQUE_PERSONS
-tail -n +2 $CREDITS | cut -f 5 | grep -v "^$" | sort -fu >>$UNIQUE_CHARACTERS
 
 # Generate final spreadsheets
 grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
@@ -252,31 +240,12 @@ function printAdjustedFileInfo() {
         awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
-# Output some stats from credits
-printf "\n==> Stats from processing credits:\n"
-numPersons=$(sed -n '$=' $UNIQUE_PERSONS)
-numCharacters=$(sed -n '$=' $UNIQUE_CHARACTERS)
-printf "%8d people credited -- some in more than one job function\n" "$numPersons"
-#
-# for i in $(cut -f 2 BBox_TV_Credits-200820.csv | tail -n +2 | sort -u); do
-for i in actor producer director writer other guest narrator; do
-    count=$(cut -f 1,2 $CREDITS | sort -fu | grep -cw "$i$")
-    printf "%8d as %ss\n" "$count" "$i"
-done
-#
-printf "%8d characters portrayed in" "$numCharacters"
-count=$(cut -f 3,4 $CREDITS | sort -fu | grep -cw "^tv_movie")
-printf " %d movies" "$count"
-count=$(cut -f 3,4 $CREDITS | sort -fu | grep -cw "^tv_show")
-printf " and %d TV shows\n" "$count"
-
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $SORTED_SITEMAP 0
 printAdjustedFileInfo $CATALOG_SPREADSHEET 1
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $IDS_EPISODES 0
-printAdjustedFileInfo $CREDITS 1
 printAdjustedFileInfo $UNIQUE_PERSONS 0
 printAdjustedFileInfo $UNIQUE_CHARACTERS 0
 printAdjustedFileInfo $IDS_SEASONS 0
@@ -391,7 +360,6 @@ $(checkdiffs $PUBLISHED_MISSING_URLS $MISSING_URLS)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
 $(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS $UNIQUE_CHARACTERS)
-$(checkdiffs $PUBLISHED_CREDITS $CREDITS)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
 ### These counts should not vary significantly over time
