@@ -21,16 +21,12 @@ DATE_ID="-$(date +%y%m%d)"
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
 # Use "-d" switch to output a "diffs" file useful for debugging
-# Use "-r" switch to remove shows that are no longer available
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":drst" opt; do
+while getopts ":dst" opt; do
     case $opt in
     d)
         DEBUG="yes"
-        ;;
-    r)
-        REMOVE="yes"
         ;;
     s)
         SUMMARY="yes"
