@@ -11,7 +11,7 @@ function cleanup() {
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Make sort consistent between Mac and Linux
 export LC_COLLATE="C"
@@ -52,8 +52,8 @@ if [ ! -x "$(which curl 2>/dev/null)" ]; then
 fi
 
 # Make sure network is up and BritBox site is reachable
-SITEMAP_URL="https://prod-bbc-catalog.s3.amazonaws.com/apple_catalogue_feed.xml"
-if ! curl -o /dev/null -Isf $SITEMAP_URL; then
+SITEMAP_URL="https://www.britbox.com/dynamic-sitemap.xml"
+if ! curl -o /dev/null -Is $SITEMAP_URL; then
     printf "[Error] $SITEMAP_URL isn't available, or your network is down.\n"
     printf "        Try accessing $SITEMAP_URL in your browser.\n"
     exit 1
@@ -91,11 +91,11 @@ EPISODES_SPREADSHEET="$COLS/BBoxEpisodes$DATE_ID.csv"
 MOVIES_SPREADSHEET="$COLS/BBoxMovies$DATE_ID.csv"
 PROGRAMS_SPREADSHEET="$COLS/BBoxPrograms$DATE_ID.csv"
 
-# XML files segregated by item type
-TV_MOVIE_ITEMS="$COLS/tv_movies$DATE_ID.xml"
-TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.xml"
-TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.xml"
-TV_EPISODE_ITEMS="$COLS/tv_episodes$DATE_ID.xml"
+# HTML files segregated by item type
+TV_MOVIE_ITEMS="$COLS/tv_movies$DATE_ID.html"
+TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.html"
+TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.html"
+TV_EPISODE_ITEMS="$COLS/tv_episodes$DATE_ID.html"
 
 # Text files containing only <item lines
 # (much shorter than xml files to use when searching for contentIds)
@@ -139,7 +139,7 @@ PUBLISHED_MISSING_URLS="$BASELINE/missing_URLs.txt"
 ALL_WORKING="$SORTED_SITEMAP $RAW_CREDITS $RAW_TITLES $UNIQUE_PERSONS "
 ALL_WORKING+="$UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
 #
-ALL_XML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
+ALL_HTML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
 ALL_TXT="$IDS_SEASONS $IDS_EPISODES"
 if [ "$REMOVE" = "yes" ]; then
     ALL_TXT+=" $ALL_URLS $MISSING_URLS $MISSING_IDS"
@@ -150,57 +150,40 @@ ALL_SPREADSHEETS+="$CATALOG_SPREADSHEET $EPISODES_SPREADSHEET "
 ALL_SPREADSHEETS+="$MOVIES_SPREADSHEET $PROGRAMS_SPREADSHEET"
 
 # Cleanup any possible leftover files
-rm -f $ALL_WORKING $ALL_XML $ALL_TXT $ALL_SPREADSHEETS
+rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
-# Grab the XML catalog file and get rid of Windows CRs
+# Grab the XML catalog file and extract the URLs for en-us items
 # Unless we already have one from today
-if [ ! -e "$SITEMAP" ]; then
-    printf "==> Downloading new $SITEMAP\n"
-    curl -s $SITEMAP_URL | perl -pe 'tr/\r//d' >$SITEMAP
+if [ ! -e "$ALL_URLS" ]; then
+    printf "==> Downloading new $ALL_URLS\n"
+    curl -s $SITEMAP_URL | rg en-us | awk -f getBBoxURLsFromSitemap.awk >"$ALL_URLS"
 else
-    printf "==> using existing $SITEMAP\n"
+    printf "==> using existing $ALL_URLS\n"
+fi
+
+# Get HTML for movies
+# Unless we already have one from today
+if [ ! -e "$TV_MOVIE_ITEMS" ]; then
+    printf "==> Generating new $TV_MOVIE_ITEMS\n"
+    while read -r url; do
+        curl -s "$url" | rg -N -f rg_movies.rgx |
+            perl -pe 's+&quot;+"+g' >>"$TV_MOVIE_ITEMS"
+    done < <(rg -N /movie/ "$ALL_URLS" )
+else
+    printf "==> using existing $TV_MOVIE_ITEMS\n"
 fi
 
 # Print header for error file
-printf "### Possible anomalies from processing $SITEMAP are listed below.\n\n" >$ERRORS
+printf "### Possible anomalies from processing $TV_MOVIE_ITEMS\n\n" >"$ERRORS"
 
-# Pre-sort XML catalog file into four files sorted by item type
-# Don't make any corrections yet!!!
-# Presort is required to make second sort with correction work, as in the
-# downloaded file, episodes can precede seasons.
-awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
-    -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
-    -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-    -f presortBBoxItemsFromSitemap.awk $SITEMAP
-
-# Create sorted XML catalog file which is sorted by item type, preserving lines preceding first item
-grep -B99 -m 1 "<item" $SITEMAP | grep -v "<item" >$SORTED_SITEMAP
-printf "\n" >>$SORTED_SITEMAP
-cat $ALL_XML >>$SORTED_SITEMAP
-rm -f $ALL_XML $ALL_TXT
-
-# Copy sorted sitemap over original sitemap
-cp $SORTED_SITEMAP $SITEMAP
-
-# Sort XML catalog file into four files sorted by item type
-awk -v ERRORS=$ERRORS -v TV_MOVIE_ITEMS=$TV_MOVIE_ITEMS -v TV_SHOW_ITEMS=$TV_SHOW_ITEMS \
-    -v TV_SEASON_ITEMS=$TV_SEASON_ITEMS -v TV_EPISODE_ITEMS=$TV_EPISODE_ITEMS \
-    -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-    -f sortBBoxItemsFromSitemap.awk $SITEMAP
-
-# Create sorted XML catalog file which is sorted by item type, preserving lines preceding first item
-grep -B99 -m 1 "<item" $SITEMAP | grep -v "<item" >$SORTED_SITEMAP
-printf "\n" >>$SORTED_SITEMAP
-cat $ALL_XML >>$SORTED_SITEMAP
-
-# Make an unsorted spreadsheet of all catalog fields; save an unsorted list of titles
-awk -v ERRORS=$ERRORS -v IDS_SEASONS=$IDS_SEASONS -v IDS_EPISODES=$IDS_EPISODES \
-    -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS -f getBBoxCatalogFromSitemap.awk \
-    $SORTED_SITEMAP >$CATALOG_SPREADSHEET
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk \
+"$TV_MOVIE_ITEMS" | sort -fu --key=4 --field-separator=\" >"$MOVIES_SPREADSHEET"
 
 # Sort the titles produced by getBBoxCatalogFromSitemap.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
-rm -f $RAW_TITLES
+# rm -f $RAW_TITLES
+
+exit
 
 # Field numbers returned by getBBoxCatalogFromSitemap.awk
 #     1 Sortkey       2 Title         3 Seasons          4 Episodes         5 Duration      6 Genre
