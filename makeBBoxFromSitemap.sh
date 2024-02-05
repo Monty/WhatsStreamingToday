@@ -99,7 +99,6 @@ TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.html"
 # Files used to remove missing shows
 TEMP_SPREADSHEET="$COLS/temp_spreadsheet.csv"
 ALL_URLS="$COLS/all_URLs$DATE_ID.csv"
-MISSING_URLS="$COLS/missing_URLs$DATE_ID.txt"
 
 # Intermediate working files
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
@@ -119,7 +118,6 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 #
 PUBLISHED_ALL_URLS="$BASELINE/all_URLs.csv"
-PUBLISHED_MISSING_URLS="$BASELINE/missing_URLs.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION"
@@ -302,7 +300,6 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_MISSING_URLS $MISSING_URLS)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
