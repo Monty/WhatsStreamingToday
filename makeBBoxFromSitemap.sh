@@ -109,9 +109,9 @@ DURATION="$COLS/total_duration$DATE_ID.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxCatalog.txt"
 PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
 PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies.txt"
+PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxCatalog.txt"
 PUBLISHED_SHOWS_SPREADSHEET="$BASELINE/BBoxShows.txt"
 #
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
@@ -122,11 +122,11 @@ PUBLISHED_ALL_URLS="$BASELINE/all_URLs.csv"
 # Filename groups used for cleanup
 ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
-ALL_HTML="$TV_MOVIE_ITEMS $TV_SHOW_ITEMS $TV_SEASON_ITEMS $TV_EPISODE_ITEMS"
+ALL_HTML="$TV_EPISODE_ITEMS $TV_MOVIE_ITEMS $TV_SEASON_ITEMS $TV_SHOW_ITEMS"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
-ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $EPISODES_SPREADSHEET "
-ALL_SPREADSHEETS+="$MOVIES_SPREADSHEET $SHOWS_SPREADSHEET"
+ALL_SPREADSHEETS+="$EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
+ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $SHOWS_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_SPREADSHEETS
@@ -178,11 +178,6 @@ else
     spreadsheet_columns="1-17"
 fi
 
-# Generate final spreadsheets
-grep -e "^Sortkey" -e "tv_episode" $LONG_SPREADSHEET >$EPISODES_SPREADSHEET
-grep -e "^Sortkey" -e "tv_movie" $LONG_SPREADSHEET >$MOVIES_SPREADSHEET
-grep -e "^Sortkey" -e "tv_show" $LONG_SPREADSHEET >$SHOWS_SPREADSHEET
-
 # Generate SHORT_SPREADSHEET by processing LONG_SPREADSHEET to calculate and include durations
 sed -n '1!G;h;$p' $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
     -f calculateBBoxShowDurations.awk | sed -n '1!G;h;$p' >$SHORT_SPREADSHEET
@@ -201,9 +196,10 @@ printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
-printAdjustedFileInfo $SHOWS_SPREADSHEET 1
+printAdjustedFileInfo $EPISODES_SPREADSHEET 1
 printAdjustedFileInfo $MOVIES_SPREADSHEET 1
 printAdjustedFileInfo $SEASONS_SPREADSHEET 1
+printAdjustedFileInfo $SHOWS_SPREADSHEET 1
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
@@ -239,12 +235,13 @@ function addTotalsToSpreadsheet() {
 # Output spreadsheet footer if totals requested
 # Either skip, sum, or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET "sum"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
     #
     addTotalsToSpreadsheet $EPISODES_SPREADSHEET "sum"
     addTotalsToSpreadsheet $MOVIES_SPREADSHEET "sum"
-    addTotalsToSpreadsheet $SHOWS_SPREADSHEET "skip"
+    addTotalsToSpreadsheet $SEASONS_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $SHOWS_SPREADSHEET "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
