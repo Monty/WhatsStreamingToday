@@ -131,7 +131,7 @@ ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $SHOWS_SPREADSHEET"
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_SPREADSHEETS
 
-# Grab the XML catalog file and extract the URLs for en-us items
+# Grab the sitemap file and extract the URLs for en-us items
 # Unless we already have one from today
 if [ ! -e "$ALL_URLS" ]; then
     printf "==> Downloading new $ALL_URLS\n"
