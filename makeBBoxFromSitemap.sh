@@ -247,7 +247,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_WORKING $ALL_XML $ALL_SPREADSHEETS
+        rm -f $ALL_WORKING $ALL_SPREADSHEETS
     fi
     exit
 fi
@@ -319,7 +319,7 @@ $(wc $ALL_SPREADSHEETS)
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_WORKING $ALL_XML $ALL_SPREADSHEETS
+    rm -f $ALL_WORKING $ALL_SPREADSHEETS
 fi
 
 exit
