@@ -117,8 +117,6 @@ PUBLISHED_ALL_URLS="$BASELINE/all_URLs.csv"
 # Filename groups used for cleanup
 ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
-ALL_HTML="$TV_EPISODE_HTML $TV_MOVIE_HTML $TV_SEASON_HTML $TV_SHOW_HTML"
-#
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $TEMP_SPREADSHEET"
 
 SHORT_CSVS="$MOVIES_CSV $SHOWS_CSV"
@@ -155,7 +153,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk
     "$TV_MOVIE_HTML" | sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
 # Sort the titles produced by getBBoxCatalogFromSitemap.awk
-sort -fu $RAW_TITLES >$UNIQUE_TITLES
+sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
 # rm -f $RAW_TITLES
 
 # Field numbers returned by getBBo*MoviesFromHTML.awk
