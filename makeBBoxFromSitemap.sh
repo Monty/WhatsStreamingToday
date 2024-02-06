@@ -73,25 +73,27 @@ mkdir -p $COLS $BASELINE
 POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
 ERRORS="BBox_anomalies$LONGDATE.txt"
 
+# List of all URLs obtained from SITEMAP_URL
+ALL_URLS="$COLS/all_URLs$DATE_ID.txt"
+
 # Final output spreadsheets
 SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Intermediate but useful spreadsheet files
-EPISODES_SPREADSHEET="$COLS/BBoxEpisodes$DATE_ID.csv"
-MOVIES_SPREADSHEET="$COLS/BBoxMovies$DATE_ID.csv"
-SEASONS_SPREADSHEET="$COLS/BBoxSeasons$DATE_ID.csv"
-SHOWS_SPREADSHEET="$COLS/BBoxShows$DATE_ID.csv"
+EPISODES_CSV="$COLS/BBoxEpisodes$DATE_ID.csv"
+MOVIES_CSV="$COLS/BBoxMovies$DATE_ID.csv"
+SEASONS_CSV="$COLS/BBoxSeasons$DATE_ID.csv"
+SHOWS_CSV="$COLS/BBoxShows$DATE_ID.csv"
 
 # HTML files segregated by item type
-TV_EPISODE_ITEMS="$COLS/tv_episodes$DATE_ID.html"
-TV_MOVIE_ITEMS="$COLS/tv_movies$DATE_ID.html"
-TV_SEASON_ITEMS="$COLS/tv_seasons$DATE_ID.html"
-TV_SHOW_ITEMS="$COLS/tv_shows$DATE_ID.html"
+TV_EPISODE_HTML="$COLS/tv_episodes$DATE_ID.html"
+TV_MOVIE_HTML="$COLS/tv_movies$DATE_ID.html"
+TV_SEASON_HTML="$COLS/tv_seasons$DATE_ID.html"
+TV_SHOW_HTML="$COLS/tv_shows$DATE_ID.html"
 
-# Files used to remove missing shows
+# Temp files used in generating final output spreadsheets
 TEMP_SPREADSHEET="$COLS/temp_spreadsheet.csv"
-ALL_URLS="$COLS/all_URLs$DATE_ID.csv"
 
 # Intermediate working files
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
@@ -102,10 +104,10 @@ DURATION="$COLS/total_duration$DATE_ID.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_EPISODES_SPREADSHEET="$BASELINE/BBoxEpisodes.txt"
-PUBLISHED_MOVIES_SPREADSHEET="$BASELINE/BBoxMovies.txt"
-PUBLISHED_SEASONS_SPREADSHEET="$BASELINE/BBoxCatalog.txt"
-PUBLISHED_SHOWS_SPREADSHEET="$BASELINE/BBoxShows.txt"
+PUBLISHED_EPISODES_CSV="$BASELINE/BBoxEpisodes.txt"
+PUBLISHED_MOVIES_CSV="$BASELINE/BBoxMovies.txt"
+PUBLISHED_SEASONS_CSV="$BASELINE/BBoxCatalog.txt"
+PUBLISHED_SHOWS_CSV="$BASELINE/BBoxShows.txt"
 #
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
@@ -115,11 +117,12 @@ PUBLISHED_ALL_URLS="$BASELINE/all_URLs.csv"
 # Filename groups used for cleanup
 ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION"
 #
-ALL_HTML="$TV_EPISODE_ITEMS $TV_MOVIE_ITEMS $TV_SEASON_ITEMS $TV_SHOW_ITEMS"
+ALL_HTML="$TV_EPISODE_HTML $TV_MOVIE_HTML $TV_SEASON_HTML $TV_SHOW_HTML"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET "
-ALL_SPREADSHEETS+="$EPISODES_SPREADSHEET $MOVIES_SPREADSHEET "
-ALL_SPREADSHEETS+="$SEASONS_SPREADSHEET $SHOWS_SPREADSHEET"
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $TEMP_SPREADSHEET"
+
+SHORT_CSVS="$MOVIES_CSV $SHOWS_CSV"
+LONG_CSVS="$EPISODES_CSV $SEASONS_CSV"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_SPREADSHEETS
@@ -135,31 +138,31 @@ fi
 
 # Get HTML for movies
 # Unless we already have one from today
-if [ ! -e "$TV_MOVIE_ITEMS" ]; then
-    printf "==> Generating new $TV_MOVIE_ITEMS\n"
+if [ ! -e "$TV_MOVIE_HTML" ]; then
+    printf "==> Generating new $TV_MOVIE_HTML\n"
     while read -r url; do
         curl -s "$url" | rg -N -f rg_movies.rgx |
-            perl -pe 's+&quot;+"+g' >>"$TV_MOVIE_ITEMS"
-    done < <(rg -N /movie/ "$ALL_URLS" )
+            perl -pe 's+&quot;+"+g' >>"$TV_MOVIE_HTML"
+    done < <(rg -N /movie/ "$ALL_URLS")
 else
-    printf "==> using existing $TV_MOVIE_ITEMS\n"
+    printf "==> using existing $TV_MOVIE_HTML\n"
 fi
 
 # Print header for error file
-printf "### Possible anomalies from processing $TV_MOVIE_ITEMS\n\n" >"$ERRORS"
+printf "### Possible anomalies from processing $TV_MOVIE_HTML\n\n" >"$ERRORS"
 
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk \
-"$TV_MOVIE_ITEMS" | sort -fu --key=4 --field-separator=\" >"$MOVIES_SPREADSHEET"
+    "$TV_MOVIE_HTML" | sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
 # Sort the titles produced by getBBoxCatalogFromSitemap.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 # rm -f $RAW_TITLES
 
-
 # Field numbers returned by getBBo*MoviesFromHTML.awk
-#     1 Title           2 Seasons      3 Episodes       4 Duration     5 Genre       6 Year
-#     7 Rating          8 Description  9 Content_Type  10 Content_ID  11 Show_Type  12 Date_Type
-#    13 Original_Date  14 Sn_#        15 Ep_#          16 1st_#       17 Last_#
+#     1 Title       2 Seasons      3 Episodes        4 Duration       5 Genre
+#     6 Year        7 Rating       8 Description     9 Content_Type  10 Content_ID
+#     11 Show_Type  12 Date_Type  13 Original_Date  14 Sn_#          15 Ep_#
+#     16 1st_#      17 Last_#
 
 titleCol="1"
 
@@ -171,9 +174,17 @@ else
     spreadsheet_columns="1-17"
 fi
 
-# Generate SHORT_SPREADSHEET by processing LONG_SPREADSHEET to calculate and include durations
-sed -n '1!G;h;$p' $LONG_SPREADSHEET | awk -v ERRORS=$ERRORS -v DURATION="$DURATION" \
-    -f calculateBBoxShowDurations.awk | sed -n '1!G;h;$p' >$SHORT_SPREADSHEET
+# Generate LONG_SPREADSHEET and SHORT_SPREADSHEET
+touch $ALL_SPREADSHEETS $SHORT_CSVS $LONG_CSVS
+# Make TEMP_SPREADSHEET containing ALL columns
+head -1 "$MOVIES_CSV" >"$TEMP_SPREADSHEET"
+rg -I '=HYPERLINK' $SHORT_CSVS $LONG_CSVS |
+    sort -fu --key=4 --field-separator=\" >>"$TEMP_SPREADSHEET"
+# Make LONG_SPREADSHEET containing selected columne
+cut -f $spreadsheet_columns "$TEMP_SPREADSHEET" >"$LONG_SPREADSHEET"
+# Make SHORT_SPREADSHEET containing selected columne
+head -1 "$LONG_SPREADSHEET" >"$SHORT_SPREADSHEET"
+rg -I 'tv_movie|tv_episode' "$LONG_SPREADSHEET" >>"$SHORT_SPREADSHEET"
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
@@ -189,10 +200,10 @@ printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
-printAdjustedFileInfo $EPISODES_SPREADSHEET 1
-printAdjustedFileInfo $MOVIES_SPREADSHEET 1
-printAdjustedFileInfo $SEASONS_SPREADSHEET 1
-printAdjustedFileInfo $SHOWS_SPREADSHEET 1
+printAdjustedFileInfo $EPISODES_CSV 1
+printAdjustedFileInfo $MOVIES_CSV 1
+printAdjustedFileInfo $SEASONS_CSV 1
+printAdjustedFileInfo $SHOWS_CSV 1
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
@@ -231,10 +242,10 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "sum"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
     #
-    addTotalsToSpreadsheet $EPISODES_SPREADSHEET "sum"
-    addTotalsToSpreadsheet $MOVIES_SPREADSHEET "sum"
-    addTotalsToSpreadsheet $SEASONS_SPREADSHEET "sum"
-    addTotalsToSpreadsheet $SHOWS_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $EPISODES_CSV "sum"
+    addTotalsToSpreadsheet $MOVIES_CSV "sum"
+    addTotalsToSpreadsheet $SEASONS_CSV "sum"
+    addTotalsToSpreadsheet $SHOWS_CSV "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
