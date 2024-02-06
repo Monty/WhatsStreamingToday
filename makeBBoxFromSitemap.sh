@@ -146,12 +146,24 @@ if [ ! -e "$TV_MOVIE_HTML" ]; then
 else
     printf "==> using existing $TV_MOVIE_HTML\n"
 fi
+# Generate movies spreadsheet
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk \
+    "$TV_MOVIE_HTML" | sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
+
+# Get HTML for shows
+# Unless we already have one from today
+if [ ! -e "$TV_SHOW_HTML" ]; then
+    printf "==> Generating new $TV_SHOW_HTML\n"
+    while read -r url; do
+        curl -s "$url" | rg -N -f rg_shows.rgx |
+            perl -pe 's+&quot;+"+g' >>"$TV_SHOW_HTML"
+    done < <(rg -N /show/ "$ALL_URLS")
+else
+    printf "==> using existing $TV_MOVIE_HTML\n"
+fi
 
 # Print header for error file
 printf "### Possible anomalies from processing $TV_MOVIE_HTML\n\n" >"$ERRORS"
-
-awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk \
-    "$TV_MOVIE_HTML" | sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
 # Sort the titles produced by getBBoxCatalogFromSitemap.awk
 sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
