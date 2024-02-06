@@ -222,8 +222,8 @@ function addTotalsToSpreadsheet() {
     # Add totals formula in remaining columns
     colNames=ABCDEFGHIJKLMNOPQRSTU
     ((lastRow = $(sed -n '$=' $1)))
-    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 2))
-    TOTAL="\tNon-blank values"
+    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 1))
+    TOTAL="Non-blank values"
     for ((i = 1; i <= numCountA; i++)); do
         x=${colNames:i:1}
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
@@ -232,14 +232,14 @@ function addTotalsToSpreadsheet() {
     #
     case "$2" in
     skip)
-        printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\n" >>$1
         ;;
     sum)
-        printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t=SUM(E2:E$lastRow)\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
         ;;
     total)
         TXT_TOTAL=$(cat $DURATION)
-        printf "\tTotal seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$TXT_TOTAL\n" >>$1
+        printf "Total seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$TXT_TOTAL\n" >>$1
         ;;
     *)
         printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
