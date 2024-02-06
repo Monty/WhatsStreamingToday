@@ -2,8 +2,8 @@
 
 # INVOCATION:
 # awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
-#   -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_ITEMS" |
-#   sort -fu --key=4 --field-separator=\" >"$MOVIES_SPREADSHEET"
+#   -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
+#   sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
 BEGIN {
     # Print spreadsheet header
