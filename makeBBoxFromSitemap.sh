@@ -270,7 +270,7 @@ fi
 # Shortcut for counting occurrences of a string in all spreadsheets
 # countOccurrences string
 function countOccurrences() {
-    grep -H -c "$1" $ALL_SPREADSHEETS
+    grep -H -c "$1" $ALL_SPREADSHEETS "$ALL_URLS"
 }
 
 # Shortcut for checking differences between two files.
@@ -319,13 +319,13 @@ $(checkdiffs $PUBLISHED_ALL_URLS $ALL_URLS)
 ### if they do, the earlier download may have failed.
 
 ==> Number of Episodes
-$(countOccurrences "tv_episode")
+$(countOccurrences "/episode/")
 
 ==> Number of Movies
-$(countOccurrences "tv_movie")
+$(countOccurrences "/movie/")
 
 ==> Number of Shows
-$(countOccurrences "tv_show")
+$(countOccurrences "/show/")
 
 ### Any funny stuff with file lengths?
 
