@@ -129,7 +129,8 @@ rm -f $ALL_WORKING $ALL_SPREADSHEETS
 # Unless we already have one from today
 if [ ! -e "$ALL_URLS" ]; then
     printf "==> Downloading new $ALL_URLS\n"
-    curl -s $SITEMAP_URL | rg en-us | awk -f getBBoxURLsFromSitemap.awk >"$ALL_URLS"
+    curl -s $SITEMAP_URL | rg en-us |
+        awk -f getBBoxURLsFromSitemap.awk | sort -fu >"$ALL_URLS"
 else
     printf "==> using existing $ALL_URLS\n"
 fi
