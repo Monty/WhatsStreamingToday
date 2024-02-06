@@ -205,9 +205,9 @@ printAdjustedFileInfo $SHOWS_CSV 1
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
-    # Add labels in column B
+    # Add labels in column A
     # Add totals formula in remaining columns
-    colNames=BCDEFGHIJKLMNOPQRSTU
+    colNames=ABCDEFGHIJKLMNOPQRSTU
     ((lastRow = $(sed -n '$=' $1)))
     ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 2))
     TOTAL="\tNon-blank values"
@@ -240,10 +240,10 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "sum"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
     #
-    addTotalsToSpreadsheet $EPISODES_CSV "sum"
+    # addTotalsToSpreadsheet $EPISODES_CSV "sum"
     addTotalsToSpreadsheet $MOVIES_CSV "sum"
-    addTotalsToSpreadsheet $SEASONS_CSV "sum"
-    addTotalsToSpreadsheet $SHOWS_CSV "sum"
+    # addTotalsToSpreadsheet $SEASONS_CSV "sum"
+    # addTotalsToSpreadsheet $SHOWS_CSV "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
@@ -299,8 +299,8 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_ALL_URLS $ALL_URLS)
 
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.
