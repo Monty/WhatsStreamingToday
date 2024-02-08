@@ -197,7 +197,7 @@ rg -I '=HYPERLINK' $SHORT_CSVS $LONG_CSVS |
 cut -f $spreadsheet_columns "$TEMP_SPREADSHEET" >"$LONG_SPREADSHEET"
 # Make SHORT_SPREADSHEET containing selected columne
 head -1 "$LONG_SPREADSHEET" >"$SHORT_SPREADSHEET"
-rg -I 'tv_movie|tv_episode' "$LONG_SPREADSHEET" >>"$SHORT_SPREADSHEET"
+rg -I 'tv_movie|tv_show' "$LONG_SPREADSHEET" >>"$SHORT_SPREADSHEET"
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
