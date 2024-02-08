@@ -147,6 +147,7 @@ else
     printf "==> using existing $TV_MOVIE_HTML\n"
 fi
 # Generate movies spreadsheet
+printf "### Possible anomalies from processing $TV_MOVIE_HTML\n" >"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk \
     "$TV_MOVIE_HTML" | sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
@@ -161,15 +162,16 @@ if [ ! -e "$TV_SHOW_HTML" ]; then
 else
     printf "==> using existing $TV_MOVIE_HTML\n"
 fi
+# Generate shows spreadsheet
+printf "\n### Possible anomalies from processing $TV_SHOW_HTML\n" >>"$ERRORS"
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxShowsFromHTML.awk \
+    "$TV_SHOW_HTML" | sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 
-# Print header for error file
-printf "### Possible anomalies from processing $TV_MOVIE_HTML\n\n" >"$ERRORS"
-
-# Sort the titles produced by getBBoxCatalogFromSitemap.awk
+# Sort the titles produced by getBBox*.awk scripts
 sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
 # rm -f $RAW_TITLES
 
-# Field numbers returned by getBBo*MoviesFromHTML.awk
+# Field numbers returned by getBBox*.awk scripts
 #     1 Title       2 Seasons      3 Episodes        4 Duration       5 Genre
 #     6 Year        7 Rating       8 Description     9 Content_Type  10 Content_ID
 #     11 Show_Type  12 Date_Type  13 Original_Date  14 Sn_#          15 Ep_#
@@ -256,7 +258,7 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     # addTotalsToSpreadsheet $EPISODES_CSV "sum"
     addTotalsToSpreadsheet $MOVIES_CSV "sum"
     # addTotalsToSpreadsheet $SEASONS_CSV "sum"
-    # addTotalsToSpreadsheet $SHOWS_CSV "sum"
+    addTotalsToSpreadsheet $SHOWS_CSV "sum"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
