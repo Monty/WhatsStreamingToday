@@ -8,7 +8,7 @@
 BEGIN {
     # Print spreadsheet header
     printf ("Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
-    printf ("Content_Type\tContent_ID\tShow_Type\tDate_Type\tOriginal_Date\t")
+    printf ("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
     printf ("Sn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
@@ -26,7 +26,7 @@ BEGIN {
     description = ""
     contentType = ""
     contentId = ""
-    showType = ""
+    itemType = ""
     dateType = ""
     originalDate = ""
     seasonNumber = ""
@@ -45,9 +45,9 @@ BEGIN {
 }
 
 # <meta name="description" content="Comedy dream team Dawn French and Jennifer Saunders reunite for the first time in ten years for a thirtieth-anniversary show bursting mirth, mayhem, And wigs. Lots and lots of wigs." />
-# 
+#
 # Some descripotions may contain quotes
-# 
+#
 # <meta name="description" content="Since "A Christmas Carol" was first published   in 1843, the name of Ebenezer Scrooge has been famous throughout the world. See       Michael Hordern&#39;s stunning portrayal of the miserly misanthrope being shown the   error of his ways in this iconic adaptation." />
 /<meta name="description" / {
     sub (/.*name="description" content="/,"")
@@ -68,10 +68,12 @@ BEGIN {
 }
 
 # "type": "movie",
-/"type": "movie"/ {
+/"type": "/ {
     contentType = "tv_movie"
-    showType = "movie"
+    split ($0,fld,"\"")
+    itemType = fld[4]
     totalMovies += 1
+    # print "itemType = " itemType > "/dev/stderr"
 }
 
 # "/movies/genres/Comedy"
@@ -144,7 +146,7 @@ BEGIN {
                fullTitle, numSeasons, numEpisodes, duration,
                genre, year, rating, description)
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
-               contentType, contentId, showType, dateType,
+               contentType, contentId, itemType, dateType,
                originalDate, seasonNumber, episodeNumber)
     printf ("%d\t%d\n", firstLineNum, lastLineNum)
 }

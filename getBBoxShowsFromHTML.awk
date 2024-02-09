@@ -8,7 +8,7 @@
 BEGIN {
     # Print spreadsheet header
     printf ("Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
-    printf ("Content_Type\tContent_ID\tShow_Type\tDate_Type\tOriginal_Date\t")
+    printf ("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
     printf ("Sn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
@@ -27,7 +27,7 @@ BEGIN {
     description = ""
     contentType = ""
     contentId = ""
-    showType = ""
+    itemType = ""
     dateType = ""
     originalDate = ""
     seasonNumber = ""
@@ -73,11 +73,12 @@ BEGIN {
 }
 
 # "type": "season",
-/"type": "season"/ {
+/"type": "/ {
     contentType = "tv_show"
-    showType = "series"
+    split ($0,fld,"\"")
+    itemType = fld[4]
     totalShows += 1
-    # print "showType = " showType > "/dev/stderr"
+    # print "itemType = " itemType > "/dev/stderr"
 }
 
 # "/tv/genres/Mystery"
@@ -183,7 +184,7 @@ BEGIN {
             fullTitle, numSeasons, numEpisodes, duration,
             genre, year, rating, description)
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
-            contentType, contentId, showType, dateType,
+            contentType, contentId, itemType, dateType,
             originalDate, seasonNumber, episodeNumber)
     printf ("%d\t%d\n", firstLineNum, lastLineNum)
 }
