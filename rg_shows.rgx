@@ -4,6 +4,7 @@
 class="Title-only-mobile"
 ^  &quot;type&quot;: &quot;
 ^    &quot;/tv/genres/
+^          &quot;availableEpisodeCount&quot;
 &quot;availableSeasonCount&quot;
 ^    &quot;customId
 &quot;YearRange&quot;

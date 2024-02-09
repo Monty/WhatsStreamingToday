@@ -89,6 +89,15 @@ BEGIN {
     # print "genre = " genre > "/dev/stderr"
 }
 
+# "availableEpisodeCount": 10,
+/"availableEpisodeCount":/ {
+    split ($0,fld,"\"")
+    sub (/.*"availableEpisodeCount": /,"")
+    sub (/,.*/,"")
+    numEpisodes = numEpisodes + $0
+    # print "numEpisodes = " numEpisodes > "/dev/stderr"
+}
+
 # "availableSeasonCount": 1,
 /"availableSeasonCount":/ {
     split ($0,fld,"\"")
