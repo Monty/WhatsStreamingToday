@@ -160,7 +160,7 @@ if [ ! -e "$TV_SHOW_HTML" ]; then
             perl -pe 's+&quot;+"+g' >>"$TV_SHOW_HTML"
     done < <(rg -N /show/ "$ALL_URLS")
 else
-    printf "==> using existing $TV_MOVIE_HTML\n"
+    printf "==> using existing $TV_SHOW_HTML\n"
 fi
 # Generate shows spreadsheet
 printf "\n### Possible anomalies from processing $TV_SHOW_HTML\n" >>"$ERRORS"
