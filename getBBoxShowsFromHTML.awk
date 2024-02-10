@@ -150,7 +150,7 @@ BEGIN {
     lastLineNum = NR
     split ($0,fld,"[<>]")
 
-    # This should be the last line of every movie.
+    # This should be the last line of every show.
     # So finish processing and add line to spreadsheet
 
     # "The Moonstone" needs to be revised to avoid duplicate names
