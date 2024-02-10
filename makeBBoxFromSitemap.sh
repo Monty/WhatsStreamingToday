@@ -167,6 +167,22 @@ printf "\n### Possible anomalies from processing $TV_SHOW_HTML\n" >>"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxShowsFromHTML.awk \
     "$TV_SHOW_HTML" | sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 
+# Get HTML for episodes
+# Unless we already have one from today
+if [ ! -e "$TV_EPISODE_HTML" ]; then
+    printf "==> Generating new $TV_EPISODE_HTML\n"
+    while read -r url; do
+        curl -s "$url" | rg -N -f rg_seasons.rgx |
+            perl -pe 's+&quot;+"+g' >>"$TV_EPISODE_HTML"
+    done < <(rg -N /season/ "$ALL_URLS")
+else
+    printf "==> using existing $TV_EPISODE_HTML\n"
+fi
+# Generate episodes spreadsheet
+printf "\n### Possible anomalies from processing $TV_EPISODE_HTML\n" >>"$ERRORS"
+awk -v ERRORS="$ERRORS" -f getBBoxEpisodesFromHTML.awk "$TV_EPISODE_HTML" |
+    sort -fu --key=4 --field-separator=\" >"$EPISODES_CSV"
+
 # Sort the titles produced by getBBox*.awk scripts
 sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
 # rm -f $RAW_TITLES
@@ -255,7 +271,7 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "sum"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
     #
-    # addTotalsToSpreadsheet $EPISODES_CSV "sum"
+    addTotalsToSpreadsheet $EPISODES_CSV "sum"
     addTotalsToSpreadsheet $MOVIES_CSV "sum"
     # addTotalsToSpreadsheet $SEASONS_CSV "sum"
     addTotalsToSpreadsheet $SHOWS_CSV "sum"
