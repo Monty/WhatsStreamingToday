@@ -61,7 +61,7 @@ BEGIN {
 # Note: Some descripotions may contain quotes
 /^        "shortDescription": "/ {
     sub (/.*"shortDescription": "/,"")
-    sub (/",\r$/,"")
+    sub (/",$/,"")
     description = $0
     gsub (/&amp;/,"\\&",description)
     gsub (/&#160;/," ",description)

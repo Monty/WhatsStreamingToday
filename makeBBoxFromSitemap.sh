@@ -135,13 +135,13 @@ else
     printf "==> using existing $ALL_URLS\n"
 fi
 
-# Get HTML for movies
+# Get HTML for movies from /movie/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_MOVIE_HTML" ]; then
     printf "==> Generating new $TV_MOVIE_HTML\n"
     while read -r url; do
         curl -s "$url" | rg -N -f rg_movies.rgx |
-            perl -pe 's+&quot;+"+g' >>"$TV_MOVIE_HTML"
+            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_MOVIE_HTML"
     done < <(rg -N /movie/ "$ALL_URLS")
 else
     printf "==> using existing $TV_MOVIE_HTML\n"
@@ -151,13 +151,13 @@ printf "### Possible anomalies from processing $TV_MOVIE_HTML\n" >"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk \
     "$TV_MOVIE_HTML" | sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
-# Get HTML for shows
+# Get HTML for shows from /show/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_SHOW_HTML" ]; then
     printf "==> Generating new $TV_SHOW_HTML\n"
     while read -r url; do
         curl -s "$url" | rg -N -f rg_shows.rgx |
-            perl -pe 's+&quot;+"+g' >>"$TV_SHOW_HTML"
+            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_SHOW_HTML"
     done < <(rg -N /show/ "$ALL_URLS")
 else
     printf "==> using existing $TV_SHOW_HTML\n"
@@ -167,13 +167,13 @@ printf "\n### Possible anomalies from processing $TV_SHOW_HTML\n" >>"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxShowsFromHTML.awk \
     "$TV_SHOW_HTML" | sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 
-# Get HTML for episodes
+# Get HTML for episodes from /season/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_EPISODE_HTML" ]; then
     printf "==> Generating new $TV_EPISODE_HTML\n"
     while read -r url; do
         curl -s "$url" | rg -N -f rg_seasons.rgx |
-            perl -pe 's+&quot;+"+g' >>"$TV_EPISODE_HTML"
+            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_EPISODE_HTML"
     done < <(rg -N /season/ "$ALL_URLS")
 else
     printf "==> using existing $TV_EPISODE_HTML\n"
