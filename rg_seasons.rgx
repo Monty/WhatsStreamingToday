@@ -6,6 +6,8 @@
 ^        &quot;path&quot;: &quot;/episode/
 ^        &quot;releaseYear&quot;:
 ^        &quot;episodeName&quot;: &quot;
+^        &quot;showId&quot;: &quot;
+^        &quot;showTitle&quot;: &quot;
 ^        &quot;seasonId&quot;: &quot;
 ^        &quot;seasonTitle&quot;: &quot;
 ^        &quot;duration&quot;:
