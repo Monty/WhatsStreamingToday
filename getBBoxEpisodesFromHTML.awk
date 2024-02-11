@@ -97,6 +97,20 @@ BEGIN {
     # print "year = " year > "/dev/stderr"
 }
 
+# "showId": "24474",
+/"showId":/ {
+    split ($0,fld,"\"")
+    showId = fld[4] 
+    # print "showId = " showId > "/dev/stderr"
+}
+
+# "showTitle": "15 Days",
+/"showTitle":/ {
+    split ($0,fld,"\"")
+    showTitle = fld[4] 
+    # print "showTitle = " showTitle > "/dev/stderr"
+}
+
 # "episodeName": "Episode 1",
 /"episodeName": "/ {
     split ($0,fld,"\"")
