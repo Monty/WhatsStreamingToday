@@ -89,26 +89,12 @@ BEGIN {
 }
 
 # "releaseYear": 2019,
-/"releaseYear":/ {
+/"releaseYear": / {
     split ($0,fld,"\"")
     year = fld[3]
     sub (/: /,"",year)
     sub (/,.*/,"",year)
     # print "year = " year > "/dev/stderr"
-}
-
-# "showId": "24474",
-/"showId":/ {
-    split ($0,fld,"\"")
-    showId = fld[4] 
-    # print "showId = " showId > "/dev/stderr"
-}
-
-# "showTitle": "15 Days",
-/"showTitle":/ {
-    split ($0,fld,"\"")
-    showTitle = fld[4] 
-    # print "showTitle = " showTitle > "/dev/stderr"
 }
 
 # "episodeName": "Episode 1",
@@ -120,11 +106,32 @@ BEGIN {
     # print "title = " title > "/dev/stderr"
 }
 
+# "showId": "24474",
+/"showId": / {
+    split ($0,fld,"\"")
+    showId = fld[4] 
+    # print "showId = " showId > "/dev/stderr"
+}
+
 # "showTitle": "15 Days",
-/"showTitle":/ {
+/"showTitle": / {
     split ($0,fld,"\"")
     showTitle = fld[4] 
     # print "showTitle = " showTitle > "/dev/stderr"
+}
+
+# "seasonId": "24475",
+/"seasonId": / {
+    split ($0,fld,"\"")
+    seasonId = fld[4] 
+    # print "seasonId = " seasonId > "/dev/stderr"
+}
+
+# "duration": 2690,
+/"duration": / {
+    split ($0,fld,"\"")
+    duration = fld[4] 
+    # print "duration = " duration > "/dev/stderr"
 }
 
 # "customId": "p07kvw8d",
