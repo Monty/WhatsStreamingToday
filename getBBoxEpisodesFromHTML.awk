@@ -21,6 +21,8 @@ BEGIN {
 
 # "type": "episode",
 /"type": "episode",/ {
+    contentType = "tv_episode"
+    itemType = "episode"
     # Make sure no fields have been carried over due to missing keys
     title = ""
     fullTitle = ""
@@ -31,12 +33,10 @@ BEGIN {
     year = ""
     rating = ""
     description = ""
-    contentType = ""
     contentId = ""
     showId = ""
     showTitle = ""
     seasonId = ""
-    itemType = ""
     dateType = ""
     originalDate = ""
     seasonNumber = ""
@@ -50,12 +50,13 @@ BEGIN {
 
 # "title": "15 Days S1 E1",
 /"title": "/ {
+    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
     totalEpisodes += 1
     split ($0,fld,"\"")
     title1 = fld[4]
     gsub (/&amp;/,"\\&",title1)
     gsub (/&#39;/,"'",title1)
-    # print "title1 = " title1 > "/dev/stderr"
+    print "title1 = " title1 > "episode_titles.txt"
 }
 
 # "shortDescription": "A young Rhys is shot dead in the house. Rewind 15 days and we meet four siblings and their families as they arrive at an isolated farmhouse to scatter their mother&#39;s ashes.",
@@ -83,6 +84,7 @@ BEGIN {
 
 # "path": "/episode/15_Days_S1_E1_p07l24yd",
 /"path": "\/episode\// {
+    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
     split ($0,fld,"\"")
     full_URL = "https://www.britbox.com/us" fld[4]
     # print "full_URL = " full_URL > "/dev/stderr"
@@ -90,6 +92,7 @@ BEGIN {
 
 # "releaseYear": 2019,
 /"releaseYear": / {
+    dateType = "releaseYear"
     split ($0,fld,"\"")
     year = fld[3]
     sub (/: /,"",year)
@@ -117,6 +120,8 @@ BEGIN {
 /"showTitle": / {
     split ($0,fld,"\"")
     showTitle = fld[4] 
+    gsub (/&amp;/,"\\&",showTitle)
+    gsub (/&#39;/,"'",showTitle)
     # print "showTitle = " showTitle > "/dev/stderr"
 }
 
@@ -130,7 +135,10 @@ BEGIN {
 # "duration": 2690,
 /"duration": / {
     split ($0,fld,"\"")
-    duration = fld[4] 
+    seconds = fld[3]
+    sub (/: /,"",seconds)
+    sub (/,.*/,"",seconds)
+    duration = "0:" int(seconds / 60 )
     # print "duration = " duration > "/dev/stderr"
 }
 
@@ -145,7 +153,7 @@ BEGIN {
     # So finish processing and add line to spreadsheet
 
     # Turn title into a HYPERLINK
-    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
+    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" showTitle ",,"title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Print a spreadsheet line
