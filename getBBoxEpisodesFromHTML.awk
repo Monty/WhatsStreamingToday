@@ -12,15 +12,15 @@ BEGIN {
 }
 
 # "/tv/genres/Mystery"
-/^    "\/tv\/genres\// {
+/"\/tv\/genres\// {
     split ($0,fld,"\/")
     genre = fld[4]
     sub (/".*/,"",genre)
     # print "genre = " genre > "/dev/stderr"
 }
 
-# <title>15 Days S1 - Mystery | BritBox</title>
-/^        "type": "episode",/ {
+# "type": "episode",
+/"type": "episode",/ {
     # Make sure no fields have been carried over due to missing keys
     title = ""
     fullTitle = ""
@@ -33,6 +33,8 @@ BEGIN {
     description = ""
     contentType = ""
     contentId = ""
+    showId = ""
+    showTitle = ""
     seasonId = ""
     itemType = ""
     dateType = ""
@@ -47,7 +49,7 @@ BEGIN {
 }
 
 # "title": "15 Days S1 E1",
-/^        "title": "/ {
+/"title": "/ {
     totalEpisodes += 1
     split ($0,fld,"\"")
     title1 = fld[4]
@@ -59,7 +61,7 @@ BEGIN {
 # "shortDescription": "A young Rhys is shot dead in the house. Rewind 15 days and we meet four siblings and their families as they arrive at an isolated farmhouse to scatter their mother&#39;s ashes.",
 #
 # Note: Some descripotions may contain quotes
-/^        "shortDescription": "/ {
+/"shortDescription": "/ {
     sub (/.*"shortDescription": "/,"")
     sub (/",$/,"")
     description = $0
@@ -72,7 +74,7 @@ BEGIN {
 }
 
 # "code": "TVPG-TV-PG",
-/^          "code": "TVPG-/ {
+/"code": "TVPG-/ {
     split ($0,fld,"\"")
     rating = fld[4]
     sub (/TVPG-/,"",rating)
@@ -80,14 +82,14 @@ BEGIN {
 }
 
 # "path": "/episode/15_Days_S1_E1_p07l24yd",
-/^        "path": "\/episode\// {
+/"path": "\/episode\// {
     split ($0,fld,"\"")
     full_URL = "https://www.britbox.com/us" fld[4]
     # print "full_URL = " full_URL > "/dev/stderr"
 }
 
 # "releaseYear": 2019,
-/^        "releaseYear":/ {
+/"releaseYear":/ {
     split ($0,fld,"\"")
     year = fld[3]
     sub (/: /,"",year)
@@ -96,12 +98,19 @@ BEGIN {
 }
 
 # "episodeName": "Episode 1",
-/^        "episodeName": "/ {
+/"episodeName": "/ {
     split ($0,fld,"\"")
     title = fld[4]
     gsub (/&amp;/,"\\&",title)
     gsub (/&#39;/,"'",title)
     # print "title = " title > "/dev/stderr"
+}
+
+# "showTitle": "15 Days",
+/"showTitle":/ {
+    split ($0,fld,"\"")
+    showTitle = fld[4] 
+    # print "showTitle = " showTitle > "/dev/stderr"
 }
 
 # "customId": "p07kvw8d",
