@@ -48,11 +48,14 @@ BEGIN {
     sub (/.*name="description" content="/,"")
     sub (/" \/>.*/,"")
     description = $0
-    gsub (/&amp;/,"\\&",description)
     gsub (/&#160;/," ",description)
-    gsub (/&#39;/,"'",description)
+    gsub (/&#163;/,"£",description)
     gsub (/&#233;/,"é",description)
+    gsub (/&#235;/,"ë",description)
     gsub (/&#239;/,"ï",description)
+    gsub (/&#250;/,"ú",description)
+    gsub (/&#39;/,"'",description)
+    gsub (/&amp;/,"\\&",description)
     # print "description = " description > "/dev/stderr"
 }
 
