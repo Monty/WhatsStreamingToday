@@ -106,6 +106,9 @@ BEGIN {
     episodeName = fld[4]
     gsub (/&amp;/,"\\&",episodeName)
     gsub (/&#39;/,"'",episodeName)
+    gsub (/&#229;/,"å",episodeName)
+    gsub (/&#233;/,"é",episodeName)
+    gsub (/&#246;/,"ö",episodeName)
     # print "episodeName = " episodeName > "/dev/stderr"
 }
 
