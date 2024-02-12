@@ -50,7 +50,6 @@ BEGIN {
 
 # "title": "15 Days S1 E1",
 /"title": "/ {
-    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
     totalEpisodes += 1
     split ($0,fld,"\"")
     title1 = fld[4]
@@ -100,6 +99,24 @@ BEGIN {
     # print "year = " year > "/dev/stderr"
 }
 
+# "episodeNumber": 1,
+/"episodeNumber": "/ {
+    split ($0,fld,"\"")
+    episodeNumber = fld[3]
+    sub (/: /,"",episodeNumber)
+    sub (/,.*/,"",episodeNumber)
+    # print "episodeNumber = " episodeNumber > "/dev/stderr"
+}
+
+# "seasonNumber": 1,
+/""seasonNumber: "/ {
+    split ($0,fld,"\"")
+    seasonNumber = fld[3]
+    sub (/: /,"",seasonNumber)
+    sub (/,.*/,"",seasonNumber)
+    # print "episodeNumber = " episodeNumber > "/dev/stderr"
+}
+
 # "episodeName": "Episode 1",
 /"episodeName": "/ {
     split ($0,fld,"\"")
@@ -112,14 +129,14 @@ BEGIN {
 # "showId": "24474",
 /"showId": / {
     split ($0,fld,"\"")
-    showId = fld[4] 
+    showId = fld[4]
     # print "showId = " showId > "/dev/stderr"
 }
 
 # "showTitle": "15 Days",
 /"showTitle": / {
     split ($0,fld,"\"")
-    showTitle = fld[4] 
+    showTitle = fld[4]
     gsub (/&amp;/,"\\&",showTitle)
     gsub (/&#39;/,"'",showTitle)
     # print "showTitle = " showTitle > "/dev/stderr"
@@ -128,7 +145,7 @@ BEGIN {
 # "seasonId": "24475",
 /"seasonId": / {
     split ($0,fld,"\"")
-    seasonId = fld[4] 
+    seasonId = fld[4]
     # print "seasonId = " seasonId > "/dev/stderr"
 }
 
