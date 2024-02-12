@@ -9,32 +9,32 @@ BEGIN {
     # Print spreadsheet header
     printf ("Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
     printf ("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
-    printf ("Sn_#\tEp_#\t1st_#\tLast_#\n")
+    printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
 # <title>15 Days S1 - Mystery | BritBox</title>
 /<title>/ {
     # Make sure no fields have been carried over due to missing keys
-    title = ""
-    fullTitle = ""
-    numSeasons = ""
-    numEpisodes = ""
-    duration = ""
-    genre = ""
-    yearRange = ""
-    year = ""
-    rating = ""
-    description = ""
-    contentType = ""
     contentId = ""
-    itemType = ""
+    contentType = ""
     dateType = ""
-    originalDate = ""
-    seasonNumber = ""
+    description = ""
+    duration = ""
     episodeNumber = ""
     firstLineNum = ""
-    lastLineNum = ""
+    fullTitle = ""
     full_URL = ""
+    genre = ""
+    itemType = ""
+    lastLineNum = ""
+    numEpisodes = ""
+    numSeasons = ""
+    originalDate = ""
+    rating = ""
+    seasonNumber = ""
+    title = ""
+    year = ""
+    yearRange = ""
     #
     firstLineNum = NR
 }
@@ -195,10 +195,10 @@ BEGIN {
     printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
             fullTitle, numSeasons, numEpisodes, duration,
             genre, year, rating, description)
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
             contentType, contentId, itemType, dateType,
-            originalDate, seasonNumber, episodeNumber)
-    printf ("%d\t%d\n", firstLineNum, lastLineNum)
+            originalDate, showId, seasonId, seasonNumber)
+    printf ("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
 }
 
 END {
