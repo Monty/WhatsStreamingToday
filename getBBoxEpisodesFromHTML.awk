@@ -39,9 +39,10 @@ BEGIN {
     seasonId = ""
     dateType = ""
     originalDate = ""
-    seasonNumber = ""
     episodePath = ""
+    seasonNumber = ""
     episodeNumber = ""
+    SnEp = ""
     firstLineNum = ""
     lastLineNum = ""
     full_URL = ""
@@ -74,11 +75,19 @@ BEGIN {
 
 # "path": "/episode/15_Days_S1_E1_p07l24yd",
 /"path": "\/episode\// {
-    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
+    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > S01E001
     split ($0,fld,"\"")
     episodePath = fld[4]
     full_URL = "https://www.britbox.com/us" episodePath
     # print "full_URL = " full_URL > "/dev/stderr"
+    numFields = split (episodePath,fld,"_")
+    seasonNumber = fld[numFields - 2]
+    sub (/S/,"",seasonNumber)
+    # print "seasonNumber = " seasonNumber > "/dev/stderr"
+    episodeNumber = fld[numFields - 1]
+    sub (/E/,"",episodeNumber)
+    # print "episodeNumber = " episodeNumber > "/dev/stderr"
+    SnEp = sprintf ("S%02dE%03d", seasonNumber, episodeNumber)
 }
 
 # "releaseYear": 2019,
@@ -89,24 +98,6 @@ BEGIN {
     sub (/: /,"",year)
     sub (/,.*/,"",year)
     # print "year = " year > "/dev/stderr"
-}
-
-# "episodeNumber": 1,
-/"episodeNumber": "/ {
-    split ($0,fld,"\"")
-    episodeNumber = fld[3]
-    sub (/: /,"",episodeNumber)
-    sub (/,.*/,"",episodeNumber)
-    # print "episodeNumber = " episodeNumber > "/dev/stderr"
-}
-
-# "seasonNumber": 1,
-/""seasonNumber: "/ {
-    split ($0,fld,"\"")
-    seasonNumber = fld[3]
-    sub (/: /,"",seasonNumber)
-    sub (/,.*/,"",seasonNumber)
-    # print "episodeNumber = " episodeNumber > "/dev/stderr"
 }
 
 # "episodeName": "Episode 1",
@@ -163,7 +154,9 @@ BEGIN {
     # So finish processing and add line to spreadsheet
 
     # Turn episodeName into a HYPERLINK
-    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" showTitle ",,"episodeName "\")"
+    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
+    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" showTitle ", " \
+              SnEp ", "episodeName "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Print a spreadsheet line
