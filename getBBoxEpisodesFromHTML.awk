@@ -57,11 +57,18 @@ BEGIN {
     sub (/.*"shortDescription": "/,"")
     sub (/",$/,"")
     description = $0
-    gsub (/&amp;/,"\\&",description)
     gsub (/&#160;/," ",description)
-    gsub (/&#39;/,"'",description)
+    gsub (/&#163;/,"£",description)
+    gsub (/&#226;/,"â",description)
+    gsub (/&#229;/,"å",description)
+    gsub (/&#232;/,"è",description)
     gsub (/&#233;/,"é",description)
+    gsub (/&#234;/,"ê",description)
     gsub (/&#239;/,"ï",description)
+    gsub (/&#246;/,"ö",description)
+    gsub (/&#250;/,"ú",description)
+    gsub (/&#39;/,"'",description)
+    gsub (/&amp;/,"\\&",description)
     # print "description = " description > "/dev/stderr"
 }
 
