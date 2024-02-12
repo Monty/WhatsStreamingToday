@@ -133,6 +133,20 @@ BEGIN {
     gsub (/&amp;/,"\\&",showTitle)
     gsub (/&#39;/,"'",showTitle)
     # print "showTitle = " showTitle > "/dev/stderr"
+    # "Porridge" needs to be revised to avoid duplicate names
+    if (showTitle == "Porridge") {
+        if (showId == "9509") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Porridge (1974-1977)'\n", showTitle) >> ERRORS
+            showTitle = "Porridge (1974-1977)"
+        } else if (showId == "14747") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n", showTitle) >> ERRORS
+            showTitle = "Porridge (2016-2017)"
+        }
+        # print "==> showTitle = " showTitle > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
+    }
 }
 
 # "seasonId": "24475",
