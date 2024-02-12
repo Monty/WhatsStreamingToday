@@ -24,7 +24,7 @@ BEGIN {
     contentType = "tv_episode"
     itemType = "episode"
     # Make sure no fields have been carried over due to missing keys
-    title = ""
+    episodeName = ""
     fullTitle = ""
     numSeasons = ""
     numEpisodes = ""
@@ -40,22 +40,13 @@ BEGIN {
     dateType = ""
     originalDate = ""
     seasonNumber = ""
+    episodePath = ""
     episodeNumber = ""
     firstLineNum = ""
     lastLineNum = ""
     full_URL = ""
     #
     firstLineNum = NR
-}
-
-# "title": "15 Days S1 E1",
-/"title": "/ {
-    totalEpisodes += 1
-    split ($0,fld,"\"")
-    title1 = fld[4]
-    gsub (/&amp;/,"\\&",title1)
-    gsub (/&#39;/,"'",title1)
-    print "title1 = " title1 > "episode_titles.txt"
 }
 
 # "shortDescription": "A young Rhys is shot dead in the house. Rewind 15 days and we meet four siblings and their families as they arrive at an isolated farmhouse to scatter their mother&#39;s ashes.",
@@ -85,7 +76,8 @@ BEGIN {
 /"path": "\/episode\// {
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
     split ($0,fld,"\"")
-    full_URL = "https://www.britbox.com/us" fld[4]
+    episodePath = fld[4]
+    full_URL = "https://www.britbox.com/us" episodePath
     # print "full_URL = " full_URL > "/dev/stderr"
 }
 
@@ -120,10 +112,10 @@ BEGIN {
 # "episodeName": "Episode 1",
 /"episodeName": "/ {
     split ($0,fld,"\"")
-    title = fld[4]
-    gsub (/&amp;/,"\\&",title)
-    gsub (/&#39;/,"'",title)
-    # print "title = " title > "/dev/stderr"
+    episodeName = fld[4]
+    gsub (/&amp;/,"\\&",episodeName)
+    gsub (/&#39;/,"'",episodeName)
+    # print "episodeName = " episodeName > "/dev/stderr"
 }
 
 # "showId": "24474",
@@ -161,6 +153,7 @@ BEGIN {
 
 # "customId": "p07kvw8d",
 /"customId": "/ {
+    totalEpisodes += 1
     lastLineNum = NR
     split ($0,fld,"\"")
     contentId = fld[4]
@@ -169,8 +162,8 @@ BEGIN {
     # This should be the last line of every episode.
     # So finish processing and add line to spreadsheet
 
-    # Turn title into a HYPERLINK
-    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" showTitle ",,"title "\")"
+    # Turn episodeName into a HYPERLINK
+    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" showTitle ",,"episodeName "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Print a spreadsheet line
