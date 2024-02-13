@@ -188,10 +188,10 @@ sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
 # rm -f $RAW_TITLES
 
 # Field numbers returned by getBBox*.awk scripts
-#     1 Title       2 Seasons      3 Episodes        4 Duration       5 Genre
-#     6 Year        7 Rating       8 Description     9 Content_Type  10 Content_ID
-#     11 Show_Type  12 Date_Type  13 Original_Date  14 Sn_#          15 Ep_#
-#     16 1st_#      17 Last_#
+#     1 Title       2 Seasons     3 Episodes        4 Duration       5 Genre
+#     6 Year        7 Rating      8 Description     9 Content_Type  10 Content_ID
+#    11 Item_Type  12 Date_Type  13 Original_Date  14 Show_ID       15 Season_ID
+#    16 Sn_#       17 Ep_#       16 1st_#          17 Last_#
 
 titleCol="1"
 
@@ -200,7 +200,7 @@ titleCol="1"
 if [ "$DEBUG" != "yes" ]; then
     spreadsheet_columns="1-9"
 else
-    spreadsheet_columns="1-15"
+    spreadsheet_columns="1-17"
 fi
 
 # Generate LONG_SPREADSHEET and SHORT_SPREADSHEET
