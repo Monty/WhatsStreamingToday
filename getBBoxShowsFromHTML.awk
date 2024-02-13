@@ -156,14 +156,19 @@ BEGIN {
     # This should be the last line of every show.
     # So finish processing and add line to spreadsheet
 
-    # "The Moonstone" needs to be revised to avoid duplicate names
-    if (title == "The Moonstone") {
-        if (contentId == "FS_b0824cbr") {
+    # "Maigret" needs to be revised to clarify timeframe
+    if (title ~ /^Maigret/) {
+        if (contentId == "p05t7c9c") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'The Moonstone (2016)'\n",
-                    title) >> ERRORS
-            title = "The Moonstone (2016)"
+            printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n", title) >> ERRORS
+            title = "Maigret (1992-1993)"
+        } else if (contentId == "p05vcgph") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Maigret (2016-2017)'\n", title) >> ERRORS
+            title = "Maigret (2016-2017)"
         }
+        # print "==> title = " title > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
     }
 
     # "Porridge" needs to be revised to avoid duplicate names
@@ -182,6 +187,16 @@ BEGIN {
     }
     # print "==> title = " title > "/dev/stderr"
     # print "==> contentId = " contentId > "/dev/stderr"
+
+    # "The Moonstone" needs to be revised to avoid duplicate names
+    if (title == "The Moonstone") {
+        if (contentId == "FS_b0824cbr") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'The Moonstone (2016)'\n",
+                    title) >> ERRORS
+            title = "The Moonstone (2016)"
+        }
+    }
 
     # Save titles for use in BBox_uniqTitles
     print title >> RAW_TITLES

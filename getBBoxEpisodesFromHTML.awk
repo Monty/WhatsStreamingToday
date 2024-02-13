@@ -134,6 +134,23 @@ BEGIN {
     gsub (/&#39;/,"'",showTitle)
     # print "showTitle = " showTitle > "/dev/stderr"
 
+    # "Maigret" needs to be revised to clarify timeframe
+    if (showTitle ~ /^Maigret/) {
+        if (showId == "15928") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n",
+                    showTitle) >> ERRORS
+            showTitle = "Maigret (1992-1993)"
+        } else if (showId == "15974") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'Maigret (2016-2017)'\n",
+                    showTitle) >> ERRORS
+            showTitle = "Maigret (2016-2017)"
+        }
+        # print "==> showTitle = " showTitle > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
+    }
+
     # "Porridge" needs to be revised to avoid duplicate names
     if (showTitle == "Porridge") {
         if (showId == "9509") {
@@ -150,6 +167,7 @@ BEGIN {
         # print "==> showTitle = " showTitle > "/dev/stderr"
         # print "==> showId = " showId > "/dev/stderr"
     }
+
 }
 
 # "seasonId": "24475",
