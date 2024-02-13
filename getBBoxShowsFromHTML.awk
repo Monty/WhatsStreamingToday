@@ -21,7 +21,6 @@ BEGIN {
     description = ""
     duration = ""
     episodeNumber = ""
-    firstLineNum = ""
     fullTitle = ""
     full_URL = ""
     genre = ""
@@ -31,7 +30,9 @@ BEGIN {
     numSeasons = ""
     originalDate = ""
     rating = ""
+    seasonId = ""
     seasonNumber = ""
+    showId = ""
     title = ""
     year = ""
     yearRange = ""
@@ -147,6 +148,13 @@ BEGIN {
     # print "year = " year > "/dev/stderr"
 }
 
+# "showId": "24474",
+/""showId": "/ {
+    split ($0,fld,"\"")
+    showId = fld[4]
+    # print "showId = " showId > "/dev/stderr"
+}
+
 # <b>Years:</b> 2019            </p>
 # <b>Years:</b> 2014 - 2023            </p>
 /<b>Years:</ {
@@ -184,9 +192,9 @@ BEGIN {
                     title) >> ERRORS
             title = "Porridge (2016-2017)"
         }
+        # print "==> title = " title > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
     }
-    # print "==> title = " title > "/dev/stderr"
-    # print "==> contentId = " contentId > "/dev/stderr"
 
     # "The Moonstone" needs to be revised to avoid duplicate names
     if (title == "The Moonstone") {
@@ -196,6 +204,8 @@ BEGIN {
                     title) >> ERRORS
             title = "The Moonstone (2016)"
         }
+        # print "==> title = " title > "/dev/stderr"
+        # print "==> contentId = " contentId > "/dev/stderr"
     }
 
     # Save titles for use in BBox_uniqTitles
