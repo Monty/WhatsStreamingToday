@@ -168,6 +168,18 @@ BEGIN {
         # print "==> showId = " showId > "/dev/stderr"
     }
 
+    # "The Moonstone" needs to be revised to avoid duplicate names
+    if (showTitle == "The Moonstone") {
+        if (showId == "9283") {
+            revisedTitles += 1
+            printf ("==> Changed title '%s' to 'The Moonstone (2016)'\n",
+                    showTitle) >> ERRORS
+            showTitle = "The Moonstone (2016)"
+        }
+    # print "==> showTitle = " showTitle > "/dev/stderr"
+    # print "==> showId = " showId > "/dev/stderr"
+    }
+
 }
 
 # "seasonId": "24475",
