@@ -262,7 +262,7 @@ function addTotalsToSpreadsheet() {
         ;;
     total)
         TXT_TOTAL=$(cat $DURATION)
-        printf "Total seasons & episodes\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\t$TXT_TOTAL\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
         ;;
     *)
         printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
