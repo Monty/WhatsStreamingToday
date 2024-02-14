@@ -4,9 +4,9 @@
 PATH=${PATH}:/usr/local/bin
 
 printf "========================================\n" | tee /dev/stderr
-printf "==> time ./makeBBoxFromSitemap.sh -tdr\n" | tee /dev/stderr
+printf "==> time ./makeBBoxFromSitemap.sh -td\n" | tee /dev/stderr
 date | tee /dev/stderr
-time ./makeBBoxFromSitemap.sh -tdr
+time ./makeBBoxFromSitemap.sh -td
 printf "\n" | tee /dev/stderr
 
 printf -- "----------------------------------------\n" | tee /dev/stderr
