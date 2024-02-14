@@ -15,28 +15,31 @@ BEGIN {
 # <title>300 Years of French and Saunders - Comedy | BritBox</title>
 /<title>/ {
     # Make sure no fields have been carried over due to missing keys
-    contentId = ""
-    contentType = ""
-    dateType = ""
-    description = ""
-    duration = ""
-    episodeNumber = ""
-    firstLineNum = ""
-    fullTitle = ""
+    # Only used during processing
     full_URL = ""
-    genre = ""
-    itemType = ""
-    lastLineNum = ""
-    numEpisodes = ""
-    numSeasons = ""
-    originalDate = ""
-    rating = ""
-    seasonNumber = ""
-    title = ""
     year = ""
-
-    # print
+    # Used in printing column data
+    fullTitle = ""
+    numSeasons = ""
+    numEpisodes = ""
+    duration = ""
+    genre = ""
+    year = ""
+    rating = ""
+    description = ""
+    contentType = ""
+    contentId = ""
+    itemType = ""
+    dateType = ""
+    originalDate = ""
+    showId = ""
+    seasonId = ""
+    seasonNumber = ""
+    episodeNumber = ""
+    lastLineNum = ""
+    #
     firstLineNum = NR
+    # Grab movie title
     split ($0,fld,"[<>]")
     title = fld[3]
     sub (/ - .*/,"",title)
