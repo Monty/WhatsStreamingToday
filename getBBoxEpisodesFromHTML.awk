@@ -178,8 +178,8 @@ BEGIN {
                     showTitle) >> ERRORS
             showTitle = "The Moonstone (2016)"
         }
-    # print "==> showTitle = " showTitle > "/dev/stderr"
-    # print "==> showId = " showId > "/dev/stderr"
+        # print "==> showTitle = " showTitle > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
     }
 
 }
