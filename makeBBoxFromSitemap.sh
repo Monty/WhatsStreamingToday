@@ -273,7 +273,7 @@ function addTotalsToSpreadsheet() {
 # Output spreadsheet footer if totals requested
 # Either skip, sum, or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
     #
     addTotalsToSpreadsheet $EPISODES_CSV "sum"
