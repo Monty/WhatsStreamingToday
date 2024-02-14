@@ -151,7 +151,7 @@ BEGIN {
 }
 
 # "showId": "24474",
-/""showId": "/ {
+/"showId": "/ {
     split ($0,fld,"\"")
     showId = fld[4]
     # print "showId = " showId > "/dev/stderr"
