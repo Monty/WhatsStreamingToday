@@ -178,7 +178,7 @@ BEGIN {
             title = "Maigret (2016-2017)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> contentId = " contentId > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
     }
 
     # "Porridge" needs to be revised to avoid duplicate names
@@ -195,7 +195,7 @@ BEGIN {
             title = "Porridge (2016-2017)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> contentId = " contentId > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
     }
 
     # "The Moonstone" needs to be revised to avoid duplicate names
@@ -207,7 +207,7 @@ BEGIN {
             title = "The Moonstone (2016)"
         }
         # print "==> title = " title > "/dev/stderr"
-        # print "==> contentId = " contentId > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
     }
 
     # Save titles for use in BBox_uniqTitles
