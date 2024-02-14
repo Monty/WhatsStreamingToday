@@ -215,6 +215,11 @@ cut -f $spreadsheet_columns "$TEMP_SPREADSHEET" >"$LONG_SPREADSHEET"
 head -1 "$LONG_SPREADSHEET" >"$SHORT_SPREADSHEET"
 rg -I 'tv_movie|tv_show' "$LONG_SPREADSHEET" >>"$SHORT_SPREADSHEET"
 
+# Add durations to LONG_SPREADSHEET
+mv "$SHORT_SPREADSHEET" "$COLS"
+tail -r "$LONG_SPREADSHEET" | awk -v ERRORS="$ERRORS" -v DURATION="$DURATION" \
+    -f calculateBBoxShowDurations.awk | tail -r >>"$SHORT_SPREADSHEET"
+
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
