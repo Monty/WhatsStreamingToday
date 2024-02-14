@@ -21,31 +21,33 @@ BEGIN {
 
 # "type": "episode",
 /"type": "episode",/ {
-    contentType = "tv_episode"
-    itemType = "episode"
     # Make sure no fields have been carried over due to missing keys
+    # Only used during processing
+    episodeName = ""
+    episodePath = ""
+    full_URL = ""
+    showTitle = ""
     SnEp = ""
+    yearRange = ""
+    # Used in printing column data
+    fullTitle = ""
+    numSeasons = ""
+    numEpisodes = ""
+    duration = ""
+    year = ""
+    rating = ""
+    description = ""
     contentId = ""
     dateType = ""
-    description = ""
-    duration = ""
-    episodeName = ""
-    episodeNumber = ""
-    episodePath = ""
-    firstLineNum = ""
-    fullTitle = ""
-    full_URL = ""
-    lastLineNum = ""
-    numEpisodes = ""
-    numSeasons = ""
     originalDate = ""
-    rating = ""
+    showId = ""
     seasonId = ""
     seasonNumber = ""
-    showId = ""
-    showTitle = ""
-    year = ""
-    yearRange = ""
+    episodeNumber = ""
+    lastLineNum = ""
+    #
+    contentType = "tv_episode"
+    itemType = "episode"
     #
     firstLineNum = NR
 }
