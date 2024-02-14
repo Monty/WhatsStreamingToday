@@ -15,27 +15,29 @@ BEGIN {
 # <title>15 Days S1 - Mystery | BritBox</title>
 /<title>/ {
     # Make sure no fields have been carried over due to missing keys
-    contentId = ""
-    contentType = ""
-    dateType = ""
-    description = ""
-    duration = ""
-    episodeNumber = ""
-    fullTitle = ""
+    # Only used during processing
     full_URL = ""
-    genre = ""
-    itemType = ""
-    lastLineNum = ""
-    numEpisodes = ""
+    title = ""
+    yearRange = ""
+    # Used in printing column data
+    fullTitle = ""
     numSeasons = ""
-    originalDate = ""
+    numEpisodes = ""
+    duration = ""
+    genre = ""
+    year = ""
     rating = ""
+    description = ""
+    contentType = ""
+    contentId = ""
+    itemType = ""
+    dateType = ""
+    originalDate = ""
+    showId = ""
     seasonId = ""
     seasonNumber = ""
-    showId = ""
-    title = ""
-    year = ""
-    yearRange = ""
+    episodeNumber = ""
+    lastLineNum = ""
     #
     firstLineNum = NR
 }
