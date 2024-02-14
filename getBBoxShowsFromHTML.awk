@@ -168,11 +168,11 @@ BEGIN {
 
     # "Maigret" needs to be revised to clarify timeframe
     if (title ~ /^Maigret/) {
-        if (contentId == "p05t7c9c") {
+        if (showId == "15928") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n", title) >> ERRORS
             title = "Maigret (1992-1993)"
-        } else if (contentId == "p05vcgph") {
+        } else if (showId == "15974") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Maigret (2016-2017)'\n", title) >> ERRORS
             title = "Maigret (2016-2017)"
@@ -183,12 +183,12 @@ BEGIN {
 
     # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
-        if (contentId == "b006m9kn") {
+        if (showId == "9509") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Porridge (1974-1977)'\n",
                     title) >> ERRORS
             title = "Porridge (1974-1977)"
-        } else if (contentId == "p05dsmwl") {
+        } else if (showId == "14747") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n",
                     title) >> ERRORS
@@ -200,7 +200,7 @@ BEGIN {
 
     # "The Moonstone" needs to be revised to avoid duplicate names
     if (title == "The Moonstone") {
-        if (contentId == "FS_b0824cbr") {
+        if (showId == "9283") {
             revisedTitles += 1
             printf ("==> Changed title '%s' to 'The Moonstone (2016)'\n",
                     title) >> ERRORS
