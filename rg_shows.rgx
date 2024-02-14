@@ -6,9 +6,9 @@ class="Title-only-mobile"
 ^    &quot;/tv/genres/
 ^          &quot;availableEpisodeCount&quot;
 &quot;availableSeasonCount&quot;
-^    &quot;customId
+^    &quot;customId&quot;:
 &quot;YearRange&quot;
 ^    &quot;code&quot;: &quot;
-^  &quot;releaseYear
+^  &quot;releaseYear&quot;:
 ^  &quot;showId&quot;:
 <b>Years:</b>
