@@ -1,7 +1,7 @@
 # Extract cast & crew from MHz episode files
 
 # INVOCATION:
-#    awk -v ERRORS=$ERRORS -f getCast.awk >>$RAW_CREDITS
+#    awk -v ERRORS=$ERRORS -f getMHzCast.awk >>$RAW_CREDITS
 
 # 21     <meta property="og:url" content="https://watch.mhzchoice.com/captain-marleau/season:2/...
 #

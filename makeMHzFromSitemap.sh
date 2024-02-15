@@ -166,7 +166,7 @@ sort -fu --key=4 --field-separator=\" $UNSORTED | sed -n '1!G;h;$p' | awk -v ERR
     -v DURATION="$DURATION" -v LONG_SPREADSHEET=$LONG_SPREADSHEET -f calculateMHzShowDurations.awk |
     sed -n '1!G;h;$p' >$SHORT_SPREADSHEET
 #
-awk -f getAvg.awk $SHORT_SPREADSHEET >$AVG_SPREADSHEET
+awk -f getMHzAvg.awk $SHORT_SPREADSHEET >$AVG_SPREADSHEET
 mv $LONG_SPREADSHEET $UNSORTED
 sed -n '1!G;h;$p' $UNSORTED >$LONG_SPREADSHEET
 rm -f $UNSORTED
@@ -181,7 +181,7 @@ rm -f $RAW_TITLES
 # loop through the list of URLs from $EPISODE_URLS and generate an unsorted credits spreadsheet
 while read -r line; do
     curl -sS "$line" |
-        awk -v ERRORS=$ERRORS -f getCast.awk >>$RAW_CREDITS
+        awk -v ERRORS=$ERRORS -f getMHzCast.awk >>$RAW_CREDITS
 done <"$EPISODE_URLS"
 
 # Generate credits spreadsheets
