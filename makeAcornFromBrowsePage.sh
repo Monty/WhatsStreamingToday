@@ -110,7 +110,7 @@ curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+
     sort -f >$SHOW_URLS
 
 # Print header for possible errors from processing shows
-printf "\n### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
+printf "\n### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
 sed -e 's+^+url = "+' -e 's+$+"+' $SHOW_URLS | curl -sS --config - |
@@ -185,7 +185,7 @@ function addTotalsToSpreadsheet() {
         printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
         ;;
     *)
-        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
+        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>"$ERRORS"
         ;;
     esac
 }

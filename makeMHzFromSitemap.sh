@@ -137,7 +137,7 @@ printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>$S
 printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>$SEASON_URLS
 
 # Print header for error file
-printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\n" >$ERRORS
+printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\n" >"$ERRORS"
 
 # Field numbers
 # 1 Title  2 Seasons  3 Episodes  4 Duration  5 Genre  6 Country  7 Language  8 Rating  9 Description
@@ -251,7 +251,7 @@ function addTotalsToSpreadsheet() {
         printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
         ;;
     *)
-        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
+        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>"$ERRORS"
         ;;
     esac
 }

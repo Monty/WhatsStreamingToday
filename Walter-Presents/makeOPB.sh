@@ -141,7 +141,7 @@ while read -r line; do
 done <"$SHOW_URLS"
 
 # Print header for possible errors from processing shows
-printf "### Possible anomalies from processing shows are listed below.\n\n" >$ERRORS
+printf "### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
 # Print header for LONG_SPREADSHEET
 printf \
@@ -221,7 +221,7 @@ function addTotalsToSpreadsheet() {
         printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
         ;;
     *)
-        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>$ERRORS
+        printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>"$ERRORS"
         ;;
     esac
 }
