@@ -451,6 +451,7 @@
             sub (/ [0-9][0-9][0-9][0-9]\./,"",director_name)
             sub (/[[:space:]]+$/,"",director_name)
             sub (/\.$/,"",director_name)
+            gsub (/&#39;/,"'",director_name)
             # Special case director names
             if (director_name ~ /Manetti Bros/)
                 director_name = "The Manetti Bros."
