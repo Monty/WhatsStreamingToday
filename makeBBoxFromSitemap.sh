@@ -211,12 +211,7 @@ rg -I '=HYPERLINK' $SHORT_CSVS $LONG_CSVS |
     sort -fu --key=4 --field-separator=\" >>"$TEMP_SPREADSHEET"
 # Make LONG_SPREADSHEET containing selected columne
 cut -f $spreadsheet_columns "$TEMP_SPREADSHEET" >"$LONG_SPREADSHEET"
-# Make SHORT_SPREADSHEET containing selected columne
-head -1 "$LONG_SPREADSHEET" >"$SHORT_SPREADSHEET"
-rg -I 'tv_movie|tv_show' "$LONG_SPREADSHEET" >>"$SHORT_SPREADSHEET"
-
-# Add durations to LONG_SPREADSHEET
-mv "$SHORT_SPREADSHEET" "$COLS"
+# Make SHORT_SPREADSHEET by adding up durations from LONG_SPREADSHEET
 tail -r "$LONG_SPREADSHEET" | awk -v ERRORS="$ERRORS" -v DURATION="$DURATION" \
     -f calculateBBoxShowDurations.awk | tail -r >>"$SHORT_SPREADSHEET"
 
