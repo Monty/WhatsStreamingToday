@@ -76,6 +76,9 @@
         tvShowType = "tv_show"
         split ($0,fld,"\"")
         person_name = fld[2]
+        sub (/\.$/,"",person_name)
+        gsub (/&#x27;/,"'",person_name)
+        gsub (/&#39;/,"'",person_name)
         # Special case
         if (person_name ~ /Manetti Bros/)
             person_name = "The Manetti Bros."
