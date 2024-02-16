@@ -31,6 +31,10 @@ MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 OPB_ANOMS=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
 OPB_ANOMS_OLD=$(find Walter-Presents/OPB_anomalies-*txt | tail -4 | head -1)
 OPB_DIFFS=$(find Walter-Presents/OPB_diffs-*txt | tail -2 | head -1)
+#
+OPB_ANOMS_2=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
+OPB_ANOMS_OLD_2=$(find Walter-Presents/OPB_anomalies-*txt | tail -4 | head -1)
+OPB_DIFFS_2=$(find Walter-Presents/OPB_diffs-*txt | tail -2 | head -1)
 
 ./whatChanged "$ACORN_ANOMS_OLD" "$ACORN_ANOMS"
 waitForKey
@@ -44,8 +48,14 @@ waitForKey
 ./whatChanged "$OPB_ANOMS_OLD" "$OPB_ANOMS"
 waitForKey
 
-view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS"
+./whatChanged "$OPB_ANOMS_OLD_2" "$OPB_ANOMS_2"
+waitForKey
+
+view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS" "$OPB_DIFFS_2"
 clear
+waitForKey
+
+printf "Save today's files?\n"
 waitForKey
 
 printf "OK. Saving today's files...\n"
