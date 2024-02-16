@@ -263,6 +263,16 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
 fi
 
+# Look for any leftover HTML character codes
+printf "\n==> Any leftover HTML special characters?\n" >>"$ERRORS"
+rg --sort path '&#' $ALL_SPREADSHEETS >>"$ERRORS"
+printf "\n" >>"$ERRORS"
+#
+# Also send to stdout
+printf "\n==> Any leftover HTML special characters?\n"
+rg --sort path '&#' $ALL_SPREADSHEETS
+printf "\n"
+
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
