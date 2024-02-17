@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Diff the most recent two anomalies files
+# Diff the most recent two anomalies files and view the most recent diffs
+# from Acorn, Britbox, MHz and OPB updates. Offer to save today's files.
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
