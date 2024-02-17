@@ -7,13 +7,6 @@ cd "$DIRNAME" || exit
 
 source waitUntil.function
 
-clear
-
-tail -8 timeAllScripts.stdout.txt timeAllScripts.stderr.txt
-printf "\n"
-
-waitUntil -k
-
 ACORN_ANOMS=$(find Acorn_anomalies-*txt | tail -1)
 ACORN_ANOMS_OLD=$(find Acorn_anomalies-*txt | tail -2 | head -1)
 ACORN_DIFFS=$(find Acorn_diffs-*txt | tail -1)
@@ -35,27 +28,41 @@ OPB_ANOMS_2=$(find Walter-Presents/OPB_anomalies-*txt | tail -1)
 OPB_ANOMS_OLD_2=$(find Walter-Presents/OPB_anomalies-*txt | tail -3 | head -1)
 OPB_DIFFS_2=$(find Walter-Presents/OPB_diffs-*txt | tail -1)
 
+clear
+
+tail -8 timeAllScripts.stdout.txt timeAllScripts.stderr.txt
+
+waitUntil -k
+clear
+
 ./whatChanged "$ACORN_ANOMS_OLD" "$ACORN_ANOMS"
 waitUntil -k
+clear
 
 ./whatChanged "$BBOX_ANOMS_OLD" "$BBOX_ANOMS"
 waitUntil -k
+clear
 
 ./whatChanged "$MHZ_ANOMS_OLD" "$MHZ_ANOMS"
 waitUntil -k
+clear
 
 ./whatChanged "$OPB_ANOMS_OLD" "$OPB_ANOMS"
 waitUntil -k
+clear
 
 ./whatChanged "$OPB_ANOMS_OLD_2" "$OPB_ANOMS_2"
 waitUntil -k
+clear
 
 view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS" "$OPB_DIFFS_2"
 
-waitUntil -cs "Save today's files"
-
-printf "OK. Saving today's files...\n"
-./saveTodaysAcornFiles.sh
-./saveTodaysBBoxFiles.sh
-./saveTodaysMHzFiles.sh
-./saveTodaysOPBFiles.sh
+if waitUntil -cs "Save today's files for all services?"; then
+    printf "OK. Saving today's files...\n"
+    ./saveTodaysAcornFiles.sh
+    ./saveTodaysBBoxFiles.sh
+    ./saveTodaysMHzFiles.sh
+    ./saveTodaysOPBFiles.sh
+else
+    printf "Today's files not saved!\n"
+fi
