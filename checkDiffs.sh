@@ -58,12 +58,20 @@ clear
 
 view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS" "$OPB_DIFFS_2"
 
-if waitUntil -cs "Save today's files for all services?"; then
-    printf "OK. Saving today's files...\n"
+if waitUntil -cs "Save today's files for ALL services?"; then
+    printf "==> Saving today's files...\n\n"
     ./saveTodaysAcornFiles.sh
     ./saveTodaysBBoxFiles.sh
     ./saveTodaysMHzFiles.sh
     ./saveTodaysOPBFiles.sh
 else
-    printf "Today's files not saved!\n"
+    printf "==> Today's files not saved!\n"
+    printf "Use these commands to save individual services:\n"
+    cat <<EOF
+  ./saveTodaysAcornFiles.sh
+  ./saveTodaysBBoxFiles.sh
+  ./saveTodaysMHzFiles.sh
+  ./saveTodaysOPBFiles.sh
+
+EOF
 fi
