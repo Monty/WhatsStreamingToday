@@ -5,16 +5,14 @@
 DIRNAME=$(dirname "$0")
 cd "$DIRNAME" || exit
 
-function waitForKey() {
-    read -r -n 1 -s -p "Hit any key to clear screen and continue, '^C' to quit. "
-    clear
-}
+source waitUntil.function
 
 clear
 
 tail -8 timeAllScripts.stdout.txt timeAllScripts.stderr.txt
 printf "\n"
-waitForKey
+
+waitUntil -k
 
 ACORN_ANOMS=$(find Acorn_anomalies-*txt | tail -1)
 ACORN_ANOMS_OLD=$(find Acorn_anomalies-*txt | tail -2 | head -1)
@@ -38,26 +36,23 @@ OPB_ANOMS_OLD_2=$(find Walter-Presents/OPB_anomalies-*txt | tail -3 | head -1)
 OPB_DIFFS_2=$(find Walter-Presents/OPB_diffs-*txt | tail -1)
 
 ./whatChanged "$ACORN_ANOMS_OLD" "$ACORN_ANOMS"
-waitForKey
+waitUntil -k
 
 ./whatChanged "$BBOX_ANOMS_OLD" "$BBOX_ANOMS"
-waitForKey
+waitUntil -k
 
 ./whatChanged "$MHZ_ANOMS_OLD" "$MHZ_ANOMS"
-waitForKey
+waitUntil -k
 
 ./whatChanged "$OPB_ANOMS_OLD" "$OPB_ANOMS"
-waitForKey
+waitUntil -k
 
 ./whatChanged "$OPB_ANOMS_OLD_2" "$OPB_ANOMS_2"
-waitForKey
+waitUntil -k
 
 view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS" "$OPB_DIFFS_2"
-clear
-waitForKey
 
-printf "Save today's files?\n"
-waitForKey
+waitUntil -cs "Save today's files"
 
 printf "OK. Saving today's files...\n"
 ./saveTodaysAcornFiles.sh
