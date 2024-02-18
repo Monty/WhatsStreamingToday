@@ -17,12 +17,12 @@ BEGIN {
 }
 
 /div class="col date nowrap"/ {
-    split ($0,fld,">")
+    split($0,fld,">")
     date = fld[2]
 }
 
 /a href="\/title\// {
-    split ($0,fld,">")
+    split($0,fld,">")
     title = fld[2]
     match(title, ": Season [[:digit:]]+:")
     if (RLENGTH != -1) {
@@ -31,10 +31,10 @@ BEGIN {
         title_end = substr(title, RSTART+RLENGTH)
         title = title_start season title_end
     }
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     URL = fld[2]
-    gsub (/&quot;/,"",title)
-    printf ("=HYPERLINK(\"https://www.netflix.com%s\";\"%s\")\t%s\tNetflix Streaming\n",\
+    gsub(/&quot;/,"",title)
+    printf("=HYPERLINK(\"https://www.netflix.com%s\";\"%s\")\t%s\tNetflix Streaming\n",\
             URL,title,date)
     recordsPrinted += 1
     if (recordsPrinted >= maxRecordsToPrint)

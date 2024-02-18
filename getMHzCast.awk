@@ -26,34 +26,34 @@
 # 1227         <span class="small-8">director</span>
 
 /<meta property="og:url" content/ {
-    split ($0,fld,"/")
+    split($0,fld,"/")
     title = fld[4]
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     shortURL = fld[4]
-    sub (/.*watch/,"watch",shortURL)
+    sub(/.*watch/,"watch",shortURL)
 }
 
 /data-meta-field-name="casts"/,/<span class="small-8">/ {
     if ($0 ~ /data-meta-field-value=/) {
         tvShowType = "tv_show"
         person_role = "actor"
-        split ($0,fld,"\"")
+        split($0,fld,"\"")
         person_name = fld[2]
-        sub (/\.$/,"",person_name)
-        gsub (/&#x27;/,"'",person_name)
-        gsub (/&#39;/,"'",person_name)
+        sub(/\.$/,"",person_name)
+        gsub(/&#x27;/,"'",person_name)
+        gsub(/&#39;/,"'",person_name)
         next
     }
     if ($0 ~ /<span class="small-8/) {
-        split ($0,fld,"[<>]")
+        split($0,fld,"[<>]")
         char_name = fld[3]
-        gsub (/&#x27;/,"'",char_name)
-        gsub (/&#39;/,"'",char_name)
-        if (match (person_name, " and ") || match (person_name, " & ")) {
+        gsub(/&#x27;/,"'",char_name)
+        gsub(/&#39;/,"'",char_name)
+        if (match(person_name, " and ") || match(person_name, " & ")) {
             pname = substr(person_name,1,RSTART-1)
-            sub (/\.$/,"",pname)
+            sub(/\.$/,"",pname)
             person_name = substr(person_name,RSTART+RLENGTH)
-            printf ("%s\t%s\t%s\t%s\t%s\n", pname, person_role, tvShowType, title, char_name)
+            printf("%s\t%s\t%s\t%s\t%s\n", pname, person_role, tvShowType, title, char_name)
             # if (pname !~ " ")
                 # print "==> Single name '" pname "' in " shortURL >> ERRORS
         }
@@ -61,7 +61,7 @@
         if (person_name ~ /Hendrik Toompere/)
             person_name = "Hendrik Toompere Jr."
         #
-        printf ("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, char_name)
+        printf("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, char_name)
         # if (person_name !~ " ")
             # print "==> Single name '" person_name "' in " shortURL >> ERRORS
         person_role = ""
@@ -74,20 +74,20 @@
 /data-meta-field-name="crew"/,/<span class="small-8">/ {
         if ($0 ~ /data-meta-field-value=/) {
         tvShowType = "tv_show"
-        split ($0,fld,"\"")
+        split($0,fld,"\"")
         person_name = fld[2]
-        sub (/\.$/,"",person_name)
-        gsub (/&#x27;/,"'",person_name)
-        gsub (/&#39;/,"'",person_name)
+        sub(/\.$/,"",person_name)
+        gsub(/&#x27;/,"'",person_name)
+        gsub(/&#39;/,"'",person_name)
         # Special case
         if (person_name ~ /Manetti Bros/)
             person_name = "The Manetti Bros."
         #
     }
     if ($0 ~ /<span class="small-8/) {
-        split ($0,fld,"[<>]")
+        split($0,fld,"[<>]")
         person_role = fld[3]
-        printf ("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, char_name)
+        printf("%s\t%s\t%s\t%s\t%s\n", person_name, person_role, tvShowType, title, char_name)
         person_role = ""
         person_name = ""
     }

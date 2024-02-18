@@ -51,7 +51,7 @@ $4 != "" {
         next
     }
     # We have a valid duration, add to total
-    split ($4, tm, ":")
+    split($4, tm, ":")
     totalTime[3] += tm[3]
     totalTime[2] += tm[2] + int(totalTime[3] / 60)  
     totalTime[1] += tm[1] + int(totalTime[2] / 60)
@@ -70,7 +70,7 @@ $4 != "" {
 $2 != "" {
     if ($3 == "") {
         $3 = episodesCounted
-        $4 = sprintf ("%02dh %02dm", hrs, mins)
+        $4 = sprintf("%02dh %02dm", hrs, mins)
         # Print line with episodesCounted and duration to short spreadsheet
         print
         # Don't print show duration to LONG_SPREADSHEET so durations column can be summed
@@ -85,14 +85,14 @@ $2 != "" {
 }
 
 END {
-    printf ("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
+    printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
 
-    printf ("In calculateMHzShowDurations.awk\n") > "/dev/stderr"
+    printf("In calculateMHzShowDurations.awk\n") > "/dev/stderr"
 
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
     totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
     #
-    printf ("    Processed %d %s, %d %s, %d %s\n", totalShows, pluralShows, totalSeasons, pluralSeasons,
+    printf("    Processed %d %s, %d %s, %d %s\n", totalShows, pluralShows, totalSeasons, pluralSeasons,
             totalEpisodes, pluralEpisodes) > "/dev/stderr"
 }

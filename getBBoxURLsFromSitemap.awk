@@ -8,6 +8,6 @@
 #  <xhtml:link rel="alternate" hreflang="en-us" href="https://www.britbox.com/us/movie/Lewis_Behind_the_Scenes_p0g6vg93" />
 
 /en-us/ {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     print fld[6]
 }

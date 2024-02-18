@@ -35,7 +35,7 @@ $4 != "" {
         print
         next
     } else {
-        split ($4, tm, ":")
+        split($4, tm, ":")
         totalTime[2] += tm[2]
         totalTime[1] += tm[1] + int(totalTime[2] / 60)
         totalTime[2] %= 60
@@ -58,7 +58,7 @@ $9 == "tv_episode" {
 $9 == "tv_show" {
     if ($4 == "") {
         $3 = episodes
-        $4 = sprintf ("%02dh %02dm", hrs, mins)
+        $4 = sprintf("%02dh %02dm", hrs, mins)
         mins = 0; hrs = 0;
         episodes = 0
         print
@@ -70,11 +70,11 @@ $9 == "tv_movie" {
     mins = tm[2]
     hrs = tm[1] + int(mins / 60)
     mins %= 60
-    $4 = sprintf ("%02dh %02dm", hrs, mins)
+    $4 = sprintf("%02dh %02dm", hrs, mins)
     mins = 0; hrs = 0;
     print
 }
 
 END {
-    printf ("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
+    printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
 }

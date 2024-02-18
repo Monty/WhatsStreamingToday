@@ -6,16 +6,16 @@
 
 BEGIN {
     # Print spreadsheet header
-    printf ("Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
-    printf ("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
-    printf ("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
+    printf("Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
+    printf("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
+    printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
 # "/tv/genres/Mystery"
 /"\/tv\/genres\// {
-    split ($0,fld,"\/")
+    split($0,fld,"\/")
     genre = fld[4]
-    sub (/".*/,"",genre)
+    sub(/".*/,"",genre)
     # print "genre = " genre > "/dev/stderr"
 }
 
@@ -56,96 +56,96 @@ BEGIN {
 #
 # Note: Some descripotions may contain quotes
 /"shortDescription": "/ {
-    sub (/.*"shortDescription": "/,"")
-    sub (/",$/,"")
+    sub(/.*"shortDescription": "/,"")
+    sub(/",$/,"")
     description = $0
-    gsub (/&#160;/," ",description)
-    gsub (/&#163;/,"£",description)
-    gsub (/&#226;/,"â",description)
-    gsub (/&#229;/,"å",description)
-    gsub (/&#232;/,"è",description)
-    gsub (/&#233;/,"é",description)
-    gsub (/&#234;/,"ê",description)
-    gsub (/&#239;/,"ï",description)
-    gsub (/&#246;/,"ö",description)
-    gsub (/&#250;/,"ú",description)
-    gsub (/&#39;/,"'",description)
-    gsub (/&amp;/,"\\&",description)
+    gsub(/&#160;/," ",description)
+    gsub(/&#163;/,"£",description)
+    gsub(/&#226;/,"â",description)
+    gsub(/&#229;/,"å",description)
+    gsub(/&#232;/,"è",description)
+    gsub(/&#233;/,"é",description)
+    gsub(/&#234;/,"ê",description)
+    gsub(/&#239;/,"ï",description)
+    gsub(/&#246;/,"ö",description)
+    gsub(/&#250;/,"ú",description)
+    gsub(/&#39;/,"'",description)
+    gsub(/&amp;/,"\\&",description)
     # print "description = " description > "/dev/stderr"
 }
 
 # "code": "TVPG-TV-PG",
 /"code": "TVPG-/ {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     rating = fld[4]
-    sub (/TVPG-/,"",rating)
+    sub(/TVPG-/,"",rating)
     # print "rating = " rating > "/dev/stderr"
 }
 
 # "path": "/episode/15_Days_S1_E1_p07l24yd",
 /"path": "\/episode\// {
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > S01E001
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     episodePath = fld[4]
     full_URL = "https://www.britbox.com/us" episodePath
     # print "full_URL = " full_URL > "/dev/stderr"
-    numFields = split (episodePath,fld,"_")
+    numFields = split(episodePath,fld,"_")
     seasonNumber = fld[numFields - 2]
-    sub (/S/,"",seasonNumber)
+    sub(/S/,"",seasonNumber)
     # print "seasonNumber = " seasonNumber > "/dev/stderr"
     episodeNumber = fld[numFields - 1]
-    sub (/E/,"",episodeNumber)
+    sub(/E/,"",episodeNumber)
     # print "episodeNumber = " episodeNumber > "/dev/stderr"
-    SnEp = sprintf ("S%02dE%03d", seasonNumber, episodeNumber)
+    SnEp = sprintf("S%02dE%03d", seasonNumber, episodeNumber)
 }
 
 # "releaseYear": 2019,
 /"releaseYear": / {
     dateType = "releaseYear"
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     year = fld[3]
-    sub (/: /,"",year)
-    sub (/,.*/,"",year)
+    sub(/: /,"",year)
+    sub(/,.*/,"",year)
     # print "year = " year > "/dev/stderr"
 }
 
 # "episodeName": "Episode 1",
 /"episodeName": "/ {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     episodeName = fld[4]
-    gsub (/&amp;/,"\\&",episodeName)
-    gsub (/&#39;/,"'",episodeName)
-    gsub (/&#229;/,"å",episodeName)
-    gsub (/&#233;/,"é",episodeName)
-    gsub (/&#246;/,"ö",episodeName)
+    gsub(/&amp;/,"\\&",episodeName)
+    gsub(/&#39;/,"'",episodeName)
+    gsub(/&#229;/,"å",episodeName)
+    gsub(/&#233;/,"é",episodeName)
+    gsub(/&#246;/,"ö",episodeName)
     # print "episodeName = " episodeName > "/dev/stderr"
 }
 
 # "showId": "24474",
 /"showId": / {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     showId = fld[4]
     # print "showId = " showId > "/dev/stderr"
 }
 
 # "showTitle": "15 Days",
 /"showTitle": / {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     showTitle = fld[4]
-    gsub (/&amp;/,"\\&",showTitle)
-    gsub (/&#39;/,"'",showTitle)
+    gsub(/&amp;/,"\\&",showTitle)
+    gsub(/&#39;/,"'",showTitle)
     # print "showTitle = " showTitle > "/dev/stderr"
 
     # "Maigret" needs to be revised to clarify timeframe
     if (showTitle ~ /^Maigret/) {
         if (showId == "15928") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Maigret (1992-1993)'\n",
+            printf("==> Changed title '%s' to 'Maigret (1992-1993)'\n",
                     showTitle) >> ERRORS
             showTitle = "Maigret (1992-1993)"
         } else if (showId == "15974") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Maigret (2016-2017)'\n",
+            printf("==> Changed title '%s' to 'Maigret (2016-2017)'\n",
                     showTitle) >> ERRORS
             showTitle = "Maigret (2016-2017)"
         }
@@ -157,12 +157,12 @@ BEGIN {
     if (showTitle == "Porridge") {
         if (showId == "9509") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Porridge (1974-1977)'\n",
+            printf("==> Changed title '%s' to 'Porridge (1974-1977)'\n",
                     showTitle) >> ERRORS
             showTitle = "Porridge (1974-1977)"
         } else if (showId == "14747") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'Porridge (2016-2017)'\n",
+            printf("==> Changed title '%s' to 'Porridge (2016-2017)'\n",
                     showTitle) >> ERRORS
             showTitle = "Porridge (2016-2017)"
         }
@@ -174,7 +174,7 @@ BEGIN {
     if (showTitle == "The Moonstone") {
         if (showId == "9283") {
             revisedTitles += 1
-            printf ("==> Changed title '%s' to 'The Moonstone (2016)'\n",
+            printf("==> Changed title '%s' to 'The Moonstone (2016)'\n",
                     showTitle) >> ERRORS
             showTitle = "The Moonstone (2016)"
         }
@@ -186,17 +186,17 @@ BEGIN {
 
 # "seasonId": "24475",
 /"seasonId": / {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     seasonId = fld[4]
     # print "seasonId = " seasonId > "/dev/stderr"
 }
 
 # "duration": 2690,
 /"duration": / {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     seconds = fld[3]
-    sub (/: /,"",seconds)
-    sub (/,.*/,"",seconds)
+    sub(/: /,"",seconds)
+    sub(/,.*/,"",seconds)
     duration = "0:" int(seconds / 60 )
     # print "duration = " duration > "/dev/stderr"
 }
@@ -205,7 +205,7 @@ BEGIN {
 /"customId": "/ {
     totalEpisodes += 1
     lastLineNum = NR
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     contentId = fld[4]
     # print "contentId = " contentId > "/dev/stderr"
 
@@ -219,24 +219,24 @@ BEGIN {
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Print a spreadsheet line
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+    printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
             fullTitle, numSeasons, numEpisodes, duration,
             genre, year, rating, description)
-    printf ("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+    printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
             contentType, contentId, itemType, dateType,
             originalDate, showId, seasonId, seasonNumber)
-    printf ("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
+    printf("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
 }
 
 END {
-    printf ("In getBBoxEpisodesFromHTML.awk \n") > "/dev/stderr"
+    printf("In getBBoxEpisodesFromHTML.awk \n") > "/dev/stderr"
 
     totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
-    printf ("    Processed %d %s\n", totalEpisodes, pluralEpisodes) > "/dev/stderr"
+    printf("    Processed %d %s\n", totalEpisodes, pluralEpisodes) > "/dev/stderr"
 
     if (revisedTitles > 0 ) {
         revisedTitles == 1 ? plural = "title" : plural = "titles"
-        printf ("%8d %s revised in %s\n",
+        printf("%8d %s revised in %s\n",
                 revisedTitles, plural, FILENAME) > "/dev/stderr"
     }
 }

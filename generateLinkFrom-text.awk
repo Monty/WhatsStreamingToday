@@ -21,17 +21,17 @@
 #    awk -f generateLinkFrom-text.awk watched.txt
 
 /ref=stream_prime/ {
-    sub (/\/ref=stream.*/,"")
+    sub(/\/ref=stream.*/,"")
 }
 
 /ref=pd_/ {
-    sub (/\/ref=pd_.*/,"")
+    sub(/\/ref=pd_.*/,"")
 }
 
 /^https:/ {
     link = $0
     if ((getline title) > 0) {
-        gsub (/"/,"\"\"",title)
-        printf ("=HYPERLINK(\"%s\";\"%s\")\n",link,title)
+        gsub(/"/,"\"\"",title)
+        printf("=HYPERLINK(\"%s\";\"%s\")\n",link,title)
     }
 }

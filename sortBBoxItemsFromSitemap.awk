@@ -14,7 +14,7 @@
 # Grab contentType
 # <item contentType="tv_episode" contentId="p079sxm9">
 /<item contentType="/ {
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     contentType = fld[2]
     contentId = fld[4]
 }
@@ -22,7 +22,7 @@
 # Grab showContentId
 # <showContentId>b008yjd9</showContentId>
 /<showContentId>/ {
-    split ($0,fld,"[<>]")
+    split($0,fld,"[<>]")
     # showContentId is the parent tv_show's contentId for tv_episodes and tv_seasons
     showContentId = fld[3]
 }
@@ -63,7 +63,7 @@
         goodString ="<showContentId>" correctedContentId  "<"
         # print "badString = " badString > "/dev/stderr"
         # print "goodString = " goodString > "/dev/stderr"
-        sub (badString, goodString, wholeItem)
+        sub(badString, goodString, wholeItem)
         print wholeItem >> TV_EPISODE_ITEMS
     }
 
@@ -73,13 +73,13 @@
 }
 
 END {
-    printf ("In sortBBoxItemsFromSitemap.awk\n") > "/dev/stderr"
+    printf("In sortBBoxItemsFromSitemap.awk\n") > "/dev/stderr"
 
     totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
     totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
     #
-    printf ("    Processed %d %s, %d %s, %d %s, %d %s\n\n", totalMovies, pluralMovies, totalShows,
+    printf("    Processed %d %s, %d %s, %d %s, %d %s\n\n", totalMovies, pluralMovies, totalShows,
             pluralShows, totalSeasons, pluralSeasons, totalEpisodes, pluralEpisodes) > "/dev/stderr"
 }
