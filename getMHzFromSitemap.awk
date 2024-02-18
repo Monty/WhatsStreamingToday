@@ -93,7 +93,7 @@
         gsub(/[ ]*\|[ ]+/,"|")
         sub(/\r/,"")
         # Split out header fields
-        numFields = split($0,fld,"\|")
+        numFields = split($0,fld,"|")
         # lowercase everything but the first character in all fields but the last
         for (i = 1; i < numFields; ++i) {
             fld[i] = substr(fld[i],1,1) tolower(substr(fld[i],2))
