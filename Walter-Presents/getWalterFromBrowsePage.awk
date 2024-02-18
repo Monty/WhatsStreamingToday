@@ -1,5 +1,5 @@
 /data-show-slug=/ { 
-    split ($0,fld,"\"")
+    split($0,fld,"\"")
     showTitle = fld[6]
     showURL = "https://www.pbs.org/show/" fld[8]
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
