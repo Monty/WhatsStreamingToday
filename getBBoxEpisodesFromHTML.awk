@@ -13,7 +13,7 @@ BEGIN {
 
 # "/tv/genres/Mystery"
 /"\/tv\/genres\// {
-    split($0,fld,"\/")
+    split($0,fld,"/")
     genre = fld[4]
     sub(/".*/,"",genre)
     # print "genre = " genre > "/dev/stderr"

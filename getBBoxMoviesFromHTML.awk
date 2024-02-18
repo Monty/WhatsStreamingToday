@@ -81,7 +81,7 @@ BEGIN {
 
 # "/movies/genres/Comedy"
 /"\/movies\/genres\// {
-    split($0,fld,"\/")
+    split($0,fld,"/")
     genre = fld[4]
     sub(/".*/,"",genre)
 }
