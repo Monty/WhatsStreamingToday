@@ -11,7 +11,7 @@
 #    awk -f generateLinksFrom-NetflixActivityPage.awk ~/Downloads/Netflix.html
 
 BEGIN {
-    RS="\<"
+    RS="<"
     # print 10 records unless overridden with "-v maxRecordsToPrint=<n>"
     if (maxRecordsToPrint == "") maxRecordsToPrint = 10
 }
