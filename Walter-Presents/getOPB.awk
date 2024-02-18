@@ -1,27 +1,16 @@
 # Process data from getOPB.js
+/meta property="og:title" content=/ { print }
 
-/meta property="og:title" content=/ {
-    print
-}
+/link rel="canonical" href=/ { print }
 
-/link rel="canonical" href=/ {
-    print
-}
+/"description": "/ { print }
 
-/"description": "/ {
-    print
-}
-
-/"genre":/ {
-    print
-}
+/"genre":/ { print }
 
 # Don't need svg data
-/<svg/,/<\/svg/ {
-    next
-}
+/<svg/, /<\/svg/ { next }
 
-/id="splide01-slide/,/<div class="vertical-sponsorship">/ { print }
+/id="splide01-slide/, /<div class="vertical-sponsorship">/ { print }
 
 /<!-- start medium-rectangle-half-page -->/ {
     print
