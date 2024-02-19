@@ -19,19 +19,15 @@
 #
 # INVOCATION:
 #    awk -f generateLinkFrom-text.awk watched.txt
+/ref=stream_prime/ { sub(/\/ref=stream.*/, "") }
 
-/ref=stream_prime/ {
-    sub(/\/ref=stream.*/,"")
-}
-
-/ref=pd_/ {
-    sub(/\/ref=pd_.*/,"")
-}
+/ref=pd_/ { sub(/\/ref=pd_.*/, "") }
 
 /^https:/ {
     link = $0
-    if ((getline title) > 0) {
-        gsub(/"/,"\"\"",title)
-        printf("=HYPERLINK(\"%s\";\"%s\")\n",link,title)
+
+    if (getline title > 0) {
+        gsub(/"/, "\"\"", title)
+        printf("=HYPERLINK(\"%s\";\"%s\")\n", link, title)
     }
 }

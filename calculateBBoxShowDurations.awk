@@ -14,7 +14,6 @@
 #     6 Year        7 Rating      8 Description     9 Content_Type  10 Content_ID
 #    11 Item_Type  12 Date_Type  13 Original_Date  14 Show_ID       15 Season_ID
 #    16 Sn_#       17 Ep_#       16 1st_#          17 Last_#
-
 BEGIN {
     FS = "\t"
     OFS = "\t"
@@ -34,7 +33,8 @@ $4 != "" {
         print "==> Bad duration " $4 " in " $0 >> ERRORS
         print
         next
-    } else {
+    }
+    else {
         split($4, tm, ":")
         totalTime[2] += tm[2]
         totalTime[1] += tm[1] + int(totalTime[2] / 60)
@@ -46,11 +46,11 @@ $4 != "" {
 # Accumulate series time and episode count on any line that has a valid duration
 # But don't print episodes in short spreadsheet
 $9 == "tv_episode" {
-        mins += tm[2]
-        hrs += tm[1] + int(mins / 60)
-        mins %= 60
-        episodes += 1
-        next
+    mins += tm[2]
+    hrs += tm[1] + int(mins / 60)
+    mins %= 60
+    episodes += 1
+    next
 }
 
 # "tv_show" indicates a show, which may or may not have a duration
@@ -59,7 +59,8 @@ $9 == "tv_show" {
     if ($4 == "") {
         $3 = episodes
         $4 = sprintf("%02dh %02dm", hrs, mins)
-        mins = 0; hrs = 0;
+        mins = 0
+        hrs = 0
         episodes = 0
         print
         next
@@ -71,10 +72,9 @@ $9 == "tv_movie" {
     hrs = tm[1] + int(mins / 60)
     mins %= 60
     $4 = sprintf("%02dh %02dm", hrs, mins)
-    mins = 0; hrs = 0;
+    mins = 0
+    hrs = 0
     print
 }
 
-END {
-    printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
-}
+END { printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION }

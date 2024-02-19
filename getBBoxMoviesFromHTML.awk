@@ -4,10 +4,11 @@
 # awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
 #   -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
 #   sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
-
 BEGIN {
     # Print spreadsheet header
-    printf("Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t")
+    printf(\
+        "Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t"\
+    )
     printf("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
@@ -40,11 +41,11 @@ BEGIN {
     #
     firstLineNum = NR
     # Grab movie title
-    split($0,fld,"[<>]")
+    split($0, fld, "[<>]")
     title = fld[3]
-    sub(/ - .*/,"",title)
-    gsub(/&amp;/,"\\&",title)
-    gsub(/&#39;/,"'",title)
+    sub(/ - .*/, "", title)
+    gsub(/&amp;/, "\\&", title)
+    gsub(/&#39;/, "'", title)
 }
 
 # <meta name="description" content="Comedy dream team Dawn French and Jennifer Saunders reunite for the first time in ten years for a thirtieth-anniversary show bursting mirth, mayhem, And wigs. Lots and lots of wigs." />
@@ -53,19 +54,19 @@ BEGIN {
 #
 # <meta name="description" content="Since "A Christmas Carol" was first published   in 1843, the name of Ebenezer Scrooge has been famous throughout the world. See       Michael Hordern&#39;s stunning portrayal of the miserly misanthrope being shown the   error of his ways in this iconic adaptation." />
 /<meta name="description" / {
-    sub(/.*name="description" content="/,"")
-    sub(/" \/>.*/,"")
+    sub(/.*name="description" content="/, "")
+    sub(/" \/>.*/, "")
     description = $0
-    gsub(/&amp;/,"\\&",description)
-    gsub(/&#160;/," ",description)
-    gsub(/&#39;/,"'",description)
-    gsub(/&#233;/,"é",description)
-    gsub(/&#239;/,"ï",description)
+    gsub(/&amp;/, "\\&", description)
+    gsub(/&#160;/, " ", description)
+    gsub(/&#39;/, "'", description)
+    gsub(/&#233;/, "é", description)
+    gsub(/&#239;/, "ï", description)
 }
 
 # <link rel="canonical" href="https://www.britbox.com/us/movie/300_Years_of_French_and_Saunders_p05wv7gy" />
 /<link rel="canonical" / {
-    split($0,fld,"\"")
+    split($0, fld, "\"")
     full_URL = fld[4]
     # print "full_URL = " full_URL > "/dev/stderr"
 }
@@ -73,7 +74,7 @@ BEGIN {
 # "type": "movie",
 /"type": "/ {
     contentType = "tv_movie"
-    split($0,fld,"\"")
+    split($0, fld, "\"")
     itemType = fld[4]
     totalMovies += 1
     # print "itemType = " itemType > "/dev/stderr"
@@ -81,30 +82,30 @@ BEGIN {
 
 # "/movies/genres/Comedy"
 /"\/movies\/genres\// {
-    split($0,fld,"/")
+    split($0, fld, "/")
     genre = fld[4]
-    sub(/".*/,"",genre)
+    sub(/".*/, "", genre)
 }
 
 # "code": "TVPG-TV-14",
 /"code": "TVPG-/ {
-    split($0,fld,"\"")
+    split($0, fld, "\"")
     rating = fld[4]
-    sub(/TVPG-/,"",rating)
+    sub(/TVPG-/, "", rating)
 }
 
 # "releaseYear": 2017,
 /"releaseYear": / {
     dateType = "releaseYear"
-    split($0,fld,"\"")
+    split($0, fld, "\"")
     year = fld[3]
-    sub(/: /,"",year)
-    sub(/,.*/,"",year)
+    sub(/: /, "", year)
+    sub(/,.*/, "", year)
 }
 
 # "customId": "p05wv7gy",
 /"customId": "/ {
-    split($0,fld,"\"")
+    split($0, fld, "\"")
     contentId = fld[4]
     # print "contentId = " contentId > "/dev/stderr"
 }
@@ -112,9 +113,9 @@ BEGIN {
 # <b>Duration: </b>48 min
 /<b>Duration: </ {
     lastLineNum = NR
-    split($0,fld,"[<>]")
+    split($0, fld, "[<>]")
     duration = fld[5]
-    sub(/ .*/,"",duration)
+    sub(/ .*/, "", duration)
     duration = "0:" duration
     # print "duration = " duration > "/dev/stderr"
 
@@ -125,13 +126,18 @@ BEGIN {
     if (title == "A Midsummer Night's Dream") {
         if (contentId == "p089tsfc") {
             revisedTitles += 1
-            printf("==> Changed title '%s' to 'A Midsummer Night's Dream (1981)'\n",
-                    title) >> ERRORS
+            printf(\
+                "==> Changed title '%s' to 'A Midsummer Night's Dream (1981)'\n",
+                title\
+            ) >> ERRORS
             title = "A Midsummer Night's Dream (1981)"
-        } else if (contentId == "p05t7hx2") {
+        }
+        else if (contentId == "p05t7hx2") {
             revisedTitles += 1
-            printf("==> Changed title '%s' to 'A Midsummer Night's Dream (2016)'\n",
-                    title) >> ERRORS
+            printf(\
+                "==> Changed title '%s' to 'A Midsummer Night's Dream (2016)'\n",
+                title\
+            ) >> ERRORS
             title = "A Midsummer Night's Dream (2016)"
         }
     }
@@ -145,12 +151,28 @@ BEGIN {
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Print a spreadsheet line
-    printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
-               fullTitle, numSeasons, numEpisodes, duration,
-               genre, year, rating, description)
-    printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
-            contentType, contentId, itemType, dateType,
-            originalDate, showId, seasonId, seasonNumber)
+    printf(\
+        "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+        fullTitle,
+        numSeasons,
+        numEpisodes,
+        duration,
+        genre,
+        year,
+        rating,
+        description\
+    )
+    printf(\
+        "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+        contentType,
+        contentId,
+        itemType,
+        dateType,
+        originalDate,
+        showId,
+        seasonId,
+        seasonNumber\
+    )
     printf("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
 }
 
@@ -160,9 +182,10 @@ END {
     totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
     printf("    Processed %d %s\n", totalMovies, pluralMovies) > "/dev/stderr"
 
-    if (revisedTitles > 0 ) {
+    if (revisedTitles > 0) {
         revisedTitles == 1 ? plural = "title" : plural = "titles"
-        printf("%8d %s revised in %s\n",
-                revisedTitles, plural, FILENAME) > "/dev/stderr"
+        printf(\
+            "%8d %s revised in %s\n", revisedTitles, plural, FILENAME\
+        ) > "/dev/stderr"
     }
 }

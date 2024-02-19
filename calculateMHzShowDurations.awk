@@ -13,7 +13,6 @@
 # Field numbers returned by getMHzCatalogFromSitemap.awk
 #    1 Title    2 Seasons    3 Episodes    4 Duration    5 Genre    6 Country    7 Language
 #    8  Rating    9 Description
-
 BEGIN {
     FS = "\t"
     OFS = "\t"
@@ -27,9 +26,7 @@ $1 !~ /=HYPERLINK/ {
 }
 
 # No processing on seasons lines, but count them
-$3 != "" {
-    totalSeasons += 1
-}
+$3 != "" { totalSeasons += 1 }
 
 # Accumulate total time on any line that has a valid duration, it must be an episode
 $4 != "" {
@@ -41,6 +38,7 @@ $4 != "" {
         # Skip everything else
         next
     }
+
     # We have a normal episode
     episodesCounted += 1
     # print "==> episodesCounted = " episodesCounted > "/dev/stderr"
@@ -50,18 +48,21 @@ $4 != "" {
         print "==> Bad duration " $4 " in " $0 >> ERRORS
         next
     }
+
     # We have a valid duration, add to total
     split($4, tm, ":")
     totalTime[3] += tm[3]
-    totalTime[2] += tm[2] + int(totalTime[3] / 60)  
+    totalTime[2] += tm[2] + int(totalTime[3] / 60)
     totalTime[1] += tm[1] + int(totalTime[2] / 60)
-    totalTime[3] %= 60; totalTime[2] %= 60
+    totalTime[3] %= 60
+    totalTime[2] %= 60
     totalEpisodes += 1
     # Accumulate episode times to use when a show line is found
     secs += tm[3]
     mins += tm[2] + int(secs / 60)
     hrs += tm[1] + int(mins / 60)
-    secs %= 60; mins %= 60
+    secs %= 60
+    mins %= 60
     next
 }
 
@@ -78,7 +79,9 @@ $2 != "" {
         print >> LONG_SPREADSHEET
         totalShows += 1
         # Make sure there is no carryover
-        secs = 0; mins = 0; hrs = 0;
+        secs = 0
+        mins = 0
+        hrs = 0
         episodesCounted = 0
         next
     }
@@ -91,8 +94,17 @@ END {
 
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
-    totalEpisodes == 1 ? pluralEpisodes = "episode" : pluralEpisodes = "episodes"
+    totalEpisodes == 1\
+        ? pluralEpisodes = "episode"\
+        : pluralEpisodes = "episodes"
     #
-    printf("    Processed %d %s, %d %s, %d %s\n", totalShows, pluralShows, totalSeasons, pluralSeasons,
-            totalEpisodes, pluralEpisodes) > "/dev/stderr"
+    printf(\
+        "    Processed %d %s, %d %s, %d %s\n",
+        totalShows,
+        pluralShows,
+        totalSeasons,
+        pluralSeasons,
+        totalEpisodes,
+        pluralEpisodes\
+    ) > "/dev/stderr"
 }
