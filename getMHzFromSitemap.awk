@@ -83,11 +83,13 @@
 
     # If we find a header, clean it up and put it before the description
     if ($0 ~ /\|[ ]+TV[ ]*-/) {
+        # Fix obvious typos
+        sub(/engligh/, "english")
+        sub(/ENGISH/, "ENGLISH")
         sub(/WITH ENGLISH SUBTITLES /, "")
         # Special case for Maigret: The Classic BBC Series
         sub(/WITH ENGLISH CAPTIONS /, "")
         # Special case for Spitfire
-        sub(/WITH ENGISH SUBTITLES /, "")
         sub(/[Ww]ith [Ee]nglish [Ss]ubtitles /, "")
         sub(/SCANDINAVIAN CRIME FICTION/, "Sweden")
         sub(/NON[-]*FICTION[ ]*-[ ]*DOCUMENTARY/, "Documentary")
@@ -217,7 +219,7 @@
 
     # Spreadsheets decipher 2 part durations as time-of-day so make sure they're 3 parts
     if (split(episodeDuration, tm, ":") == 2)
-        episodeDuration = "00:" pisodeDuration
+        episodeDuration = "00:" episodeDuration
 
     if ($0 ~ /<\/div>/) {
         # print "==> episodeDuration = " episodeDuration > "/dev/stderr"
@@ -400,14 +402,21 @@
         # Could be in multiple paragraphs
         descriptionLinesFound += 1
 
-        if (paragraph != "") episodeDescription = episodeDescription
+        if (paragraph != "") {
+            if (descriptionLinesFound == 1) { episodeDescription = paragraph }
+            else if (descriptionLinesFound > 1) {
+                episodeDescription = episodeDescription " " paragraph
+                printf(\
+                    "==> Multi line episodeDescription in: %s\n", episodeTitle\
+                ) >> ERRORS
+                # print "descriptionLinesFound = " descriptionLinesFound >> ERRORS
+                # print "episodeDescription from <p> =\n" episodeDescription >> ERRORS
+            }
+        }
 
-        (descriptionLinesFound == 1 ? "" : " ") paragraph
         gsub(/&amp;/, "\\&", episodeDescription)
         gsub(/&#x27;/, "'", episodeDescription)
         gsub(/&#39;/, "'", episodeDescription)
-        # print "descriptionLinesFound = " descriptionLinesFound > "/dev/stderr"
-        # print "==> episodeDescription from <p> = \n" episodeDescription > "/dev/stderr"
         next
     }
 
