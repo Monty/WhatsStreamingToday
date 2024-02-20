@@ -218,8 +218,9 @@
     if ($0 ~ /[[:digit:]]+:[[:digit:]]+/) episodeDuration = $0
 
     # Spreadsheets decipher 2 part durations as time-of-day so make sure they're 3 parts
-    if (split(episodeDuration, tm, ":") == 2)
+    if (split(episodeDuration, tm, ":") == 2) {
         episodeDuration = "00:" episodeDuration
+    }
 
     if ($0 ~ /<\/div>/) {
         # print "==> episodeDuration = " episodeDuration > "/dev/stderr"
