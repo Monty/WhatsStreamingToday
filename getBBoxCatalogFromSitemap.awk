@@ -348,11 +348,11 @@ BEGIN {
         print title >> RAW_TITLES
         cmd1 = "grep -c " contentId " " IDS_SEASONS
         cmd1 | getline numSeasons
-        close cmd1
+        close(cmd1)
         #
         cmd2 = "grep -c " contentId " " IDS_EPISODES
         cmd2 | getline numEpisodes
-        close cmd2
+        close(cmd2)
     }
 
     if (contentType == "tv_season") {

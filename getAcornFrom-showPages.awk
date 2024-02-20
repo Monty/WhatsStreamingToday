@@ -184,7 +184,7 @@
         gsub(/&#039;/, "'", episodeDescription)
     }
 
-    close cmd
+    close(cmd)
     # Get episodeNumber which is no longer available from showURL
     cmd = "curl -s " episodeURL " | grep '<meta itemprop=\"episodeNumber\"'"
 
@@ -195,7 +195,7 @@
     }
 
     # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
-    close cmd
+    close(cmd)
     next
 }
 
