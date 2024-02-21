@@ -37,11 +37,11 @@ function cleanup() {
     exit 130
 }
 # Get latest files to search
-BBOX="$(ls -1t BBox_TV_Credits*csv 2>/dev/null | head -1)"
-MHZ="$(ls -1t MHz_TV_Credits*csv 2>/dev/null | head -1)"
-IMDb="$(ls -1t IMDb_Credits-Person-noHype*csv 2>/dev/null | head -1)"
+BBOX="$(find BBox_TV_Credits*csv 2>/dev/null | tail -1)"
+MHZ="$(find MHz_TV_Credits*csv 2>/dev/null | tail -1)"
+IMDb="$(find IMDb_Credits-Person-noHype*csv 2>/dev/null | tail -1)"
 # Get latest files to use for translating show names
-XLATE="$(ls -1t IMDb-columns/xlate-pl-noHype*.txt 2>/dev/null | head -1)"
+XLATE="$(find IMDb-columns/xlate-pl-noHype*.txt 2>/dev/null | tail -1)"
 
 printf "==> Files processed:\n"
 #
