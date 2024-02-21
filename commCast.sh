@@ -129,9 +129,9 @@ sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu $TMPFILE |
 printf "\n==> Duplicated names (Name|Job|Show|Role):\n"
 # Spacing is sometimes erratic due to UTF-8 characters
 sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu $TMPFILE |
-    awk -F "\t" 'BEGIN {p="%s\t%s\t%s\t%s\t%s\n"}
+    awk -F "\t" 'BEGIN {p="%s\t%s\t%s\t%s\n"}
     {if($1==f[1]&&$3!=f[3])
-        {printf(p,f[1],f[2],f[3],f[4],f[5]); printf(p,$1,$2,$3,$4,$5)}
+        {printf(p,f[1],f[2],f[3],f[4]); printf(p,$1,$2,$3,$4)}
         split($0,f)}' |
     sort -fu | column -s $'\t' -t | rg -f $SRCHFILE
 
