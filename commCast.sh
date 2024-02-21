@@ -5,7 +5,7 @@
 # NOTES:
 #   Requires cast member files produced by make*.sh scripts.
 #
-#   Cast member data from streaming service providers often has mistakes.
+#   Cast member data from IMDb and streaming service providers often has mistakes.
 #
 #   Titles may differ between services,
 #       e.g. Gåsmamman/gasmamman, Jägarna/the-hunters
@@ -16,6 +16,8 @@
 #
 #   It may help to start with an actor, e.g.
 #       ./commCast.sh 'Alexandra Rapaport'
+#   or a show, e.g.
+#       ../commCast.sh Endeavour
 #
 #   Then move to more complex queries that expose other common cast members
 #       ./commCast.sh spring-tide the-sandhamn-murders the-team
@@ -42,29 +44,47 @@ function cleanup() {
     printf "\n"
     exit 130
 }
+
 # Get latest files to search
 BBOX="$(find BBox_TV_Credits*csv 2>/dev/null | tail -1)"
 MHZ="$(find MHz_TV_Credits*csv 2>/dev/null | tail -1)"
+IMDb="$(find IMDb_Credits-Person-noHype*csv 2>/dev/null | tail -1)"
+# Get latest files to use for translating show names
+XLATE="$(find IMDb-columns/xlate-pl-noHype*.txt 2>/dev/null | tail -1)"
 
 printf "==> Files processed:\n"
-#
+
 if [ $BBOX ]; then
     printf "BBOX:\t$BBOX\n"
     foundFiles="yes"
 else
     printf "BBOX:\tNo files match BBox_TV_Credits*csv\n"
 fi
-#
+
 if [ $MHZ ]; then
     printf "MHZ:\t$MHZ\n"
     foundFiles="yes"
 else
     printf "MHZ:\tNo files match MHz_TV_Credits*csv\n"
 fi
-#
+
+if [ $IMDb ]; then
+    printf "IMDb:\t$IMDb\n"
+    foundFiles="yes"
+else
+    printf "IMDb:\tNo files match IMDb_Credits-Person-noHype*csv\n"
+fi
+
 if [ "$foundFiles" != "yes" ]; then
     printf "==> [Error] No files available to process.\n"
     exit 1
+fi
+
+if [ $XLATE ]; then
+    printf "XLATE:\t$XLATE\n"
+else
+    printf "XLATE:\tNo files match IMDb-columns/xlate-pl*.txt\n"
+    printf "\tNo translation will be done.\n"
 fi
 
 printf "\n==> Searching for:\n"
@@ -74,16 +94,28 @@ done
 cat $SRCHFILE
 
 printf "\n==> All names (Name|Job|Show|Role):\n"
-#
+
 if [ $BBOX ]; then
     if [ $(rg -wS -c -f $SRCHFILE $BBOX) ]; then
         rg -f $SRCHFILE $BBOX | cut -f 1,2,4,5 >>$TMPFILE
     fi
 fi
-#
+
 if [ $MHZ ]; then
     if [ $(rg -wS -c -f $SRCHFILE $MHZ) ]; then
         rg -f $SRCHFILE $MHZ | cut -f 1,2,4,5 >>$TMPFILE
+    fi
+fi
+
+if [ $IMDb ]; then
+    if [ $(rg -wS -c -f $SRCHFILE $IMDb) ]; then
+        if [ $XLATE ]; then
+            perl -p -f $XLATE $IMDb | rg -f $SRCHFILE |
+                awk -F "\t" '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$2,$6)}' >>$TMPFILE
+        else
+            rg -f $SRCHFILE $IMDb |
+                awk -F "\t" '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$2,$6)}' >>$TMPFILE
+        fi
     fi
 fi
 
