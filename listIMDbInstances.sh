@@ -10,7 +10,7 @@ for file in title.basics.tsv.gz title.akas.tsv.gz title.principals.tsv.gz title.
     title.episode.tsv.gz name.basics.tsv.gz; do
     if [ -e "$file" ]; then
         printf "==> $file\n"
-        rg -wNz $1 $file
+        rg -wSNz "$1" "$file"
         printf "\n"
     fi
 done
