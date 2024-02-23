@@ -1,7 +1,7 @@
 # Produce a shows spreadsheet from TV Shows html
 
 # INVOCATION:
-# awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
+# awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS \
 #   -f getBBoxShowsFromHTML.awk "$TV_SHOW_HTML" |
 #   sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 BEGIN {
@@ -20,6 +20,10 @@ BEGIN {
     full_URL = ""
     title = ""
     yearRange = ""
+    # Used in printing credits
+    person_role = ""
+    person_name = ""
+    character_name = ""
     # Used in printing column data
     fullTitle = ""
     numSeasons = ""
@@ -76,6 +80,7 @@ BEGIN {
     title = fld[3]
     gsub(/&amp;/, "\\&", title)
     gsub(/&#39;/, "'", title)
+
     # print "title = " title > "/dev/stderr"
 }
 
@@ -94,6 +99,36 @@ BEGIN {
     genre = fld[4]
     sub(/".*/, "", genre)
     # print "genre = " genre > "/dev/stderr"
+}
+
+# "role": "actor",
+/"role": "/ {
+    split($0, fld, "\"")
+    person_role = fld[4]
+    # print "person_role = " person_role > "/dev/stderr"
+}
+
+# "name": "Tom Rhys Harries",
+/"name": "/ {
+    split($0, fld, "\"")
+    person_name = fld[4]
+    gsub(/&#39;/, "'", person_name)
+    # print "person_name = " person_name > "/dev/stderr"
+}
+
+# "character": "Rhys"
+/"character": "/ {
+    split($0, fld, "\"")
+    character_name = fld[4]
+    gsub(/&#39;/, "'", character_name)
+    printf(\
+        "%s\t%s\ttv_show\t%s\t%s\n",
+        person_name,
+        person_role,
+        title,
+        character_name\
+    ) >> RAW_CREDITS
+    # print "character_name = " character_name > "/dev/stderr"
 }
 
 # "availableEpisodeCount": 10,
@@ -185,7 +220,7 @@ BEGIN {
             title = "Maigret (2016-2017)"
         }
 
-        # print "==> title = " title > "/dev/stderr"
+        #print "==> revisedTitle = " title > "/dev/stderr"
         # print "==> showId = " showId > "/dev/stderr"
     }
 
@@ -206,7 +241,7 @@ BEGIN {
             title = "Porridge (2016-2017)"
         }
 
-        # print "==> title = " title > "/dev/stderr"
+        #print "==> revisedTitle = " title > "/dev/stderr"
         # print "==> showId = " showId > "/dev/stderr"
     }
 
@@ -220,7 +255,7 @@ BEGIN {
             title = "The Moonstone (2016)"
         }
 
-        # print "==> title = " title > "/dev/stderr"
+        #print "==> revisedTitle = " title > "/dev/stderr"
         # print "==> showId = " showId > "/dev/stderr"
     }
 

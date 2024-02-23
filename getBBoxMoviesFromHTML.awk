@@ -1,7 +1,7 @@
 # Produce a movies spreadsheet from TV Movies html
 
 # INVOCATION:
-# awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
+# awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS \
 #   -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
 #   sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 BEGIN {
@@ -19,6 +19,10 @@ BEGIN {
     # Only used during processing
     full_URL = ""
     year = ""
+    # Used in printing credits
+    person_role = ""
+    person_name = ""
+    character_name = ""
     # Used in printing column data
     fullTitle = ""
     numSeasons = ""
@@ -87,6 +91,39 @@ BEGIN {
     sub(/".*/, "", genre)
 }
 
+# "name": "O15274_Movie Subscription HD-1080 Any User - Movies",
+/_Movie Subscription/ { next }
+
+# "role": "actor",
+/"role": "/ {
+    split($0, fld, "\"")
+    person_role = fld[4]
+    # print "person_role = " person_role > "/dev/stderr"
+}
+
+# "name": "Michael Hordern",
+/"name": "/ {
+    split($0, fld, "\"")
+    person_name = fld[4]
+    gsub(/&#39;/, "'", person_name)
+    # print "person_name = " person_name > "/dev/stderr"
+}
+
+# "character": "Scrooge"
+/"character": "/ {
+    split($0, fld, "\"")
+    character_name = fld[4]
+    gsub(/&#39;/, "'", character_name)
+    printf(\
+        "%s\t%s\ttv_movie\t%s\t%s\n",
+        person_name,
+        person_role,
+        title,
+        character_name\
+    ) >> RAW_CREDITS
+    # print "character_name = " character_name > "/dev/stderr"
+}
+
 # "code": "TVPG-TV-14",
 /"code": "TVPG-/ {
     split($0, fld, "\"")
@@ -131,6 +168,7 @@ BEGIN {
                 title\
             ) >> ERRORS
             title = "A Midsummer Night's Dream (1981)"
+            # print "==> revisedTitle = " title > "/dev/stderr"
         }
         else if (contentId == "p05t7hx2") {
             revisedTitles += 1
@@ -139,6 +177,7 @@ BEGIN {
                 title\
             ) >> ERRORS
             title = "A Midsummer Night's Dream (2016)"
+            # print "==> revisedTitle = " title > "/dev/stderr"
         }
     }
 
