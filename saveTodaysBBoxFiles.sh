@@ -33,8 +33,11 @@ COLS="BBox-columns"
 BASELINE="BBox-baseline"
 mkdir -p $COLS $BASELINE
 
-cp -p $VERBOSE BBox_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
+cp -p $VERBOSE BBox_TV_Credits-$DATE.csv $BASELINE/credits.txt
 cp -p $VERBOSE BBox_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
 cp -p $VERBOSE BBox_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt
+cp -p $VERBOSE BBox_uniqCharacters-$DATE.txt $BASELINE/uniqCharacters.txt
+cp -p $VERBOSE BBox_uniqPersons-$DATE.txt $BASELINE/uniqPersons.txt
+cp -p $VERBOSE BBox_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 
-cp -p $VERBOSE $COLS/all_URLs-$DATE.txt $BASELINE/all_URLs$DATE_ID.txt
+cp -p $VERBOSE $COLS/all_URLs-$DATE.txt $BASELINE/all_URLs.txt
