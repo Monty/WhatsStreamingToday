@@ -77,6 +77,7 @@ ERRORS="BBox_anomalies$LONGDATE.txt"
 ALL_URLS="$COLS/all_URLs$DATE_ID.txt"
 
 # Final output spreadsheets
+CREDITS="BBox_TV_Credits$DATE_ID.csv"
 SHORT_SPREADSHEET="BBox_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 
@@ -96,11 +97,15 @@ TV_SHOW_HTML="$COLS/tv_shows$DATE_ID.html"
 TEMP_SPREADSHEET="$COLS/temp_spreadsheet.csv"
 
 # Intermediate working files
+RAW_CREDITS="$COLS/rawCredits$DATE_ID.csv"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
+UNIQUE_PERSONS="BBox_uniqPersons$DATE_ID.txt"
+UNIQUE_CHARACTERS="BBox_uniqCharacters$DATE_ID.txt"
 UNIQUE_TITLES="BBox_uniqTitles$DATE_ID.txt"
 DURATION="$COLS/total_duration$DATE_ID.txt"
 
 # Saved files used for comparison with current files
+PUBLISHED_CREDITS="$BASELINE/credits.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
@@ -109,21 +114,28 @@ PUBLISHED_MOVIES_CSV="$BASELINE/BBoxMovies.txt"
 PUBLISHED_SEASONS_CSV="$BASELINE/BBoxCatalog.txt"
 PUBLISHED_SHOWS_CSV="$BASELINE/BBoxShows.txt"
 #
+PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
+PUBLISHED_UNIQUE_CHARACTERS="$BASELINE/uniqCharacters.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 #
 PUBLISHED_ALL_URLS="$BASELINE/all_URLs.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$RAW_TITLES $UNIQUE_TITLES $DURATION"
+ALL_WORKING="$RAW_CREDITS $RAW_TITLES $TEMP_SPREADSHEET"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $TEMP_SPREADSHEET"
+ALL_TXT="$UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
+#
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $CREDITS"
 
 SHORT_CSVS="$MOVIES_CSV $SHOWS_CSV"
 LONG_CSVS="$EPISODES_CSV $SEASONS_CSV"
 
 # Cleanup any possible leftover files
-rm -f $ALL_WORKING $ALL_SPREADSHEETS
+rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
+
+# Print header for credits file
+printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >$CREDITS
 
 # Grab the sitemap file and extract the URLs for en-us items
 # Unless we already have one from today
@@ -148,8 +160,9 @@ else
 fi
 # Generate movies spreadsheet
 printf "### Possible anomalies from processing $TV_MOVIE_HTML\n" >"$ERRORS"
-awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxMoviesFromHTML.awk \
-    "$TV_MOVIE_HTML" | sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
+    -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
+    sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
 # Get HTML for shows from /show/ URLs
 # Unless we already have one from today
@@ -164,8 +177,9 @@ else
 fi
 # Generate shows spreadsheet
 printf "\n### Possible anomalies from processing $TV_SHOW_HTML\n" >>"$ERRORS"
-awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -f getBBoxShowsFromHTML.awk \
-    "$TV_SHOW_HTML" | sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
+    -f getBBoxShowsFromHTML.awk "$TV_SHOW_HTML" |
+    sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 
 # Get HTML for episodes from /season/ URLs
 # Unless we already have one from today
@@ -215,6 +229,11 @@ cut -f $spreadsheet_columns "$TEMP_SPREADSHEET" >"$LONG_SPREADSHEET"
 tail -r "$LONG_SPREADSHEET" | awk -v ERRORS="$ERRORS" -v DURATION="$DURATION" \
     -f calculateBBoxShowDurations.awk | tail -r >>"$SHORT_SPREADSHEET"
 
+# Generate credits spreadsheets
+sort -fu $RAW_CREDITS | sort -fb >>$CREDITS
+cut -f 1 $RAW_CREDITS | sort -fu >>$UNIQUE_PERSONS
+cut -f 5 $RAW_CREDITS | sort -fu >>$UNIQUE_CHARACTERS
+
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
@@ -224,15 +243,34 @@ function printAdjustedFileInfo() {
         awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
+# Output some stats from credits
+printf "\n==> Stats from processing credits:\n"
+numPersons=$(sed -n '$=' $UNIQUE_PERSONS)
+numCharacters=$(sed -n '$=' $UNIQUE_CHARACTERS)
+printf "%8d people credited\n" "$numPersons"
+#
+# for i in actor producer director writer other guest narrator; do
+for i in actor director; do
+    count=$(cut -f 1,2 $CREDITS | sort -fu | grep -cw "$i$")
+    printf "%8d as %ss\n" "$count" "$i"
+done
+printf "%8d characters portrayed (in at most" "$numCharacters"
+count=$(cut -f 3,4 $CREDITS | sort -fu | grep -cw "^tv_show")
+printf " %d TV shows)\n" "$count"
+
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
+printAdjustedFileInfo $ALL_URLS 0
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
-printAdjustedFileInfo $UNIQUE_TITLES 0
+printAdjustedFileInfo $CREDITS 1
 printAdjustedFileInfo $EPISODES_CSV 1
 printAdjustedFileInfo $MOVIES_CSV 1
 printAdjustedFileInfo $SEASONS_CSV 1
 printAdjustedFileInfo $SHOWS_CSV 1
+printAdjustedFileInfo $UNIQUE_PERSONS 0
+printAdjustedFileInfo $UNIQUE_CHARACTERS 0
+printAdjustedFileInfo $UNIQUE_TITLES 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
@@ -290,7 +328,7 @@ printf "\n"
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
-        rm -f $ALL_WORKING $ALL_SPREADSHEETS
+        rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
 fi
@@ -340,8 +378,11 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
+$(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS $UNIQUE_CHARACTERS)
+$(checkdiffs $PUBLISHED_CREDITS $CREDITS)
 $(checkdiffs $PUBLISHED_ALL_URLS $ALL_URLS)
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.
@@ -357,12 +398,12 @@ $(countOccurrences "/show/")
 
 ### Any funny stuff with file lengths?
 
-$(wc $ALL_SPREADSHEETS)
+$(wc  $ALL_TXT $ALL_SPREADSHEETS)
 
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_WORKING $ALL_SPREADSHEETS
+    rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
 exit
