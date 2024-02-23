@@ -199,12 +199,12 @@ fi
 
 # Look for any leftover HTML character codes
 printf "\n==> Any leftover HTML special characters?\n" >>"$ERRORS"
-rg --sort path '&#' $ALL_SPREADSHEETS >>"$ERRORS"
+rg -N --sort path '&#[0-9]*;|&amp;' $ALL_SPREADSHEETS >>"$ERRORS"
 printf "\n" >>"$ERRORS"
 #
 # Also send to stdout
 printf "\n==> Any leftover HTML special characters?\n"
-rg --sort path '&#' $ALL_SPREADSHEETS
+rg -N --sort path '&#[0-9]*;|&amp;' $ALL_SPREADSHEETS
 printf "\n"
 
 # If we don't want to create a "diffs" file for debugging, exit here
