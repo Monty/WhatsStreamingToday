@@ -4,6 +4,9 @@
 class="Title-only-mobile"
 ^  &quot;type&quot;: &quot;
 ^    &quot;/tv/genres/
+^        &quot;role&quot;: &quot
+^        &quot;name&quot;: &quot;
+^        &quot;character&quot;:
 ^          &quot;availableEpisodeCount&quot;
 &quot;availableSeasonCount&quot;
 ^    &quot;customId&quot;:
