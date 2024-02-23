@@ -12,6 +12,25 @@ BEGIN {
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
+{
+    gsub(/&#160;/, " ")
+    gsub(/&#163;/, "£")
+    gsub(/&#225;/, "á")
+    gsub(/&#226;/, "â")
+    gsub(/&#229;/, "å")
+    gsub(/&#232;/, "è")
+    gsub(/&#233;/, "é")
+    gsub(/&#234;/, "ê")
+    gsub(/&#235;/, "ë")
+    gsub(/&#239;/, "ï")
+    gsub(/&#246;/, "ö")
+    gsub(/&#248;/, "ø")
+    gsub(/&#250;/, "ú")
+    gsub(/&#253;/, "ý")
+    gsub(/&#39;/, "'")
+    gsub(/&amp;/, "\\&")
+}
+
 # "/tv/genres/Mystery"
 /"\/tv\/genres\// {
     split($0, fld, "/")
@@ -60,18 +79,6 @@ BEGIN {
     sub(/.*"shortDescription": "/, "")
     sub(/",$/, "")
     description = $0
-    gsub(/&#160;/, " ", description)
-    gsub(/&#163;/, "£", description)
-    gsub(/&#226;/, "â", description)
-    gsub(/&#229;/, "å", description)
-    gsub(/&#232;/, "è", description)
-    gsub(/&#233;/, "é", description)
-    gsub(/&#234;/, "ê", description)
-    gsub(/&#239;/, "ï", description)
-    gsub(/&#246;/, "ö", description)
-    gsub(/&#250;/, "ú", description)
-    gsub(/&#39;/, "'", description)
-    gsub(/&amp;/, "\\&", description)
     # print "description = " description > "/dev/stderr"
 }
 
@@ -114,11 +121,6 @@ BEGIN {
 /"episodeName": "/ {
     split($0, fld, "\"")
     episodeName = fld[4]
-    gsub(/&amp;/, "\\&", episodeName)
-    gsub(/&#39;/, "'", episodeName)
-    gsub(/&#229;/, "å", episodeName)
-    gsub(/&#233;/, "é", episodeName)
-    gsub(/&#246;/, "ö", episodeName)
     # print "episodeName = " episodeName > "/dev/stderr"
 }
 
@@ -133,8 +135,6 @@ BEGIN {
 /"showTitle": / {
     split($0, fld, "\"")
     showTitle = fld[4]
-    gsub(/&amp;/, "\\&", showTitle)
-    gsub(/&#39;/, "'", showTitle)
     # print "showTitle = " showTitle > "/dev/stderr"
 
     # "Maigret" needs to be revised to clarify timeframe

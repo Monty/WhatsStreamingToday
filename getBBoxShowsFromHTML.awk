@@ -13,6 +13,25 @@ BEGIN {
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
+{
+    gsub(/&#160;/, " ")
+    gsub(/&#163;/, "£")
+    gsub(/&#225;/, "á")
+    gsub(/&#226;/, "â")
+    gsub(/&#229;/, "å")
+    gsub(/&#232;/, "è")
+    gsub(/&#233;/, "é")
+    gsub(/&#234;/, "ê")
+    gsub(/&#235;/, "ë")
+    gsub(/&#239;/, "ï")
+    gsub(/&#246;/, "ö")
+    gsub(/&#248;/, "ø")
+    gsub(/&#250;/, "ú")
+    gsub(/&#253;/, "ý")
+    gsub(/&#39;/, "'")
+    gsub(/&amp;/, "\\&")
+}
+
 # <title>15 Days S1 - Mystery | BritBox</title>
 /<title>/ {
     # Make sure no fields have been carried over due to missing keys
@@ -56,14 +75,6 @@ BEGIN {
     sub(/.*name="description" content="/, "")
     sub(/" \/>.*/, "")
     description = $0
-    gsub(/&#160;/, " ", description)
-    gsub(/&#163;/, "£", description)
-    gsub(/&#233;/, "é", description)
-    gsub(/&#235;/, "ë", description)
-    gsub(/&#239;/, "ï", description)
-    gsub(/&#250;/, "ú", description)
-    gsub(/&#39;/, "'", description)
-    gsub(/&amp;/, "\\&", description)
     # print "description = " description > "/dev/stderr"
 }
 
@@ -78,8 +89,6 @@ BEGIN {
 /class="Title-only-mobile"/ {
     split($0, fld, "[<>]")
     title = fld[3]
-    gsub(/&amp;/, "\\&", title)
-    gsub(/&#39;/, "'", title)
 
     # print "title = " title > "/dev/stderr"
 }
@@ -112,7 +121,6 @@ BEGIN {
 /"name": "/ {
     split($0, fld, "\"")
     person_name = fld[4]
-    gsub(/&#39;/, "'", person_name)
     # print "person_name = " person_name > "/dev/stderr"
 }
 
@@ -120,7 +128,6 @@ BEGIN {
 /"character": "/ {
     split($0, fld, "\"")
     character_name = fld[4]
-    gsub(/&#39;/, "'", character_name)
     printf(\
         "%s\t%s\ttv_show\t%s\t%s\n",
         person_name,

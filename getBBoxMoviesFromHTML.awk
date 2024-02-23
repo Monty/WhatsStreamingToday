@@ -13,6 +13,25 @@ BEGIN {
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
+{
+    gsub(/&#160;/, " ")
+    gsub(/&#163;/, "£")
+    gsub(/&#225;/, "á")
+    gsub(/&#226;/, "â")
+    gsub(/&#229;/, "å")
+    gsub(/&#232;/, "è")
+    gsub(/&#233;/, "é")
+    gsub(/&#234;/, "ê")
+    gsub(/&#235;/, "ë")
+    gsub(/&#239;/, "ï")
+    gsub(/&#246;/, "ö")
+    gsub(/&#248;/, "ø")
+    gsub(/&#250;/, "ú")
+    gsub(/&#253;/, "ý")
+    gsub(/&#39;/, "'")
+    gsub(/&amp;/, "\\&")
+}
+
 # <title>300 Years of French and Saunders - Comedy | BritBox</title>
 /<title>/ {
     # Make sure no fields have been carried over due to missing keys
@@ -48,8 +67,6 @@ BEGIN {
     split($0, fld, "[<>]")
     title = fld[3]
     sub(/ - .*/, "", title)
-    gsub(/&amp;/, "\\&", title)
-    gsub(/&#39;/, "'", title)
 }
 
 # <meta name="description" content="Comedy dream team Dawn French and Jennifer Saunders reunite for the first time in ten years for a thirtieth-anniversary show bursting mirth, mayhem, And wigs. Lots and lots of wigs." />
@@ -61,11 +78,6 @@ BEGIN {
     sub(/.*name="description" content="/, "")
     sub(/" \/>.*/, "")
     description = $0
-    gsub(/&amp;/, "\\&", description)
-    gsub(/&#160;/, " ", description)
-    gsub(/&#39;/, "'", description)
-    gsub(/&#233;/, "é", description)
-    gsub(/&#239;/, "ï", description)
 }
 
 # <link rel="canonical" href="https://www.britbox.com/us/movie/300_Years_of_French_and_Saunders_p05wv7gy" />
@@ -105,7 +117,6 @@ BEGIN {
 /"name": "/ {
     split($0, fld, "\"")
     person_name = fld[4]
-    gsub(/&#39;/, "'", person_name)
     # print "person_name = " person_name > "/dev/stderr"
 }
 
@@ -113,7 +124,6 @@ BEGIN {
 /"character": "/ {
     split($0, fld, "\"")
     character_name = fld[4]
-    gsub(/&#39;/, "'", character_name)
     printf(\
         "%s\t%s\ttv_movie\t%s\t%s\n",
         person_name,
