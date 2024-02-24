@@ -263,15 +263,26 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
 fi
 
-# Look for any leftover HTML character codes
-printf "\n==> Any leftover HTML special characters?\n" >>"$ERRORS"
-rg -N --sort path '&#[0-9]*;|&amp;' $ALL_SPREADSHEETS >>"$ERRORS"
-printf "\n" >>"$ERRORS"
+# Look for any leftover HTML character codes or other problems
+probs="$(rg -c --sort path -f rg_problems.rgx $ALL_TXT $ALL_SPREADSHEETS)"
+if [ -n "$probs" ]; then
+    {
+        printf "\n==> Possible formatting problems:\n"
+        printf "    $probs\n"
+        printf "==> For more details:\n"
+        printf "    rg -f rg_problems.rgx MHz_[Tu]*$DATE_ID*\n\n"
+    } >>"$ERRORS"
+fi
 #
 # Also send to stdout
-printf "\n==> Any leftover HTML special characters?\n"
-rg -N --sort path '&#[0-9]*;|&amp;' $ALL_SPREADSHEETS
-printf "\n"
+probs="$(rg -c --color ansi --sort path -f rg_problems.rgx \
+    $ALL_TXT $ALL_SPREADSHEETS)"
+if [ -n "$probs" ]; then
+    printf "\n==> Possible formatting problems:\n"
+    printf "    $probs\n"
+    printf "==> For more details:\n"
+    printf "    rg -f rg_problems.rgx BBox_[Tu]*$DATE_ID*\n\n"
+fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
