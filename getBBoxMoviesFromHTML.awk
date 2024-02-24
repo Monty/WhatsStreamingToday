@@ -124,6 +124,9 @@ BEGIN {
 /"character": "/ {
     split($0, fld, "\"")
     character_name = fld[4]
+    sub (/\\t/, "", character_name)
+    sub (/^ */, "", character_name)
+    sub (/ *$/, "", character_name)
     printf(\
         "%s\t%s\ttv_movie\t%s\t%s\n",
         person_name,
