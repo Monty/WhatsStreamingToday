@@ -510,6 +510,11 @@
         # printf("%s\t%s\t%s\t%s\t%s\t%s\t%s\n", showTitle, shortEpisodeURL,
         #    mdEpisodeNumber, prEpisodeNumber, cxEpisodeNumber, snEpisodeNumber,
         #    episodeNumber)  >> "MHz-columns/episodeNumbers.csv"
+
+        # Don't allow leading or trailing spaces in episodeDescription
+        sub(/^ */, "", episodeDescription)
+        sub(/ *$/, "", episodeDescription)
+        # print "episodeDescription =\n[" episodeDescription "]" > "/dev/stderr"
         printf(\
             "%s\t\t\t%s\t\t\t\t\t%s\n",
             episodeLink,
