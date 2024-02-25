@@ -281,7 +281,7 @@ if [ -n "$probs" ]; then
     printf "\n==> Possible formatting problems:\n"
     printf "    $probs\n"
     printf "==> For more details:\n"
-    printf "    rg -f rg_problems.rgx BBox_[Tu]*$DATE_ID*\n\n"
+    printf "    rg -f rg_problems.rgx MHz_[Tu]*$DATE_ID*\n\n"
 fi
 
 # If we don't want to create a "diffs" file for debugging, exit here
