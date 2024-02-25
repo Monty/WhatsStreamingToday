@@ -39,6 +39,7 @@
         split($0, fld, "\"")
         person_name = fld[2]
         sub(/\.$/, "", person_name)
+        gsub(/&amp;/, "\\&", person_name)
         gsub(/&#x27;/, "'", person_name)
         gsub(/&#39;/, "'", person_name)
         next
@@ -47,6 +48,7 @@
     if ($0 ~ /<span class="small-8/) {
         split($0, fld, "[<>]")
         char_name = fld[3]
+        gsub(/&amp;/, "\\&", char_name)
         gsub(/&#x27;/, "'", char_name)
         gsub(/&#39;/, "'", char_name)
 
@@ -94,6 +96,7 @@
         split($0, fld, "\"")
         person_name = fld[2]
         sub(/\.$/, "", person_name)
+        gsub(/&amp;/, "\\&", person_name)
         gsub(/&#x27;/, "'", person_name)
         gsub(/&#39;/, "'", person_name)
         # Special case

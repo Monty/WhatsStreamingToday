@@ -58,6 +58,7 @@
     split($0, fld, "[<>]")
     showTitle = fld[3]
     sub(/ - MHz Choice/, "", showTitle)
+    gsub(/&amp;/, "\\&", showTitle)
     gsub(/&#x27;/, "'", showTitle)
     gsub(/&#39;/, "'", showTitle)
     print showTitle >> RAW_TITLES
@@ -127,10 +128,10 @@
 
         # We found a description, clean it up and add it
         gsub(/  */, " ")
+        gsub(/&amp;/, "\\&")
         gsub(/&#x27;/, "'")
         gsub(/&#39;/, "'")
         gsub(/&quot;/, "\"")
-        gsub(/&amp;/, "\\&")
         gsub(/&lsquo;/, "’")
         gsub(/&rsquo;/, "’")
         gsub(/&ldquo;/, "“")
@@ -234,10 +235,10 @@
 /<h3 class="tooltip-item-title/ {
     split($0, fld, "[<>]")
     episodeTitle = fld[5]
+    gsub(/&amp;/, "\\&", episodeTitle)
     gsub(/&#x27;/, "'", episodeTitle)
     gsub(/&#39;/, "'", episodeTitle)
     gsub(/&quot;/, "\"\"", episodeTitle)
-    gsub(/&amp;/, "\\&", episodeTitle)
     sub(/^[[:space:]]/, "", episodeTitle)
     sub(/[[:space:]]+$/, "", episodeTitle)
 
@@ -530,6 +531,7 @@
             sub(/ [0-9][0-9][0-9][0-9]\./, "", director_name)
             sub(/[[:space:]]+$/, "", director_name)
             sub(/\.$/, "", director_name)
+            gsub(/&amp;/, "\\&", director_name)
             gsub(/&#39;/, "'", director_name)
             # Special case director names
             if (director_name ~ /Manetti Bros/)
