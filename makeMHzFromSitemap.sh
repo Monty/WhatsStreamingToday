@@ -292,12 +292,6 @@ if [ "$DEBUG" != "yes" ]; then
     exit
 fi
 
-# Shortcut for counting occurrences of a string in all spreadsheets
-# countOccurrences string
-function countOccurrences() {
-    grep -H -c "$1" $ALL_SPREADSHEETS
-}
-
 # Shortcut for checking differences between two files.
 # checkdiffs basefile newfile
 function checkdiffs() {
