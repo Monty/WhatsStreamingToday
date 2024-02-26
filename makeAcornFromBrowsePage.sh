@@ -106,6 +106,7 @@ ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
+printf "==> Downloading new $SHOW_URLS\n"
 curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
     sort -f >$SHOW_URLS
 
