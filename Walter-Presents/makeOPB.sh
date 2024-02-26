@@ -275,7 +275,7 @@ function checkdiffs() {
         if cmp --quiet "$1" "$2"; then
             printf "==> no diffs found.\n"
         else
-            diff -U 0 "$1" "$2" | awk -f ../formatUnifiedDiffOutput.awk
+            diff -U 0 "$1" "$2" | awk -f formatUnifiedDiffOutput.awk
         fi
     fi
 }
