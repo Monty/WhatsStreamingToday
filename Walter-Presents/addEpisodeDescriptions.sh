@@ -105,6 +105,7 @@ printf \
 # Print header for $AWK_EPISODES
 printf 'BEGIN {\n\tFS = "\\t"\n\tOFS = "\\t"\n}\n\n' >"$AWK_EPISODES"
 
+printf "==> Processing $EPISODE_IDS\n"
 while read -r line; do
     read -r field1 field2 <<<"$line"
     export TARGET="$field1"
