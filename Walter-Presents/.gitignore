@@ -1,5 +1,12 @@
 # Don't preserve modules loaded by npm
 /node_modules/
+/tests/
+/tests-examples/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+playwright.config.js
 
 # Don't preserve cookies or auth data
 /auth/
