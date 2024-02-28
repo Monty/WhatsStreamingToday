@@ -99,7 +99,7 @@ LOGFILE="$COLS/logfile$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
-PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+PUBLISHED_UNSORTED_LONG="$BASELINE/unsorted_long.txt" 
 #
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
@@ -192,6 +192,7 @@ function printAdjustedFileInfo() {
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
+printAdjustedFileInfo $UNSORTED_LONG 1
 printAdjustedFileInfo $EPISODE_IDS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $SHOW_URLS 0
@@ -301,9 +302,9 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_UNSORTED_LONG $UNSORTED_LONG)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_EPISODE_IDS $EPISODE_IDS)
-$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_LOGFILE $LOGFILE)
 
 ### Any funny stuff with file lengths?
