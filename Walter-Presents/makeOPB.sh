@@ -175,7 +175,7 @@ sort -fu --key=4 --field-separator=\" $UNSORTED_SHORT >>$SHORT_SPREADSHEET
 mv $LONG_SPREADSHEET $UNSORTED_LONG
 sort -fu --key=4 --field-separator=\" $UNSORTED_LONG >>$LONG_SPREADSHEET
 
-# Sort the titles produced by getAcornFrom-showPages.awk
+# Sort the titles produced by getWalterFrom-raw_data.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
 
