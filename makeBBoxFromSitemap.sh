@@ -152,7 +152,7 @@ fi
 if [ ! -e "$TV_MOVIE_HTML" ]; then
     printf "==> Generating new $TV_MOVIE_HTML\n"
     while read -r url; do
-        curl -s "$url" | rg -N -f rg_movies.rgx |
+        curl -s "$url" | rg -N -f rg_BBox-movies.rgx |
             perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_MOVIE_HTML"
     done < <(rg -N /movie/ "$ALL_URLS")
 else
@@ -169,7 +169,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
 if [ ! -e "$TV_SHOW_HTML" ]; then
     printf "==> Generating new $TV_SHOW_HTML\n"
     while read -r url; do
-        curl -s "$url" | rg -N -f rg_shows.rgx |
+        curl -s "$url" | rg -N -f rg_BBox-shows.rgx |
             perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_SHOW_HTML"
     done < <(rg -N /show/ "$ALL_URLS")
 else
@@ -186,7 +186,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
 if [ ! -e "$TV_EPISODE_HTML" ]; then
     printf "==> Generating new $TV_EPISODE_HTML\n"
     while read -r url; do
-        curl -s "$url" | rg -N -f rg_seasons.rgx |
+        curl -s "$url" | rg -N -f rg_BBox-seasons.rgx |
             perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_EPISODE_HTML"
     done < <(rg -N /season/ "$ALL_URLS")
 else
