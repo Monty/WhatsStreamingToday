@@ -110,7 +110,7 @@ while read -r line; do
     read -r field1 field2 <<<"$line"
     export TARGET="$field1"
     export AWK_EPISODES=$AWK_EPISODES
-    node env-episode.js >>"$LOGFILE"
+    node addOPB-episodeDescriptions.js >>"$LOGFILE"
 done <"$EPISODE_IDS"
 
 # Print awk command to print any line not already matched

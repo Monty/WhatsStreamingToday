@@ -79,9 +79,9 @@ LONG_SPREADSHEET="OPB_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Fixer-uppers
 PBS_ONLY="PBS-only.csv"
-MISSING_EPISODES="missing_episodes.csv"
-MISSING_SHOWS="missing_shows.csv"
-MISSING_TITLES="missing_titles.txt"
+MISSING_EPISODES="missing_OPB-episodes.csv"
+MISSING_SHOWS="missing_OPB-shows.csv"
+MISSING_TITLES="missing_OPB-titles.txt"
 
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
