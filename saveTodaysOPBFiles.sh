@@ -5,7 +5,7 @@
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME/Walter-Presents
+cd $DIRNAME || exit
 
 # Create a timestamp
 DATE="$(date +%y%m%d)"

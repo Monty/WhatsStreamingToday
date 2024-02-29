@@ -20,14 +20,14 @@ MHZ_ANOMS=$(find MHz_anomalies-*txt | tail -1)
 MHZ_ANOMS_OLD=$(find MHz_anomalies-*txt | tail -2 | head -1)
 MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 #
-# Most recent is from addEpisodeDescriptions.sh
-OPB_ANOMS=$(find Walter-Presents/OPB_anomalies-*txt | tail -2 | head -1)
-OPB_ANOMS_OLD=$(find Walter-Presents/OPB_anomalies-*txt | tail -4 | head -1)
-OPB_DIFFS=$(find Walter-Presents/OPB_diffs-*txt | tail -2 | head -1)
+# Most recent is from addOPB-episodeDescriptions.sh
+OPB_ANOMS=$(find OPB_anomalies-*txt | tail -2 | head -1)
+OPB_ANOMS_OLD=$(find OPB_anomalies-*txt | tail -4 | head -1)
+OPB_DIFFS=$(find OPB_diffs-*txt | tail -2 | head -1)
 # Older output is from /makeOPB.sh
-OPB_ANOMS_2=$(find Walter-Presents/OPB_anomalies-*txt | tail -1)
-OPB_ANOMS_OLD_2=$(find Walter-Presents/OPB_anomalies-*txt | tail -3 | head -1)
-OPB_DIFFS_2=$(find Walter-Presents/OPB_diffs-*txt | tail -1)
+OPB_ANOMS_2=$(find OPB_anomalies-*txt | tail -1)
+OPB_ANOMS_OLD_2=$(find OPB_anomalies-*txt | tail -3 | head -1)
+OPB_DIFFS_2=$(find OPB_diffs-*txt | tail -1)
 
 clear
 

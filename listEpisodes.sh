@@ -48,7 +48,7 @@ if [ $FMT ]; then cmd="fmt -w $WIDTH"; else cmd="cat"; fi
 ACORN="$(find Acorn_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
 BBOX="$(find BBox_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
 MHZ="$(find MHz_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
-OPB="$(find Walter-Presents/OPB_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
+OPB="$(find OPB_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
 
 if [ $ACORN ] && [ $(cut -f 1,5 $ACORN | grep -i -c "$*") != 0 ]; then
     printf "==> From $ACORN\n"

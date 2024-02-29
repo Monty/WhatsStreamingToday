@@ -38,19 +38,19 @@ function yesnodelete() {
 # i.e. the function is passed the number of parameters seen below, not
 # the expanded list which could be quite long.
 yesnodelete "all primary spreadsheet files" "Acorn_TV_Shows*.csv" "MHz_TV_Shows*.csv" \
-    "BBox_TV_Shows*.csv" "Walter-Presents/OPB_TV_Shows*.csv" "IMDb_Shows*.csv"
+    "BBox_TV_Shows*.csv" "OPB_TV_Shows*.csv" "IMDb_Shows*.csv"
 yesnodelete "all secondary spreadsheet files" "Acorn-columns" "MHz-columns" "BBox-columns" \
-    "Walter-Presents/OPB-columns" "IMDb-columns"
+    "OPB-columns" "IMDb-columns"
 yesnodelete "all anomalies reports" "Acorn_anomalies*.txt" "MHz_anomalies*.txt" \
-    "BBox_anomalies*.txt" "Walter-Presents/OPB_anomalies*.txt" "IMDb_anomalies*.txt"
+    "BBox_anomalies*.txt" "OPB_anomalies*.txt" "IMDb_anomalies*.txt"
 yesnodelete "all diff results" "Acorn_diffs*.txt" "MHz_diffs*.txt" "BBox_diffs*.txt" \
-    "Walter-Presents/OPB_diffs*.txt" "IMDb_diffs*.txt"
+    "OPB_diffs*.txt" "IMDb_diffs*.txt"
 yesnodelete "all diff baselines" "Acorn-baseline" "MHz-baseline" "BBox-baseline" \
-    "Walter-Presents/OPB-baseline" "IMDb-baseline"
+    "OPB-baseline" "IMDb-baseline"
 yesnodelete "all credits" "MHz_TV_Credits*.csv" "BBox_TV_Credits*.csv" "IMDb_Credits*.csv" \
     "IMDb_Persons-Titles*.csv" "IMDb_associatedTitles*.csv"
 yesnodelete "all uniq files" "Acorn_uniq*.txt" "MHz_uniq*.txt" "BBox_uniq*.txt" \
-    "Walter-Presents/OPB_uniq*.txt" "IMDb_uniq*.txt"
+    "OPB_uniq*.txt" "IMDb_uniq*.txt"
 
 
 
