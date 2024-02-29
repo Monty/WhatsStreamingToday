@@ -24,13 +24,27 @@
 # Local backups
 *.bak
 
-# Downloaded data used for examination and testing
-/Acorn-series-html/
-/Acorn-episodes-html/
-/BritBox-scrapes/
+# Don't preserve cookies or auth data
+/auth/
+
+# Data used for examination and testing
 /IMDb-baseline/
 /IMDb-columns/
-/MHz-series-html/
-/MHz-episodes-html/
-/test-html
 /sitemaps/
+
+# Don't preserve modules loaded by npm
+/node_modules/
+/tests/
+/tests-examples/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+playwright.config.js
+
+# Keep these files
+!PBS-only.csv
+!OPB-searchterms.txt
+!missing_OPB-titles.txt
+!missing_OPB-episodes.csv
+!missing_OPB-shows.csv
