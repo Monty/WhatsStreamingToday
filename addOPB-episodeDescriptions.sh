@@ -67,8 +67,8 @@ mkdir -p $COLS $BASELINE
 # Error and debugging files always have a LONGDATE of the execution time inserted.
 
 # Error and debugging info (per run)
-POSSIBLE_DIFFS="OPB_diffs$LONGDATE.txt"
-ERRORS="OPB_anomalies$LONGDATE.txt"
+POSSIBLE_DIFFS="addOPB_diffs$LONGDATE.txt"
+ERRORS="addOPB_anomalies$LONGDATE.txt"
 
 # Final output spreadsheets
 LONG_SPREADSHEET="OPB_TV_ShowsEpisodes$DATE_ID.csv"

@@ -42,7 +42,7 @@ yesnodelete "all primary spreadsheet files" "Acorn_TV_Shows*.csv" "MHz_TV_Shows*
 yesnodelete "all secondary spreadsheet files" "Acorn-columns" "MHz-columns" "BBox-columns" \
     "OPB-columns" "IMDb-columns"
 yesnodelete "all anomalies reports" "Acorn_anomalies*.txt" "MHz_anomalies*.txt" \
-    "BBox_anomalies*.txt" "OPB_anomalies*.txt" "IMDb_anomalies*.txt"
+    "BBox_anomalies*.txt" "*OPB_anomalies*.txt" "IMDb_anomalies*.txt"
 yesnodelete "all diff results" "Acorn_diffs*.txt" "MHz_diffs*.txt" "BBox_diffs*.txt" \
     "OPB_diffs*.txt" "IMDb_diffs*.txt"
 yesnodelete "all diff baselines" "Acorn-baseline" "MHz-baseline" "BBox-baseline" \
