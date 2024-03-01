@@ -41,6 +41,8 @@
 /playwright/.cache/
 /blob-report/
 playwright.config.js
+package.json
+package-lock.json
 
 # Keep these files
 !PBS-only.csv
