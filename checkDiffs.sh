@@ -24,7 +24,7 @@ MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 OPB_ANOMS=$(find OPB_anomalies-*txt | tail -2 | head -1)
 OPB_ANOMS_OLD=$(find OPB_anomalies-*txt | tail -4 | head -1)
 OPB_DIFFS=$(find OPB_diffs-*txt | tail -2 | head -1)
-# Older output is from /makeOPB.sh
+# Older output is from makeOPB.sh
 OPB_ANOMS_2=$(find OPB_anomalies-*txt | tail -1)
 OPB_ANOMS_OLD_2=$(find OPB_anomalies-*txt | tail -3 | head -1)
 OPB_DIFFS_2=$(find OPB_diffs-*txt | tail -1)
