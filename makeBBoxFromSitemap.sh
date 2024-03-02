@@ -84,7 +84,6 @@ LONG_SPREADSHEET="BBox_TV_ShowsEpisodes$DATE_ID.csv"
 # Intermediate but useful spreadsheet files
 EPISODES_CSV="$COLS/BBoxEpisodes$DATE_ID.csv"
 MOVIES_CSV="$COLS/BBoxMovies$DATE_ID.csv"
-SEASONS_CSV="$COLS/BBoxSeasons$DATE_ID.csv"
 SHOWS_CSV="$COLS/BBoxShows$DATE_ID.csv"
 
 # HTML files segregated by item type
@@ -94,7 +93,7 @@ TV_SEASON_HTML="$COLS/tv_seasons$DATE_ID.html"
 TV_SHOW_HTML="$COLS/tv_shows$DATE_ID.html"
 
 # Temp files used in generating final output spreadsheets
-TEMP_SPREADSHEET="$COLS/temp_spreadsheet.csv"
+TEMP_SPREADSHEET="$COLS/temp_spreadsheet$DATE_ID.csv"
 
 # Intermediate working files
 RAW_CREDITS="$COLS/rawCredits$DATE_ID.csv"
@@ -111,7 +110,6 @@ PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 PUBLISHED_EPISODES_CSV="$BASELINE/BBoxEpisodes.txt"
 PUBLISHED_MOVIES_CSV="$BASELINE/BBoxMovies.txt"
-PUBLISHED_SEASONS_CSV="$BASELINE/BBoxCatalog.txt"
 PUBLISHED_SHOWS_CSV="$BASELINE/BBoxShows.txt"
 #
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
@@ -127,9 +125,8 @@ ALL_WORKING="$RAW_CREDITS $RAW_TITLES $TEMP_SPREADSHEET"
 ALL_TXT="$UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $CREDITS"
-
-SHORT_CSVS="$MOVIES_CSV $SHOWS_CSV"
-LONG_CSVS="$EPISODES_CSV $SEASONS_CSV"
+#
+ALL_CSVS="$MOVIES_CSV $SHOWS_CSV $EPISODES_CSV"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -218,10 +215,10 @@ else
 fi
 
 # Generate LONG_SPREADSHEET and SHORT_SPREADSHEET
-touch $ALL_SPREADSHEETS $SHORT_CSVS $LONG_CSVS
+touch $ALL_SPREADSHEETS $ALL_CSVS
 # Make TEMP_SPREADSHEET containing ALL columns
 head -1 "$MOVIES_CSV" >"$TEMP_SPREADSHEET"
-rg -I '=HYPERLINK' $SHORT_CSVS $LONG_CSVS |
+rg -I '=HYPERLINK' $ALL_CSVS |
     sort -fu --key=4 --field-separator=\" >>"$TEMP_SPREADSHEET"
 # Make LONG_SPREADSHEET containing selected columne
 cut -f $spreadsheet_columns "$TEMP_SPREADSHEET" >"$LONG_SPREADSHEET"
@@ -266,7 +263,6 @@ printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $CREDITS 1
 printAdjustedFileInfo $EPISODES_CSV 1
 printAdjustedFileInfo $MOVIES_CSV 1
-printAdjustedFileInfo $SEASONS_CSV 1
 printAdjustedFileInfo $SHOWS_CSV 1
 printAdjustedFileInfo $UNIQUE_PERSONS 0
 printAdjustedFileInfo $UNIQUE_CHARACTERS 0
@@ -311,7 +307,6 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     #
     addTotalsToSpreadsheet $EPISODES_CSV "sum"
     addTotalsToSpreadsheet $MOVIES_CSV "sum"
-    # addTotalsToSpreadsheet $SEASONS_CSV "sum"
     addTotalsToSpreadsheet $SHOWS_CSV "sum"
 fi
 
