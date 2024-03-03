@@ -85,7 +85,6 @@ LOGFILE="$COLS/logfile_episodes$DATE_ID.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
-PUBLISHED_LOGFILE="$BASELINE/logfile_episodes.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$LOGFILE $AWK_EPISODES"
@@ -205,7 +204,6 @@ cat >>"$POSSIBLE_DIFFS" <<EOF
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_EPISODE_IDS "$EPISODE_IDS")
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET "$LONG_SPREADSHEET")
-$(checkdiffs $PUBLISHED_LOGFILE "$LOGFILE")
 
 ### Any funny stuff with file lengths?
 
