@@ -135,7 +135,7 @@ while read -r line; do
     export TARGET="$field1"
     node getOPB.js >>"$LOGFILE"
     prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
-    awk -f getOPB.awk "$RAW_HTML" | rg -f OPB-searchterms.txt >>"$RAW_DATA"
+    awk -f getOPB.awk "$RAW_HTML" | rg -f rg_OPB.rgx >>"$RAW_DATA"
     rm -f $RAW_HTML
 done <"$SHOW_URLS"
 

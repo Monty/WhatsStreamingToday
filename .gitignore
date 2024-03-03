@@ -46,7 +46,7 @@ package-lock.json
 
 # Keep these files
 !PBS-only.csv
-!OPB-searchterms.txt
+!rg_OPB.rgx
 !missing_OPB-titles.txt
 !missing_OPB-episodes.csv
 !missing_OPB-shows.csv
