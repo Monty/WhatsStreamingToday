@@ -1,0 +1,59 @@
+# The list of files required to run top level shell scripts.
+#
+# Source this file to define *_FILES for use in any utility scripts
+# For example:
+#   source required_files.txt
+#   ls $ACORN_FILES $BBOX_FILES $MHZ_FILES $OPB_FILES
+
+ACORN_FILES="
+makeAcornFromBrowsePage.sh
+getAcornFrom-showPages.awk
+saveTodaysAcornFiles.sh
+formatUnifiedDiffOutput.awk
+rg_problems.rgx
+"
+
+BBOX_FILES="
+makeBBoxFromSitemap.sh
+getBBoxURLsFromSitemap.awk
+getBBoxMoviesFromHTML.awk
+getBBoxShowsFromHTML.awk
+getBBoxEpisodesFromHTML.awk
+calculateBBoxShowDurations.awk
+rg_BBox-movies.rgx
+rg_BBox-shows.rgx
+rg_BBox-seasons.rgx
+saveTodaysBBoxFiles.sh
+formatUnifiedDiffOutput.awk
+rg_problems.rgx
+"
+
+MHZ_FILES="
+makeMHzFromSitemap.sh
+getMHzFromSitemap.awk
+calculateMHzShowDurations.awk
+getMHzAvg.awk
+getMHzCast.awk
+saveTodaysMHzFiles.sh
+formatUnifiedDiffOutput.awk
+rg_problems.rgx
+"
+
+OPB_FILES="
+makeOPB.sh
+getWalter.awk
+getOPB.awk
+getWalterFrom-raw_data.awk
+PBS-only.csv
+missing_OPB-episodes.csv
+missing_OPB-shows.csv
+missing_OPB-titles.txt
+getOPB.js
+getWalter.js
+rg_OPB.rgx
+addOPB-episodeDescriptions.sh
+addOPB-episodeDescriptions.js
+saveTodaysOPBFiles.sh
+formatUnifiedDiffOutput.awk
+rg_problems.rgx
+"
