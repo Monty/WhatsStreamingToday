@@ -99,7 +99,7 @@ LOGFILE="$COLS/logfile$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
-PUBLISHED_UNSORTED_LONG="$BASELINE/unsorted_long.txt" 
+PUBLISHED_UNSORTED_LONG="$BASELINE/unsorted_long.txt"
 #
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
@@ -117,6 +117,9 @@ ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
+# Print header for possible errors from processing shows
+printf "### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
+
 node getWalter.js
 prettier-eslint --write $RAW_HTML
 rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getWalter.awk | sort >$SHOW_URLS
@@ -131,16 +134,17 @@ rm -f $RAW_HTML
 
 while read -r line; do
     read field1 field2 <<<"$line"
-    echo "$line" >>"$RAW_DATA"
+    printf "$line\n" >>"$RAW_DATA"
     export TARGET="$field1"
     node getOPB.js >>"$LOGFILE"
     prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
-    awk -f getOPB.awk "$RAW_HTML" | rg -f rg_OPB.rgx >>"$RAW_DATA"
+    if [ $? -eq 0 ]; then
+        awk -f getOPB.awk "$RAW_HTML" | rg -f rg_OPB.rgx >>"$RAW_DATA"
+    else
+        printf "==> prettier-eslint failed on $line\n" >>"$ERRORS"
+    fi
     rm -f $RAW_HTML
 done <"$SHOW_URLS"
-
-# Print header for possible errors from processing shows
-printf "### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
 # Print header for LONG_SPREADSHEET
 printf \
