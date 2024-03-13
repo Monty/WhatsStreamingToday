@@ -197,8 +197,8 @@ printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $UNSORTED_LONG 1
 printAdjustedFileInfo $EPISODE_IDS 0
-printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $SHOW_URLS 0
+printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
 
