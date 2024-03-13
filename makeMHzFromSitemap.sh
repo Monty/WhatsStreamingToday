@@ -221,13 +221,13 @@ printf " %d TV shows)\n" "$count"
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $MHZ_URLS 0
 printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $CREDITS 1
 printAdjustedFileInfo $EPISODE_URLS 0
-printAdjustedFileInfo $UNIQUE_PERSONS 0
-printAdjustedFileInfo $UNIQUE_CHARACTERS 0
 printAdjustedFileInfo $SEASON_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
+printAdjustedFileInfo $CREDITS 1
+printAdjustedFileInfo $UNIQUE_PERSONS 0
+printAdjustedFileInfo $UNIQUE_CHARACTERS 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
