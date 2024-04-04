@@ -162,6 +162,17 @@
 /<meta property="og:url" content=/ {
     split($0, fld, "\"")
     showURL = fld[4]
+
+    if (showURL ~ /watch.mhzchoice.com\/awake-1$/) {
+        showTitle = "Awake (Serbia)"
+        printf("==> Changed Awake to \"%s\"\n", showTitle) >> ERRORS
+    }
+    else if (showURL ~ /watch.mhzchoice.com\/awake$/) {
+        showTitle = "Awake (Lebanon)"
+        printf("==> Changed Awake to \"%s\"\n", showTitle) >> ERRORS
+        # } else if (showURL ~ /\/awake-1$/ {
+    }
+
     # print "==> showURL = " showURL > "/dev/stderr"
     next
 }
