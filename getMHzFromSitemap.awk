@@ -54,10 +54,12 @@
 
 # Show Title
 #    <title>Gasmamman - MHz Choice</title>
+#    <title>Sakho &amp;amp; Mangane - MHz Choice</title>
 /<title>/ {
     split($0, fld, "[<>]")
     showTitle = fld[3]
     sub(/ - MHz Choice/, "", showTitle)
+    gsub(/&amp;amp;/, "\\&", showTitle)
     gsub(/&amp;/, "\\&", showTitle)
     gsub(/&#x27;/, "'", showTitle)
     gsub(/&#39;/, "'", showTitle)
