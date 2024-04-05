@@ -121,10 +121,12 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 # Grab only the season and episode URLs from the sitemap
 # Unless we already have a result from today
+# Don't keep anything that's dubbed, it's a duplicate
 if [ ! -e "$MHZ_URLS" ]; then
     printf "==> Downloading new $MHZ_URLS\n"
     curl -s $SITEMAP_URL | grep '<loc>https://watch.mhzchoice.com.*season:' |
-        sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' | sort -f >$MHZ_URLS
+        sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
+        rg -v dubbed/ | sort -f >$MHZ_URLS
 else
     printf "==> using existing $MHZ_URLS\n"
 fi
