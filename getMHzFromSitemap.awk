@@ -408,10 +408,19 @@
 
     # Episode Description(s)
     #    <div class="transparent padding-top-medium">
-    #      <p>Preparing for her sister's wedding, Sonja's idyllic life is shattered by tragedy.
+    #      <p>Preparing for her sister's ... tragedy.
     #    </p>
+    #
+    #    <div class="transparent padding-top-medium">
+    #      <p>DRAMA - CRIME | FRANCE | FRENCH WITH ENGLISH SUBTITLES | TV-14
+    #      <br>A wave of political crimes is ... killer robots.</p>
     if ($0 ~ /<p>/) {
-        split($0, fld, "[<>]")
+        possibleDescription = $0
+        # Special case Kino Lorber shows.
+        # They have a <br /> ending the first line
+        if ($0 ~ /<p>DRAMA.*TV-14/) getline possibleDescription
+
+        split(possibleDescription, fld, "[<>]")
         paragraph = fld[3]
         gsub(/&amp;/, "\\&", paragraph)
         # Could be in multiple paragraphs
