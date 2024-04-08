@@ -17,54 +17,6 @@
     next
 }
 
-# Season Title & Season URL
-#
-# Movies from Topic don't have a season
-#   <form class="form"><input value="https://watch.mhzchoice.com/river-of-grass"
-#
-# But movies from MHz do have a season
-#   <form class="form"><input value="https://watch.mhzchoice.com/the-berken-case/  season:1"
-#
-# So do real shows with seasons
-#    <form class="form"><input value="https://watch.mhzchoice.com/gasmamman/season:1"
-#
-# This returns incorrect values if page2 == "yes", but those values are never used
-/<form class="form">/ {
-    split($0, fld, "\"")
-    seasonURL = fld[4]
-    shortSeasonURL = seasonURL
-    sub(/.*watch/, "watch", shortSeasonURL)
-    split(seasonURL, fld, ":")
-    seasonNumber = fld[3]
-    # If no seasonNumber, it may be a Topic Movie
-    if (seasonNumber == "") {
-        seasonNumber = 1
-        seasonEpisodes = 1
-        episodeType = "M"
-    }
-
-    seasonTitle = "Season " seasonNumber
-    # print "==> seasonURL = " seasonURL > "/dev/stderr"
-    # print "==> seasonNumber = " seasonNumber > "/dev/stderr"
-    # print "==> seasonTitle = " seasonTitle > "/dev/stderr"
-    next
-}
-
-# Season episodes
-#    <h2 class="site-font-secondary-color site-font-primary-family content-label padding-top-medium \
-#        grid-padding-right">
-#      9 Episodes
-#    </h2>
-# Extract only the number of episodes, # but if this is page 2 skip to avoid double counting
-/<h2 class=.*content-label/, /<\/h2>/ {
-    sub(/^ */, "")
-
-    if ($0 ~ / Episode/) {
-        seasonEpisodes = $1
-        next
-    }
-}
-
 ### Begin show processing
 
 # Show Title
@@ -202,6 +154,54 @@
     # Only if there are two or more seasons, a show with only one season doesn't have this
     if ($0 ~ / Season/) {
         showSeasons = $1
+        next
+    }
+}
+
+# Season Title & Season URL
+#
+# Movies from Topic don't have a season
+#   <form class="form"><input value="https://watch.mhzchoice.com/river-of-grass"
+#
+# But movies from MHz do have a season
+#   <form class="form"><input value="https://watch.mhzchoice.com/the-berken-case/  season:1"
+#
+# So do real shows with seasons
+#    <form class="form"><input value="https://watch.mhzchoice.com/gasmamman/season:1"
+#
+# This returns incorrect values if page2 == "yes", but those values are never used
+/<form class="form">/ {
+    split($0, fld, "\"")
+    seasonURL = fld[4]
+    shortSeasonURL = seasonURL
+    sub(/.*watch/, "watch", shortSeasonURL)
+    split(seasonURL, fld, ":")
+    seasonNumber = fld[3]
+    # If no seasonNumber, it may be a Topic Movie
+    if (seasonNumber == "") {
+        seasonNumber = 1
+        seasonEpisodes = 1
+        episodeType = "M"
+    }
+
+    seasonTitle = "Season " seasonNumber
+    # print "==> seasonURL = " seasonURL > "/dev/stderr"
+    # print "==> seasonNumber = " seasonNumber > "/dev/stderr"
+    # print "==> seasonTitle = " seasonTitle > "/dev/stderr"
+    next
+}
+
+# Season episodes
+#    <h2 class="site-font-secondary-color site-font-primary-family content-label padding-top-medium \
+#        grid-padding-right">
+#      9 Episodes
+#    </h2>
+# Extract only the number of episodes, # but if this is page 2 skip to avoid double counting
+/<h2 class=.*content-label/, /<\/h2>/ {
+    sub(/^ */, "")
+
+    if ($0 ~ / Episode/) {
+        seasonEpisodes = $1
         next
     }
 }
