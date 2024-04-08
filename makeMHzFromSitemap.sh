@@ -82,9 +82,10 @@ AVG_SPREADSHEET="MHz_TV_Shows_Avg$DATE_ID.csv"
 SHORT_SPREADSHEET="MHz_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="MHz_TV_ShowsEpisodes$DATE_ID.csv"
 
-# Basic URL files - all, episodes only, seasons only
+# Basic URL files - all, episodes only, movies only, seasons only
 MHZ_URLS="$COLS/MHz_urls$DATE_ID.txt"
 EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
+MOVIE_URLS="$COLS/movie_urls$DATE_ID.txt"
 SEASON_URLS="$COLS/season_urls$DATE_ID.txt"
 
 # Intermediate working files
@@ -103,6 +104,7 @@ PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
 PUBLISHED_MHZ_URLS="$BASELINE/MHz_urls.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
+PUBLISHED_MOVIE_URLS="$BASELINE/movie_urls.txt"
 PUBLISHED_SEASON_URLS="$BASELINE/season_urls.txt"
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
 PUBLISHED_UNIQUE_CHARACTERS="$BASELINE/uniqCharacters.txt"
@@ -112,32 +114,38 @@ PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED $RAW_CREDITS $RAW_TITLES"
 #
-ALL_TXT="$EPISODE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
+ALL_TXT="$EPISODE_URLS $MOVIE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_CHARACTERS $UNIQUE_TITLES $DURATION"
 #
 ALL_SPREADSHEETS="$CREDITS $AVG_SPREADSHEET $SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
-# Grab only the season and episode URLs from the sitemap
+# Grab all the URLs from the sitemap
 # Unless we already have a result from today
 # Don't keep anything that's dubbed, it's a duplicate
 if [ ! -e "$MHZ_URLS" ]; then
     printf "==> Downloading new $MHZ_URLS\n"
-    curl -s $SITEMAP_URL | grep '<loc>https://watch.mhzchoice.com.*season:' |
+    curl -s $SITEMAP_URL | rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
         rg -v dubbed/ | sort -f >$MHZ_URLS
 else
     printf "==> using existing $MHZ_URLS\n"
 fi
 
-# Separate URLs into seasons and episodes
-grep -v 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$EPISODE_URLS
-grep 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$SEASON_URLS
+# Separate URLs into episodes, movies, and seasons
+rg 'https://watch.mhzchoice.com/.*/season:[0-9]*/.*$' $MHZ_URLS >$EPISODE_URLS
+rg 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$SEASON_URLS
+rg -v /season: $MHZ_URLS | rg /videos/ |
+    rg -v '/all-series/videos/|/drama-crime/videos/' >>$EPISODE_URLS
+rg -v /season: $MHZ_URLS | rg /videos/ |
+    rg -v '/all-series/videos/|/drama-crime/videos/' |
+    sd "/videos/.*" "" >$MOVIE_URLS
+cat $MOVIE_URLS >>$SEASON_URLS
+
 # Special processing for Montalbano which has episodes on page 2
 printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>$SEASON_URLS
 printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>$SEASON_URLS
-
 # Print header for error file
 printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\n" >"$ERRORS"
 
@@ -225,6 +233,7 @@ printAdjustedFileInfo $MHZ_URLS 0
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $EPISODE_URLS 0
 printAdjustedFileInfo $SEASON_URLS 0
+printAdjustedFileInfo $MOVIE_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $CREDITS 1
@@ -330,6 +339,7 @@ cat >>$POSSIBLE_DIFFS <<EOF
 ### Check the diffs to see if any changes are meaningful
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SEASON_URLS $SEASON_URLS)
+$(checkdiffs $PUBLISHED_MOVIE_URLS $MOVIE_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)

@@ -18,8 +18,16 @@
 }
 
 # Season Title & Season URL
-#    <form class="form"><input value="https://watch.mhzchoice.com/gasmamman/season:1" type="text" \
-#        class="text text-center border-none site-background-color site-font-secondary-color" /></form>
+#
+# Movies from Topic don't have a season
+#   <form class="form"><input value="https://watch.mhzchoice.com/river-of-grass"
+#
+# But movies from MHz do have a season
+#   <form class="form"><input value="https://watch.mhzchoice.com/the-berken-case/  season:1"
+#
+# So do real shows with seasons
+#    <form class="form"><input value="https://watch.mhzchoice.com/gasmamman/season:1"
+#
 # This returns incorrect values if page2 == "yes", but those values are never used
 /<form class="form">/ {
     split($0, fld, "\"")
@@ -28,6 +36,13 @@
     sub(/.*watch/, "watch", shortSeasonURL)
     split(seasonURL, fld, ":")
     seasonNumber = fld[3]
+    # If no seasonNumber, it may be a Topic Movie
+    if (seasonNumber == "") {
+        seasonNumber = 1
+        seasonEpisodes = 1
+        episodeType = "M"
+    }
+
     seasonTitle = "Season " seasonNumber
     # print "==> seasonURL = " seasonURL > "/dev/stderr"
     # print "==> seasonNumber = " seasonNumber > "/dev/stderr"
@@ -87,13 +102,12 @@
     # If we find a header, clean it up and put it before the description
     if ($0 ~ /\|[ ]+TV[ ]*-/) {
         # Fix obvious typos
-        sub(/engligh/, "english")
+        sub(/ENGLIGH/, "ENGLISH")
         sub(/ENGISH/, "ENGLISH")
-        sub(/WITH ENGLISH SUBTITLES /, "")
+        sub(/WITH ENGLISH SUBTITLES/, "")
+        sub(/[Ww]ith [Ee]nglish [Ss]ubtitles/, "")
         # Special case for Maigret: The Classic BBC Series
-        sub(/WITH ENGLISH CAPTIONS /, "")
-        # Special case for Spitfire
-        sub(/[Ww]ith [Ee]nglish [Ss]ubtitles /, "")
+        sub(/WITH ENGLISH CAPTIONS/, "")
         sub(/SCANDINAVIAN CRIME FICTION/, "Sweden")
         sub(/NON[-]*FICTION[ ]*-[ ]*DOCUMENTARY/, "Documentary")
         gsub(/[ ]*\|[ ]+/, "|")
@@ -130,6 +144,7 @@
 
         # We found a description, clean it up and add it
         gsub(/  */, " ")
+        gsub(/&amp;amp;/, "\\&")
         gsub(/&amp;/, "\\&")
         gsub(/&#x27;/, "'")
         gsub(/&#39;/, "'")
@@ -254,6 +269,7 @@
     gsub(/&quot;/, "\"\"", episodeTitle)
     sub(/^[[:space:]]/, "", episodeTitle)
     sub(/[[:space:]]+$/, "", episodeTitle)
+    # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
 
     # Make Montalbano titles agree with MHz listing
     if (episodeTitle ~ /^Montalbano|^Detective Montalbano:/) {
@@ -286,8 +302,9 @@
     ) { episodeTitle = substr(episodeTitle, RLENGTH + 1) }
 
     # Episode Types(s)
-    # Default episodeType to "E"
-    episodeType = "E"
+    # Default episodeType to "E" if not already set
+    if (episodeType == "") episodeType = "E"
+
     # If episode is a BONUS:, set episodeType to "X"
     if (episodeTitle ~ /BONUS/ && showTitle !~ /^Detective Montalbano/) {
         episodeType = "X"
@@ -308,6 +325,9 @@
     # snEpisodeNumber processing
     # If season only has one episode, set snEpisodeNumber to 1
     if (seasonEpisodes == 1) { snEpisodeNumber = 1 }
+
+    # print "==> seasonEpisodes = " seasonEpisodes > "/dev/stderr"
+    # print "==> snEpisodeNumber = " snEpisodeNumber > "/dev/stderr"
 
     # If episode is upcoming, i.e. - EP 507" Available... use its episode number
     if (match(episodeTitle, /-[[:space:]]{1,2}EP [[:digit:]]{3,4}/)) {
@@ -402,7 +422,7 @@
 
 ### Wrap-up episode processing when Episode Description is found
 ### print only on LONG_SPREADSHEET
-/<h4 class="transparent"><span class='media-identifier/, /<\/div>/ {
+/<div class="transparent padding-top-medium">/, /<\/div>/ {
     sub(/^ */, "")
     # print $0 > "/dev/stderr"
 
@@ -423,6 +443,7 @@
         split(possibleDescription, fld, "[<>]")
         paragraph = fld[3]
         gsub(/&amp;/, "\\&", paragraph)
+        # print "Description = " paragraph > "/dev/stderr"
         # Could be in multiple paragraphs
         descriptionLinesFound += 1
 
