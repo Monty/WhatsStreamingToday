@@ -127,6 +127,14 @@
     split($0, fld, "\"")
     showURL = fld[4]
 
+    # Special case for category collection Provence-Alpes-Côte d'Azur
+    # since it is missing the normal "category-title" indicator
+    if (showURL ~ /watch.mhzchoice.com\/provence-alpes-cote-d-azur-2$/) {
+        skipCategory = "yes"
+        printf("==> Skipped category \"%s\"\n", showTitle) >> ERRORS
+    }
+
+    # Special case for Awake. Two shows with the same name.
     if (showURL ~ /watch.mhzchoice.com\/awake-1$/) {
         showTitle = "Awake (Serbia)"
         printf("==> Changed Awake to \"%s\"\n", showTitle) >> ERRORS
@@ -134,7 +142,6 @@
     else if (showURL ~ /watch.mhzchoice.com\/awake$/) {
         showTitle = "Awake (Lebanon)"
         printf("==> Changed Awake to \"%s\"\n", showTitle) >> ERRORS
-        # } else if (showURL ~ /\/awake-1$/ {
     }
 
     # print "==> showURL = " showURL > "/dev/stderr"
@@ -155,6 +162,7 @@
 # Extract the number of seasons
 /<h2 class=.*collection-stats"/, /<\/h2>/ {
     if (skipCategory == "yes") { next }
+
     sub(/^ */, "")
     # A show with only one season doesn't have this
     if ($0 ~ / Season/) {
@@ -206,7 +214,9 @@
 # Extract the number of episodes,
 /<h2 class=.*content-label/, /<\/h2>/ {
     if (skipCategory == "yes") { next }
+
     sub(/^ */, "")
+
     if ($0 ~ / Episode/) {
         seasonEpisodes = $1
         next
