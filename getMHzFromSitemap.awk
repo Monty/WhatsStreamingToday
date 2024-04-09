@@ -30,8 +30,8 @@
     gsub(/&amp;/, "\\&", showTitle)
     gsub(/&#x27;/, "'", showTitle)
     gsub(/&#39;/, "'", showTitle)
-    print showTitle >> RAW_TITLES
     # print "==> showTitle = " showTitle > "/dev/stderr"
+    # Defer adding showTitle to RAW_TITLES until we check it's not a category-title
     next
 }
 
@@ -89,10 +89,7 @@
     }
     else {
         # if we didn't find a header in this block, add a blank one
-        if (headerAdded == "no") {
-            printf("==> Added blank header for \"%s\"\n", showTitle) >> ERRORS
-            showDescriptor = "\t\t\t\t"
-        }
+        if (headerAdded == "no") { showDescriptor = "\t\t\t\t" }
 
         # We found a description, clean it up and add it
         gsub(/  */, " ")
@@ -144,14 +141,22 @@
     next
 }
 
+# If this is a category collection, not a primary series - skip it
+# e.g. "Set in Warm Places", "Medical Dramas", "Wine Crime"
+/collection-title category-title/ {
+    skipCategory = "yes"
+    printf("==> Skipped category \"%s\"\n", showTitle) >> ERRORS
+}
+
 # Show seasons
 #    <h2 class="site-font-secondary-color site-font-primary-family collection-stats">
 #        3 Seasons
 #    </h2>
-# Extract only the number of seasons, # but if this is page 2 skip to avoid double counting
+# Extract the number of seasons
 /<h2 class=.*collection-stats"/, /<\/h2>/ {
+    if (skipCategory == "yes") { next }
     sub(/^ */, "")
-    # Only if there are two or more seasons, a show with only one season doesn't have this
+    # A show with only one season doesn't have this
     if ($0 ~ / Season/) {
         showSeasons = $1
         next
@@ -171,6 +176,8 @@
 #
 # This returns incorrect values if page2 == "yes", but those values are never used
 /<form class="form">/ {
+    if (skipCategory == "yes") { next }
+
     split($0, fld, "\"")
     seasonURL = fld[4]
     shortSeasonURL = seasonURL
@@ -196,10 +203,10 @@
 #        grid-padding-right">
 #      9 Episodes
 #    </h2>
-# Extract only the number of episodes, # but if this is page 2 skip to avoid double counting
+# Extract the number of episodes,
 /<h2 class=.*content-label/, /<\/h2>/ {
+    if (skipCategory == "yes") { next }
     sub(/^ */, "")
-
     if ($0 ~ / Episode/) {
         seasonEpisodes = $1
         next
@@ -214,6 +221,8 @@
 #        ...
 #        Gåsmamman: Episode 01 (Sn 1 Ep 1)&quot;}">
 /<div class="grid-item-padding">/, /<a href="https:/ {
+    if (skipCategory == "yes") { next }
+
     if ($0 ~ /<a href="https:/) {
         split($0, fld, "\"")
         episodeURL = fld[2]
@@ -242,6 +251,8 @@
 #    </div>
 # Extract the duration
 /<div class="duration-container/, /<\/div>/ {
+    if (skipCategory == "yes") { next }
+
     gsub(/ /, "")
 
     if ($0 ~ /[[:digit:]]+:[[:digit:]]+/) episodeDuration = $0
@@ -261,6 +272,8 @@
 #    <h3 class="tooltip-item-title site-font-primary-family"> \
 #        <strong>Gåsmamman: Episode 01 (Sn 1 Ep 1)</strong></h3>
 /<h3 class="tooltip-item-title/ {
+    if (skipCategory == "yes") { next }
+
     split($0, fld, "[<>]")
     episodeTitle = fld[5]
     gsub(/&amp;/, "\\&", episodeTitle)
@@ -413,6 +426,8 @@
 # But keep other processing if it is missing
 # <h4 class="transparent"><span class='media-identifier media-episode'></span> </h4>
 /<h4 class="transparent"><span class='media-identifier media-episode'>Episode/ {
+    if (skipCategory == "yes") { next }
+
     split($0, fld, "[<>]")
     mdEpisodeNumber = fld[5]
     sub(/Episode /, "", mdEpisodeNumber)
@@ -423,6 +438,8 @@
 ### Wrap-up episode processing when Episode Description is found
 ### print only on LONG_SPREADSHEET
 /<div class="transparent padding-top-medium">/, /<\/div>/ {
+    if (skipCategory == "yes") { next }
+
     sub(/^ */, "")
     # print $0 > "/dev/stderr"
 
@@ -626,6 +643,17 @@
 #        padding-top-medium padding-bottom-medium ">
 /<footer class=/ {
     # print "Wrap up season " seasonURL  > "/dev/stderr"
+    #
+    # If showTitle is not a category-title add it to the list of unique titles
+    if (skipCategory != "yes") {
+        print showTitle >> RAW_TITLES
+        # if we didn't find a header
+        if (headerAdded == "no") {
+            printf("==> Added blank header for \"%s\"\n", showTitle) >> ERRORS
+        }
+    }
+
+    #
     #  =HYPERLINK("https://watch.mhzchoice.com/gasmamman";"Gasmamman")
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     #
@@ -694,4 +722,5 @@
     seasonNumber = ""
     seasonTitle = ""
     seasonEpisodes = ""
+    skipCategory = ""
 }
