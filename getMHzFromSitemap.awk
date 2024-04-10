@@ -272,6 +272,8 @@
 #    </div>
 # Extract the duration
 /<div class="duration-container/, /<\/div>/ {
+    foundDuration = "yes"
+    #printf("==> Duration found for \"%s\"\n", showTitle) > "/dev/stderr"
     if (skipCategory == "yes") { next }
 
     gsub(/ /, "")
@@ -664,7 +666,14 @@
 #        padding-top-medium padding-bottom-medium ">
 /<footer class=/ {
     # print "Wrap up season " seasonURL  > "/dev/stderr"
-    #
+
+    # If we never found a duration it's not a usable show, skip it
+    # so it doesn't cause errors in calculateMHzShowDurations.awk
+    if (foundDuration != "yes") {
+        printf("==> No duration found for \"%s\"\n", showTitle) > "/dev/stderr"
+        next
+    }
+
     # If showTitle is not a category-title add it to the list of unique titles
     if (skipCategory != "yes") {
         print showTitle >> RAW_TITLES
@@ -744,4 +753,5 @@
     seasonTitle = ""
     seasonEpisodes = ""
     skipCategory = ""
+    foundDuration = ""
 }
