@@ -144,6 +144,16 @@
         printf("==> Changed Awake to \"%s\"\n", showTitle) >> ERRORS
     }
 
+    # Special case for The Silence. Two shows with the same name.
+    if (showURL ~ /watch.mhzchoice.com\/the-silence-1$/) {
+        showTitle = "The Silence (Germany)"
+        printf("==> Changed The Silence to \"%s\"\n", showTitle) >> ERRORS
+    }
+    else if (showURL ~ /watch.mhzchoice.com\/the-silence$/) {
+        showTitle = "The Silence (Croatia)"
+        printf("==> Changed The Silence to \"%s\"\n", showTitle) >> ERRORS
+    }
+
     # print "==> showURL = " showURL > "/dev/stderr"
     next
 }
@@ -193,6 +203,7 @@
     split(seasonURL, fld, ":")
     seasonNumber = fld[3]
     # If no seasonNumber, it may be a Topic Movie
+    # but this can be overwritten by later code
     if (seasonNumber == "") {
         seasonNumber = 1
         seasonEpisodes = 1
