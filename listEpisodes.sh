@@ -57,11 +57,11 @@ if [ $ACORN ] && [ $(cut -f 1,5 $ACORN | grep -i -c "$*") != 0 ]; then
         -f printList.awk | $cmd
 fi
 
-if [ $BBOX ] && [ $(cut -f 2,9 $BBOX | grep -i -c "$*") != 0 ]; then
+if [ $BBOX ] && [ $(cut -f 1,8 $BBOX | grep -i -c "$*") != 0 ]; then
     if [ "$linesFound" = "yes" ]; then printf "\n"; fi
     printf "==> From $BBOX\n"
     linesFound="yes"
-    grep -i "$*" $BBOX | cut -f 2,5,9 | awk -v FMT=$FMT -v WIDTH=$WIDTH \
+    grep -i "$*" $BBOX | cut -f 1,4,8 | awk -v FMT=$FMT -v WIDTH=$WIDTH \
         -f printList.awk | $cmd
 fi
 
