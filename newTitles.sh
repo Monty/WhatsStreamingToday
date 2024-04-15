@@ -23,16 +23,16 @@ OPB_TITLES_OLD=$(find OPB_uniqTitles-*txt | tail -2 | head -1)
 # First as a table with both new and removed
 printf "==> New titles in $MHZ_TITLES\n"
 prettydiff "$MHZ_TITLES_OLD" "$MHZ_TITLES"
-waitUntil -kY "==> New titles in $ACORN_TITLES"
+waitUntil -k "==> New titles in $ACORN_TITLES"
 
 prettydiff "$ACORN_TITLES_OLD" "$ACORN_TITLES"
-waitUntil -kY "==> New titles in $OPB_TITLES"
+waitUntil -k "==> New titles in $OPB_TITLES"
 
 prettydiff "$OPB_TITLES_OLD" "$OPB_TITLES"
-waitUntil -kY "==> New titles in $BBOX_TITLES"
+waitUntil -k "==> New titles in $BBOX_TITLES"
 
 prettydiff "$BBOX_TITLES_OLD" "$BBOX_TITLES"
-waitUntil -kY "==> All new titles as plain text"
+waitUntil -k "==> All new titles as plain text"
 
 # Now just as plain text
 printf "\n==> New titles in $MHZ_TITLES\n"
