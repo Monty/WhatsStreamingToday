@@ -29,7 +29,8 @@ TYPE="New"
 waitUntil -k "==> $TYPE episodes in $MHZ_EPISODES"
 zet diff \
     <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' | awk -f printTitles.awk)
+    <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) |
+    rg -v ', $'
 
 waitUntil -k "==> $TYPE episodes in $ACORN_EPISODES"
 zet diff \
