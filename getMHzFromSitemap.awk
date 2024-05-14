@@ -491,9 +491,13 @@
             if (descriptionLinesFound == 1) { episodeDescription = paragraph }
             else if (descriptionLinesFound > 1) {
                 episodeDescription = episodeDescription " " paragraph
-                printf(\
-                    "==> Multi line episodeDescription in: %s\n", episodeTitle\
-                ) >> ERRORS
+
+                if (episodeTitle !~ / Available /)
+                    printf(\
+                        "==> Multi line episodeDescription in: %s\n",
+                        episodeTitle\
+                    ) >> ERRORS
+
                 # print "descriptionLinesFound = " descriptionLinesFound >> ERRORS
                 # print "episodeDescription from <p> =\n" episodeDescription >> ERRORS
             }
