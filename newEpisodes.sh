@@ -29,20 +29,26 @@ TYPE="New"
 waitUntil -k "==> $TYPE episodes in $MHZ_EPISODES"
 zet diff \
     <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) |
-    rg -v ', $'
+    <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+        awk -f printTitles.awk) | rg -v ', $'
 
 waitUntil -k "==> $TYPE episodes in $ACORN_EPISODES"
 zet diff \
     <(cut -f 1 "$ACORN_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', S[0-9][0-9]' | awk -f printTitles.awk)
+    <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+        awk -f printTitles.awk) | rg -v 'Coming Soon'
 
 waitUntil -k "==> $TYPE episodes in $OPB_EPISODES"
 zet diff \
     <(cut -f 1 "$OPB_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$OPB_EPISODES_OLD" | rg ', S[0-9][0-9]' | awk -f printTitles.awk)
+    <(cut -f 1 "$OPB_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+        awk -f printTitles.awk)
 
 waitUntil -k "==> $TYPE episodes in $BBOX_EPISODES"
 zet diff \
     <(cut -f 1 "$BBOX_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$BBOX_EPISODES_OLD" | rg ', S[0-9][0-9]' | awk -f printTitles.awk)
+    <(cut -f 1 "$BBOX_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+        awk -f printTitles.awk) |
+    rg -v 'Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale' |
+    rg -v 'Good Morning Britain|Landward|Question Time|RHS Chelsea Flower Show' |
+    rg -v 'The Beechgrove Garden'
