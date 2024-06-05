@@ -252,7 +252,8 @@ fi
 probs="$(rg -c --color ansi --sort path -f rg_problems.rgx \
     $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
-    printf "\n==> Possible formatting problems:\n" printf "    $probs\n"
+    printf "\n==> Possible formatting problems:\n"
+    printf "    $probs\n"
     printf "==> For more details:\n"
     printf "    rg -f rg_problems.rgx OPB_[Tu]*$DATE_ID*\n\n"
 fi
