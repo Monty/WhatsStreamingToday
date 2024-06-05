@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on Walter Presents
 
 # trap ctrl-c and call cleanup
