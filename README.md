@@ -1,7 +1,4 @@
 [![MIT License](https://img.shields.io/github/license/Monty/WhatsStreamingToday)](LICENSE)
-[![Code](https://tokei.rs/b1/github/Monty/WhatsStreamingToday?category=code)](https://github.com/Monty/WhatsStreamingToday)
-[![Lines](https://tokei.rs/b1/github/Monty/WhatsStreamingToday?category=lines)](https://github.com/Monty/WhatsStreamingToday)
-[![Files](https://tokei.rs/b1/github/Monty/WhatsStreamingToday?category=files)](https://github.com/Monty/WhatsStreamingToday)
 [![Commits](https://badgen.net/github/commits/Monty/WhatsStreamingToday/master/)](https://github.com/Monty/WhatsStreamingToday)
 [![Last Commit](https://img.shields.io/github/last-commit/Monty/WhatsStreamingToday)](https://github.com/Monty/WhatsStreamingToday)
 
