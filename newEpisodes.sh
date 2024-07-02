@@ -51,4 +51,5 @@ zet diff \
         awk -f printTitles.awk) |
     rg -v 'Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale' |
     rg -v 'Good Morning Britain|Landward|Question Time|RHS Chelsea Flower Show' |
-    rg -v 'The Beechgrove Garden'
+    rg -v 'The Beechgrove Garden' | rg -v 'Escape to the Country' |
+    rg -v "Gardeners' World"
