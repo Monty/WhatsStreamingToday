@@ -170,7 +170,7 @@
 #        3 Seasons
 #    </h2>
 # Extract the number of seasons
-/<h2 class=.*collection-stats"/, /<\/h2>/ {
+/<h2 class=.*collection-stats/, /<\/h2>/ {
     if (skipCategory == "yes") { next }
 
     sub(/^ */, "")
