@@ -128,7 +128,7 @@ if [ ! -e "$MHZ_URLS" ]; then
     printf "==> Downloading new $MHZ_URLS\n"
     curl -s $SITEMAP_URL | rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
-        rg -v dubbed/ | sort -f >$MHZ_URLS
+        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' | sort -f >$MHZ_URLS
 else
     printf "==> using existing $MHZ_URLS\n"
 fi
