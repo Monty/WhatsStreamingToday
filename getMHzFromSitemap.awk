@@ -61,6 +61,8 @@
         # Special case for Maigret: The Classic BBC Series
         sub(/WITH ENGLISH CAPTIONS/, "")
         sub(/SCANDINAVIAN CRIME FICTION/, "Sweden")
+        # Handle en-dash
+        sub(/NONFICTION – DOCUMENTARY/, "Documentary")
         sub(/NON[-]*FICTION[ ]*-[ ]*DOCUMENTARY/, "Documentary")
         gsub(/[ ]*\|[ ]+/, "|")
         sub(/\r/, "")
