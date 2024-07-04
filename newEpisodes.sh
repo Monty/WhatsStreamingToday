@@ -9,6 +9,7 @@
 DIRNAME=$(dirname "$0")
 cd "$DIRNAME" || exit
 
+# shellcheck disable=SC1091 # waitUntil.function is a local file
 source waitUntil.function
 
 ACORN_EPISODES=$(find Acorn_TV_ShowsEpisodes-*csv | tail -1)
@@ -23,33 +24,42 @@ MHZ_EPISODES_OLD=$(find MHz_TV_ShowsEpisodes-*csv | tail -2 | head -1)
 OPB_EPISODES=$(find OPB_TV_ShowsEpisodes-*csv | tail -1)
 OPB_EPISODES_OLD=$(find OPB_TV_ShowsEpisodes-*csv | tail -2 | head -1)
 
-# Default to finding new episodes
-TYPE="New"
+printf "==> Show new episodes in $MHZ_EPISODES"
+if waitUntil -Y "?"; then
+    zet diff \
+        <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk) \
+        <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk) | rg -v ', $'
+fi
 
-waitUntil -k "==> $TYPE episodes in $MHZ_EPISODES"
-zet diff \
-    <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' |
-        awk -f printTitles.awk) | rg -v ', $'
+printf "\n==> Show new episodes in $ACORN_EPISODES"
+if waitUntil -Y "?"; then
+    zet diff \
+        <(cut -f 1 "$ACORN_EPISODES" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk) \
+        <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk) | rg -v 'Coming Soon'
+fi
 
-waitUntil -k "==> $TYPE episodes in $ACORN_EPISODES"
-zet diff \
-    <(cut -f 1 "$ACORN_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', S[0-9][0-9]' |
-        awk -f printTitles.awk) | rg -v 'Coming Soon'
+printf "\n==> Show new episodes in $OPB_EPISODES"
+if waitUntil -Y "?"; then
+    zet diff \
+        <(cut -f 1 "$OPB_EPISODES" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk) \
+        <(cut -f 1 "$OPB_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk)
+fi
 
-waitUntil -k "==> $TYPE episodes in $OPB_EPISODES"
-zet diff \
-    <(cut -f 1 "$OPB_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$OPB_EPISODES_OLD" | rg ', S[0-9][0-9]' |
-        awk -f printTitles.awk)
-
-waitUntil -k "==> $TYPE episodes in $BBOX_EPISODES"
-zet diff \
-    <(cut -f 1 "$BBOX_EPISODES" | rg ', S[0-9][0-9]' | awk -f printTitles.awk) \
-    <(cut -f 1 "$BBOX_EPISODES_OLD" | rg ', S[0-9][0-9]' |
-        awk -f printTitles.awk) |
-    rg -v 'Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale' |
-    rg -v 'Good Morning Britain|Landward|Question Time|RHS Chelsea Flower Show' |
-    rg -v 'The Beechgrove Garden' | rg -v 'Escape to the Country' |
-    rg -v "Gardeners' World"
+printf "\n==> Show new episodes in $BBOX_EPISODES"
+if waitUntil -Y "?"; then
+    zet diff \
+        <(cut -f 1 "$BBOX_EPISODES" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk) \
+        <(cut -f 1 "$BBOX_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+            awk -f printTitles.awk) |
+        rg -v 'Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale' |
+        rg -v 'Good Morning Britain|Landward|Question Time|RHS Chelsea Flower Show' |
+        rg -v 'The Beechgrove Garden' | rg -v 'Escape to the Country' |
+        rg -v "Gardeners' World"
+fi
