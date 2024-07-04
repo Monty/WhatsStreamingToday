@@ -6,7 +6,7 @@
 DIRNAME=$(dirname "$0")
 cd "$DIRNAME" || exit
 
-disable=SC1091 # waitUntil.function is a local file
+# shellcheck disable=SC1091 # waitUntil.function is a local file
 source waitUntil.function
 
 ACORN_TITLES=$(find Acorn_uniqTitles-*txt | tail -1)
@@ -56,3 +56,5 @@ if waitUntil -Y "?"; then
     printf "\nIn $BBOX_TITLES:\n"
     zet diff "$BBOX_TITLES" "$BBOX_TITLES_OLD" | sed "s/^/    /g"
 fi
+
+printf "\n"
