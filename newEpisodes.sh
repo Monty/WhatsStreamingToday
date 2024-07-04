@@ -63,3 +63,5 @@ if waitUntil -Y "?"; then
         rg -v 'The Beechgrove Garden' | rg -v 'Escape to the Country' |
         rg -v "Gardeners' World"
 fi
+
+printf "\n"

@@ -56,3 +56,5 @@ if waitUntil -Y "?"; then
     printf "\nIn $BBOX_TITLES:\n"
     zet diff "$BBOX_TITLES" "$BBOX_TITLES_OLD" | sed "s/^/    /g"
 fi
+
+printf "\n"
