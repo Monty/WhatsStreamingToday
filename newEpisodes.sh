@@ -9,22 +9,44 @@
 DIRNAME=$(dirname "$0")
 cd "$DIRNAME" || exit
 
+while getopts ":b:" opt; do
+    case $opt in
+    b)
+        BACK="$OPTARG"
+        ;;
+    :)
+        printf "Option -$OPTARG requires a numeric argument specifying " >&2
+        printf "the nth newest release to use.\n" >&2
+        exit 1
+        ;;
+    *)
+        printf "Ignoring invalid option: -$OPTARG\n" >&2
+        ;;
+    esac
+done
+
+# Default to using the second oldest release
+BACK="${BACK:-2}"
+if [[ $BACK -lt 2 ]]; then
+    BACK=2
+fi
+
 # shellcheck disable=SC1091 # waitUntil.function is a local file
 source waitUntil.function
 
 ACORN_EPISODES=$(find Acorn_TV_ShowsEpisodes-*csv | tail -1)
-ACORN_EPISODES_OLD=$(find Acorn_TV_ShowsEpisodes-*csv | tail -2 | head -1)
+ACORN_EPISODES_OLD=$(find Acorn_TV_ShowsEpisodes-*csv | tail -"$BACK" | head -1)
 #
 BBOX_EPISODES=$(find BBox_TV_ShowsEpisodes-*csv | tail -1)
-BBOX_EPISODES_OLD=$(find BBox_TV_ShowsEpisodes-*csv | tail -2 | head -1)
+BBOX_EPISODES_OLD=$(find BBox_TV_ShowsEpisodes-*csv | tail -"$BACK" | head -1)
 #
 MHZ_EPISODES=$(find MHz_TV_ShowsEpisodes-*csv | tail -1)
-MHZ_EPISODES_OLD=$(find MHz_TV_ShowsEpisodes-*csv | tail -2 | head -1)
+MHZ_EPISODES_OLD=$(find MHz_TV_ShowsEpisodes-*csv | tail -"$BACK" | head -1)
 #
 OPB_EPISODES=$(find OPB_TV_ShowsEpisodes-*csv | tail -1)
-OPB_EPISODES_OLD=$(find OPB_TV_ShowsEpisodes-*csv | tail -2 | head -1)
+OPB_EPISODES_OLD=$(find OPB_TV_ShowsEpisodes-*csv | tail -"$BACK" | head -1)
 
-printf "==> Show new episodes in $MHZ_EPISODES"
+printf "\n==> Show new episodes since $MHZ_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
         <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9][0-9]' |
@@ -33,7 +55,7 @@ if waitUntil -Y "?"; then
             awk -f printTitles.awk) | rg -v ', $'
 fi
 
-printf "\n==> Show new episodes in $ACORN_EPISODES"
+printf "\n==> Show new episodes since $ACORN_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
         <(cut -f 1 "$ACORN_EPISODES" | rg ', S[0-9][0-9]' |
@@ -42,7 +64,7 @@ if waitUntil -Y "?"; then
             awk -f printTitles.awk) | rg -v 'Coming Soon'
 fi
 
-printf "\n==> Show new episodes in $OPB_EPISODES"
+printf "\n==> Show new episodes since $OPB_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
         <(cut -f 1 "$OPB_EPISODES" | rg ', S[0-9][0-9]' |
@@ -51,7 +73,7 @@ if waitUntil -Y "?"; then
             awk -f printTitles.awk)
 fi
 
-printf "\n==> Show new episodes in $BBOX_EPISODES"
+printf "\n==> Show new episodes since $BBOX_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
         <(cut -f 1 "$BBOX_EPISODES" | rg ', S[0-9][0-9]' |
