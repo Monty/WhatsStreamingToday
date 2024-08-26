@@ -270,6 +270,20 @@ BEGIN {
         # print "==> showId = " showId > "/dev/stderr"
     }
 
+    # "Wallander" needs to be revised to avoid duplicate names with MHz
+    if (title == "Wallander") {
+        if (showId == "24848") {
+            revisedTitles += 1
+            printf(\
+                "==> Changed title '%s' to 'Wallander (British)'\n", title\
+            ) >> ERRORS
+            title = "Wallander (British)"
+        }
+
+        #print "==> revisedTitle = " title > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
+    }
+
     # Save titles for use in BBox_uniqTitles
     print title >> RAW_TITLES
     # print "title = " title > "/dev/stderr"

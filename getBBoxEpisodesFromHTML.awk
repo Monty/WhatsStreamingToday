@@ -195,6 +195,20 @@ BEGIN {
         # print "==> showTitle = " showTitle > "/dev/stderr"
         # print "==> showId = " showId > "/dev/stderr"
     }
+
+    # "Wallander" needs to be revised to avoid duplicate names with MHz
+    if (showTitle == "Wallander") {
+        if (showId == "24848") {
+            revisedTitles += 1
+            printf(\
+                "==> Changed title '%s' to 'Wallander (British)'\n", showTitle\
+            ) >> ERRORS
+            showTitle = "Wallander (British)"
+        }
+
+        # print "==> showTitle = " showTitle > "/dev/stderr"
+        # print "==> showId = " showId > "/dev/stderr"
+    }
 }
 
 # "seasonId": "24475",
