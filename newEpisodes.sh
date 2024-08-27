@@ -80,10 +80,10 @@ if waitUntil -Y "?"; then
             awk -f printTitles.awk) \
         <(cut -f 1 "$BBOX_EPISODES_OLD" | rg ', S[0-9][0-9]' |
             awk -f printTitles.awk) |
-        rg -v 'Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale' |
-        rg -v 'Good Morning Britain|Landward|Question Time|RHS Chelsea Flower Show' |
-        rg -v 'The Beechgrove Garden' | rg -v 'Escape to the Country' |
-        rg -v "Gardeners' World"
+        rg -v "Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale" |
+        rg -v "Good Morning Britain|Landward|Question Time|Casualty" |
+        rg -v "RHS Chelsea Flower Show|The Beechgrove Garden" |
+        rg -v "Escape to the Country|Gardeners' World"
 fi
 
 printf "\n"
