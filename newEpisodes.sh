@@ -52,7 +52,8 @@ if waitUntil -Y "?"; then
         <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9][0-9]' |
             awk -f printTitles.awk) \
         <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' |
-            awk -f printTitles.awk) | rg -v ', $'
+            awk -f printTitles.awk) | rg -v ', $' |
+            rg -v ' Available '
 fi
 
 printf "\n==> Show new episodes since $ACORN_EPISODES_OLD"
