@@ -56,6 +56,13 @@
         # Fix obvious typos
         sub(/ENGLIGH/, "ENGLISH")
         sub(/ENGISH/, "ENGLISH")
+        sub(/EGLISH/, "ENGLISH")
+        sub(/IN ENGLISH/, "ENGLISH")
+        sub(/IN GERMAN/, "GERMAN")
+        sub(/FRANCE WITH/, "FRENCH WITH")
+        sub(/IRISH GAELIC/, "IRISH")
+        sub(/GERMANY WITH/, "GERMAN WITH")
+        sub(/SERBIAN \(CYRILLIC\)/, "SERBIAN")
         sub(/WITH ENGLISH SUBTITLES/, "")
         sub(/[Ww]ith [Ee]nglish [Ss]ubtitles/, "")
         # Special case for Maigret: The Classic BBC Series
