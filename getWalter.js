@@ -13,15 +13,6 @@ let browse_url = process.env.BROWSE_URL;
   });
   const page = await context.newPage();
   await page.goto(browse_url);
-  try {
-    for (let i = 0; i < 5; i++) {
-      await page
-        .getByRole('button', { name: 'Load More' })
-        .click({ timeout: 1000 });
-      await page.waitForTimeout(1500); // wait for 1.5 seconds
-    }
-    console.log('<== Walter Presents: Not enough "Load More" clicks!');
-  } catch {}
   const shows = await page.content();
   fs.writeFile(
     raw_html,
