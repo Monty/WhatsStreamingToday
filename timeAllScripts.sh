@@ -27,15 +27,15 @@ date | tee /dev/stderr
 time ./makeOPB.sh -td
 printf "\n" | tee /dev/stderr
 
+date | tee /dev/stderr
+
+exit
+
 printf -- "----------------------------------------\n"
 printf "==> time ./addOPB-episodeDescriptions.sh -d\n" | tee /dev/stderr
 date | tee /dev/stderr
 time ./addOPB-episodeDescriptions.sh -d
 printf "\n" | tee /dev/stderr
-
-date | tee /dev/stderr
-
-exit
 
 # Make sure we can execute rg.
 if [ ! -x "$(which rg 2>/dev/null)" ]; then
