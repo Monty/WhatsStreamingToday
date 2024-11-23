@@ -50,9 +50,6 @@ missing_OPB-shows.csv
 missing_OPB-titles.txt
 getOPB.js
 getWalter.js
-rg_OPB.rgx
-addOPB-episodeDescriptions.sh
-addOPB-episodeDescriptions.js
 saveTodaysOPBFiles.sh
 formatUnifiedDiffOutput.awk
 rg_problems.rgx
