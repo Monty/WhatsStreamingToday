@@ -15,13 +15,18 @@
 
     print showTitle >> RAW_TITLES
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
+    # print "==> showLink = " showLink > "/dev/stderr"
     showLanguage = "English"
     next
 }
 
-/ with English subtitles/ { showLanguage = $(NF - 3) }
+/ with English subtitles/ {
+    split($0, fld, " ")
+    showLanguage = $(NF - 3)
+    # print "==> showLanguage = " showLanguage > "/dev/stderr"
+}
 
-/"description":/ {
+/"description": "/ {
     descriptionLinesFound++
     split($0, fld, "\"")
     showDescription = fld[4]
@@ -29,22 +34,77 @@
     gsub(/&quot;/, "\"", showDescription)
     sub(/ with English subtitles/, "", showDescription)
     sub(/ From Walter Presents, in/, " In", showDescription)
-    # print showDescription
+    # print "==> showDescription = " showDescription > "/dev/stderr"
     next
 }
 
-/"genre":/ {
+/"genre": "/ {
     genreLinesFound++
     split($0, fld, "\"")
     showGenre = fld[4]
     next
 }
 
-/data-title=/ {
+/"numberOfSeasons": / {
+    sub(/.*"numberOfSeasons": /, "")
+    split($0, fld, ",")
+    showSeasons = fld[1] - 1
+    # print "==> showSeasons = " showSeasons > "/dev/stderr"
+    getline seasonNumberLine
+    split(seasonNumberLine, fld, "\"")
+    seasonNumber = fld[8]
+    sub(/Season /, "", seasonNumber)
+    # print "==> seasonNumber = " seasonNumber > "/dev/stderr"
+    next
+}
+
+/alt="/ {
     split($0, fld, "\"")
     episodeTitle = fld[2]
     sub(/&amp;/, "\\&", episodeTitle)
-    next
+    testDesc = ""
+    getline
+    getline
+    getline
+
+    while ($0 !~ /<\/p>/) {
+        sub(/^ */, "")
+        testDesc = testDesc $0 " "
+        getline
+    }
+
+    # Episode processing
+    if (testDesc ~ /^Ep[0-9]* \| /) {
+        # Shows with only one season (which may not be season 1)
+        # "Ep4 | Sharko travels ... with Syndrome E. (54m 37s) "
+        split($0, fld, " ")
+        episodeNumber = fld[1]
+        sub(/Ep/, "", episodeNumber)
+        episodeLinesFound++
+        totalEpisodes++
+    }
+    else if (testDesc ~ /^ *S.[0-9]* Ep[0-9]* \| /) {
+        # Shows with more then one season
+        # "S2 Ep3 | The Circle’s ...life on the line. (58m 34s) "
+        split($0, fld, " ")
+        episodeNumber = fld[2]
+        sub(/Ep/, "", episodeNumber)
+        episodeLinesFound++
+        totalEpisodes++
+    }
+    else {
+        # "A woman is murdered. Can ...  find it? (1h 31m 34s) "
+        episodeLinesFound++
+        totalEpisodes++
+    }
+
+    # May be able to filter by time, i.e. less than 5 minutes
+    # "Clip | Goran has questions ... father's disappearance. (1m 18s) "
+    # Don't save Previews, e.g. "Season 2 Preview"
+    print "==> " showTitle ":" episodeTitle > "/dev/stderr"
+    print "\"" testDesc "\"" > "/dev/stderr"
+    print "episodeLinesFound = " episodeLinesFound > "/dev/stderr"
+    print "" > "/dev/stderr"
 }
 
 /data-video-type=/ {
@@ -66,46 +126,6 @@
 # Special episodes
 /^                                    Special \| / {
     specialEpisodeNumber++
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows with only one season
-/^ *Ep[0-9]* \| / {
-    sub(/^ */, "")
-    split($0, fld, " ")
-    episodeNumber = fld[1]
-    sub(/Ep/, "", episodeNumber)
-    seasonNumber = 1
-    showSeasons = 1
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows with more than one season
-/^ *S.[0-9]* Ep[0-9]* \| / {
-    sub(/^ */, "")
-    split($0, fld, " ")
-    seasonNumber = fld[1]
-    seasonsArray[seasonNumber]++
-    showSeasons = length(seasonsArray)
-    sub(/S/, "", seasonNumber)
-    episodeNumber = fld[2]
-    sub(/Ep/, "", episodeNumber)
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows that use dates instead of seasons
-/^ *[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    sub(/^ */, "")
-    split($0, fld, "/")
-    seasonNumber = fld[3]
-    sub(/ .*/, "", seasonNumber)
-    seasonsArray[seasonNumber]++
-    showSeasons = length(seasonsArray)
-    episodeArray[seasonNumber]++
-    episodeNumber = episodeArray[seasonNumber]
     episodeLinesFound++
     totalEpisodes++
 }
@@ -182,7 +202,7 @@
     next
 }
 
-/-- start medium-rectangle-half-page --/ {
+/Copyright ©/ {
     # print showTitle > "/dev/stderr"
     if (episodeLinesFound == 0) {
         printf(\
