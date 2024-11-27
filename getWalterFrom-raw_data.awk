@@ -50,15 +50,15 @@
     split($0, fld, ",")
     showSeasons = fld[1] - 1
     # print "==> showSeasons = " showSeasons > "/dev/stderr"
-    getline seasonNumberLine
-    split(seasonNumberLine, fld, "\"")
+    getline seasonNumber
+    split(seasonNumber, fld, "\"")
     seasonNumber = fld[8]
     sub(/Season /, "", seasonNumber)
     # print "==> seasonNumber = " seasonNumber > "/dev/stderr"
     next
 }
 
-# Episode processing
+# Episode processing: Titles
 /class="VideoDetailThumbnail_video_title/ {
     episodeType = "E"
     testTitle = ""
@@ -72,9 +72,6 @@
     episodeURL = sprintf("https://www.pbs.org%s", episodeID)
     # print "==> episodeURL = " episodeURL > "/dev/stderr"
     getline
-    # >Brevard County</a
-    # >Central Florida Roadtrip: Black History in Central
-    # Florida</a
     sub(/^ */, "")
 
     if ($0 !~ /^>/) {
@@ -84,6 +81,10 @@
     split($0, fld, "[<>]")
     testTitle = fld[2]
 
+    # Title can be one or more lines
+    # >Brevard County</a
+    # >Central Florida Roadtrip: Black History in Central
+    # Florida</a
     if (testTitle !~ /<\/a/) {
         getline
         sub(/^ */, "")
@@ -98,11 +99,10 @@
     # print "==> " showTitle ":" episodeTitle > "/dev/stderr"
 }
 
-# Specials have description immediately following key
-# <p class="VideoDetailThumbnail_video_description__ZSGKS">
-# Dr. Cartwright discusses his role and the future of UCF. (48m 2s)
-/^ *>/ { next }
+# Don't process lines containing only a ">"
+/^ *>$/ { next }
 
+# Episode processing: Descriptions
 /class="VideoDetailThumbnail_video_description/ {
     getline
 
@@ -118,12 +118,6 @@
     sub(/&amp;/, "\\&", episodeDescription)
     gsub(/&#x27;/, "'", episodeDescription)
     gsub(/&quot;/, "\"", episodeDescription)
-
-    if (episodeDescription ~ /\|/) {
-        split(episodeDescription, fld, "|")
-        episodeDescription = fld[2]
-        sub(/^ /, "", episodeDescription)
-    }
 
     if (episodeDescription ~ /\(.*[0-9][hms]\)$/) {
         if ((match(episodeDescription, / \([0-9]{1,2}.*[hms]\)$/)) > 0) {
@@ -142,18 +136,29 @@
         sub(/Ep/, "", episodeNumber)
         episodeLinesFound++
         totalEpisodes++
+        split(episodeDescription, fld, "|")
+        episodeDescription = fld[2]
+        sub(/^ /, "", episodeDescription)
     }
     else if (episodeDescription ~ /^ *S.[0-9]* Ep[0-9]* \| /) {
         # Shows with more then one season
-        # "S2 Ep3 | The Circle’s ...life on the line. (58m 34s) "
+        # "S2 Ep3 | The Circle’s ... life on the line. (58m 34s) "
         split($0, fld, " ")
         episodeNumber = fld[2]
         sub(/Ep/, "", episodeNumber)
         episodeLinesFound++
         totalEpisodes++
+        split(episodeDescription, fld, "|")
+        episodeDescription = fld[2]
+        sub(/^ /, "", episodeDescription)
     }
     else {
-        # "A woman is murdered. Can ...  find it? (1h 31m 34s) "
+        # Specials have description immediately following key
+        # <p class="VideoDetailThumbnail_video_description__ZSGKS">
+        # Dr. Cartwright discusses ... the future of UCF. (48m 2s)
+        # "A woman is murdered. Can ... find it? (1h 31m 34s) "
+        episodeType = "X"
+        specialEpisodeNumber++
         episodeLinesFound++
         totalEpisodes++
     }
@@ -240,29 +245,6 @@
         episodeDescription = ""
         next
     }
-}
-
-/data-video-type=/ {
-    episodeType = "X"
-    split($0, fld, "\"")
-
-    if (fld[2] == "episode") episodeType = "E"
-
-    next
-}
-
-/data-video-slug=/ {
-    split($0, fld, "\"")
-    episodeID = sprintf("/%s/", fld[2])
-    episodeURL = sprintf("https://www.pbs.org/video%s", episodeID)
-    next
-}
-
-# Special episodes
-/^                                    Special \| / {
-    specialEpisodeNumber++
-    episodeLinesFound++
-    totalEpisodes++
 }
 
 /Copyright ©/ {
