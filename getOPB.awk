@@ -7,11 +7,18 @@
 
 /"genre": "/ { print }
 
+/"containsSeason": \[\{/ {
+    sub(/"containsSeason": \[/, "  ")
+    sub(/\]/, "")
+    print
+    next
+}
+
 /"numberOfSeasons": / { print }
 
 /"TVSeason", / { print }
 
-/^                              alt="/ { print }
+/class="VideoDetailThumbnail_video_title/, /<\/p>/ { print }
 
 /class="VideoDetailThumbnail_video_description/, /<\/p>/ { print }
 
