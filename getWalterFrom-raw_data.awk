@@ -50,11 +50,18 @@
     split($0, fld, ",")
     showSeasons = fld[1] - 1
     # print "==> showSeasons = " showSeasons > "/dev/stderr"
+    if (showSeasons <= 0) {
+        # print "==> showTitle = " showTitle > "/dev/stderr"
+        # print "shortURL = " shortURL > "/dev/stderr"
+        # print "showSeasons = " showSeasons > "/dev/stderr"
+        next
+    }
+
     getline seasonNumber
     split(seasonNumber, fld, "\"")
     seasonNumber = fld[8]
     sub(/Season /, "", seasonNumber)
-    # print "==> seasonNumber = " seasonNumber > "/dev/stderr"
+    # print "==> " showTitle ": Season " seasonNumber > "/dev/stderr"
     next
 }
 
@@ -249,6 +256,14 @@
 
 /Copyright ©/ {
     # print showTitle > "/dev/stderr"
+    if (showSeasons <= 0) {
+        printf("==> No seasons found: %s '%s'\n", shortURL, showTitle) >> ERRORS
+    }
+
+    if (seasonNumber + 0 >= 100) {
+        printf("==> Season number %d in %s\n", seasonNumber, shortURL) >> ERRORS
+    }
+
     if (episodeLinesFound == 0) {
         printf(\
             "==> No episodes found: %s '%s'\n", shortURL, showTitle\
