@@ -9,5 +9,9 @@
     split($0, fld, "\"")
     showTitle = fld[2]
     sub(/&amp;/, "\\&", showTitle)
-    printf("%s\t%s\n", showURL, showTitle)
+    htmlFile = showTitle
+    gsub(/[[:punct:]]/, "", htmlFile)
+    gsub(/ /, "_", htmlFile)
+    htmlFile = htmlFile ".html"
+    printf("%s\t%s\t%s\n", showURL, showTitle, htmlFile)
 }
