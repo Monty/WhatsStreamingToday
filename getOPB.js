@@ -14,7 +14,7 @@ let output_file = process.env.RAW_HTML;
   const page = await context.newPage();
   console.log('\n==> Processing ' + series_URL);
   await page.goto(series_URL);
-  await page.waitForTimeout(2000); // wait for 2 seconds
+  await page.waitForTimeout(10000); // wait for 10 seconds
   const raw_html = await page.content();
   fs.writeFile(
     output_file,
