@@ -107,12 +107,14 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML $RAW_TITLES "
-ALL_WORKING+="$DURATION $LOGFILE"
+ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML "
+ALL_WORKING+="$RAW_TITLES $DURATION $LOGFILE"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_IDS"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
+# Need TAB character for sort key, etc.
+TAB=$(printf "\t")
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -122,25 +124,33 @@ printf "### Possible anomalies from processing shows are listed below.\n\n" >"$E
 
 node getWalter.js
 prettier-eslint --write $RAW_HTML
-rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getWalter.awk | sort >$SHOW_URLS
-# Make sure no URLs added from PBS-only.csv are duplicates
-rg -v -f $SHOW_URLS $PBS_ONLY >$UNSORTED_SHORT
-cat $UNSORTED_SHORT >>$SHOW_URLS
-rm $UNSORTED_SHORT
+rg -A 7 'href="/show/' $RAW_HTML | rg 'href="/show/|alt=' |
+    awk -f getWalter.awk | sort >$SHOW_URLS
+
+# Add URLs from PBS-only.csv making sure none are duplicates
+zet union $PBS_ONLY $SHOW_URLS >$UNSORTED_SHORT
+sort -f --field-separator="$TAB" --key=2,2 $UNSORTED_SHORT >$SHOW_URLS
 #
 printf "==> Done writing $SHOW_URLS\n"
 
-rm -f $RAW_HTML
+# rm -f $RAW_HTML
 
+# Loop through $SHOW_URLS to generate $RAW_DATA
+mkdir -p hidden/html
 while read -r line; do
-    read field1 field2 <<<"$line"
-    printf "$line\n" >>"$RAW_DATA"
+    IFS="$TAB" read field1 field2 field3 <<<"$line"
+    # printf "field1 = '$field1'\n" >"/dev/stderr"
+    # printf "field2 = '$field2'\n" >"/dev/stderr"
+    # printf "field3 = '$field3'\n\n" >"/dev/stderr"
     export TARGET="$field1"
     node getOPB.js >>"$LOGFILE"
+    # save $RAW_HTML for later abalysis
     prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
     if [ $? -eq 0 ]; then
-        awk -f getOPB.awk "$RAW_HTML" | rg -f rg_OPB.rgx >>"$RAW_DATA"
+        printf "$line\n" >>"$RAW_DATA"
+        awk -f getOPB.awk "$RAW_HTML" >>"$RAW_DATA"
     else
+        cp -p "$RAW_HTML" "hidden/html/$field3"
         printf "==> prettier-eslint failed on $line\n" >>"$ERRORS"
     fi
     rm -f $RAW_HTML
