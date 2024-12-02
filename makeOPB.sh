@@ -147,8 +147,13 @@ while read -r line; do
     # save $RAW_HTML for later abalysis
     prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
     if [ $? -eq 0 ]; then
-        printf "$line\n" >>"$RAW_DATA"
-        awk -f getOPB.awk "$RAW_HTML" >>"$RAW_DATA"
+        if [ $(rg -c '403 ERROR' "$RAW_HTML") ]; then
+            cp -p "$RAW_HTML" "hidden/html/$field3"
+            printf "==> 403 ERROR in $line\n" >>"$ERRORS"
+        else
+            printf "$line\n" >>"$RAW_DATA"
+            awk -f getOPB.awk "$RAW_HTML" >>"$RAW_DATA"
+        fi
     else
         cp -p "$RAW_HTML" "hidden/html/$field3"
         printf "==> prettier-eslint failed on $line\n" >>"$ERRORS"
