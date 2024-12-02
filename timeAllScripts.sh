@@ -27,12 +27,6 @@ date | tee /dev/stderr
 time ./makeOPB.sh -td
 printf "\n" | tee /dev/stderr
 
-printf -- "----------------------------------------\n"
-printf "==> time ./addOPB-episodeDescriptions.sh -d\n" | tee /dev/stderr
-date | tee /dev/stderr
-time ./addOPB-episodeDescriptions.sh -d
-printf "\n" | tee /dev/stderr
-
 date | tee /dev/stderr
 
 exit

@@ -5,14 +5,27 @@
 
 /"description": "/ { print }
 
-/"genre":/ { print }
+/"genre": "/ { print }
+
+/"containsSeason": \[\{/ {
+    sub(/"containsSeason": \[/, "  ")
+    sub(/\]/, "")
+    print
+    next
+}
+
+/"numberOfSeasons": / { print }
+
+/"TVSeason", / { print }
+
+/class="VideoDetailThumbnail_video_title/, /<\/p>/ { print }
+
+/class="VideoDetailThumbnail_video_description/, /<\/p>/ { print }
 
 # Don't need svg data
 /<svg/, /<\/svg/ { next }
 
-/id="splide01-slide/, /<div class="vertical-sponsorship">/ { print }
-
-/<!-- start medium-rectangle-half-page -->/ {
+/Copyright ©/ {
     print
     exit
 }

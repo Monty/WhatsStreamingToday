@@ -1,127 +1,16 @@
 # Grab fields from Walter Presents HTML files
 #
 # Title  Seasons  Episodes  Duration  Genre  Language  Rating  Description
-/^https:/ {
-    totalShows += 1
-    split($0, fld, "\t")
-    showURL = fld[1]
-    # print "==> showURL = " showURL > "/dev/stderr"
-    # Create shorter URL by removing https://
-    shortURL = showURL
-    sub(/.*pbs.org/, "pbs.org", shortURL)
-    showTitle = fld[2]
 
-    if (shortURL ~ /before-we-die-uk/) { showTitle = "Before We Die (UK)" }
+# These functions are used to shorten code in show and episode processing
+function computeEpisodeDuration() {
+    # Leading spaces have been deleted in episode logic
+    numFields = split(episodeHMS, tm, " ")
 
-    print showTitle >> RAW_TITLES
-    showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
-    showLanguage = "English"
-    next
-}
-
-/ with English subtitles/ { showLanguage = $(NF - 3) }
-
-/"description":/ {
-    descriptionLinesFound++
-    split($0, fld, "\"")
-    showDescription = fld[4]
-    gsub(/&#x27;/, "'", showDescription)
-    gsub(/&quot;/, "\"", showDescription)
-    sub(/ with English subtitles/, "", showDescription)
-    sub(/ From Walter Presents, in/, " In", showDescription)
-    # print showDescription
-    next
-}
-
-/"genre":/ {
-    genreLinesFound++
-    split($0, fld, "\"")
-    showGenre = fld[4]
-    next
-}
-
-/data-title=/ {
-    split($0, fld, "\"")
-    episodeTitle = fld[2]
-    sub(/&amp;/, "\\&", episodeTitle)
-    next
-}
-
-/data-video-type=/ {
-    episodeType = "X"
-    split($0, fld, "\"")
-
-    if (fld[2] == "episode") episodeType = "E"
-
-    next
-}
-
-/data-video-slug=/ {
-    split($0, fld, "\"")
-    episodeID = sprintf("/%s/", fld[2])
-    episodeURL = sprintf("https://www.pbs.org/video%s", episodeID)
-    next
-}
-
-# Special episodes
-/^                                    Special \| / {
-    specialEpisodeNumber++
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows with only one season
-/^ *Ep[0-9]* \| / {
-    sub(/^ */, "")
-    split($0, fld, " ")
-    episodeNumber = fld[1]
-    sub(/Ep/, "", episodeNumber)
-    seasonNumber = 1
-    showSeasons = 1
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows with more than one season
-/^ *S.[0-9]* Ep[0-9]* \| / {
-    sub(/^ */, "")
-    split($0, fld, " ")
-    seasonNumber = fld[1]
-    seasonsArray[seasonNumber]++
-    showSeasons = length(seasonsArray)
-    sub(/S/, "", seasonNumber)
-    episodeNumber = fld[2]
-    sub(/Ep/, "", episodeNumber)
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Episodes from shows that use dates instead of seasons
-/^ *[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    sub(/^ */, "")
-    split($0, fld, "/")
-    seasonNumber = fld[3]
-    sub(/ .*/, "", seasonNumber)
-    seasonsArray[seasonNumber]++
-    showSeasons = length(seasonsArray)
-    episodeArray[seasonNumber]++
-    episodeNumber = episodeArray[seasonNumber]
-    episodeLinesFound++
-    totalEpisodes++
-}
-
-# Wrap up episode
-# Leading spaces have been deleted in episode logic
-/^S.[0-9]* Ep[0-9]* \| / || /^Ep[0-9]* \| / ||
-/^                                    Special \| / ||
-/^[0-9][0-9]\/[0-9][0-9]\/[0-9][0-9][0-9][0-9] \| / {
-    durationLinesFound++
-    split($0, fld, "|")
-    # print fld[2]
-    numFields = split(fld[2], tm, " ")
     # Initialize fields to 0 in case any are missing
     secs = mins = hrs = 0
 
+    # Grab hrs, mins, secs
     for (i = 1; i <= numFields; ++i) {
         if (tm[i] ~ /s/) {
             sub(/s/, "", tm[i])
@@ -139,24 +28,253 @@
         }
     }
 
+    # Add time to curent show
     showSecs += secs
     showMins += mins + int(showSecs / 60)
     showHrs += hrs + int(showMins / 60)
     showSecs %= 60
     showMins %= 60
 
+    # Add time to total time
     totalTime[3] += secs
     totalTime[2] += mins + int(totalTime[3] / 60)
     totalTime[1] += hrs + int(totalTime[2] / 60)
     totalTime[3] %= 60
     totalTime[2] %= 60
 
+    # Make episodeDuration a string
     episodeDuration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
+}
+
+function clearEpisodeVariables() {
+    # Make sure there is no carryover
+    testTitle = ""
+    episodeTitle = ""
+    episodeType = "E"
+    episodeURL = ""
+    episodeDuration = ""
+    episodeLink = ""
+    episodeDescription = ""
+}
+
+function clearShowVariables() {
+    # Make sure there is no carryover
+    showURL = ""
+    showTitle = ""
+    showLink = ""
+    showSecs = 0
+    showMins = 0
+    showHrs = 0
+    showSeasons = 0
+    showDuration = ""
+    showDescription = ""
+    showGenre = ""
+    showLanguage = ""
+    delete seasonsArray
+    delete episodeArray
+    #
+    episodeNumber = 0
+    specialEpisodeNumber = 0
+    #
+    episodeLinesFound = 0
+    seasonLinesFound = 0
+    descriptionLinesFound = 0
+    genreLinesFound = 0
+    durationLinesFound = 0
+}
+
+/^https:/ {
+    # Make sure there is no carryover
+    clearShowVariables()
+
+    # Process new show
+    totalShows += 1
+    split($0, fld, "\t")
+    showURL = fld[1]
+    # print "==> showURL = " showURL > "/dev/stderr"
+    # Create shorter URL by removing https://
+    shortURL = showURL
+    sub(/.*pbs.org/, "pbs.org", shortURL)
+    showTitle = fld[2]
+
+    if (shortURL ~ /before-we-die-uk/) { showTitle = "Before We Die (UK)" }
+
+    print showTitle >> RAW_TITLES
+
+    showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
+    # print "==> showLink = " showLink > "/dev/stderr"
+    showLanguage = "English"
+    next
+}
+
+/ with English subtitles/ {
+    split($0, fld, " ")
+    showLanguage = $(NF - 3)
+    # print "==> showLanguage = " showLanguage > "/dev/stderr"
+}
+
+/"description": "/ {
+    descriptionLinesFound++
+    split($0, fld, "\"")
+    showDescription = fld[4]
+    gsub(/&#x27;/, "'", showDescription)
+    gsub(/&quot;/, "\"", showDescription)
+    sub(/ with English subtitles/, "", showDescription)
+    sub(/ From Walter Presents, in/, " In", showDescription)
+    # print "==> showDescription = " showDescription > "/dev/stderr"
+    next
+}
+
+/"genre": "/ {
+    genreLinesFound++
+    split($0, fld, "\"")
+    showGenre = fld[4]
+    next
+}
+
+/"numberOfSeasons": / {
+    sub(/.*"numberOfSeasons": /, "")
+    split($0, fld, ",")
+    showSeasons = fld[1] - 1
+    # print "==> showSeasons = " showSeasons > "/dev/stderr"
+    if (showSeasons <= 0) {
+        # print "==> showTitle = " showTitle > "/dev/stderr"
+        # print "shortURL = " shortURL > "/dev/stderr"
+        # print "showSeasons = " showSeasons > "/dev/stderr"
+        next
+    }
+
+    getline seasonNumber
+    split(seasonNumber, fld, "\"")
+    seasonNumber = fld[8]
+    sub(/Season /, "", seasonNumber)
+    # print "==> " showTitle ": Season " seasonNumber > "/dev/stderr"
+    next
+}
+
+# Episode processing: Titles
+/class="VideoDetailThumbnail_video_title/ {
+    # Make sure there is no carryover
+    clearEpisodeVariables()
+
+    # Process new episode
+    getline
+    getline
+    getline
+    getline
+    # href="/video/episode-2-kFUiL6/"
+    split($0, fld, "\"")
+    episodeID = sprintf("%s", fld[2])
+    episodeURL = sprintf("https://www.pbs.org%s", episodeID)
+    # print "==> episodeURL = " episodeURL > "/dev/stderr"
+    getline
+    sub(/^ */, "")
+
+    if ($0 !~ /^>/) {
+        printf("==> Missing ^> in testTitle line: '%s'\n", $0) >> ERRORS
+    }
+
+    split($0, fld, "[<>]")
+    testTitle = fld[2]
+
+    # Title can be one or more lines
+    # >Brevard County</a
+    # >Central Florida Roadtrip: Black History in Central
+    # Florida</a
+    if (testTitle !~ /<\/a/) {
+        getline
+        sub(/^ */, "")
+        split($0, fld, "[<>]")
+        testTitle = testTitle " " fld[1]
+    }
+
+    # print "==> testTitle = " testTitle > "/dev/stderr"
+    split(testTitle, fld, "[<>]")
+    episodeTitle = fld[1]
+    sub(/&amp;/, "\\&", episodeTitle)
+    # print "==> " showTitle ":" episodeTitle > "/dev/stderr"
+}
+
+# Don't process lines containing only a ">"
+/^ *>$/ { next }
+
+# Episode processing: Descriptions
+/class="VideoDetailThumbnail_video_description/ {
+    getline
+
+    while ($0 !~ /<\/p>/) {
+        sub(/^ */, "")
+        episodeDescription = episodeDescription $0 " "
+        getline
+    }
+
+    # Clean up episodeDescription
+    sub(/^> /, "", episodeDescription)
+    sub(/ $/, "", episodeDescription)
+    sub(/&amp;/, "\\&", episodeDescription)
+    gsub(/&#x27;/, "'", episodeDescription)
+    gsub(/&quot;/, "\"", episodeDescription)
+
+    if (episodeDescription ~ /\(.*[0-9][hms]\)$/) {
+        if ((match(episodeDescription, / \([0-9]{1,2}.*[hms]\)$/)) > 0) {
+            episodeHMS = substr(episodeDescription, RSTART + 2, RLENGTH - 3)
+            episodeDescription = substr(episodeDescription, 1, RSTART - 1)
+            # print "episodeHMS = " episodeHMS > "/dev/stderr"
+            durationLinesFound++
+        }
+    }
+
+    if (episodeDescription ~ /^Ep[0-9]* \| /) {
+        # Shows with only one season (which may not be season 1)
+        # Ep4 | Sharko travels ... with Syndrome E. (54m 37s)
+        split(episodeDescription, fld, " ")
+        episodeNumber = fld[1]
+        sub(/Ep/, "", episodeNumber)
+        # print "episodeNumberEp = " episodeNumber > "/dev/stderr"
+        episodeLinesFound++
+        totalEpisodes++
+        split(episodeDescription, fld, "|")
+        episodeDescription = fld[2]
+        sub(/^ /, "", episodeDescription)
+    }
+    else if (episodeDescription ~ /^ *S.[0-9]* Ep[0-9]* \| /) {
+        # Shows with more then one season
+        # "S2 Ep3 | The Circle’s ... life on the line. (58m 34s) "
+        split(episodeDescription, fld, " ")
+        episodeNumber = fld[2]
+        sub(/Ep/, "", episodeNumber)
+        # print "episodeNumberSN = " episodeNumber > "/dev/stderr"
+        episodeLinesFound++
+        totalEpisodes++
+        split(episodeDescription, fld, "|")
+        episodeDescription = fld[2]
+        sub(/^ /, "", episodeDescription)
+    }
+    else {
+        # Specials have description immediately following key
+        # <p class="VideoDetailThumbnail_video_description__ZSGKS">
+        # Dr. Cartwright discusses ... the future of UCF. (48m 2s)
+        # "A woman is murdered. Can ... find it? (1h 31m 34s) "
+        episodeType = "X"
+        specialEpisodeNumber++
+        episodeLinesFound++
+        totalEpisodes++
+    }
+
+    # May be able to filter by time, i.e. less than 5 minutes
+    # "Clip | Goran has questions ... father's disappearance. (1m 18s) "
+    # Don't save Previews, e.g. "Season 2 Preview"
+    # print "\"" episodeDescription "\"" > "/dev/stderr"
+    # print "episodeLinesFound = " episodeLinesFound > "/dev/stderr"
+    # print "" > "/dev/stderr"
+
+    # Wrap up episode
+    computeEpisodeDuration()
 
     if (episodeType == "X") episodeNumber = specialEpisodeNumber
 
-    # Special case for Central Florida Roadtrip season 2
-    if (episodeNumber + 0 >= 18000) episodeNumber = episodeNumber - 18000
+    # Special case for Central Florida Roadtrip season 5
+    if (episodeNumber + 0 >= 500) episodeNumber = episodeNumber - 500
 
     # Special case for episodeNumbers that include season number
     if (episodeNumber + 0 >= 100)
@@ -171,19 +289,27 @@
         episodeNumber,
         episodeTitle\
     )
-    printf("%s\t\t\t%s\n", episodeLink, episodeDuration) >> LONG_SPREADSHEET
+    printf(\
+        "%s\t\t\t%s\t\t\t\t%s\n",
+        episodeLink,
+        episodeDuration,
+        episodeDescription\
+    ) >> LONG_SPREADSHEET
     printf("%s\t%s\n", episodeID, showTitle) >> EPISODE_IDS
 
-    episodeTitle = ""
-    episodeType = ""
-    episodeURL = ""
-    episodeDuration = ""
-    episodeLink = ""
     next
 }
 
-/-- start medium-rectangle-half-page --/ {
+/Copyright ©/ {
     # print showTitle > "/dev/stderr"
+    if (showSeasons <= 0) {
+        printf("==> No seasons found: %s '%s'\n", shortURL, showTitle) >> ERRORS
+    }
+
+    if (seasonNumber + 0 >= 100) {
+        printf("==> Season number %d in %s\n", seasonNumber, shortURL) >> ERRORS
+    }
+
     if (episodeLinesFound == 0) {
         printf(\
             "==> No episodes found: %s '%s'\n", shortURL, showTitle\
@@ -216,7 +342,7 @@
         showLanguage = "Spanish"
     }
 
-    if (showTitle == "Superabundant" && showGenre == "") {
+    if (showTitle == "Superabundant" && genreLinesFound == 0) {
         printf("==> Setting '%s' genre to Food\n", showTitle) >> ERRORS
         showGenre = "Food"
     }
@@ -249,29 +375,6 @@
             showDescription\
         ) >> LONG_SPREADSHEET
     }
-
-    # Make sure there is no carryover
-    showURL = ""
-    showTitle = ""
-    showLink = ""
-    showSecs = 0
-    showMins = 0
-    showHrs = 0
-    showSeasons = 0
-    showDuration = ""
-    showDescription = ""
-    showGenre = ""
-    showLanguage = ""
-    delete seasonsArray
-    delete episodeArray
-    #
-    episodeNumber = 0
-    specialEpisodeNumber = 0
-    episodeLinesFound = 0
-    seasonLinesFound = 0
-    descriptionLinesFound = 0
-    genreLinesFound = 0
-    durationLinesFound = 0
 }
 
 END {

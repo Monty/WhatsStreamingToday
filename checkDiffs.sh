@@ -20,14 +20,9 @@ MHZ_ANOMS=$(find MHz_anomalies-*txt | tail -1)
 MHZ_ANOMS_OLD=$(find MHz_anomalies-*txt | tail -2 | head -1)
 MHZ_DIFFS=$(find MHz_diffs-*txt | tail -1)
 #
-# Most recent is from addOPB-episodeDescriptions.sh
 OPB_ANOMS=$(find OPB_anomalies-*txt | tail -1)
 OPB_ANOMS_OLD=$(find OPB_anomalies-*txt | tail -2 | head -1)
 OPB_DIFFS=$(find OPB_diffs-*txt | tail -1)
-# Older output is from makeOPB.sh
-ADDOPB_ANOMS=$(find addOPB_anomalies-*txt | tail -1)
-ADDOPB_ANOMS_OLD=$(find addOPB_anomalies-*txt | tail -2 | head -1)
-ADDOPB_DIFFS=$(find addOPB_diffs-*txt | tail -1)
 
 clear
 
@@ -52,11 +47,7 @@ clear
 waitUntil -k
 clear
 
-./whatChanged "$ADDOPB_ANOMS_OLD" "$ADDOPB_ANOMS"
-waitUntil -k
-clear
-
-view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS" "$ADDOPB_DIFFS"
+view "$ACORN_DIFFS" "$BBOX_DIFFS" "$MHZ_DIFFS" "$OPB_DIFFS"
 
 if waitUntil -cs "Save today's files for ALL services?"; then
     printf "==> Saving today's files...\n\n"
