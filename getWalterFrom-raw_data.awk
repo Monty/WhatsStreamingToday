@@ -191,6 +191,7 @@ function clearShowVariables() {
     # print "==> testTitle = " testTitle > "/dev/stderr"
     split(testTitle, fld, "[<>]")
     episodeTitle = fld[1]
+    sub(/ $/, "", episodeTitle)
     sub(/&amp;/, "\\&", episodeTitle)
     # print "==> " showTitle ":" episodeTitle > "/dev/stderr"
 }
