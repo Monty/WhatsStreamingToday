@@ -55,6 +55,7 @@ function clearEpisodeVariables() {
     episodeDuration = ""
     episodeLink = ""
     episodeDescription = ""
+    target_sheet = LONG_SPREADSHEET
 }
 
 function clearShowVariables() {
@@ -290,12 +291,18 @@ function clearShowVariables() {
         episodeNumber,
         episodeTitle\
     )
+    # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
+    # Previews and clips go to EXTRA_SPREADSHEET
+    if (episodeDescription ~ /^Preview \| |^Clip \| /) {
+        target_sheet = EXTRA_SPREADSHEET
+    }
+
     printf(\
         "%s\t\t\t%s\t\t\t\t%s\n",
         episodeLink,
         episodeDuration,
         episodeDescription\
-    ) >> LONG_SPREADSHEET
+    ) >> target_sheet
 
     next
 }
