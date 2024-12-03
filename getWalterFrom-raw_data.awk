@@ -297,6 +297,8 @@ function clearShowVariables() {
         target_sheet = EXTRA_SPREADSHEET
     }
 
+    if (episodeTitle ~ /Preview$|Teaser$/) { target_sheet = EXTRA_SPREADSHEET }
+
     printf(\
         "%s\t\t\t%s\t\t\t\t%s\n",
         episodeLink,
