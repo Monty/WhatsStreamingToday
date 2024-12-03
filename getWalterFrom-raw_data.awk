@@ -296,7 +296,6 @@ function clearShowVariables() {
         episodeDuration,
         episodeDescription\
     ) >> LONG_SPREADSHEET
-    printf("%s\t%s\n", episodeID, showTitle) >> EPISODE_IDS
 
     next
 }
