@@ -85,7 +85,6 @@ MISSING_TITLES="missing_OPB-titles.txt"
 
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
-EPISODE_IDS="$COLS/episode_ids$DATE_ID.csv"
 
 # Intermediate working files
 UNSORTED_SHORT="$COLS/unsorted_short$DATE_ID.csv"
@@ -102,7 +101,6 @@ PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_UNSORTED_LONG="$BASELINE/unsorted_long.txt"
 #
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
-PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
@@ -110,7 +108,7 @@ PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML "
 ALL_WORKING+="$RAW_TITLES $DURATION $LOGFILE"
 #
-ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_IDS"
+ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 # Need TAB character for sort key, etc.
@@ -172,7 +170,7 @@ printf \
     >$SHORT_SPREADSHEET
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
-awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_IDS=$EPISODE_IDS \
+awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
 
@@ -211,7 +209,6 @@ function printAdjustedFileInfo() {
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
 printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $UNSORTED_LONG 1
-printAdjustedFileInfo $EPISODE_IDS 0
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
@@ -323,7 +320,6 @@ $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
 $(checkdiffs $PUBLISHED_UNSORTED_LONG $UNSORTED_LONG)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
-$(checkdiffs $PUBLISHED_EPISODE_IDS $EPISODE_IDS)
 
 ### Any funny stuff with file lengths?
 
