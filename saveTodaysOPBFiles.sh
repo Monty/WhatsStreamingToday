@@ -40,3 +40,4 @@ cp -p $VERBOSE $COLS/unsorted_long-$DATE.csv $BASELINE/unsorted_long.txt
 cp -p $VERBOSE OPB_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
 cp -p $VERBOSE OPB_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
 cp -p $VERBOSE OPB_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt
+cp -p $VERBOSE OPB_TV_ExtraEpisodes-$DATE.csv $BASELINE/extra.txt

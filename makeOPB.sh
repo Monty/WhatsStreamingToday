@@ -76,6 +76,7 @@ ERRORS="OPB_anomalies$LONGDATE.txt"
 # Final output spreadsheets
 SHORT_SPREADSHEET="OPB_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="OPB_TV_ShowsEpisodes$DATE_ID.csv"
+EXTRA_SPREADSHEET="OPB_TV_ExtraEpisodes$DATE_ID.csv"
 
 # Fixer-uppers
 PBS_ONLY="PBS-only.csv"
@@ -99,6 +100,7 @@ LOGFILE="$COLS/logfile$DATE_ID.txt"
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_UNSORTED_LONG="$BASELINE/unsorted_long.txt"
+PUBLISHED_EXTRA_SPREADSHEET="$BASELINE/extra.txt"
 #
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
@@ -110,7 +112,7 @@ ALL_WORKING+="$RAW_TITLES $DURATION $LOGFILE"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $EXTRA_SPREADSHEET"
 # Need TAB character for sort key, etc.
 TAB=$(printf "\t")
 
@@ -159,19 +161,17 @@ while read -r line; do
     rm -f $RAW_HTML
 done <"$SHOW_URLS"
 
-# Print header for LONG_SPREADSHEET
+# Print header for LONG_SPREADSHEET, SHORT_SPREADSHEET, EXTRA_SPREADSHEET
 printf \
     "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
     >$LONG_SPREADSHEET
-
-# Print header for SHORT_SPREADSHEET
-printf \
-    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
-    >$SHORT_SPREADSHEET
+cp -p $LONG_SPREADSHEET $SHORT_SPREADSHEET
+cp -p $LONG_SPREADSHEET $EXTRA_SPREADSHEET
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
+    -v EXTRA_SPREADSHEET=$EXTRA_SPREADSHEET \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
 
 # Add missing shows
@@ -211,6 +211,7 @@ printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $UNSORTED_LONG 1
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
+printAdjustedFileInfo $EXTRA_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
 
@@ -246,6 +247,7 @@ function addTotalsToSpreadsheet() {
 # Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
+    addTotalsToSpreadsheet $EXTRA_SPREADSHEET "total"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
 fi
 
@@ -318,6 +320,7 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_EXTRA_SPREADSHEET $EXTRA_SPREADSHEET)
 $(checkdiffs $PUBLISHED_UNSORTED_LONG $UNSORTED_LONG)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 
