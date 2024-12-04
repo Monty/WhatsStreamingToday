@@ -144,21 +144,29 @@ while read -r line; do
     # printf "field3 = '$field3'\n\n" >"/dev/stderr"
     export TARGET="$field1"
     node getOPB.js >>"$LOGFILE"
-    # save $RAW_HTML for later abalysis
-    prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
-    if [ $? -eq 0 ]; then
-        if [ $(rg -c '403 ERROR' "$RAW_HTML") ]; then
-            cp -p "$RAW_HTML" "hidden/html/$field3"
-            printf "==> 403 ERROR in $line\n" >>"$ERRORS"
+    # If getOPB.js succeeded, RAW_HTML file was created
+    if [ -e "$RAW_HTML" ]; then
+        prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
+        if [ $? -eq 0 ]; then
+            if [ $(rg -c '403 ERROR' "$RAW_HTML") ]; then
+                printf "==> 403 ERROR in $line\n" >>"$ERRORS"
+                # Save 403 ERROR file for later analysis
+                cp -p "$RAW_HTML" "hidden/html/$field3"
+            else
+                # No 403 error, process RAW_HTML
+                printf "$line\n" >>"$RAW_DATA"
+                awk -f getOPB.awk "$RAW_HTML" >>"$RAW_DATA"
+            fi
         else
-            printf "$line\n" >>"$RAW_DATA"
-            awk -f getOPB.awk "$RAW_HTML" >>"$RAW_DATA"
+            printf "==> prettier-eslint failed on $line\n" >>"$ERRORS"
+            # Save bad RAW_HTML for later prettier-eslint analysis
+            cp -p "$RAW_HTML" "hidden/html/$field3"
         fi
+        rm -f $RAW_HTML
     else
-        cp -p "$RAW_HTML" "hidden/html/$field3"
-        printf "==> prettier-eslint failed on $line\n" >>"$ERRORS"
+        # getOPB.js failed, since no RAW_HTML file was created
+        printf "==> getOPB.js failed on $line\n" >>"$ERRORS"
     fi
-    rm -f $RAW_HTML
 done <"$SHOW_URLS"
 
 # Print header for LONG_SPREADSHEET, SHORT_SPREADSHEET, EXTRA_SPREADSHEET
