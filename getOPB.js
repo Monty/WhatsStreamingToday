@@ -13,24 +13,29 @@ let output_file = process.env.RAW_HTML;
   });
   const page = await context.newPage();
   console.log('\n==> Processing ' + series_URL);
-  await page.goto(series_URL);
-  await page.waitForTimeout(10000); // wait for 10 seconds
-  const raw_html = await page.content();
-  fs.writeFile(
-    output_file,
-    '<!-- Data from ' +
-      series_URL +
-      ' -->\n\n' +
-      raw_html +
-      '\n',
-    (err) => {
-      // It's normal to throw an error from running out of clicks
-      if (err) throw err;
-      console.log('==> Completed ' + series_URL);
-    }
-  );
 
-  // ---------------------
-  await context.close();
-  await browser.close();
+  try {
+    // Attempt to navigate to the URL
+    await page.goto(series_URL, { timeout: 30000 });
+    await page.waitForTimeout(10000); // wait for 10 seconds
+    const raw_html = await page.content();
+    fs.writeFile(
+      output_file,
+      '<!-- Data from ' + series_URL + ' -->\n\n' + raw_html + '\n',
+      (err) => {
+        if (err) {
+          console.error('==> Error writing to RAW_HTML file:', err);
+        } else {
+          console.log('==> Completed ' + series_URL);
+        }
+      }
+    );
+  } catch (error) {
+    // Log timeout or other navigation errors
+    console.error('==> Error during page navigation:', error.message);
+  } finally {
+    // Ensure resources are cleaned up
+    await context.close();
+    await browser.close();
+  }
 })();
