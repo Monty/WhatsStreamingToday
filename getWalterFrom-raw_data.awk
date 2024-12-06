@@ -71,8 +71,6 @@ function clearShowVariables() {
     showDescription = ""
     showGenre = ""
     showLanguage = ""
-    delete seasonsArray
-    delete episodeArray
     #
     episodeNumber = 0
     specialEpisodeNumber = 0
@@ -217,6 +215,7 @@ function clearShowVariables() {
     gsub(/&#x27;/, "'", episodeDescription)
     gsub(/&quot;/, "\"", episodeDescription)
 
+    # Remove duration HMS string from episodeDescription
     if (episodeDescription ~ /\(.*[0-9][hms]\)$/) {
         if ((match(episodeDescription, / \([0-9]{1,2}.*[hms]\)$/)) > 0) {
             episodeHMS = substr(episodeDescription, RSTART + 2, RLENGTH - 3)
@@ -257,10 +256,17 @@ function clearShowVariables() {
         # <p class="VideoDetailThumbnail_video_description__ZSGKS">
         # Dr. Cartwright discusses ... the future of UCF. (48m 2s)
         # "A woman is murdered. Can ... find it? (1h 31m 34s) "
-        episodeType = "X"
-        specialEpisodeNumber++
-        episodeLinesFound++
-        totalEpisodes++
+        if (episodeLinesFound + 0 > 0 && showTitle != "Lidia's Kitchen") {
+            # At least one Ep[0-9] found, assume it's actually special
+            episodeType = "X"
+            specialEpisodeNumber++
+        }
+        else {
+            # Assume it's a standard episode
+            episodeNumber++
+            episodeLinesFound++
+            totalEpisodes++
+        }
     }
 
     # May be able to filter by time, i.e. less than 5 minutes
@@ -273,13 +279,21 @@ function clearShowVariables() {
     # Wrap up episode
     computeEpisodeDuration()
 
-    if (episodeType == "X") episodeNumber = specialEpisodeNumber
+    # Previews, clips, and teasers are Soecials
+    if (episodeDescription ~ /^Preview \| |^Clip \| /) { episodeType = "X" }
 
-    # Special case for Central Florida Roadtrip season 5
-    if (episodeNumber + 0 >= 500) episodeNumber = episodeNumber - 500
+    if (episodeTitle ~ /Preview$|Teaser$/) { episodeType = "X" }
+
+    if (episodeType == "X") {
+        # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
+        target_sheet = EXTRA_SPREADSHEET
+        episodeNumber = specialEpisodeNumber
+
+        if (episodeNumber + 0 == 0) { episodeNumber++ }
+    }
 
     # Special case for episodeNumbers that include season number
-    if (episodeNumber + 0 >= 100)
+    if (episodeNumber + 0 >= seasonNumber * 100)
         episodeNumber = episodeNumber - seasonNumber * 100
 
     episodeLink = sprintf(\
@@ -291,13 +305,6 @@ function clearShowVariables() {
         episodeNumber,
         episodeTitle\
     )
-    # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
-    # Previews and clips go to EXTRA_SPREADSHEET
-    if (episodeDescription ~ /^Preview \| |^Clip \| /) {
-        target_sheet = EXTRA_SPREADSHEET
-    }
-
-    if (episodeTitle ~ /Preview$|Teaser$/) { target_sheet = EXTRA_SPREADSHEET }
 
     printf(\
         "%s\t\t\t%s\t\t\t\t%s\n",
