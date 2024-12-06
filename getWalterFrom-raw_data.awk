@@ -112,6 +112,9 @@ function clearShowVariables() {
     # print "==> showLanguage = " showLanguage > "/dev/stderr"
 }
 
+# May have escaped quotes: description": "\"The Migrant Kitchen\" is
+/"description": "\\"/ { gsub(/\\"/, "'") }
+
 /"description": "/ {
     descriptionLinesFound++
     split($0, fld, "\"")
