@@ -191,7 +191,8 @@ function clearShowVariables() {
     split(testTitle, fld, "[<>]")
     episodeTitle = fld[1]
     sub(/ $/, "", episodeTitle)
-    sub(/&amp;/, "\\&", episodeTitle)
+    gsub(/&amp;/, "\\&", episodeTitle)
+    gsub(/"/, "\"\"", episodeTitle)
     # print "==> " showTitle ":" episodeTitle > "/dev/stderr"
 }
 
