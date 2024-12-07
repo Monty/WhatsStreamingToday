@@ -50,7 +50,6 @@ function clearEpisodeVariables() {
     # Make sure there is no carryover
     testTitle = ""
     episodeTitle = ""
-    episodeType = "E"
     episodeURL = ""
     episodeDuration = ""
     episodeLink = ""
@@ -72,6 +71,7 @@ function clearShowVariables() {
     showGenre = ""
     showLanguage = ""
     #
+    episodeType = "E"
     episodeNumber = 0
     specialEpisodeNumber = 0
     #
@@ -80,6 +80,15 @@ function clearShowVariables() {
     descriptionLinesFound = 0
     genreLinesFound = 0
     durationLinesFound = 0
+}
+
+/class="EpisodesTab_episodes_tab/ { episodeType = "E" }
+
+/class="ClipsAndPreviewsTab_episodes_tab/ { episodeType = "X" }
+
+/class="SpecialsTab_specials_tab/ {
+    # print "==> Special showURL = " showURL > "/dev/stderr"
+    episodeType = "X"
 }
 
 /^https:/ {
@@ -256,37 +265,17 @@ function clearShowVariables() {
         sub(/^ /, "", episodeDescription)
     }
     else {
-        # Specials have description immediately following key
-        # <p class="VideoDetailThumbnail_video_description__ZSGKS">
-        # Dr. Cartwright discusses ... the future of UCF. (48m 2s)
-        # "A woman is murdered. Can ... find it? (1h 31m 34s) "
-        if (episodeLinesFound + 0 > 0 && showTitle != "Lidia's Kitchen") {
-            # At least one Ep[0-9] found, assume it's actually special
-            episodeType = "X"
-            specialEpisodeNumber++
-        }
+        if (episodeType == "X") { specialEpisodeNumber++ }
         else {
-            # Assume it's a standard episode
+            # It's a standard episode
             episodeNumber++
             episodeLinesFound++
             totalEpisodes++
         }
     }
 
-    # May be able to filter by time, i.e. less than 5 minutes
-    # "Clip | Goran has questions ... father's disappearance. (1m 18s) "
-    # Don't save Previews, e.g. "Season 2 Preview"
-    # print "\"" episodeDescription "\"" > "/dev/stderr"
-    # print "episodeLinesFound = " episodeLinesFound > "/dev/stderr"
-    # print "" > "/dev/stderr"
-
     # Wrap up episode
     computeEpisodeDuration()
-
-    # Previews, clips, and teasers are Soecials
-    if (episodeDescription ~ /^Preview \| |^Clip \| /) { episodeType = "X" }
-
-    if (episodeTitle ~ /Preview$|Teaser$/) { episodeType = "X" }
 
     if (episodeType == "X") {
         # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
