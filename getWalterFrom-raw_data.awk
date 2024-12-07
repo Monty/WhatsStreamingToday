@@ -72,8 +72,8 @@ function clearShowVariables() {
     showLanguage = ""
     #
     episodeType = "E"
-    episodeNumber = 0
-    specialEpisodeNumber = 0
+    NormalEpisodeNumber = 0
+    ClipsAndPreviewsEpisodeNumber = 0
     #
     episodeLinesFound = 0
     seasonLinesFound = 0
@@ -242,9 +242,10 @@ function clearShowVariables() {
         # Shows with only one season (which may not be season 1)
         # Ep4 | Sharko travels ... with Syndrome E. (54m 37s)
         split(episodeDescription, fld, " ")
-        episodeNumber = fld[1]
-        sub(/Ep/, "", episodeNumber)
-        # print "episodeNumberEp = " episodeNumber > "/dev/stderr"
+        NormalEpisodeNumber = fld[1]
+        sub(/Ep/, "", NormalEpisodeNumber)
+        # print "Single season NormalEpisodeNumber = "\
+        # NormalEpisodeNumber > "/dev/stderr"
         episodeLinesFound++
         totalEpisodes++
         split(episodeDescription, fld, "|")
@@ -255,9 +256,10 @@ function clearShowVariables() {
         # Shows with more then one season
         # "S2 Ep3 | The Circle’s ... life on the line. (58m 34s) "
         split(episodeDescription, fld, " ")
-        episodeNumber = fld[2]
-        sub(/Ep/, "", episodeNumber)
-        # print "episodeNumberSN = " episodeNumber > "/dev/stderr"
+        NormalEpisodeNumber = fld[2]
+        sub(/Ep/, "", NormalEpisodeNumber)
+        # print "Multiple seasons NormalEpisodeNumber = "\
+        # NormalEpisodeNumber > "/dev/stderr"
         episodeLinesFound++
         totalEpisodes++
         split(episodeDescription, fld, "|")
@@ -265,10 +267,10 @@ function clearShowVariables() {
         sub(/^ /, "", episodeDescription)
     }
     else {
-        if (episodeType == "X") { specialEpisodeNumber++ }
+        if (episodeType == "X") { ClipsAndPreviewsEpisodeNumber++ }
         else {
             # It's a standard episode
-            episodeNumber++
+            NormalEpisodeNumber++
             episodeLinesFound++
             totalEpisodes++
         }
@@ -280,14 +282,14 @@ function clearShowVariables() {
     if (episodeType == "X") {
         # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
         target_sheet = EXTRA_SPREADSHEET
-        episodeNumber = specialEpisodeNumber
+        NormalEpisodeNumber = ClipsAndPreviewsEpisodeNumber
 
-        if (episodeNumber + 0 == 0) { episodeNumber++ }
+        if (NormalEpisodeNumber + 0 == 0) { NormalEpisodeNumber++ }
     }
 
-    # Special case for episodeNumbers that include season number
-    if (episodeNumber + 0 >= seasonNumber * 100)
-        episodeNumber = episodeNumber - seasonNumber * 100
+    # Special case for NormalEpisodeNumbers that include season number
+    if (NormalEpisodeNumber + 0 >= seasonNumber * 100)
+        NormalEpisodeNumber = NormalEpisodeNumber - seasonNumber * 100
 
     episodeLink = sprintf(\
         "=HYPERLINK(\"%s\";\"%s, S%02d%s%02d, %s\")",
@@ -295,7 +297,7 @@ function clearShowVariables() {
         showTitle,
         seasonNumber,
         episodeType,
-        episodeNumber,
+        NormalEpisodeNumber,
         episodeTitle\
     )
 
