@@ -72,6 +72,7 @@ function clearShowVariables() {
     showLanguage = ""
     #
     episodeType = "E"
+    episodeClass = "episode"
     episodeNumber = 0
     ClipsAndPreviewsEpisodeNumber = 0
     SpecialsEpisodeNumber = 0
@@ -83,13 +84,20 @@ function clearShowVariables() {
     durationLinesFound = 0
 }
 
-/class="EpisodesTab_episodes_tab/ { episodeType = "E" }
+/class="EpisodesTab_episodes_tab/ {
+    episodeType = "E"
+    episodeClass = "episode"
+}
 
-/class="ClipsAndPreviewsTab_episodes_tab/ { episodeType = "P" }
+/class="ClipsAndPreviewsTab_episodes_tab/ {
+    episodeType = "X"
+    episodeClass = "clip"
+}
 
 /class="SpecialsTab_specials_tab/ {
     # print "==> Special showURL = " showURL > "/dev/stderr"
     episodeType = "X"
+    episodeClass = "special"
 }
 
 /^https:/ {
@@ -268,15 +276,17 @@ function clearShowVariables() {
         sub(/^ /, "", episodeDescription)
     }
     else {
-        if (episodeType == "P") { ClipsAndPreviewsEpisodeNumber++ }
+        # episodeNumber not found in episodeDescription
+        # Increment episodeNumber based on episodeClass
+        if (episodeClass == "clip") { ClipsAndPreviewsEpisodeNumber++ }
 
-        if (episodeType == "X") {
+        if (episodeClass == "special") {
             SpecialsEpisodeNumber++
             episodeLinesFound++
             totalEpisodes++
         }
 
-        if (episodeType == "E") {
+        if (episodeClass == "episode") {
             # It's a standard episode
             episodeNumber++
             episodeLinesFound++
@@ -287,13 +297,13 @@ function clearShowVariables() {
     # Wrap up episode
     computeEpisodeDuration()
 
-    if (episodeType == "P") {
+    if (episodeClass == "clip") {
         episodeNumber = ClipsAndPreviewsEpisodeNumber
         # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
         target_sheet = EXTRA_SPREADSHEET
     }
 
-    if (episodeType == "X") { episodeNumber = SpecialsEpisodeNumber }
+    if (episodeClass == "special") { episodeNumber = SpecialsEpisodeNumber }
 
     if (episodeNumber + 0 == 0) { episodeNumber++ }
 
