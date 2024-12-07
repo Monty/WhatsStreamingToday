@@ -1,5 +1,5 @@
 const { chromium } = require('playwright');
-let fs = require('fs');
+const fs = require('fs');
 
 let series_URL = process.env.TARGET;
 let output_file = process.env.RAW_HTML;
@@ -32,10 +32,21 @@ let output_file = process.env.RAW_HTML;
     );
   } catch (error) {
     // Log timeout or other navigation errors
-    console.error('==> Error during page navigation:', error.message);
+    if (error.name === 'TimeoutError') {
+      console.error('==> Page load timed out for', series_URL);
+    } else {
+      console.error('==> Error during page navigation:', error.message);
+    }
   } finally {
     // Ensure resources are cleaned up
     await context.close();
     await browser.close();
   }
 })();
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('==> Unhandled Rejection at:', promise, 'reason:', reason);
+  // Exit with a non-zero status code to indicate anerror
+  process.exit(1);
+});
