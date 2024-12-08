@@ -18,6 +18,12 @@
 
 /"TVSeason", / { print }
 
+/class="EpisodesTab_episodes_tab/ { print }
+
+/class="ClipsAndPreviewsTab_episodes_tab/ { print }
+
+/class="SpecialsTab_specials_tab/ { print }
+
 /class="VideoDetailThumbnail_video_title/, /<\/p>/ { print }
 
 /class="VideoDetailThumbnail_video_description/, /<\/p>/ { print }

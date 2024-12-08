@@ -50,7 +50,6 @@ function clearEpisodeVariables() {
     # Make sure there is no carryover
     testTitle = ""
     episodeTitle = ""
-    episodeType = "E"
     episodeURL = ""
     episodeDuration = ""
     episodeLink = ""
@@ -71,17 +70,34 @@ function clearShowVariables() {
     showDescription = ""
     showGenre = ""
     showLanguage = ""
-    delete seasonsArray
-    delete episodeArray
     #
+    episodeType = "E"
+    episodeClass = "episode"
     episodeNumber = 0
-    specialEpisodeNumber = 0
+    ClipsAndPreviewsEpisodeNumber = 0
+    SpecialsEpisodeNumber = 0
     #
     episodeLinesFound = 0
     seasonLinesFound = 0
     descriptionLinesFound = 0
     genreLinesFound = 0
     durationLinesFound = 0
+}
+
+/class="EpisodesTab_episodes_tab/ {
+    episodeType = "E"
+    episodeClass = "episode"
+}
+
+/class="ClipsAndPreviewsTab_episodes_tab/ {
+    episodeType = "X"
+    episodeClass = "clip"
+}
+
+/class="SpecialsTab_specials_tab/ {
+    # print "==> Special showURL = " showURL > "/dev/stderr"
+    episodeType = "X"
+    episodeClass = "special"
 }
 
 /^https:/ {
@@ -113,6 +129,9 @@ function clearShowVariables() {
     showLanguage = $(NF - 3)
     # print "==> showLanguage = " showLanguage > "/dev/stderr"
 }
+
+# May have escaped quotes: description": "\"The Migrant Kitchen\" is
+/"description": "\\"/ { gsub(/\\"/, "'") }
 
 /"description": "/ {
     descriptionLinesFound++
@@ -193,7 +212,8 @@ function clearShowVariables() {
     split(testTitle, fld, "[<>]")
     episodeTitle = fld[1]
     sub(/ $/, "", episodeTitle)
-    sub(/&amp;/, "\\&", episodeTitle)
+    gsub(/&amp;/, "\\&", episodeTitle)
+    gsub(/"/, "\"\"", episodeTitle)
     # print "==> " showTitle ":" episodeTitle > "/dev/stderr"
 }
 
@@ -217,6 +237,7 @@ function clearShowVariables() {
     gsub(/&#x27;/, "'", episodeDescription)
     gsub(/&quot;/, "\"", episodeDescription)
 
+    # Remove duration HMS string from episodeDescription
     if (episodeDescription ~ /\(.*[0-9][hms]\)$/) {
         if ((match(episodeDescription, / \([0-9]{1,2}.*[hms]\)$/)) > 0) {
             episodeHMS = substr(episodeDescription, RSTART + 2, RLENGTH - 3)
@@ -232,7 +253,8 @@ function clearShowVariables() {
         split(episodeDescription, fld, " ")
         episodeNumber = fld[1]
         sub(/Ep/, "", episodeNumber)
-        # print "episodeNumberEp = " episodeNumber > "/dev/stderr"
+        # print "Single season episodeNumber = "\
+        # episodeNumber > "/dev/stderr"
         episodeLinesFound++
         totalEpisodes++
         split(episodeDescription, fld, "|")
@@ -245,7 +267,8 @@ function clearShowVariables() {
         split(episodeDescription, fld, " ")
         episodeNumber = fld[2]
         sub(/Ep/, "", episodeNumber)
-        # print "episodeNumberSN = " episodeNumber > "/dev/stderr"
+        # print "Multiple seasons episodeNumber = "\
+        # episodeNumber > "/dev/stderr"
         episodeLinesFound++
         totalEpisodes++
         split(episodeDescription, fld, "|")
@@ -253,33 +276,39 @@ function clearShowVariables() {
         sub(/^ /, "", episodeDescription)
     }
     else {
-        # Specials have description immediately following key
-        # <p class="VideoDetailThumbnail_video_description__ZSGKS">
-        # Dr. Cartwright discusses ... the future of UCF. (48m 2s)
-        # "A woman is murdered. Can ... find it? (1h 31m 34s) "
-        episodeType = "X"
-        specialEpisodeNumber++
-        episodeLinesFound++
-        totalEpisodes++
-    }
+        # episodeNumber not found in episodeDescription
+        # Increment episodeNumber based on episodeClass
+        if (episodeClass == "clip") { ClipsAndPreviewsEpisodeNumber++ }
 
-    # May be able to filter by time, i.e. less than 5 minutes
-    # "Clip | Goran has questions ... father's disappearance. (1m 18s) "
-    # Don't save Previews, e.g. "Season 2 Preview"
-    # print "\"" episodeDescription "\"" > "/dev/stderr"
-    # print "episodeLinesFound = " episodeLinesFound > "/dev/stderr"
-    # print "" > "/dev/stderr"
+        if (episodeClass == "special") {
+            SpecialsEpisodeNumber++
+            episodeLinesFound++
+            totalEpisodes++
+        }
+
+        if (episodeClass == "episode") {
+            # It's a standard episode
+            episodeNumber++
+            episodeLinesFound++
+            totalEpisodes++
+        }
+    }
 
     # Wrap up episode
     computeEpisodeDuration()
 
-    if (episodeType == "X") episodeNumber = specialEpisodeNumber
+    if (episodeClass == "clip") {
+        episodeNumber = ClipsAndPreviewsEpisodeNumber
+        # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
+        target_sheet = EXTRA_SPREADSHEET
+    }
 
-    # Special case for Central Florida Roadtrip season 5
-    if (episodeNumber + 0 >= 500) episodeNumber = episodeNumber - 500
+    if (episodeClass == "special") { episodeNumber = SpecialsEpisodeNumber }
+
+    if (episodeNumber + 0 == 0) { episodeNumber++ }
 
     # Special case for episodeNumbers that include season number
-    if (episodeNumber + 0 >= 100)
+    if (episodeNumber + 0 >= seasonNumber * 100)
         episodeNumber = episodeNumber - seasonNumber * 100
 
     episodeLink = sprintf(\
@@ -291,13 +320,6 @@ function clearShowVariables() {
         episodeNumber,
         episodeTitle\
     )
-    # Switch output between LONG_SPREADSHEET and EXTRA_SPREADSHEET
-    # Previews and clips go to EXTRA_SPREADSHEET
-    if (episodeDescription ~ /^Preview \| |^Clip \| /) {
-        target_sheet = EXTRA_SPREADSHEET
-    }
-
-    if (episodeTitle ~ /Preview$|Teaser$/) { target_sheet = EXTRA_SPREADSHEET }
 
     printf(\
         "%s\t\t\t%s\t\t\t\t%s\n",
