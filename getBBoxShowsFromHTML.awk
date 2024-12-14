@@ -130,9 +130,9 @@ BEGIN {
 /"character": "/ {
     split($0, fld, "\"")
     character_name = fld[4]
-    sub (/\\t/, "", character_name)
-    sub (/^ */, "", character_name)
-    sub (/ *$/, "", character_name)
+    sub(/\\t/, "", character_name)
+    sub(/^ */, "", character_name)
+    sub(/ *$/, "", character_name)
     printf(\
         "%s\t%s\ttv_show\t%s\t%s\n",
         person_name,
@@ -316,6 +316,7 @@ BEGIN {
         seasonId,
         seasonNumber\
     )
+
     printf("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
 }
 
