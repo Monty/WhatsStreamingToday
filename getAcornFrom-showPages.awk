@@ -338,6 +338,12 @@
     #
     # Wrap up this episode
 
+    # acorn.tv/greattrainrobbery/thegreattrainrobbery/trailer
+    if (shortEpisodeURL ~ /thegreattrainrobbery\/trailer/) {
+        episodeNumber = 3
+        episodeType = "E"
+    }
+
     # Report invalid episodeNumber
     if (episodeNumber + 0 == 0) {
         printf(\
