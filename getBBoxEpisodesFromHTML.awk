@@ -47,7 +47,7 @@ BEGIN {
 /"type": "episode",/ {
     # Make sure no fields have been carried over due to missing keys
     # Only used during processing
-    episodeName = ""
+    episodeTitle = ""
     episodePath = ""
     full_URL = ""
     shortEpisodeURL = ""
@@ -126,8 +126,8 @@ BEGIN {
 # "episodeName": "Episode 1",
 /"episodeName": "/ {
     split($0, fld, "\"")
-    episodeName = fld[4]
-    # print "episodeName = " episodeName > "/dev/stderr"
+    episodeTitle = fld[4]
+    # print "episodeTitle = " episodeTitle > "/dev/stderr"
 }
 
 # "showId": "24474",
@@ -242,10 +242,10 @@ BEGIN {
     # This should be the last line of every episode.
     # So finish processing and add line to spreadsheet
 
-    # Turn episodeName into a HYPERLINK
+    # Turn episodeTitle into a HYPERLINK
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
     fullTitle = "=HYPERLINK(\"" full_URL "\";\"" showTitle ", " SnEp ", "\
-        episodeName\
+        episodeTitle\
         "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
@@ -254,7 +254,7 @@ BEGIN {
         printf(\
             "==> Zero episodeNumber in \"%s: %s\" %s\n",
             showTitle,
-            episodeName,
+            episodeTitle,
             shortEpisodeURL\
         ) >> ERRORS
     }
