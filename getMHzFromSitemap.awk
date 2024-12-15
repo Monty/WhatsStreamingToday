@@ -562,7 +562,16 @@
         if (snEpisodeNumber != "" && episodeNumber == "")
             episodeNumber = snEpisodeNumber
 
-        #
+        # What to Watch After Baylon Berlin
+        # what-to-watch-after-baylon-berlin
+        if (shortEpisodeURL ~ /what-to-watch-after-baylon-berlin/)
+            episodeNumber = 13
+
+        # Matteo's Arrival
+        # swan-company-matteo-s-arrival
+        if (shortEpisodeURL ~ /swan-company-matteo-s-arrival/) episodeNumber = 1
+
+        # Report missing episodeNumber
         if (episodeNumber == "") {
             printf(\
                 "==> Missing episodeNumber in \"%s: %s\" %s\n",
