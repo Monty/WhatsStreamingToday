@@ -50,6 +50,7 @@ BEGIN {
     episodeName = ""
     episodePath = ""
     full_URL = ""
+    shortEpisodeURL = ""
     showTitle = ""
     SnEp = ""
     yearRange = ""
@@ -100,6 +101,7 @@ BEGIN {
     split($0, fld, "\"")
     episodePath = fld[4]
     full_URL = "https://www.britbox.com/us" episodePath
+    shortEpisodeURL = "www.britbox.com/us" episodePath
     # print "full_URL = " full_URL > "/dev/stderr"
     numFields = split(episodePath, fld, "_")
     seasonNumber = fld[numFields - 2]
@@ -246,6 +248,16 @@ BEGIN {
         episodeName\
         "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
+
+    # Report invalid episodeNumber
+    if (episodeNumber + 0 == 0) {
+        printf(\
+            "==> Zero episodeNumber in \"%s: %s\" %s\n",
+            showTitle,
+            episodeName,
+            shortEpisodeURL\
+        ) >> ERRORS
+    }
 
     # Print a spreadsheet line
     printf(\

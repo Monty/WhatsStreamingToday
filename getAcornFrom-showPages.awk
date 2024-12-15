@@ -337,6 +337,17 @@
 
     #
     # Wrap up this episode
+
+    # Report invalid episodeNumber
+    if (episodeNumber + 0 == 0) {
+        printf(\
+            "==> Zero episodeNumber in \"%s: %s\" %s\n",
+            showTitle,
+            episodeTitle,
+            shortEpisodeURL\
+        ) >> ERRORS
+    }
+
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
     episodeLink = sprintf(\
         "=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\")",
