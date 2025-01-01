@@ -140,7 +140,7 @@ function clearShowVariables() {
     gsub(/&#x27;/, "'", showDescription)
     gsub(/&quot;/, "\"", showDescription)
     sub(/ with English subtitles/, "", showDescription)
-    sub(/ From Walter Presents, in/, " In", showDescription)
+    sub(/ {0,1}From Walter Presents, in/, " In", showDescription)
     # print "==> showDescription = " showDescription > "/dev/stderr"
     next
 }
