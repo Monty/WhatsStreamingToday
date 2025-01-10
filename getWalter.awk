@@ -9,9 +9,9 @@
     split($0, fld, "\"")
     showTitle = fld[2]
     sub(/&amp;/, "\\&", showTitle)
-    htmlFile = showTitle
-    gsub(/[[:punct:]]/, "", htmlFile)
-    gsub(/ /, "_", htmlFile)
-    htmlFile = htmlFile ".html"
-    printf("%s\t%s\t%s\n", showURL, showTitle, htmlFile)
+    yamlFile = showTitle
+    gsub(/[[:punct:]]/, "", yamlFile)
+    gsub(/ /, "_", yamlFile)
+    yamlFile = yamlFile ".yaml"
+    printf("%s\t%s\t%s\n", showURL, showTitle, yamlFile)
 }

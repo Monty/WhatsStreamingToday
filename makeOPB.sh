@@ -80,9 +80,6 @@ EXTRA_SPREADSHEET="OPB_TV_ExtraEpisodes$DATE_ID.csv"
 
 # Fixer-uppers
 PBS_ONLY="PBS-only.csv"
-MISSING_EPISODES="missing_OPB-episodes.csv"
-MISSING_SHOWS="missing_OPB-shows.csv"
-MISSING_TITLES="missing_OPB-titles.txt"
 
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
@@ -122,6 +119,10 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 # Print header for possible errors from processing shows
 printf "### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
+# Make sure we are logged in for the next few hours
+# This contains your OPB login and password so don't put it in git
+node save_password-02.js
+
 node getWalter.js
 prettier-eslint --write $RAW_HTML
 rg -A 7 'href="/show/' $RAW_HTML | rg 'href="/show/|alt=' |
@@ -133,10 +134,9 @@ sort -f --field-separator="$TAB" --key=2,2 $UNSORTED_SHORT >$SHOW_URLS
 #
 printf "==> Done writing $SHOW_URLS\n"
 
-# rm -f $RAW_HTML
+rm -f $RAW_HTML
 
 # Loop through $SHOW_URLS to generate $RAW_DATA
-mkdir -p hidden/html
 while read -r line; do
     IFS="$TAB" read field1 field2 field3 <<<"$line"
     # printf "field1 = '$field1'\n" >"/dev/stderr"
@@ -146,22 +146,8 @@ while read -r line; do
     node getOPB.js >>"$LOGFILE"
     # If getOPB.js succeeded, RAW_HTML file was created
     if [ -e "$RAW_HTML" ]; then
-        prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
-        if [ $? -eq 0 ]; then
-            if [ $(rg -c '403 ERROR' "$RAW_HTML") ]; then
-                printf "==> 403 ERROR in $line\n" >>"$ERRORS"
-                # Save 403 ERROR file for later analysis
-                cp -p "$RAW_HTML" "hidden/html/$field3"
-            else
-                # No 403 error, process RAW_HTML
-                printf "$line\n" >>"$RAW_DATA"
-                awk -f getOPB.awk "$RAW_HTML" >>"$RAW_DATA"
-            fi
-        else
-            printf "==> prettier-eslint failed on $line\n" >>"$ERRORS"
-            # Save bad RAW_HTML for later prettier-eslint analysis
-            cp -p "$RAW_HTML" "hidden/html/$field3"
-        fi
+        rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
+            awk -v ERRORS=$ERRORS -f getOPB.awk >>"$RAW_DATA"
         rm -f $RAW_HTML
     else
         # getOPB.js failed, since no RAW_HTML file was created
@@ -181,11 +167,6 @@ awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
     -v EXTRA_SPREADSHEET=$EXTRA_SPREADSHEET \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
-
-# Add missing shows
-cat $MISSING_TITLES >>$RAW_TITLES
-cat $MISSING_SHOWS >>$UNSORTED_SHORT
-cat $MISSING_EPISODES >>$LONG_SPREADSHEET
 
 # Field numbers returned by getWalterFrom-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre

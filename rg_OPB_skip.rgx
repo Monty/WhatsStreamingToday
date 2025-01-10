@@ -1,0 +1,22 @@
+  - 'img
+  - img
+  - text:
+^  - link
+^  - paragraph: "Support provided by:"$
+^  - paragraph: .*local public television
+^  - paragraph: All episodes now streaming$
+^  - paragraph: Binge.*Season.*Now
+^  - paragraph: Check Your Local Listings$
+^  - paragraph: Funding for MASTERPIECE is provided by
+^  - paragraph: Now Streaming on Passport$
+^  - paragraph: Now Streaming$
+^  - paragraph: PREMIERES.*AT
+^  - paragraph: Premieres 
+^  - paragraph: Season [[:digit:]]
+^  - paragraph: Seasons [[:digit:]]
+^  - paragraph: Stream Season [[:digit:]] 
+^  - paragraph: Stream.* with PBS Passport$
+^  - paragraph: Sundays at 
+^  - paragraph: Watch additional episodes
+^  - paragraph: Weekends on PBS$
+^  - paragraph:$
