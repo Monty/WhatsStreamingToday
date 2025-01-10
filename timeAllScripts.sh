@@ -17,6 +17,12 @@ if [ ! -x "$(which rustc 2>/dev/null)" ] ||
 fi
 
 printf "========================================\n" | tee /dev/stderr
+printf "==> time ./makeOPB.sh -td\n" | tee /dev/stderr
+date | tee /dev/stderr
+time ./makeOPB.sh -td
+printf "\n" | tee /dev/stderr
+
+printf -- "----------------------------------------\n" | tee /dev/stderr
 printf "==> time ./makeBBoxFromSitemap.sh -td\n" | tee /dev/stderr
 date | tee /dev/stderr
 time ./makeBBoxFromSitemap.sh -td
