@@ -312,9 +312,9 @@ function removeHeader() {
     if (episodeClass == "special") { episodeNumber = specialsEpisodeNumber }
 
     # Special case for episodeNumbers that include season number
-    # if (episodeNumber + 0 >= seasonNumber * 100) {
-    # episodeNumber = episodeNumber - seasonNumber * 100
-    # }
+    if (episodeNumber + 0 >= seasonNumber * 100) {
+        episodeNumber = episodeNumber - seasonNumber * 100
+    }
 
     # print "episodeNumber = \"" episodeNumber "\"" > "/dev/stderr"
     if (length(episodeNumber) < 4) {
