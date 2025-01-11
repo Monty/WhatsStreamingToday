@@ -284,6 +284,7 @@ function removeHeader() {
         split($0, fld, "|")
         episodeField = fld[1]
         # print "episodeField = " episodeField > "/dev/stderr"
+        sub(/ $/, "", episodeField)
         sub(/^.*Ep/, "", episodeField)
         sub(/ \|.*/, "", episodeField)
 
@@ -304,39 +305,16 @@ function removeHeader() {
     next
 }
 
-/^episodeSummary: / {
-    # print "episodeNumber = \"" episodeNumber "\"" > "/dev/stderr"
-    # print "Single season episodeNumber = " episodeNumber > "/dev/stderr"
-    # Shows with more then one season
-    # S2 Ep3
-    # print "Multiple seasons episodeNumber = " episodeNumber > "/dev/stderr"
-    # episodeNumber is a date, reverse it to make it sortable
-    split($0, fld, "/")
-    seasonNumber = fld[3]
-    episodeNumber = sprintf("%02d%02d", fld[1], fld[2])
-    # print "Calendar date episodeNumber = " episodeNumber > "/dev/stderr"
-
-    # No recognizable episodeNumber
-    # printf(\
-    # "==> No episodeNumber found: %s '%s:%s'\n",
-    # shortEpisodeURL,
-    # showTitle,
-    # episodeTitle\
-    # ) >> ERRORS
-    # Increment episodeNumber based on episodeClass
-}
-
 ### Wrap up episode
 /^--EOE--$/ {
     if (episodeClass == "clip") { episodeNumber = clipsEpisodeNumber }
 
     if (episodeClass == "special") { episodeNumber = specialsEpisodeNumber }
 
-    #- if (episodeNumber + 0 == 0) { episodeNumber++ }
-
     # Special case for episodeNumbers that include season number
-    # if (episodeNumber + 0 >= seasonNumber * 100)
+    # if (episodeNumber + 0 >= seasonNumber * 100) {
     # episodeNumber = episodeNumber - seasonNumber * 100
+    # }
 
     # print "episodeNumber = \"" episodeNumber "\"" > "/dev/stderr"
     if (length(episodeNumber) < 4) {
