@@ -87,6 +87,7 @@ SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 # Intermediate working files
 UNSORTED_SHORT="$COLS/unsorted_short$DATE_ID.csv"
 UNSORTED_LONG="$COLS/unsorted_long$DATE_ID.csv"
+UNSORTED_EXTRA="$COLS/unsorted_extra$DATE_ID.csv"
 RAW_DATA="$COLS/raw_data$DATE_ID.txt"
 export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
@@ -96,7 +97,7 @@ LOGFILE="$COLS/logfile$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
-PUBLISHED_UNSORTED_LONG="$BASELINE/unsorted_long.txt"
+PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 PUBLISHED_EXTRA_SPREADSHEET="$BASELINE/extra.txt"
 #
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
@@ -104,8 +105,8 @@ PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML "
-ALL_WORKING+="$RAW_TITLES $DURATION $LOGFILE"
+ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $UNSORTED_EXTRA "
+ALL_WORKING+="$RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE"
 #
 ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
@@ -155,13 +156,6 @@ while read -r line; do
     fi
 done <"$SHOW_URLS"
 
-# Print header for LONG_SPREADSHEET, SHORT_SPREADSHEET, EXTRA_SPREADSHEET
-printf \
-    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
-    >$LONG_SPREADSHEET
-cp -p $LONG_SPREADSHEET $SHORT_SPREADSHEET
-cp -p $LONG_SPREADSHEET $EXTRA_SPREADSHEET
-
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
     -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
@@ -173,12 +167,21 @@ awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
 #     6 Language  7 Rating    8 Description
 titleCol="1"
 
+# Print header for LONG_SPREADSHEET, SHORT_SPREADSHEET, EXTRA_SPREADSHEET
+printf \
+    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
+    >$LONG_SPREADSHEET
+cp -p $LONG_SPREADSHEET $SHORT_SPREADSHEET
+cp -p $LONG_SPREADSHEET $EXTRA_SPREADSHEET
+
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
 sort -fu --key=4 --field-separator=\" $UNSORTED_SHORT >>$SHORT_SPREADSHEET
 
 # Output $LONG_SPREADSHEET body sorted by title, not URL
-mv $LONG_SPREADSHEET $UNSORTED_LONG
 sort -fu --key=4 --field-separator=\" $UNSORTED_LONG >>$LONG_SPREADSHEET
+
+# Output $EXTRA_SPREADSHEET body sorted by title, not URL
+sort -fu --key=4 --field-separator=\" $UNSORTED_EXTRA >>$EXTRA_SPREADSHEET
 
 # Sort the titles produced by getWalterFrom-raw_data.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
@@ -196,10 +199,9 @@ function printAdjustedFileInfo() {
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $UNSORTED_LONG 1
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
+printAdjustedFileInfo $LONG_SPREADSHEET 1
 printAdjustedFileInfo $EXTRA_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
@@ -236,8 +238,8 @@ function addTotalsToSpreadsheet() {
 # Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
-    addTotalsToSpreadsheet $EXTRA_SPREADSHEET "total"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $EXTRA_SPREADSHEET "total"
 fi
 
 # Look for any leftover HTML character codes or other problems
@@ -309,8 +311,8 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 $(checkdiffs $PUBLISHED_EXTRA_SPREADSHEET $EXTRA_SPREADSHEET)
-$(checkdiffs $PUBLISHED_UNSORTED_LONG $UNSORTED_LONG)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
 
 ### Any funny stuff with file lengths?
