@@ -183,6 +183,9 @@ sort -fu --key=4 --field-separator=\" $UNSORTED_LONG >>$LONG_SPREADSHEET
 # Output $EXTRA_SPREADSHEET body sorted by title, not URL
 sort -fu --key=4 --field-separator=\" $UNSORTED_EXTRA >>$EXTRA_SPREADSHEET
 
+# Kludge to switch "S9999" "More Clips & Previews" season number to "SMore"
+sd S9999 SMore $EXTRA_SPREADSHEET
+
 # Sort the titles produced by getWalterFrom-raw_data.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
 rm -f $RAW_TITLES
