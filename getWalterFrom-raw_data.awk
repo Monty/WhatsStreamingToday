@@ -70,6 +70,7 @@ function clearShowVariables() {
     showMins = 0
     showHrs = 0
     numberOfSeasons = 0
+    numberOfClipSeasons = 0
     showDuration = ""
     showDescription = ""
     showGenre = ""
@@ -205,7 +206,10 @@ function removeHeader() {
 
 /^numberOfSeasons: / {
     removeHeader()
-    numberOfSeasons = $0
+
+    if (episodeClass != "clip") { numberOfSeasons = $0 }
+    else { numberOfClipSeasons = $0 }
+
     # print "==> numberOfSeasons = " numberOfSeasons > "/dev/stderr"
     if (numberOfSeasons <= 0) {
         print "==> showTitle = " showTitle > "/dev/stderr"
@@ -432,15 +436,31 @@ function removeHeader() {
         showLanguage,
         showDescription\
     )
-    printf(\
-        "%s\t%s\t%s\t\t%s\t%s\t\t%s\n",
-        showLink,
-        numberOfSeasons,
-        episodeLinesFound,
-        showGenre,
-        showLanguage,
-        showDescription\
-    ) >> LONG_SPREADSHEET
+
+    if (episodeLinesFound >= 1) {
+        printf(\
+            "%s\t%s\t%s\t\t%s\t%s\t\t%s\n",
+            showLink,
+            numberOfSeasons,
+            episodeLinesFound,
+            showGenre,
+            showLanguage,
+            showDescription\
+        ) >> LONG_SPREADSHEET
+    }
+
+    # Add clips header for EXTRA_SPREADSHEET
+    if (clipLinesFound >= 1) {
+        printf(\
+            "%s\t%s\t%s\t\t%s\t%s\t\t%s\n",
+            showLink,
+            numberOfClipSeasons,
+            clipLinesFound,
+            showGenre,
+            showLanguage,
+            showDescription\
+        ) >> EXTRA_SPREADSHEET
+    }
 }
 
 ## End of "Show" processing section
