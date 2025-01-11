@@ -199,6 +199,8 @@ function removeHeader() {
 }
 
 /^seasonName: More Clips/ {
+    # Use "9999" as a kludge numeric season number
+    # It's easier to change to the non-numeric "SMore" using sd
     seasonNumber = "9999"
     clipsEpisodeNumber = 0
     next
