@@ -130,9 +130,9 @@ rg -A 7 'href="/show/' $RAW_HTML | rg 'href="/show/|alt=' |
     awk -f getWalter.awk | sort >$SHOW_URLS
 
 # Add URLs from PBS-only.csv making sure none are duplicates
+# Temporarily use UNSORTED_SHORT
 zet union $PBS_ONLY $SHOW_URLS >$UNSORTED_SHORT
 sort -f --field-separator="$TAB" --key=2,2 $UNSORTED_SHORT >$SHOW_URLS
-#
 printf "==> Done writing $SHOW_URLS\n"
 
 rm -f $RAW_HTML
@@ -158,8 +158,8 @@ done <"$SHOW_URLS"
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
-    -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
-    -v EXTRA_SPREADSHEET=$EXTRA_SPREADSHEET \
+    -v DURATION=$DURATION -v LONG_SPREADSHEET=$UNSORTED_LONG \
+    -v EXTRA_SPREADSHEET=$UNSORTED_EXTRA \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
 
 # Field numbers returned by getWalterFrom-raw_data.awk
