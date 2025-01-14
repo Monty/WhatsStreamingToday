@@ -52,7 +52,7 @@ async function handleTabWithCombobox(page, tabName, writeDataFunction) {
         await combobox.selectOption(option.value);
         // console.log(`Option ${option.label} was selected.`);
 
-        await page.waitForTimeout(2000); // Adjust time as needed
+        await page.waitForTimeout(3000); // Adjust time as needed
 
         const tabContent = await page
           .getByRole('tabpanel', { name: tabName })
