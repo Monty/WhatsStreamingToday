@@ -4,6 +4,7 @@
 ^  - link
 ^  - paragraph: "Support provided by:"$
 ^  - paragraph: .*local public television
+^  - paragraph: AIRING 
 ^  - paragraph: All episodes now streaming$
 ^  - paragraph: Binge.*Season.*Now
 ^  - paragraph: Check Your Local Listings$
