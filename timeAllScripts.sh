@@ -3,7 +3,28 @@
 
 PATH=${PATH}:/usr/local/bin
 
+# Make sure we can execute the rust utilities rg, sd, and zet.
+# rustc rg zet
+if [ ! -x "$(which rustc 2>/dev/null)" ] ||
+    [ ! -x "$(which rg 2>/dev/null)" ] ||
+    [ ! -x "$(which sd 2>/dev/null)" ] ||
+    [ ! -x "$(which zet 2>/dev/null)" ]; then
+    printf "==> [Error] The programs rust, ripgrep, sd, and zet are required.\n"
+    printf "For installation instructions see: \n"
+    printf "    https://www.rust-lang.org \n"
+    printf "    https://crates.io/crates/ripgrep \n"
+    printf "    https://crates.io/crates/sd \n"
+    printf "    https://crates.io/crates/zet \n"
+    exit 1
+fi
+
 printf "========================================\n" | tee /dev/stderr
+printf "==> time ./makeOPB.sh -td\n" | tee /dev/stderr
+date | tee /dev/stderr
+time ./makeOPB.sh -td
+printf "\n" | tee /dev/stderr
+
+printf -- "----------------------------------------\n" | tee /dev/stderr
 printf "==> time ./makeBBoxFromSitemap.sh -td\n" | tee /dev/stderr
 date | tee /dev/stderr
 time ./makeBBoxFromSitemap.sh -td
@@ -21,29 +42,9 @@ date | tee /dev/stderr
 time ./makeAcornFromBrowsePage.sh -td
 printf "\n" | tee /dev/stderr
 
-printf -- "----------------------------------------\n" | tee /dev/stderr
-printf "==> time ./makeOPB.sh -td\n" | tee /dev/stderr
-date | tee /dev/stderr
-time ./makeOPB.sh -td
-printf "\n" | tee /dev/stderr
-
-printf -- "----------------------------------------\n"
-printf "==> time ./addOPB-episodeDescriptions.sh -d\n" | tee /dev/stderr
-date | tee /dev/stderr
-time ./addOPB-episodeDescriptions.sh -d
-printf "\n" | tee /dev/stderr
-
 date | tee /dev/stderr
 
 exit
-
-# Make sure we can execute rg.
-if [ ! -x "$(which rg 2>/dev/null)" ]; then
-    printf "[Warning] Can't run rg. Skipping makeIMDbFromFiles.\n"
-    printf "\n"
-    printf "========================================\n"
-    exit 1
-fi
 
 printf -- "----------------------------------------\n"
 printf "==> time ./makeIMDbFromFiles.sh\n"

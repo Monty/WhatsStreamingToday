@@ -24,8 +24,7 @@
     gsub(/&quot;/, "\"\"", showTitle)
     gsub(/&#039;/, "'", showTitle)
     gsub(/&euml;/, "ë", showTitle)
-    print showTitle >> RAW_TITLES
-    # print "==> showTitle = " showTitle > "/dev/stderr"
+    # delay print showTitle until after skipCategory check
     next
 }
 
@@ -37,11 +36,22 @@
     # Create shorter URL by removing https://
     shortURL = showURL
     sub(/.*acorn\.tv/, "acorn.tv", shortURL)
+
+    if (showURL ~ /acorn.tv\/christmas23USCA/) {
+        skipCategory = "yes"
+        printf("==> Skipped category \"%s\"\n", showTitle) >> ERRORS
+        next
+    }
+
+    # print "==> showTitle = " showTitle > "/dev/stderr"
+    print showTitle >> RAW_TITLES
     next
 }
 
 # Extract the number of episodes in the show
 /itemprop="numberOfEpisodes"/ {
+    if (skipCategory == "yes") { next }
+
     episodeLinesFound += 1
     split($0, fld, "\"")
 
@@ -80,6 +90,8 @@
 
 # Extract the number of seasons in the show
 /itemprop="numberOfSeasons"/ {
+    if (skipCategory == "yes") { next }
+
     seasonLinesFound += 1
     split($0, fld, "\"")
     showSeasons = fld[4]
@@ -101,6 +113,8 @@
 
 # Extract the show description
 /id="franchise-description"/ {
+    if (skipCategory == "yes") { next }
+
     descriptionLinesFound += 1
     getline showDescription
     # fix sloppy input spacing
@@ -135,6 +149,8 @@
 # Note that Acorn "season" numbers may not correspond to actual season numbers.
 # They simply refer to the number of seasons available on Acorn.
 /<meta itemprop="seasonNumber" content="/ {
+    if (skipCategory == "yes") { next }
+
     split($0, fld, "\"")
     seasonNumber = fld[4]
     # print "==> seasonNumber = " seasonNumber " " shortURL > "/dev/stderr"
@@ -143,6 +159,8 @@
 
 # Extract the episode URL
 /<a itemprop="url"/ {
+    if (skipCategory == "yes") { next }
+
     totalEpisodes += 1
     split($0, fld, "\"")
     episodeURL = fld[4]
@@ -201,6 +219,8 @@
 
 # Set showType to "M" for Movies
 /<h6> Movie/ {
+    if (skipCategory == "yes") { next }
+
     # Detectorists has a movie as its last season/episode
     if (showURL ~ /\/detectorists$/) next
 
@@ -220,12 +240,16 @@
 
 # Set showType to "P" for Prequel episodes so they sort before any Season episodes
 /<h6>Prequel Movies: / {
+    if (skipCategory == "yes") { next }
+
     showType = "P"
     # printf("==> Prequel to '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
 }
 
 # Extract the episode duration
 /<meta itemprop="timeRequired"/ {
+    if (skipCategory == "yes") { next }
+
     durationLinesFound += 1
     split($0, fld, "\"")
     split(fld[4], tm, /[TMS]/)
@@ -265,6 +289,8 @@
 
 # Extract the episode title
 /<h5 itemprop="name">/ {
+    if (skipCategory == "yes") { next }
+
     split($0, fld, "[<>]")
     episodeTitle = fld[3]
     gsub(/&amp;/, "\\&", episodeTitle)
@@ -337,6 +363,23 @@
 
     #
     # Wrap up this episode
+
+    # acorn.tv/greattrainrobbery/thegreattrainrobbery/trailer
+    if (shortEpisodeURL ~ /thegreattrainrobbery\/trailer/) {
+        episodeNumber = 3
+        episodeType = "E"
+    }
+
+    # Report invalid episodeNumber
+    if (episodeNumber + 0 == 0) {
+        printf(\
+            "==> Zero episodeNumber in \"%s: %s\" %s\n",
+            showTitle,
+            episodeTitle,
+            shortEpisodeURL\
+        ) >> ERRORS
+    }
+
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
     episodeLink = sprintf(\
         "=HYPERLINK(\"%s\";\"%s, %s%02d%s%02d, %s\")",
@@ -372,74 +415,76 @@
 
 # Wrap up this show
 /<footer/ {
-    if (episodeLinesFound == 0) {
-        printf(\
-            "==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle\
-        ) >> ERRORS
-    }
-
-    if (seasonLinesFound == 0) {
-        printf(\
-            "==> No numberOfSeasons: %s\t%s\n", shortURL, showTitle\
-        ) >> ERRORS
-    }
-
-    if (descriptionLinesFound == 0) {
-        printf(\
-            "==> No franchise-description: %s\t%s\n", shortURL, showTitle\
-        ) >> ERRORS
-    }
-
-    if (durationLinesFound == 0) {
-        printf("==> No durations: %s\t%s\n", shortURL, showTitle) >> ERRORS
-    }
-
-    showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
-    showDuration = sprintf("%02d:%02d:%02d", showHrs, showMins, showSecs)
-    showDurationText = sprintf("%02dh %02dm", showHrs, showMins)
-    # If it's not a trailer
-    if (showURL !~ /_cs$/) {
-        # Print "show" line to SHORT_SPREADSHEET with showDurationText
-        printf(\
-            "%s\t%s\t%s\t%s\t%s\n",
-            showLink,
-            showSeasons,
-            seasonEpisodes,
-            showDurationText,
-            showDescription\
-        ) >> SHORT_SPREADSHEET
-        # Print "show" line to UNSORTED without showDuration except movies & single episode shows
-        if (showSeasons == 1 && showEpisodes == 1) {
+    if (skipCategory != "yes") {
+        if (episodeLinesFound == 0) {
             printf(\
-                "==> Only one episode: %s '%s'\n", shortURL, showTitle\
-            ) >> ERRORS
-            showDuration = ""
-        }
-
-        if (showType != "M") { showDuration = "" }
-
-        # print  "==> showTitle = " showTitle > "/dev/stderr"
-        # print  "==> showType = " showType > "/dev/stderr"
-        # print  "==> showEpisodes = " showEpisodes > "/dev/stderr"
-        # print "---" > "/dev/stderr"
-        if (showType == "M" && showEpisodes != "") {
-            showDuration = firstDuration
-            printf(\
-                "==> Movie '%s' has %d bonus episodes: %s\n",
-                showTitle,
-                showEpisodes,
-                shortURL\
+                "==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle\
             ) >> ERRORS
         }
 
-        printf(\
-            "%s\t%s\t%s\t%s\t%s\n",
-            showLink,
-            showSeasons,
-            seasonEpisodes,
-            showDuration,
-            showDescription\
-        )
+        if (seasonLinesFound == 0) {
+            printf(\
+                "==> No numberOfSeasons: %s\t%s\n", shortURL, showTitle\
+            ) >> ERRORS
+        }
+
+        if (descriptionLinesFound == 0) {
+            printf(\
+                "==> No franchise-description: %s\t%s\n", shortURL, showTitle\
+            ) >> ERRORS
+        }
+
+        if (durationLinesFound == 0) {
+            printf("==> No durations: %s\t%s\n", shortURL, showTitle) >> ERRORS
+        }
+
+        showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
+        showDuration = sprintf("%02d:%02d:%02d", showHrs, showMins, showSecs)
+        showDurationText = sprintf("%02dh %02dm", showHrs, showMins)
+        # If it's not a trailer
+        if (showURL !~ /_cs$/) {
+            # Print "show" line to SHORT_SPREADSHEET with showDurationText
+            printf(\
+                "%s\t%s\t%s\t%s\t%s\n",
+                showLink,
+                showSeasons,
+                seasonEpisodes,
+                showDurationText,
+                showDescription\
+            ) >> SHORT_SPREADSHEET
+            # Print "show" line to UNSORTED without showDuration except movies & single episode shows
+            if (showSeasons == 1 && showEpisodes == 1) {
+                printf(\
+                    "==> Only one episode: %s '%s'\n", shortURL, showTitle\
+                ) >> ERRORS
+                showDuration = ""
+            }
+
+            if (showType != "M") { showDuration = "" }
+
+            # print  "==> showTitle = " showTitle > "/dev/stderr"
+            # print  "==> showType = " showType > "/dev/stderr"
+            # print  "==> showEpisodes = " showEpisodes > "/dev/stderr"
+            # print "---" > "/dev/stderr"
+            if (showType == "M" && showEpisodes != "") {
+                showDuration = firstDuration
+                printf(\
+                    "==> Movie '%s' has %d bonus episodes: %s\n",
+                    showTitle,
+                    showEpisodes,
+                    shortURL\
+                ) >> ERRORS
+            }
+
+            printf(\
+                "%s\t%s\t%s\t%s\t%s\n",
+                showLink,
+                showSeasons,
+                seasonEpisodes,
+                showDuration,
+                showDescription\
+            )
+        }
     }
 
     # Make sure there is no carryover
@@ -456,6 +501,7 @@
     showHrs = 0
     showDuration = ""
     showDescription = ""
+    skipCategory = ""
     #
     episodeLinesFound = 0
     seasonLinesFound = 0

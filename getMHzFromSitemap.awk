@@ -207,7 +207,7 @@
     split($0, fld, "\"")
     seasonURL = fld[4]
     shortSeasonURL = seasonURL
-    sub(/.*watch/, "watch", shortSeasonURL)
+    sub(/.*watch.mhzchoice/, "watch.mhzchoice", shortSeasonURL)
     split(seasonURL, fld, ":")
     seasonNumber = fld[3]
     # If no seasonNumber, it may be a Topic Movie
@@ -256,7 +256,7 @@
         split($0, fld, "\"")
         episodeURL = fld[2]
         shortEpisodeURL = episodeURL
-        sub(/.*watch/, "watch", shortEpisodeURL)
+        sub(/.*watch.mhzchoice/, "watch.mhzchoice", shortEpisodeURL)
         # print "==> episodeURL = " episodeURL > "/dev/stderr"
         if (match(shortEpisodeURL, /-c-x[[:digit:]]{3,4}$/)) {
             cxEpisodeNumber = substr(shortEpisodeURL, RSTART + RLENGTH - 2, 2)
@@ -339,11 +339,15 @@
 
     # If start of episodeTitle == showTitle followed by ": " or " - ", remove the redundant part.
     if (\
-        match(episodeTitle, showTitle ": ") == 1 ||
-        match(episodeTitle, showTitle ":") == 1 ||
-        match(episodeTitle, showTitle "; ") == 1 ||
-        match(episodeTitle, showTitle " - ") == 1\
-    ) { episodeTitle = substr(episodeTitle, RLENGTH + 1) }
+        match(episodeTitle, "Vincenzo Malinconico-The Italian Lawyer: ") == 1 ||
+        match(tolower(episodeTitle), tolower(showTitle) ": ") == 1 ||
+        match(tolower(episodeTitle), tolower(showTitle) ":") == 1 ||
+        match(tolower(episodeTitle), tolower(showTitle) "; ") == 1 ||
+        match(tolower(episodeTitle), tolower(showTitle) " - ") == 1\
+    ) {
+        episodeTitle = substr(episodeTitle, RLENGTH + 1)
+        # print "==> episodeTitle = \"" episodeTitle "\"" > "/dev/stderr"
+    }
 
     # Episode Types(s)
     # Default episodeType to "E" if not already set
@@ -558,16 +562,34 @@
         if (snEpisodeNumber != "" && episodeNumber == "")
             episodeNumber = snEpisodeNumber
 
-        #
+        # What to Watch After Baylon Berlin
+        # what-to-watch-after-baylon-berlin
+        if (shortEpisodeURL ~ /what-to-watch-after-baylon-berlin/)
+            episodeNumber = 13
+
+        # Matteo's Arrival
+        # swan-company-matteo-s-arrival
+        if (shortEpisodeURL ~ /swan-company-matteo-s-arrival/) episodeNumber = 1
+
+        # Report missing episodeNumber
         if (episodeNumber == "") {
             printf(\
-                "==> Missing episodeNumber %s in \"%s: %s\" %s\n",
-                mdEpisodeNumber,
+                "==> Missing episodeNumber in \"%s: %s\" %s\n",
                 showTitle,
                 episodeTitle,
                 shortEpisodeURL\
             ) >> ERRORS
             episodeNumber = 0
+        }
+
+        # Report invalid episodeNumber
+        if (episodeNumber + 0 == 0) {
+            printf(\
+                "==> Zero episodeNumber in \"%s: %s\" %s\n",
+                showTitle,
+                episodeTitle,
+                shortEpisodeURL\
+            ) >> ERRORS
         }
 
         #

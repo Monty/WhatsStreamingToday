@@ -1,18 +1,160 @@
 # Process data from getOPB.js
-/meta property="og:title" content=/ { print }
+function clearShowVariables() {
+    # Make sure there is no carryover
+    showURL = ""
+    showTitle = ""
+    showDescription = ""
+    showDescriptionLinesFound = 0
+    showGenre = ""
+    showGenreLinesFound = 0
+    numberOfSeasons = 0
+}
 
-/link rel="canonical" href=/ { print }
+# Fix single quoted links by removing the first and last characters
+#    - 'link "Central Florida Roadtrip: Hemingway in Florida"'
+# Also fix escaped double quotes
+#    - 'link "Central Florida Roadtrip Street Smarts: \"Presidents\""'
+/    - 'link "/ {
+    sub(/'link/, "link", $0)
+    sub(/':$/, "", $0)
+    sub(/'$/, "", $0)
+    gsub(/\\"/, "\"", $0)
+}
 
-/"description": "/ { print }
+/  - 'heading "/ {
+    sub(/'heading/, "heading", $0)
+    sub(/':$/, "", $0)
+    sub(/'$/, "", $0)
+}
 
-/"genre":/ { print }
+# Desired show data
+# ==> New File
+# showURL
+# showTitle
+# showDescription
+# numberOfSeasons
 
-# Don't need svg data
-/<svg/, /<\/svg/ { next }
+# Extract tabName from <!-- header lines
+/-- .* data from https:/ {
+    split($0, fld, " ")
+    tabName = fld[2]
 
-/id="splide01-slide/, /<div class="vertical-sponsorship">/ { print }
+    if (tabName == "Main") { print "==> New File" }
 
-/<!-- start medium-rectangle-half-page -->/ {
-    print
-    exit
+    if (tabName == "Specials") { tabName = "Special" }
+
+    print "tabName: " tabName
+    phase = tabName
+
+    numFields = split($0, fld, "\"")
+
+    if (numFields == 5) {
+        seasonName = fld[2]
+        numberOfSeasons = fld[4]
+    }
+    else {
+        seasonName = "Season 1"
+        numberOfSeasons = 1
+    }
+
+    # Always print numberOfSeasons and specified or default seasonName
+    print "numberOfSeasons: " numberOfSeasons
+    print "seasonName: " seasonName
+}
+
+#<!-- Main page data from https://www.pbs.org/show/expedition/ -->
+/-- Main page data from https:/ {
+    # Make sure there is no carryover
+    clearShowVariables()
+
+    showURL = $0
+    sub(/.*https:/, "https:", showURL)
+    sub(/ .*/, "", showURL)
+    print "showURL: " showURL
+    # Create shorter URL by removing https://www.
+    shortURL = showURL
+    sub(/.*pbs.org/, "pbs.org", shortURL)
+    next
+}
+
+#  - heading "Astrid" [level=1]:
+/^  - heading "/ && phase == "Main" {
+    split($0, fld, "\"")
+    showTitle = fld[2]
+    print "showTitle: " showTitle
+    next
+}
+
+#  - paragraph: Astrid Nielsen works in the library...
+#  showDescriptions are only indented two spaces
+#  episodeDescriptions are indented four spaces
+/^  - paragraph: / && phase == "Main" {
+    showDescriptionLinesFound++
+    showDescription = $0
+    sub(/^  - paragraph: /, "", showDescription)
+    print "showDescription: " showDescription
+    next
+}
+
+#<!-- About tab data from https://www.pbs.org/show/expedition/ -->
+/^      - link "/ && phase == "About" {
+    showGenreLinesFound++
+    split($0, fld, "\"")
+    showGenre = fld[2]
+    print "showGenre: " showGenre
+    next
+}
+
+#<!-- ... tab data from https://www.pbs.org/show/expedition/ -->
+#    - link "Osceola County"
+/^    - link "/ && phase != "Main" && phase != "About" {
+    episodeTitle = substr($0, 13)
+    sub(/"$/, "", episodeTitle)
+    print "episodeTitle: " episodeTitle
+    next
+}
+
+/^\/video\// && phase != "Main" && phase != "About" {
+    episodeURL = $0
+    print "episodeURL: " episodeURL
+    next
+}
+
+/^  - paragraph: / && phase != "Main" && phase != "About" {
+    episodeDescription = $0
+    sub(/^  - paragraph: /, "", episodeDescription)
+    print "episodeDescription: " episodeDescription
+    print "--EOE--"
+    next
+}
+
+END {
+    # Leave blank line beetween files
+    print "--EOS--"
+    print ""
+
+    if (showTitle == "") {
+        printf("==> No show title found: %s\n", shortURL) >> ERRORS
+    }
+
+    if (showDescriptionLinesFound > 1) {
+        printf(\
+            "==> %s show descriptions found: %s '%s'\n",
+            showDescriptionLinesFound,
+            shortURL,
+            showTitle\
+        ) >> ERRORS
+    }
+
+    if (showDescriptionLinesFound == 0) {
+        printf(\
+            "==> No show descriptions found: %s '%s'\n", shortURL, showTitle\
+        ) >> ERRORS
+    }
+
+    if (showGenreLinesFound == 0) {
+        printf(\
+            "==> No show genre found: %s '%s'\n", shortURL, showTitle\
+        ) >> ERRORS
+    }
 }

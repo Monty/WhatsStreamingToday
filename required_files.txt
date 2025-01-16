@@ -45,14 +45,9 @@ getWalter.awk
 getOPB.awk
 getWalterFrom-raw_data.awk
 PBS-only.csv
-missing_OPB-episodes.csv
-missing_OPB-shows.csv
-missing_OPB-titles.txt
 getOPB.js
 getWalter.js
-rg_OPB.rgx
-addOPB-episodeDescriptions.sh
-addOPB-episodeDescriptions.js
+rg_OPB_skip.rgx
 saveTodaysOPBFiles.sh
 formatUnifiedDiffOutput.awk
 rg_problems.rgx

@@ -76,20 +76,18 @@ ERRORS="OPB_anomalies$LONGDATE.txt"
 # Final output spreadsheets
 SHORT_SPREADSHEET="OPB_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="OPB_TV_ShowsEpisodes$DATE_ID.csv"
+EXTRA_SPREADSHEET="OPB_TV_ExtraEpisodes$DATE_ID.csv"
 
 # Fixer-uppers
 PBS_ONLY="PBS-only.csv"
-MISSING_EPISODES="missing_OPB-episodes.csv"
-MISSING_SHOWS="missing_OPB-shows.csv"
-MISSING_TITLES="missing_OPB-titles.txt"
 
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
-EPISODE_IDS="$COLS/episode_ids$DATE_ID.csv"
 
 # Intermediate working files
 UNSORTED_SHORT="$COLS/unsorted_short$DATE_ID.csv"
 UNSORTED_LONG="$COLS/unsorted_long$DATE_ID.csv"
+UNSORTED_EXTRA="$COLS/unsorted_extra$DATE_ID.csv"
 RAW_DATA="$COLS/raw_data$DATE_ID.txt"
 export RAW_HTML="$COLS/raw_HTML$DATE_ID.html"
 RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
@@ -99,20 +97,22 @@ LOGFILE="$COLS/logfile$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
-PUBLISHED_UNSORTED_LONG="$BASELINE/unsorted_long.txt"
+PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
+PUBLISHED_EXTRA_SPREADSHEET="$BASELINE/extra.txt"
 #
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
-PUBLISHED_EPISODE_IDS="$BASELINE/episode_ids.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
-ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $RAW_DATA $RAW_HTML $RAW_TITLES "
-ALL_WORKING+="$DURATION $LOGFILE"
+ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $UNSORTED_EXTRA "
+ALL_WORKING+="$RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE"
 #
-ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_IDS"
+ALL_TXT="$UNIQUE_TITLES $SHOW_URLS"
 #
-ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
+ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $EXTRA_SPREADSHEET"
+# Need TAB character for sort key, etc.
+TAB=$(printf "\t")
 
 # Cleanup any possible leftover files
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
@@ -120,63 +120,71 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 # Print header for possible errors from processing shows
 printf "### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
+# Make sure we are logged in for the next few hours
+# This contains your OPB login and password so don't put it in git
+node save_password-02.js
+
 node getWalter.js
 prettier-eslint --write $RAW_HTML
-rg -N -B 1 'data-show-slug="' $RAW_HTML | awk -f getWalter.awk | sort >$SHOW_URLS
-# Make sure no URLs added from PBS-only.csv are duplicates
-rg -v -f $SHOW_URLS $PBS_ONLY >$UNSORTED_SHORT
-cat $UNSORTED_SHORT >>$SHOW_URLS
-rm $UNSORTED_SHORT
-#
+rg -A 7 'href="/show/' $RAW_HTML | rg 'href="/show/|alt=' |
+    awk -f getWalter.awk | sort >$SHOW_URLS
+
+# Add URLs from PBS-only.csv making sure none are duplicates
+# Temporarily use UNSORTED_SHORT
+zet union $PBS_ONLY $SHOW_URLS >$UNSORTED_SHORT
+sort -f --field-separator="$TAB" --key=2,2 $UNSORTED_SHORT >$SHOW_URLS
 printf "==> Done writing $SHOW_URLS\n"
 
 rm -f $RAW_HTML
 
+# Loop through $SHOW_URLS to generate $RAW_DATA
 while read -r line; do
-    read field1 field2 <<<"$line"
-    printf "$line\n" >>"$RAW_DATA"
+    IFS="$TAB" read field1 field2 field3 <<<"$line"
+    # printf "field1 = '$field1'\n" >"/dev/stderr"
+    # printf "field2 = '$field2'\n" >"/dev/stderr"
+    # printf "field3 = '$field3'\n\n" >"/dev/stderr"
     export TARGET="$field1"
     node getOPB.js >>"$LOGFILE"
-    prettier-eslint --write "$RAW_HTML" 2>>$LOGFILE
-    if [ $? -eq 0 ]; then
-        awk -f getOPB.awk "$RAW_HTML" | rg -f rg_OPB.rgx >>"$RAW_DATA"
+    # If getOPB.js succeeded, RAW_HTML file was created
+    if [ -e "$RAW_HTML" ]; then
+        rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
+            awk -v ERRORS=$ERRORS -f getOPB.awk >>"$RAW_DATA"
+        rm -f $RAW_HTML
     else
-        printf "==> prettier-eslint failed on $line\n" >>"$ERRORS"
+        # getOPB.js failed, since no RAW_HTML file was created
+        printf "==> getOPB.js failed on $line\n" >>"$ERRORS"
     fi
-    rm -f $RAW_HTML
 done <"$SHOW_URLS"
 
-# Print header for LONG_SPREADSHEET
-printf \
-    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
-    >$LONG_SPREADSHEET
-
-# Print header for SHORT_SPREADSHEET
-printf \
-    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
-    >$SHORT_SPREADSHEET
-
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
-awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_IDS=$EPISODE_IDS \
-    -v DURATION=$DURATION -v LONG_SPREADSHEET=$LONG_SPREADSHEET \
+awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
+    -v DURATION=$DURATION -v LONG_SPREADSHEET=$UNSORTED_LONG \
+    -v EXTRA_SPREADSHEET=$UNSORTED_EXTRA \
     -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
-
-# Add missing shows
-cat $MISSING_TITLES >>$RAW_TITLES
-cat $MISSING_SHOWS >>$UNSORTED_SHORT
-cat $MISSING_EPISODES >>$LONG_SPREADSHEET
 
 # Field numbers returned by getWalterFrom-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
 #     6 Language  7 Rating    8 Description
 titleCol="1"
 
+# Print header for LONG_SPREADSHEET, SHORT_SPREADSHEET, EXTRA_SPREADSHEET
+printf \
+    "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
+    >$LONG_SPREADSHEET
+cp -p $LONG_SPREADSHEET $SHORT_SPREADSHEET
+cp -p $LONG_SPREADSHEET $EXTRA_SPREADSHEET
+
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
 sort -fu --key=4 --field-separator=\" $UNSORTED_SHORT >>$SHORT_SPREADSHEET
 
 # Output $LONG_SPREADSHEET body sorted by title, not URL
-mv $LONG_SPREADSHEET $UNSORTED_LONG
 sort -fu --key=4 --field-separator=\" $UNSORTED_LONG >>$LONG_SPREADSHEET
+
+# Output $EXTRA_SPREADSHEET body sorted by title, not URL
+sort -fu --key=4 --field-separator=\" $UNSORTED_EXTRA >>$EXTRA_SPREADSHEET
+
+# Kludge to switch "S9999" "More Clips & Previews" season number to "SMore"
+sd S9999 SMore $EXTRA_SPREADSHEET
 
 # Sort the titles produced by getWalterFrom-raw_data.awk
 sort -fu $RAW_TITLES >$UNIQUE_TITLES
@@ -194,11 +202,10 @@ function printAdjustedFileInfo() {
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $UNSORTED_LONG 1
-printAdjustedFileInfo $EPISODE_IDS 0
 printAdjustedFileInfo $SHOW_URLS 0
 printAdjustedFileInfo $SHORT_SPREADSHEET 1
+printAdjustedFileInfo $LONG_SPREADSHEET 1
+printAdjustedFileInfo $EXTRA_SPREADSHEET 1
 printAdjustedFileInfo $UNIQUE_TITLES 0
 printAdjustedFileInfo $LOGFILE 0
 
@@ -235,6 +242,7 @@ function addTotalsToSpreadsheet() {
 if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $EXTRA_SPREADSHEET "total"
 fi
 
 # Look for any leftover HTML character codes or other problems
@@ -306,9 +314,9 @@ $(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
 $(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
 $(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_UNSORTED_LONG $UNSORTED_LONG)
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_EXTRA_SPREADSHEET $EXTRA_SPREADSHEET)
 $(checkdiffs $PUBLISHED_DURATION $DURATION)
-$(checkdiffs $PUBLISHED_EPISODE_IDS $EPISODE_IDS)
 
 ### Any funny stuff with file lengths?
 
