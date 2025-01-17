@@ -69,7 +69,7 @@ async function handleTabWithCombobox(page, tabName) {
           .ariaSnapshot();
         const numberOfEpisodes = countEpisodes(tabContent);
         // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
-        if (numberOfEpisodes == 0) {
+        if (numberOfEpisodes === 0) {
           console.warn(
             `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} tab "${option.label}" in`,
             series_URL
@@ -87,7 +87,7 @@ async function handleTabWithCombobox(page, tabName) {
         .ariaSnapshot();
       const numberOfEpisodes = countEpisodes(tabContent);
       // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
-      if (numberOfEpisodes == 0) {
+      if (numberOfEpisodes === 0) {
         console.warn(
           `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} in`,
           series_URL
