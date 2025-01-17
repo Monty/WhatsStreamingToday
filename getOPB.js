@@ -22,6 +22,13 @@ function appendToFile(headerInfo, showURL, filePath, content) {
   });
 }
 
+// Helper function to calculate the number of episodes
+function countEpisodes(tabContent) {
+  const falseEpisodes =
+    tabContent.split('paragraph: Providing Support for PBS.org').length - 1;
+  return tabContent.split('\n  - paragraph: ').length - 1 - falseEpisodes;
+}
+
 async function handleTabWithCombobox(page, tabName) {
   if (await elementExists(page, 'tab', tabName)) {
     await page.getByRole('tab', { name: tabName }).click();
@@ -60,18 +67,14 @@ async function handleTabWithCombobox(page, tabName) {
         const tabContent = await page
           .getByRole('tabpanel', { name: tabName })
           .ariaSnapshot();
-        const falseEpisodes =
-          tabContent.split('paragraph: Providing Support for PBS.org').length -
-          1;
-        const numberOfEpisodes =
-          tabContent.split('\n  - paragraph: ').length - 1 - falseEpisodes;
+        const numberOfEpisodes = countEpisodes(tabContent);
+        // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
         if (numberOfEpisodes == 0) {
           console.warn(
             `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} tab "${option.label}" in`,
             series_URL
           );
         }
-        // console.log(tabContent);
         await writeEpisodeData(
           page,
           `${tabName} tab "${option.label}" of "${numberOfSeasons}"`,
@@ -82,10 +85,8 @@ async function handleTabWithCombobox(page, tabName) {
       const tabContent = await page
         .getByRole('tabpanel', { name: tabName })
         .ariaSnapshot();
-      const falseEpisodes =
-        tabContent.split('paragraph: Providing Support for PBS.org').length - 1;
-      const numberOfEpisodes =
-        tabContent.split('\n  - paragraph: ').length - 1 - falseEpisodes;
+      const numberOfEpisodes = countEpisodes(tabContent);
+      // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
       if (numberOfEpisodes == 0) {
         console.warn(
           `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} in`,
