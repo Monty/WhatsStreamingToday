@@ -3,7 +3,7 @@ const fs = require('fs');
 
 const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
-// Access the TIMEOUT environment variable, defaulting to 2000 if not set
+// Access the TIMEOUT environment variable, default to 2000 if not set
 const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 2000;
 console.log(`==> Timeout set to ${timeoutDuration}`);
 
@@ -22,19 +22,21 @@ function appendToFile(headerInfo, showURL, filePath, content) {
   });
 }
 
-// Helper function to calculate the number of episodes
+// Helper function to calculate the number of episodes in a season
 function countEpisodes(tabContent) {
   const falseEpisodes =
     tabContent.split('paragraph: Providing Support for PBS.org').length - 1;
   return tabContent.split('\n  - paragraph: ').length - 1 - falseEpisodes;
 }
 
-async function handleTabWithCombobox(page, tabName) {
+async function handleTab(page, tabName) {
   if (await elementExists(page, 'tab', tabName)) {
     await page.getByRole('tab', { name: tabName }).click();
 
+    // Is there a combobox in this tab?
     const combobox = await page.getByRole('combobox').first();
     if (await combobox.isVisible()) {
+      // There is a combobox
       const options = await combobox.evaluate((select) =>
         Array.from(select.options).map((option) => ({
           value: option.value,
@@ -62,6 +64,7 @@ async function handleTabWithCombobox(page, tabName) {
         await combobox.selectOption(option.value);
         // console.log(`Option ${option.label} was selected.`);
 
+        // A specific waitForSelector would be better
         await page.waitForTimeout(timeoutDuration);
 
         const tabContent = await page
@@ -82,6 +85,7 @@ async function handleTabWithCombobox(page, tabName) {
         );
       }
     } else {
+      // There is no combobox
       const tabContent = await page
         .getByRole('tabpanel', { name: tabName })
         .ariaSnapshot();
@@ -225,11 +229,12 @@ removeFile(output_file);
   try {
     await page.goto(series_URL, { timeout: 30000 });
     await page.waitForTimeout(10000); // wait for 10 seconds
-    // Get the top level page
+
+    // 1) Get the top level page
     const mainPage = await page.locator('#maincontent').ariaSnapshot();
     writeEssentialData('Main page', mainPage, '  - tablist:', 0);
 
-    // Get the Genre from the About tab, which should always exist
+    // 2) Get the Genre from the About tab, which should always exist
     if (await elementExists(page, 'tab', 'About')) {
       await page.getByRole('tab', { name: 'About' }).click();
       const aboutTab = await page
@@ -240,14 +245,14 @@ removeFile(output_file);
       console.error('==> The "About" tab does not exist in', series_URL);
     }
 
-    // Get episodes from the Clips & Previews tab
-    await handleTabWithCombobox(page, 'Clips & Previews');
+    // 3) Get episodes from the Clips & Previews tab
+    await handleTab(page, 'Clips & Previews');
 
-    // Get episodes from the Special tab
-    await handleTabWithCombobox(page, 'Special');
+    // 4) Get episodes from the Special tab
+    await handleTab(page, 'Special');
 
-    // Get episodes from the Episodes tab
-    await handleTabWithCombobox(page, 'Episodes');
+    // 5) Get episodes from the Episodes tab
+    await handleTab(page, 'Episodes');
   } catch (error) {
     if (error.name === 'TimeoutError') {
       console.error('==> Page load timed out for', series_URL);
