@@ -76,7 +76,7 @@ async function handleTab(page, tabName) {
             .getByRole('tabpanel', { name: tabName })
             .ariaSnapshot();
           const numberOfEpisodes = countEpisodes(tabContent);
-          console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
+          // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
           if (numberOfEpisodes === 0) {
             console.warn(
               `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} tab "${option.label}" in`,
