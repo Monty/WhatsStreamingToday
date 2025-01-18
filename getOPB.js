@@ -12,12 +12,12 @@ async function elementExists(page, role, ariaName) {
   return elementCount > 0;
 }
 
-function appendToFile(headerInfo, showURL, filePath, content) {
-  fs.appendFile(filePath, content, (err) => {
+function appendToFile(headingTitle, showURL, filePath, sectionHeading) {
+  fs.appendFile(filePath, sectionHeading, (err) => {
     if (err) {
       console.error(`==> Error writing to file ${filePath}:`, err);
     } else {
-      console.log(`==> Completed ${headerInfo} from ${showURL}`);
+      console.log(`==> Completed ${headingTitle} from ${showURL}`);
     }
   });
 }
@@ -146,7 +146,7 @@ async function handleTab(page, tabName) {
 //  - paragraph: S1 Ep10 | Vivian visits farms. (24m 40s)
 //  - button "Add to My List":
 
-async function writeEpisodeData(page, headerInfo, snapshot) {
+async function writeEpisodeData(page, headingTitle, snapshot) {
   const episodes = [];
   const linkCounts = new Map();
   const uniqueURLs = new Set();
@@ -202,7 +202,7 @@ async function writeEpisodeData(page, headerInfo, snapshot) {
       } else {
         console.error(
           `==> Link for "${currentLink}" in`,
-          `\n    ${headerInfo} not found in`,
+          `\n    ${headingTitle} not found in`,
           series_URL
         );
       }
@@ -222,23 +222,23 @@ async function writeEpisodeData(page, headerInfo, snapshot) {
     }
   }
   appendToFile(
-    headerInfo,
+    headingTitle,
     series_URL,
     output_file,
-    `<!-- ${headerInfo} data from ${series_URL} -->\n${episodes.join('\n')}\n\n`
+    `<!-- ${headingTitle} data from ${series_URL} -->\n${episodes.join('\n')}\n\n`
   );
 }
 
-async function writeEssentialData(headerInfo, source, eofString, offset) {
+async function writeEssentialData(headingTitle, snapshot, eofString, offset) {
   let essentialData = '';
-  const splitLines = source.split('\n');
+  const splitLines = snapshot.split('\n');
   const firstIndex = splitLines.indexOf(eofString);
   essentialData = splitLines.slice(0, firstIndex + offset).join('\n');
   appendToFile(
-    headerInfo,
+    headingTitle,
     series_URL,
     output_file,
-    `<!-- ${headerInfo} data from ${series_URL} -->\n${essentialData}\n\n`
+    `<!-- ${headingTitle} data from ${series_URL} -->\n${essentialData}\n\n`
   );
 }
 
