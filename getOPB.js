@@ -62,8 +62,8 @@ async function handleTab(page, tabName) {
         }
       } else {
         if (retries > 0) {
-          let episodeText = numberOfEpisodes !== 1 ? 'episodes' : 'episode';
-          let retriesText = retries !== 1 ? 'retries' : 'retry';
+          const episodeText = numberOfEpisodes !== 1 ? 'episodes' : 'episode';
+          const retriesText = retries !== 1 ? 'retries' : 'retry';
           console.warn(
             `==> [Warning] Finding ${numberOfEpisodes} ${episodeText} in ${tabName} tab ${seasonName}took ${retries} ${retriesText} in`,
             series_URL
