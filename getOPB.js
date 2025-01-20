@@ -5,7 +5,7 @@ const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
 // Access the TIMEOUT environment variable, default to 1500 if not set
 const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 1500;
-console.log(`==> Timeout set to ${timeoutDuration}`);
+// console.log(`==> Timeout set to ${timeoutDuration}`);
 
 async function elementExists(page, role, ariaName) {
   const elementCount = await page.getByRole(role, { name: ariaName }).count();
@@ -62,8 +62,10 @@ async function handleTab(page, tabName) {
         }
       } else {
         if (retries > 0) {
+          let episodeText = numberOfEpisodes !== 1 ? 'episodes' : 'episode';
+          let retriesText = retries !== 1 ? 'retries' : 'retry';
           console.warn(
-            `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} tab ${seasonName}took ${retries} retries in`,
+            `==> [Warning] Finding ${numberOfEpisodes} ${episodeText} in ${tabName} tab ${seasonName}took ${retries} ${retriesText} in`,
             series_URL
           );
         }
