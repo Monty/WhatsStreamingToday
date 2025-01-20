@@ -30,7 +30,7 @@ function countEpisodes(tabData) {
 }
 
 async function handleTab(page, tabName) {
-  async function fetchEpisodeDataWithRetries(tabName, season = null) {
+  async function fetchOneSeasonWithRetries(tabName, season = null) {
     let seasonName;
     if (season && season.label) {
       seasonName = `"${season.label}" `;
@@ -40,14 +40,14 @@ async function handleTab(page, tabName) {
     // console.log(`tabName = ${tabName}`);
     // console.log(`seasonName = ${seasonName}`);
 
-    const maxRetries = 3; // Maximum number of retries to get episode data
-    let tabContent;
+    const maxRetries = 5; // Maximum number of retries to get episode data
+    let seasonContent;
     let retries = 0;
     while (retries < maxRetries) {
-      tabContent = await page
+      seasonContent = await page
         .getByRole('tabpanel', { name: tabName })
         .ariaSnapshot();
-      const numberOfEpisodes = countEpisodes(tabContent);
+      const numberOfEpisodes = countEpisodes(seasonContent);
       // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
       if (numberOfEpisodes === 0) {
         retries++;
@@ -70,7 +70,7 @@ async function handleTab(page, tabName) {
         break; // Exit loop if episodes are found
       }
     }
-    return tabContent;
+    return seasonContent;
   }
 
   if (await elementExists(page, 'tab', tabName)) {
@@ -111,19 +111,19 @@ async function handleTab(page, tabName) {
         await page.waitForTimeout(timeoutDuration);
 
         // There is a combobox
-        const tabContent = await fetchEpisodeDataWithRetries(tabName, {
+        const currentSeason = await fetchOneSeasonWithRetries(tabName, {
           label: `${option.label}`,
         });
-        await writeEpisodeData(
+        await writeOneSeasonsEpisodesData(
           page,
           `${tabName} tab "${option.label}" of "${numberOfSeasons}"`,
-          tabContent
+          currentSeason
         );
       }
     } else {
       // There is no combobox
-      const tabContent = await fetchEpisodeDataWithRetries(tabName);
-      await writeEpisodeData(page, `${tabName} tab`, tabContent);
+      const currentSeason = await fetchOneSeasonWithRetries(tabName);
+      await writeOneSeasonsEpisodesData(page, `${tabName} tab`, currentSeason);
     }
   }
 }
@@ -135,7 +135,7 @@ async function handleTab(page, tabName) {
 //  - paragraph: S1 Ep10 | Vivian visits farms. (24m 40s)
 //  - button "Add to My List":
 
-async function writeEpisodeData(page, headingTitle, snapshot) {
+async function writeOneSeasonsEpisodesData(page, headingTitle, snapshot) {
   const episodes = [];
   const linkCounts = new Map();
   const uniqueURLs = new Set();
