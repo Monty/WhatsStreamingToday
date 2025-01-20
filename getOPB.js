@@ -30,8 +30,48 @@ function countEpisodes(tabData) {
 }
 
 async function handleTab(page, tabName) {
-  const maxRetries = 5; // Maximum number of retries to get episode data
-  let tabContent;
+  async function fetchEpisodeDataWithRetries(tabName, season = null) {
+    let seasonName;
+    if (season && season.label) {
+      seasonName = `"${season.label}" `;
+    } else {
+      seasonName = '';
+    }
+    // console.log(`tabName = ${tabName}`);
+    // console.log(`seasonName = ${seasonName}`);
+
+    const maxRetries = 3; // Maximum number of retries to get episode data
+    let tabContent;
+    let retries = 0;
+    while (retries < maxRetries) {
+      tabContent = await page
+        .getByRole('tabpanel', { name: tabName })
+        .ariaSnapshot();
+      const numberOfEpisodes = countEpisodes(tabContent);
+      // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
+      if (numberOfEpisodes === 0) {
+        retries++;
+        if (retries < maxRetries) {
+          console.log(`    Retrying... Attempt ${retries}/${maxRetries}`);
+          await page.waitForTimeout(500);
+        } else {
+          console.error(
+            `==> [Error] ${numberOfEpisodes} episodes in ${tabName} tab ${seasonName}after ${maxRetries} retries in`,
+            series_URL
+          );
+        }
+      } else {
+        if (retries > 0) {
+          console.warn(
+            `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} tab ${seasonName}took ${retries} retries in`,
+            series_URL
+          );
+        }
+        break; // Exit loop if episodes are found
+      }
+    }
+    return tabContent;
+  }
 
   if (await elementExists(page, 'tab', tabName)) {
     await page.getByRole('tab', { name: tabName }).click();
@@ -70,34 +110,10 @@ async function handleTab(page, tabName) {
         // A specific waitForSelector would be better
         await page.waitForTimeout(timeoutDuration);
 
-        let retries = 0;
-        while (retries < maxRetries) {
-          tabContent = await page
-            .getByRole('tabpanel', { name: tabName })
-            .ariaSnapshot();
-          const numberOfEpisodes = countEpisodes(tabContent);
-          // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
-          if (numberOfEpisodes === 0) {
-            console.warn(
-              `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} tab "${option.label}" in`,
-              series_URL
-            );
-            retries++;
-            if (retries < maxRetries) {
-              console.log(`Retrying... Attempt ${retries}/${maxRetries}`);
-              await page.waitForTimeout(500);
-            } else {
-              console.error(
-                `==> [Error] ${numberOfEpisodes} episodes in ${tabName} tab "${option.label}" after ${maxRetries} retries.`,
-                series_URL
-              );
-            }
-          } else {
-            break; // Exit loop if episodes are found
-          }
-        }
-
-        // Call writeEpisodeData regardless of success or failure
+        // There is a combobox
+        const tabContent = await fetchEpisodeDataWithRetries(tabName, {
+          label: `${option.label}`,
+        });
         await writeEpisodeData(
           page,
           `${tabName} tab "${option.label}" of "${numberOfSeasons}"`,
@@ -106,34 +122,7 @@ async function handleTab(page, tabName) {
       }
     } else {
       // There is no combobox
-      let retries = 0;
-      while (retries < maxRetries) {
-        tabContent = await page
-          .getByRole('tabpanel', { name: tabName })
-          .ariaSnapshot();
-        const numberOfEpisodes = countEpisodes(tabContent);
-        console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
-        if (numberOfEpisodes === 0) {
-          console.warn(
-            `==> [Warning] ${numberOfEpisodes} episodes in ${tabName} in`,
-            series_URL
-          );
-          retries++;
-          if (retries < maxRetries) {
-            console.log(`Retrying... Attempt ${retries}/${maxRetries}`);
-            await page.waitForTimeout(500);
-          } else {
-            console.error(
-              `==> [Error] ${numberOfEpisodes} episodes in ${tabName} after ${maxRetries} retries.`,
-              series_URL
-            );
-          }
-        } else {
-          break; // Exit loop if episodes are found
-        }
-      }
-
-      // Call writeEpisodeData regardless of success or failure
+      const tabContent = await fetchEpisodeDataWithRetries(tabName);
       await writeEpisodeData(page, `${tabName} tab`, tabContent);
     }
   }
