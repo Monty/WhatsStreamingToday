@@ -19,16 +19,15 @@
         title = substr($0, RSTART + 1, RLENGTH - 3)
         # print "title = " title
         split(title, fld, "\"")
-        print "<title>" fld[4] "</title>"
+        print "title: " fld[4]
     }
 }
 
 # ,"description":"Comedy ... lots of wigs.","
 /,"description":"/ {
     if (match($0, /,"description":"([^"]|\\")*","/)) {
-        description = substr($0, RSTART + 15, RLENGTH - 17)
-        # print "description = " description
-        print "<description>" description "</description>"
+        description = substr($0, RSTART + 16, RLENGTH - 19)
+        print "description: " description
     }
 }
 

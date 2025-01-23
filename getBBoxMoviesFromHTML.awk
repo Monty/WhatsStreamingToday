@@ -13,30 +13,11 @@ BEGIN {
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
-{
-    gsub(/&#160;/, " ")
-    gsub(/&#163;/, "£")
-    gsub(/&#225;/, "á")
-    gsub(/&#226;/, "â")
-    gsub(/&#229;/, "å")
-    gsub(/&#232;/, "è")
-    gsub(/&#233;/, "é")
-    gsub(/&#234;/, "ê")
-    gsub(/&#235;/, "ë")
-    gsub(/&#239;/, "ï")
-    gsub(/&#246;/, "ö")
-    gsub(/&#248;/, "ø")
-    gsub(/&#250;/, "ú")
-    gsub(/&#253;/, "ý")
-    gsub(/&#39;/, "'")
-    gsub(/&amp;/, "\\&")
-}
-
-# <title>300 Years of French and Saunders - Comedy | BritBox</title>
-/<title>/ {
+function clearShowVariables() {
     # Make sure no fields have been carried over due to missing keys
     # Only used during processing
     full_URL = ""
+    title = ""
     year = ""
     # Used in printing credits
     person_role = ""
@@ -60,24 +41,41 @@ BEGIN {
     seasonId = ""
     seasonNumber = ""
     episodeNumber = ""
-    lastLineNum = ""
     #
+    lastLineNum = ""
     firstLineNum = NR
-    # Grab movie title
-    split($0, fld, "[<>]")
-    title = fld[3]
-    sub(/ - .*/, "", title)
 }
 
-# <meta name="description" content="Comedy dream team Dawn French and Jennifer Saunders reunite for the first time in ten years for a thirtieth-anniversary show bursting mirth, mayhem, And wigs. Lots and lots of wigs." />
-#
+{
+    gsub(/&#160;/, " ")
+    gsub(/&#163;/, "£")
+    gsub(/&#225;/, "á")
+    gsub(/&#226;/, "â")
+    gsub(/&#229;/, "å")
+    gsub(/&#232;/, "è")
+    gsub(/&#233;/, "é")
+    gsub(/&#234;/, "ê")
+    gsub(/&#235;/, "ë")
+    gsub(/&#239;/, "ï")
+    gsub(/&#246;/, "ö")
+    gsub(/&#248;/, "ø")
+    gsub(/&#250;/, "ú")
+    gsub(/&#253;/, "ý")
+    gsub(/&#39;/, "'")
+    gsub(/&amp;/, "\\&")
+}
+
+# title: 300 Years of French and Saunders
+/^title: / {
+    title = $0
+    sub(/^title: /, "", title)
+}
+
+# description: "Comedy ... lots of wigs."
 # Some descripotions may contain quotes
-#
-# <meta name="description" content="Since "A Christmas Carol" was first published   in 1843, the name of Ebenezer Scrooge has been famous throughout the world. See       Michael Hordern&#39;s stunning portrayal of the miserly misanthrope being shown the   error of his ways in this iconic adaptation." />
-/<meta name="description" / {
-    sub(/.*name="description" content="/, "")
-    sub(/" \/>.*/, "")
+/^description: / {
     description = $0
+    sub(/^description: /, "", description)
 }
 
 # <link rel="canonical" href="https://www.britbox.com/us/movie/300_Years_of_French_and_Saunders_p05wv7gy" />
