@@ -104,24 +104,24 @@ function clearShowVariables() {
 # "name": "O15274_Movie Subscription HD-1080 Any User - Movies",
 /_Movie Subscription/ { next }
 
-# "role": "actor",
-/"role": "/ {
-    split($0, fld, "\"")
-    person_role = fld[4]
+# person_role: actor
+/^person_role: / {
+    person_role = $0
+    sub(/^person_role: /, "", person_role)
     # print "person_role = " person_role > "/dev/stderr"
 }
 
-# "name": "Michael Hordern",
-/"name": "/ {
-    split($0, fld, "\"")
-    person_name = fld[4]
+# person_name: Michael Hordern
+/^person_name: / {
+    person_name = $0
+    sub(/^person_name: /, "", person_name)
     # print "person_name = " person_name > "/dev/stderr"
 }
 
-# "character": "Scrooge"
-/"character": "/ {
-    split($0, fld, "\"")
-    character_name = fld[4]
+# character_name: Scrooge
+/^character_name: / {
+    character_name = $0
+    sub(/^character_name: /, "", character_name)
     sub(/\\t/, "", character_name)
     sub(/^ */, "", character_name)
     sub(/ *$/, "", character_name)

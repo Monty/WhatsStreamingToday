@@ -38,9 +38,11 @@
     while (match(credits, /\{"role":[^}]*\}/)) {
         castMember = substr(credits, RSTART + 1, RLENGTH - 2)
         # print "castMember = " castMember
-        numFields = split(castMember, fld, ",")
-
-        for (i = 1; i <= numFields; ++i) { print fld[i] }
+        numFields = split(castMember, fld, "\"")
+        print "person_role: " fld[4]
+        print "person_name: " fld[8]
+        print "person_URL: " fld[12]
+        print "character_name: " fld[16]
 
         credits = substr(credits, RSTART + RLENGTH)
     }
