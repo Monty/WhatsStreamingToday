@@ -162,8 +162,6 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
     -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
     sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
-exit
-
 # Get HTML for shows from /show/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_SHOW_HTML" ]; then
