@@ -59,6 +59,13 @@
 }
 
 # {"code":"TVPG-TV-14","name":"TV-14"}
+/\{"code":"/ {
+    if (match($0, /\{"code":"[^}]*\}/)) {
+        rating = substr($0, RSTART + 1, RLENGTH - 3)
+        split(rating, fld, "\"")
+        print "rating: " fld[8]
+    }
+}
 
 # ,"releaseYear":2017,"
 /,"releaseYear":/ {

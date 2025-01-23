@@ -134,11 +134,12 @@ function clearShowVariables() {
     # print "character_name = " character_name > "/dev/stderr"
 }
 
-# "code": "TVPG-TV-14",
-/"code": "TVPG-/ {
-    split($0, fld, "\"")
-    rating = fld[4]
-    sub(/TVPG-/, "", rating)
+# rating: TV-14
+/^rating: / {
+    dateType = "rating"
+    rating = $0
+    sub(/^rating: /, "", rating)
+    # print "rating = " rating > "/dev/stderr"
 }
 
 # releaseYear: 2017
