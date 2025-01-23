@@ -72,16 +72,16 @@ function clearShowVariables() {
 }
 
 # description: "Comedy ... lots of wigs."
-# Some descripotions may contain quotes
+# Some descriptions may contain quotes
 /^description: / {
     description = $0
     sub(/^description: /, "", description)
 }
 
-# <link rel="canonical" href="https://www.britbox.com/us/movie/300_Years_of_French_and_Saunders_p05wv7gy" />
-/<link rel="canonical" / {
-    split($0, fld, "\"")
-    full_URL = fld[4]
+# full_URL: https://www.britbox.com/us/movie/A_Christmas_Carol_p00z2f5m
+/^full_URL: / {
+    full_URL = $0
+    sub(/^full_URL: /, "", full_URL)
     # print "full_URL = " full_URL > "/dev/stderr"
 }
 
