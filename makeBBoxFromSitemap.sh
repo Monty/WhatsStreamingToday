@@ -149,17 +149,20 @@ fi
 if [ ! -e "$TV_MOVIE_HTML" ]; then
     printf "==> Generating new $TV_MOVIE_HTML\n"
     while read -r url; do
-        curl -s "$url" | rg -N -f rg_BBox-movies.rgx |
-            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_MOVIE_HTML"
+        curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
+            awk -f getBBox-preprocess.awk >>"$TV_MOVIE_HTML"
     done < <(rg -N /movie/ "$ALL_URLS")
 else
     printf "==> using existing $TV_MOVIE_HTML\n"
 fi
+
 # Generate movies spreadsheet
 printf "### Possible anomalies from processing $TV_MOVIE_HTML\n" >"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
     -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
     sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
+
+exit
 
 # Get HTML for shows from /show/ URLs
 # Unless we already have one from today
