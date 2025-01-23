@@ -16,6 +16,7 @@ rg_problems.rgx
 BBOX_FILES="
 makeBBoxFromSitemap.sh
 getBBoxURLsFromSitemap.awk
+getBBox-preprocess.awk
 getBBoxMoviesFromHTML.awk
 getBBoxShowsFromHTML.awk
 getBBoxEpisodesFromHTML.awk
