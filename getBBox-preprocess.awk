@@ -61,7 +61,26 @@
 # {"code":"TVPG-TV-14","name":"TV-14"}
 
 # ,"releaseYear":2017,"
+/,"releaseYear":/ {
+    if (match($0, /,"releaseYear":[^"]+,"/)) {
+        releaseYear = substr($0, RSTART + 15, RLENGTH - 17)
+        print "releaseYear: " releaseYear
+    }
+}
 
 # ,"customId":"p05wv7gy","
+/,"customId":"/ {
+    if (match($0, /,"customId":"[^"]+","/)) {
+        customId = substr($0, RSTART + 1, RLENGTH - 3)
+        split(customId, fld, "\"")
+        print "customId: " fld[4]
+    }
+}
 
 # ,"duration":2923,"
+/,"duration":/ {
+    if (match($0, /,"duration":[^"]+,"/)) {
+        duration = substr($0, RSTART + 12, RLENGTH - 14)
+        print "duration: " duration
+    }
+}

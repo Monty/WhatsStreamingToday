@@ -18,7 +18,6 @@ function clearShowVariables() {
     # Only used during processing
     full_URL = ""
     title = ""
-    year = ""
     # Used in printing credits
     person_role = ""
     person_name = ""
@@ -29,11 +28,11 @@ function clearShowVariables() {
     numEpisodes = ""
     duration = ""
     genre = ""
-    year = ""
+    releaseYear = ""
     rating = ""
     description = ""
     contentType = ""
-    contentId = ""
+    customId = ""
     itemType = ""
     dateType = ""
     originalDate = ""
@@ -142,28 +141,26 @@ function clearShowVariables() {
     sub(/TVPG-/, "", rating)
 }
 
-# "releaseYear": 2017,
-/"releaseYear": / {
+# releaseYear: 2017
+/^releaseYear: / {
     dateType = "releaseYear"
-    split($0, fld, "\"")
-    year = fld[3]
-    sub(/: /, "", year)
-    sub(/,.*/, "", year)
+    releaseYear = $0
+    sub(/^releaseYear: /, "", releaseYear)
+    # print "releaseYear = " releaseYear > "/dev/stderr"
 }
 
-# "customId": "p05wv7gy",
+# customId: p05wv7gy
 /"customId": "/ {
-    split($0, fld, "\"")
-    contentId = fld[4]
-    # print "contentId = " contentId > "/dev/stderr"
+    customId = $0
+    sub(/^customId: /, "", customId)
+    # print "customId = " customId > "/dev/stderr"
 }
 
-# <b>Duration: </b>48 min
-/<b>Duration: </ {
+# duration: 2923
+/"duration": "/ {
+    duration = $0
+    sub(/^duration: /, "", duration)
     lastLineNum = NR
-    split($0, fld, "[<>]")
-    duration = fld[5]
-    sub(/ .*/, "", duration)
     duration = "0:" duration
     # print "duration = " duration > "/dev/stderr"
 
@@ -172,7 +169,7 @@ function clearShowVariables() {
 
     # "A Midsummer Night's Dream" needs to be revised to avoid duplicate names
     if (title == "A Midsummer Night's Dream") {
-        if (contentId == "p089tsfc") {
+        if (customId == "p089tsfc") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'A Midsummer Night's Dream (1981)'\n",
@@ -181,7 +178,7 @@ function clearShowVariables() {
             title = "A Midsummer Night's Dream (1981)"
             # print "==> revisedTitle = " title > "/dev/stderr"
         }
-        else if (contentId == "p05t7hx2") {
+        else if (customId == "p05t7hx2") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'A Midsummer Night's Dream (2016)'\n",
@@ -208,14 +205,14 @@ function clearShowVariables() {
         numEpisodes,
         duration,
         genre,
-        year,
+        releaseYear,
         rating,
         description\
     )
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
         contentType,
-        contentId,
+        customId,
         itemType,
         dateType,
         originalDate,
