@@ -26,7 +26,7 @@
 # ,"description":"Comedy ... lots of wigs.","
 /,"description":"/ {
     if (match($0, /,"description":"([^"]|\\")*","/)) {
-        description = substr($0, RSTART + 16, RLENGTH - 18)
+        description = substr($0, RSTART + 15, RLENGTH - 17)
         # print "description = " description
         print "<description>" description "</description>"
     }
