@@ -85,11 +85,11 @@ function clearShowVariables() {
     # print "full_URL = " full_URL > "/dev/stderr"
 }
 
-# "type": "movie",
-/"type": "/ {
+# itemType: movie
+/^itemType: / {
+    itemType = $0
+    sub(/^itemType: /, "", itemType)
     contentType = "tv_movie"
-    split($0, fld, "\"")
-    itemType = fld[4]
     totalMovies += 1
     # print "itemType = " itemType > "/dev/stderr"
 }

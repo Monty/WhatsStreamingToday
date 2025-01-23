@@ -26,12 +26,18 @@
         partial_URL = substr($0, RSTART + 1, RLENGTH - 3)
         # print "partial_URL = " partial_URL
         split(partial_URL, fld, "\"")
-        full_URL = fld[4]
-        print "full_URL: https://www.britbox.com/us" full_URL
+        print "full_URL: https://www.britbox.com/us" fld[4]
     }
 }
 
-# {"type":"movie",
+# {"type":"movie","
+/\{"type":"/ {
+    if (match($0, /\{"type":"[^"]+","/)) {
+        itemType = substr($0, RSTART + 1, RLENGTH - 3)
+        split(itemType, fld, "\"")
+        print "itemType: " fld[4]
+    }
+}
 
 # ["/movies/genres/Comedy"]
 
