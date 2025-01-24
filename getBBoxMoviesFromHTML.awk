@@ -93,11 +93,11 @@ function clearShowVariables() {
     # print "itemType = " itemType > "/dev/stderr"
 }
 
-# "/movies/genres/Comedy"
-/"\/movies\/genres\// {
-    split($0, fld, "/")
-    genre = fld[4]
-    sub(/".*/, "", genre)
+# genre: Drama
+/^genre: / {
+    genre = $0
+    sub(/^genre: /, "", genre)
+    # print "genre = " genre > "/dev/stderr"
 }
 
 # "name": "O15274_Movie Subscription HD-1080 Any User - Movies",

@@ -39,7 +39,15 @@
     }
 }
 
+# ,"genres":["Drama"],"
 # ["/movies/genres/Comedy"]
+/\["\/movies\/genres\// {
+    if (match($0, /\["\/movies\/genres\/[^"]+"\]/)) {
+        genre = substr($0, RSTART + 1, RLENGTH - 3)
+        split(genre, fld, "/")
+        print "genre: " fld[4]
+    }
+}
 
 # {"role":"actor","name":"Victoria Graham","path":"/name/Victoria_Graham","character":"Newsreader"}
 /\{"role":"/ {
@@ -90,4 +98,6 @@
         duration = substr($0, RSTART + 12, RLENGTH - 14)
         print "duration: " duration
     }
+
+    printf("\n")
 }
