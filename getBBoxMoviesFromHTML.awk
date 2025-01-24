@@ -151,14 +151,14 @@ function clearShowVariables() {
 }
 
 # customId: p05wv7gy
-/"customId": "/ {
+/^customId: / {
     customId = $0
     sub(/^customId: /, "", customId)
     # print "customId = " customId > "/dev/stderr"
 }
 
 # duration: 2923
-/"duration": "/ {
+/^duration: / {
     duration = $0
     sub(/^duration: /, "", duration)
     lastLineNum = NR
