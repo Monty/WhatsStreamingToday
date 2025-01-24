@@ -9,7 +9,7 @@ BEGIN {
     printf(\
         "Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t"\
     )
-    printf("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
+    printf("Content_Type\tContent_ID\tItem_Type\tDate_Type\t")
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
@@ -58,7 +58,6 @@ BEGIN {
     contentId = ""
     itemType = ""
     dateType = ""
-    originalDate = ""
     showId = ""
     seasonId = ""
     seasonNumber = ""
@@ -306,12 +305,11 @@ BEGIN {
         description\
     )
     printf(\
-        "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+        "%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
         contentType,
         contentId,
         itemType,
         dateType,
-        originalDate,
         showId,
         seasonId,
         seasonNumber\

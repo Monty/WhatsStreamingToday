@@ -9,7 +9,7 @@ BEGIN {
     printf(\
         "Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t"\
     )
-    printf("Content_Type\tContent_ID\tItem_Type\tDate_Type\tOriginal_Date\t")
+    printf("Content_Type\tContent_ID\tItem_Type\tDate_Type\t")
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
@@ -35,7 +35,6 @@ function clearShowVariables() {
     customId = ""
     itemType = ""
     dateType = ""
-    originalDate = ""
     showId = ""
     seasonId = ""
     seasonNumber = ""
@@ -211,12 +210,11 @@ function clearShowVariables() {
         description\
     )
     printf(\
-        "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+        "%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
         contentType,
         customId,
         itemType,
         dateType,
-        originalDate,
         showId,
         seasonId,
         seasonNumber\
