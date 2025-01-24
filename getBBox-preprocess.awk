@@ -6,7 +6,7 @@
 /,"contextualTitle":"/ {
     if (match($0, /,"contextualTitle":"[^"]+","/)) {
         title = substr($0, RSTART + 1, RLENGTH - 3)
-        # print "title = " title
+        # print "title = " title > "/dev/stderr"
         split(title, fld, "\"")
         print "title: " fld[4]
     }
@@ -24,7 +24,7 @@
 /,"path":"\/movie\// {
     if (match($0, /,"path":"\/movie\/[^"]+","/)) {
         partial_URL = substr($0, RSTART + 1, RLENGTH - 3)
-        # print "partial_URL = " partial_URL
+        # print "partial_URL = " partial_URL > "/dev/stderr"
         split(partial_URL, fld, "\"")
         print "full_URL: https://www.britbox.com/us" fld[4]
     }
@@ -55,7 +55,7 @@
 
     while (match(credits, /\{"role":[^}]*\}/)) {
         castMember = substr(credits, RSTART + 1, RLENGTH - 2)
-        # print "castMember = " castMember
+        # print "castMember = " castMember > "/dev/stderr"
         numFields = split(castMember, fld, "\"")
         print "person_role: " fld[4]
         print "person_name: " fld[8]
