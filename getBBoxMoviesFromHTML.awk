@@ -174,7 +174,11 @@ function clearShowVariables() {
     lastLineNum = NR
     duration = "0:" duration
     # print "duration = " duration > "/dev/stderr"
+    next
+}
 
+# --EOM--
+/^--EOM--$/ {
     # This should be the last line of every movie.
     # So finish processing and add line to spreadsheet
 

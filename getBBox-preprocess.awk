@@ -99,5 +99,6 @@
         print "duration: " duration
     }
 
-    printf("\n")
+    # Print "End of Movie" indicator
+    print "--EOM--"
 }
