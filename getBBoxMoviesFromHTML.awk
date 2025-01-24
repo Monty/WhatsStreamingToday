@@ -67,6 +67,7 @@ function clearShowVariables() {
 /^title: / {
     title = $0
     sub(/^title: /, "", title)
+    next
 }
 
 # description: "Comedy ... lots of wigs."
@@ -74,6 +75,7 @@ function clearShowVariables() {
 /^description: / {
     description = $0
     sub(/^description: /, "", description)
+    next
 }
 
 # full_URL: https://www.britbox.com/us/movie/A_Christmas_Carol_p00z2f5m
@@ -81,6 +83,7 @@ function clearShowVariables() {
     full_URL = $0
     sub(/^full_URL: /, "", full_URL)
     # print "full_URL = " full_URL > "/dev/stderr"
+    next
 }
 
 # itemType: movie
@@ -90,6 +93,7 @@ function clearShowVariables() {
     contentType = "tv_movie"
     totalMovies += 1
     # print "itemType = " itemType > "/dev/stderr"
+    next
 }
 
 # genre: Drama
@@ -97,6 +101,7 @@ function clearShowVariables() {
     genre = $0
     sub(/^genre: /, "", genre)
     # print "genre = " genre > "/dev/stderr"
+    next
 }
 
 # "name": "O15274_Movie Subscription HD-1080 Any User - Movies",
@@ -107,6 +112,7 @@ function clearShowVariables() {
     person_role = $0
     sub(/^person_role: /, "", person_role)
     # print "person_role = " person_role > "/dev/stderr"
+    next
 }
 
 # person_name: Michael Hordern
@@ -114,6 +120,7 @@ function clearShowVariables() {
     person_name = $0
     sub(/^person_name: /, "", person_name)
     # print "person_name = " person_name > "/dev/stderr"
+    next
 }
 
 # character_name: Scrooge
@@ -131,6 +138,7 @@ function clearShowVariables() {
         character_name\
     ) >> RAW_CREDITS
     # print "character_name = " character_name > "/dev/stderr"
+    next
 }
 
 # rating: TV-14
@@ -139,6 +147,7 @@ function clearShowVariables() {
     rating = $0
     sub(/^rating: /, "", rating)
     # print "rating = " rating > "/dev/stderr"
+    next
 }
 
 # releaseYear: 2017
@@ -147,6 +156,7 @@ function clearShowVariables() {
     releaseYear = $0
     sub(/^releaseYear: /, "", releaseYear)
     # print "releaseYear = " releaseYear > "/dev/stderr"
+    next
 }
 
 # customId: p05wv7gy
@@ -154,6 +164,7 @@ function clearShowVariables() {
     customId = $0
     sub(/^customId: /, "", customId)
     # print "customId = " customId > "/dev/stderr"
+    next
 }
 
 # duration: 2923
