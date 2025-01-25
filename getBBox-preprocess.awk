@@ -2,6 +2,9 @@
 
 # <hero-actions showid="16103" contentid="16103" path="/movie/300_Years_of_French_and_Saunders_p05wv7gy" :item="{"type":"movie","advisoryText":"","copyright":"","distributor":"BBC","description":"Comedy dream team Dawn French and Jennifer Saunders reunite for thefirst time in ten years for a thirtieth-anniversary show bursting mirth,mayhem, And wigs. Lots and lots of wigs.","customMetadata":[],"genrePaths":["/movies/genres/Comedy"],"credits":[{"role":"actor","name":"Dawn French","path":"/name/Dawn_French","character":"Variouscharacters"},{"role":"actor","name":"Jennifer Saunders","path":"/name/Jennifer_Saunders","character":"Various characters"}
 
+# Skip empty lines
+/^$/ { next }
+
 # ,"contextualTitle":"300 Years of French and Saunders","
 /,"contextualTitle":"/ {
     if (match($0, /,"contextualTitle":"[^"]+","/)) {
@@ -30,10 +33,11 @@
     }
 }
 
-# {"type":"movie","
-/\{"type":"/ {
-    if (match($0, /\{"type":"[^"]+","/)) {
-        itemType = substr($0, RSTART + 1, RLENGTH - 3)
+# "type":"movie","
+/^"type":"/ {
+    if (match($0, /^"type":"[^"]+","/)) {
+        itemType = substr($0, RSTART, RLENGTH - 2)
+        # print "itemType = " itemType > "/dev/stderr"
         split(itemType, fld, "\"")
         print "itemType: " fld[4]
     }

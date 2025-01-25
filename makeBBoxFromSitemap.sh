@@ -150,6 +150,8 @@ if [ ! -e "$TV_MOVIE_HTML" ]; then
     printf "==> Generating new $TV_MOVIE_HTML\n"
     while read -r url; do
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
+            sd '"type":"movie' '\n\n"type":"movie' | sd '"offers".*' '' |
+            rg -v '<hero-actions' |
             awk -f getBBox-preprocess.awk >>"$TV_MOVIE_HTML"
     done < <(rg -N /movie/ "$ALL_URLS")
 else
