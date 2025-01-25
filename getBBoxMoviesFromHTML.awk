@@ -44,6 +44,17 @@ function clearShowVariables() {
     firstLineNum = NR
 }
 
+function convertDurationToHMS() {
+    secs = duration
+    mins = int(secs / 60)
+    hrs = int(mins / 60)
+    secs %= 60
+    mins %= 60
+    # Make duration a string
+    duration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
+    # print "duration = " duration > "/dev/stderr"
+}
+
 {
     gsub(/&#160;/, " ")
     gsub(/&#163;/, "£")
@@ -172,7 +183,7 @@ function clearShowVariables() {
     duration = $0
     sub(/^duration: /, "", duration)
     lastLineNum = NR
-    duration = "0:" duration
+    convertDurationToHMS()
     # print "duration = " duration > "/dev/stderr"
     next
 }
