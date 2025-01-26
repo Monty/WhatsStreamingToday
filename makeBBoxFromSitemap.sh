@@ -86,11 +86,11 @@ EPISODES_CSV="$COLS/BBoxEpisodes$DATE_ID.csv"
 MOVIES_CSV="$COLS/BBoxMovies$DATE_ID.csv"
 SHOWS_CSV="$COLS/BBoxShows$DATE_ID.csv"
 
-# HTML files segregated by item type
-TV_EPISODE_HTML="$COLS/tv_episodes$DATE_ID.html"
-TV_MOVIE_HTML="$COLS/tv_movies$DATE_ID.html"
-TV_SEASON_HTML="$COLS/tv_seasons$DATE_ID.html"
-TV_SHOW_HTML="$COLS/tv_shows$DATE_ID.html"
+# Data files segregated by item type
+TV_EPISODE_TXT="$COLS/tv_episodes$DATE_ID.txt"
+TV_MOVIE_TXT="$COLS/tv_movies$DATE_ID.txt"
+TV_SEASON_TXT="$COLS/tv_seasons$DATE_ID.txt"
+TV_SHOW_TXT="$COLS/tv_shows$DATE_ID.txt"
 
 # Temp files used in generating final output spreadsheets
 TEMP_SPREADSHEET="$COLS/temp_spreadsheet$DATE_ID.csv"
@@ -144,61 +144,61 @@ else
     printf "==> using existing $ALL_URLS\n"
 fi
 
-# Get HTML for movies from /movie/ URLs
+# Get data for movies from /movie/ URLs
 # Unless we already have one from today
-if [ ! -e "$TV_MOVIE_HTML" ]; then
-    printf "==> Generating new $TV_MOVIE_HTML\n"
+if [ ! -e "$TV_MOVIE_TXT" ]; then
+    printf "==> Generating new $TV_MOVIE_TXT\n"
     while read -r url; do
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
             sd '"offers".*' '' | rg -v '<hero-actions' |
-            awk -f getBBox-preprocess.awk >>"$TV_MOVIE_HTML"
+            awk -f getBBox-preprocess.awk >>"$TV_MOVIE_TXT"
     done < <(rg -N /movie/ "$ALL_URLS")
 else
-    printf "==> using existing $TV_MOVIE_HTML\n"
+    printf "==> using existing $TV_MOVIE_TXT\n"
 fi
 
 # Generate movies spreadsheet
-printf "### Possible anomalies from processing $TV_MOVIE_HTML\n" >"$ERRORS"
+printf "### Possible anomalies from processing $TV_MOVIE_TXT\n" >"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
-    -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
+    -f getBBoxMoviesFromTXT.awk "$TV_MOVIE_TXT" |
     sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
-# Get HTML for shows from /show/ URLs
+# Get data for shows from /show/ URLs
 # Unless we already have one from today
-if [ ! -e "$TV_SHOW_HTML" ]; then
-    printf "==> Generating new $TV_SHOW_HTML\n"
+if [ ! -e "$TV_SHOW_TXT" ]; then
+    printf "==> Generating new $TV_SHOW_TXT\n"
     while read -r url; do
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
             sd '"offers".*' '' | rg -v '<hero-actions' |
-            awk -f getBBox-preprocess.awk >>"$TV_SHOW_HTML"
+            awk -f getBBox-preprocess.awk >>"$TV_SHOW_TXT"
     done < <(rg -N /show/ "$ALL_URLS")
 else
-    printf "==> using existing $TV_SHOW_HTML\n"
+    printf "==> using existing $TV_SHOW_TXT\n"
 fi
 # Generate shows spreadsheet
-printf "\n### Possible anomalies from processing $TV_SHOW_HTML\n" >>"$ERRORS"
+printf "\n### Possible anomalies from processing $TV_SHOW_TXT\n" >>"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
-    -f getBBoxShowsFromHTML.awk "$TV_SHOW_HTML" |
+    -f getBBoxShowsFromTXT.awk "$TV_SHOW_TXT" |
     sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 
-# Get HTML for episodes from /season/ URLs
+# Get data for episodes from /season/ URLs
 # Unless we already have one from today
-if [ ! -e "$TV_EPISODE_HTML" ]; then
-    printf "==> Generating new $TV_EPISODE_HTML\n"
+if [ ! -e "$TV_EPISODE_TXT" ]; then
+    printf "==> Generating new $TV_EPISODE_TXT\n"
     while read -r url; do
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
             sd '"offers".*' '' | rg -v '<hero-actions' |
-            awk -f getBBox-preprocess.awk >>"$TV_EPISODE_HTML"
+            awk -f getBBox-preprocess.awk >>"$TV_EPISODE_TXT"
     done < <(rg -N /season/ "$ALL_URLS")
 else
-    printf "==> using existing $TV_EPISODE_HTML\n"
+    printf "==> using existing $TV_EPISODE_TXT\n"
 fi
 # Generate episodes spreadsheet
-printf "\n### Possible anomalies from processing $TV_EPISODE_HTML\n" >>"$ERRORS"
-awk -v ERRORS="$ERRORS" -f getBBoxEpisodesFromHTML.awk "$TV_EPISODE_HTML" |
+printf "\n### Possible anomalies from processing $TV_EPISODE_TXT\n" >>"$ERRORS"
+awk -v ERRORS="$ERRORS" -f getBBoxEpisodesFromTXT.awk "$TV_EPISODE_TXT" |
     sort -fu --key=4 --field-separator=\" >"$EPISODES_CSV"
 
 # Sort the titles produced by getBBox*.awk scripts
@@ -317,7 +317,7 @@ if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet $SHOWS_CSV "sum"
 fi
 
-# Look for any leftover HTML character codes or other problems
+# Look for any leftover TXT character codes or other problems
 probs="$(rg -c --sort path -f rg_problems.rgx $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
     {
