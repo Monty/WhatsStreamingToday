@@ -188,8 +188,10 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
 if [ ! -e "$TV_EPISODE_HTML" ]; then
     printf "==> Generating new $TV_EPISODE_HTML\n"
     while read -r url; do
-        curl -s "$url" | rg -N -f rg_BBox-seasons.rgx |
-            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_EPISODE_HTML"
+        curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
+            sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
+            sd '"offers".*' '' | rg -v '<hero-actions' |
+            awk -f getBBox-preprocess.awk >>"$TV_EPISODE_HTML"
     done < <(rg -N /season/ "$ALL_URLS")
 else
     printf "==> using existing $TV_EPISODE_HTML\n"
