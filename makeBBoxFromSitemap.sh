@@ -150,8 +150,8 @@ if [ ! -e "$TV_MOVIE_HTML" ]; then
     printf "==> Generating new $TV_MOVIE_HTML\n"
     while read -r url; do
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
-            sd '"type":"movie' '\n\n"type":"movie' | sd '"offers".*' '' |
-            rg -v '<hero-actions' |
+            sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
+            sd '"offers".*' '' | rg -v '<hero-actions' |
             awk -f getBBox-preprocess.awk >>"$TV_MOVIE_HTML"
     done < <(rg -N /movie/ "$ALL_URLS")
 else
@@ -169,8 +169,10 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
 if [ ! -e "$TV_SHOW_HTML" ]; then
     printf "==> Generating new $TV_SHOW_HTML\n"
     while read -r url; do
-        curl -s "$url" | rg -N -f rg_BBox-shows.rgx |
-            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_SHOW_HTML"
+        curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
+            sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
+            sd '"offers".*' '' | rg -v '<hero-actions' |
+            awk -f getBBox-preprocess.awk >>"$TV_SHOW_HTML"
     done < <(rg -N /show/ "$ALL_URLS")
 else
     printf "==> using existing $TV_SHOW_HTML\n"
@@ -305,7 +307,7 @@ function addTotalsToSpreadsheet() {
 # Output spreadsheet footer if totals requested
 # Either skip, sum, or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "sum"
+    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
     addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
     #
     addTotalsToSpreadsheet $EPISODES_CSV "sum"
