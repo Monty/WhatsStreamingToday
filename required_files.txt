@@ -17,9 +17,9 @@ BBOX_FILES="
 makeBBoxFromSitemap.sh
 getBBoxURLsFromSitemap.awk
 getBBox-preprocess.awk
-getBBoxMoviesFromHTML.awk
-getBBoxShowsFromHTML.awk
-getBBoxEpisodesFromHTML.awk
+getBBoxMovies.awk
+getBBoxShows.awk
+getBBoxEpisodes.awk
 calculateBBoxShowDurations.awk
 rg_BBox-movies.rgx
 rg_BBox-shows.rgx

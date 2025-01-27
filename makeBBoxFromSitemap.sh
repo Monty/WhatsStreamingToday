@@ -161,7 +161,7 @@ fi
 # Generate movies spreadsheet
 printf "### Possible anomalies from processing $TV_MOVIE_TXT\n" >"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
-    -f getBBoxMoviesFromTXT.awk "$TV_MOVIE_TXT" |
+    -f getBBoxMovies.awk "$TV_MOVIE_TXT" |
     sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
 # Get data for shows from /show/ URLs
@@ -180,7 +180,7 @@ fi
 # Generate shows spreadsheet
 printf "\n### Possible anomalies from processing $TV_SHOW_TXT\n" >>"$ERRORS"
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
-    -f getBBoxShowsFromTXT.awk "$TV_SHOW_TXT" |
+    -f getBBoxShows.awk "$TV_SHOW_TXT" |
     sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 
 # Get data for episodes from /season/ URLs
@@ -198,7 +198,7 @@ else
 fi
 # Generate episodes spreadsheet
 printf "\n### Possible anomalies from processing $TV_EPISODE_TXT\n" >>"$ERRORS"
-awk -v ERRORS="$ERRORS" -f getBBoxEpisodesFromTXT.awk "$TV_EPISODE_TXT" |
+awk -v ERRORS="$ERRORS" -f getBBoxEpisodes.awk "$TV_EPISODE_TXT" |
     sort -fu --key=4 --field-separator=\" >"$EPISODES_CSV"
 
 # Sort the titles produced by getBBox*.awk scripts
