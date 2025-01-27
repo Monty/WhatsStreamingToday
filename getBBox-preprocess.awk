@@ -19,6 +19,7 @@
 /,"description":"/ {
     if (match($0, /,"description":"([^"]|\\")*","/)) {
         description = substr($0, RSTART + 16, RLENGTH - 19)
+        # print "description = " description > "/dev/stderr"
         print "description: " description
     }
 }
@@ -48,6 +49,7 @@
 /\["\/movies\/genres\// {
     if (match($0, /\["\/movies\/genres\/[^"]+"\]/)) {
         genre = substr($0, RSTART + 1, RLENGTH - 3)
+        # print "genre = " genre > "/dev/stderr"
         split(genre, fld, "/")
         print "genre: " fld[4]
     }
@@ -74,6 +76,7 @@
 /\{"code":"/ {
     if (match($0, /\{"code":"[^}]*\}/)) {
         rating = substr($0, RSTART + 1, RLENGTH - 3)
+        # print "rating = " rating > "/dev/stderr"
         split(rating, fld, "\"")
         print "rating: " fld[8]
     }
@@ -83,6 +86,7 @@
 /,"releaseYear":/ {
     if (match($0, /,"releaseYear":[^"]+,"/)) {
         releaseYear = substr($0, RSTART + 15, RLENGTH - 17)
+        # print "releaseYear = " releaseYear > "/dev/stderr"
         print "releaseYear: " releaseYear
     }
 }
@@ -91,6 +95,7 @@
 /,"customId":"/ {
     if (match($0, /,"customId":"[^"]+","/)) {
         customId = substr($0, RSTART + 1, RLENGTH - 3)
+        # print "customId = " customId > "/dev/stderr"
         split(customId, fld, "\"")
         print "customId: " fld[4]
     }
@@ -100,9 +105,10 @@
 /,"duration":/ {
     if (match($0, /,"duration":[^"]+,"/)) {
         duration = substr($0, RSTART + 12, RLENGTH - 14)
+        # print "duration = " duration > "/dev/stderr"
         print "duration: " duration
     }
 
     # Print "End of Movie" indicator
-    print "--EOM--"
+    print "--EOM--\n"
 }
