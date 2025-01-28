@@ -152,7 +152,7 @@ if [ ! -e "$TV_MOVIE_TXT" ]; then
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
             sd '"offers".*' '' | sd '"subtype":"",' '' |
-            rg -v '<hero-actions' |
+            rg -v -f rg_BBox_skip.rgx |
             awk -f getBBox-preprocess.awk >>"$TV_MOVIE_TXT"
     done < <(rg -N /movie/ "$ALL_URLS")
 else
@@ -173,7 +173,7 @@ if [ ! -e "$TV_SHOW_TXT" ]; then
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
             sd '"offers".*' '' | sd '"subtype":"",' '' |
-            rg -v '<hero-actions' |
+            rg -v -f rg_BBox_skip.rgx |
             awk -f getBBox-preprocess.awk >>"$TV_SHOW_TXT"
     done < <(rg -N /show/ "$ALL_URLS")
 else
@@ -193,7 +193,7 @@ if [ ! -e "$TV_EPISODE_TXT" ]; then
         curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n\n"type":"$1"' |
             sd '"offers".*' '' | sd '"subtype":"",' '' |
-            rg -v '<hero-actions' |
+            rg -v -f rg_BBox_skip.rgx |
             awk -f getBBox-preprocess.awk >>"$TV_EPISODE_TXT"
     done < <(rg -N /season/ "$ALL_URLS")
 else
