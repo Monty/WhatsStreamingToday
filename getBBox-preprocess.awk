@@ -5,20 +5,48 @@
 # Skip empty lines
 /^$/ { next }
 
-# ,"contextualTitle":"300 Years of French and Saunders","
-/,"contextualTitle":"/ {
-    if (match($0, /,"contextualTitle":"[^"]+","/)) {
-        title = substr($0, RSTART + 1, RLENGTH - 3)
-        # print "title = " title > "/dev/stderr"
-        split(title, fld, "\"")
-        print "title: " fld[4]
+# "type":"movie","
+# "type":"show","
+# "type":"season","
+# "type":"episode","
+/^"type":"/ {
+    if (match($0, /^"type":"[^"]+","/)) {
+        itemType = substr($0, RSTART, RLENGTH - 2)
+        split(itemType, fld, "\"")
+        itemType = fld[4]
+        # print "itemType = " itemType > "/dev/stderr"
+        print "itemType: " itemType
     }
 }
 
-# ,"description":"Comedy ... lots of wigs.","
-/,"description":"/ {
-    if (match($0, /,"description":"([^"]|\\")*","/)) {
-        description = substr($0, RSTART + 16, RLENGTH - 19)
+# ,"showTitle":"A Confession","
+/,"showTitle":"/ {
+    if (match($0, /,"showTitle":"[^"]+","/)) {
+        showTitle = substr($0, RSTART + 1, RLENGTH - 3)
+        split(showTitle, fld, "\"")
+        showTitle = fld[4]
+        # print "showTitle = " showTitle > "/dev/stderr"
+        print "showTitle: " showTitle
+    }
+}
+
+# ,"contextualTitle":"300 Years of French and Saunders","
+# ,"contextualTitle":"Season 1","
+# ,"contextualTitle":"1. Episode 1","
+/,"contextualTitle":"/ {
+    if (match($0, /,"contextualTitle":"[^"]+","/)) {
+        contextualTitle = substr($0, RSTART + 1, RLENGTH - 3)
+        split(contextualTitle, fld, "\"")
+        contextualTitle = fld[4]
+        # printf("%sTitle = %s\n", itemType, contextualTitle) > "/dev/stderr"
+        printf("%sTitle: %s\n", itemType, contextualTitle)
+    }
+}
+
+# ,"shortDescription":"Martin Freeman stars ... Sian O’Callaghan.","
+/,"shortDescription":"/ {
+    if (match($0, /,"shortDescription":"([^"]|\\")*","/)) {
+        description = substr($0, RSTART + 21, RLENGTH - 24)
         # print "description = " description > "/dev/stderr"
         print "description: " description
     }
@@ -30,17 +58,8 @@
         partial_URL = substr($0, RSTART + 1, RLENGTH - 3)
         # print "partial_URL = " partial_URL > "/dev/stderr"
         split(partial_URL, fld, "\"")
-        print "full_URL: https://www.britbox.com/us" fld[4]
-    }
-}
-
-# "type":"movie","
-/^"type":"/ {
-    if (match($0, /^"type":"[^"]+","/)) {
-        itemType = substr($0, RSTART, RLENGTH - 2)
-        # print "itemType = " itemType > "/dev/stderr"
-        split(itemType, fld, "\"")
-        print "itemType: " fld[4]
+        partial_URL = fld[4]
+        print "full_URL: https://www.britbox.com/us" partial_URL
     }
 }
 
