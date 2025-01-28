@@ -77,7 +77,7 @@ function convertDurationToHMS() {
 # title: 300 Years of French and Saunders
 /^movieTitle: / {
     title = $0
-    sub(/^title: /, "", title)
+    sub(/^.*Title: /, "", title)
     # print "title = " title > "/dev/stderr"
     next
 }
