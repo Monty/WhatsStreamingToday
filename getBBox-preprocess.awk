@@ -110,16 +110,6 @@
     }
 }
 
-# ,"customId":"p05wv7gy","
-/,"customId":"/ {
-    if (match($0, /,"customId":"[^"]+","/)) {
-        customId = substr($0, RSTART + 1, RLENGTH - 3)
-        # print "customId = " customId > "/dev/stderr"
-        split(customId, fld, "\"")
-        print "customId: " fld[4]
-    }
-}
-
 # ,"duration":2923,"
 /,"duration":/ {
     if (match($0, /,"duration":[^"]+,"/)) {
@@ -127,7 +117,27 @@
         # print "duration = " duration > "/dev/stderr"
         print "duration: " duration
     }
+}
 
-    # Print "End of Movie" indicator
-    print "--EOM--\n"
+# ,"customId":"p05wv7gy",
+/,"customId":"/ {
+    if (match($0, /,"customId":"[^"]+",/)) {
+        customId = substr($0, RSTART + 1, RLENGTH - 3)
+        # print "customId = " customId > "/dev/stderr"
+        split(customId, fld, "\"")
+        print "customId: " fld[4]
+    }
+
+    if (itemType == "movie") {
+        # Print "End of Movie" indicator
+        print "--EOM--\n"
+    }
+    else if (itemType == "episode") {
+        # Print "End of Episode" indicator
+        print "--EOE--\n"
+    }
+    else if (itemType == "season") {
+        # Print "End of Season" indicator
+        print "--EOS--\n"
+    }
 }
