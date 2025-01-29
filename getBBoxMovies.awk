@@ -98,6 +98,7 @@ function convertDurationToHMS() {
 /^description: / {
     description = $0
     sub(/^description: /, "", description)
+    gsub(/\\"/, "\"", description)
     next
 }
 

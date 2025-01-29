@@ -91,6 +91,7 @@ function clearShowVariables() {
 /^description: / {
     description = $0
     sub(/^description: /, "", description)
+    gsub(/\\"/, "\"", description)
     # print "description = " description > "/dev/stderr"
     next
 }
