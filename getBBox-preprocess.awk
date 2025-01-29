@@ -19,6 +19,30 @@
     }
 }
 
+# ,"contextualTitle":"300 Years of French and Saunders","
+# ,"contextualTitle":"Season 1","
+# ,"contextualTitle":"1. Episode 1","
+/,"contextualTitle":"/ {
+    if (match($0, /,"contextualTitle":"[^"]+","/)) {
+        contextualTitle = substr($0, RSTART + 1, RLENGTH - 3)
+        split(contextualTitle, fld, "\"")
+        contextualTitle = fld[4]
+        # printf("%sTitle = %s\n", itemType, contextualTitle) > "/dev/stderr"
+        printf("%sTitle: %s\n", itemType, contextualTitle)
+    }
+}
+
+# ,"showId":"26113","
+/,"showId":"/ {
+    if (match($0, /,"showId":"[^"]+","/)) {
+        showId = substr($0, RSTART + 1, RLENGTH - 3)
+        split(showId, fld, "\"")
+        showId = fld[4]
+        # print "showId = " showId > "/dev/stderr"
+        print "showId: " showId
+    }
+}
+
 # ,"showTitle":"A Confession","
 /,"showTitle":"/ {
     if (match($0, /,"showTitle":"[^"]+","/)) {
@@ -30,16 +54,14 @@
     }
 }
 
-# ,"contextualTitle":"300 Years of French and Saunders","
-# ,"contextualTitle":"Season 1","
-# ,"contextualTitle":"1. Episode 1","
-/,"contextualTitle":"/ {
-    if (match($0, /,"contextualTitle":"[^"]+","/)) {
-        contextualTitle = substr($0, RSTART + 1, RLENGTH - 3)
-        split(contextualTitle, fld, "\"")
-        contextualTitle = fld[4]
-        # printf("%sTitle = %s\n", itemType, contextualTitle) > "/dev/stderr"
-        printf("%sTitle: %s\n", itemType, contextualTitle)
+# ,"seasonId":"26114","
+/,"seasonId":"/ {
+    if (match($0, /,"seasonId":"[^"]+","/)) {
+        seasonId = substr($0, RSTART + 1, RLENGTH - 3)
+        split(seasonId, fld, "\"")
+        seasonId = fld[4]
+        # print "seasonId = " seasonId > "/dev/stderr"
+        print "seasonId: " seasonId
     }
 }
 
