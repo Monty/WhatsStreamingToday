@@ -12,6 +12,17 @@ BEGIN {
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
+function convertDurationToHMS() {
+    secs = duration
+    mins = int(secs / 60)
+    hrs = int(mins / 60)
+    secs %= 60
+    mins %= 60
+    # Make duration a string
+    duration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
+    # print "duration = " duration > "/dev/stderr"
+}
+
 {
     gsub(/&#160;/, " ")
     gsub(/&#163;/, "£")
@@ -35,16 +46,15 @@ BEGIN {
     gsub(/&amp;/, "\\&")
 }
 
-# "/tv/genres/Mystery"
-/"\/tv\/genres\// {
-    split($0, fld, "/")
-    genre = fld[4]
-    sub(/".*/, "", genre)
+# genre: Drama
+/^genre: / {
+    genre = $0
+    sub(/^genre: /, "", genre)
     # print "genre = " genre > "/dev/stderr"
+    next
 }
 
-# "type": "episode",
-/"type": "episode",/ {
+function clearShowVariables() {
     # Make sure no fields have been carried over due to missing keys
     # Only used during processing
     episodeTitle = ""
@@ -59,10 +69,10 @@ BEGIN {
     numSeasons = ""
     numEpisodes = ""
     duration = ""
-    year = ""
+    releaseYear = ""
     rating = ""
     description = ""
-    contentId = ""
+    customId = ""
     dateType = ""
     showId = ""
     seasonId = ""
@@ -76,70 +86,84 @@ BEGIN {
     firstLineNum = NR
 }
 
-# "shortDescription": "A young Rhys is shot dead in the house. Rewind 15 days and we meet four siblings and their families as they arrive at an isolated farmhouse to scatter their mother&#39;s ashes.",
-#
-# Note: Some descripotions may contain quotes
-/"shortDescription": "/ {
-    sub(/.*"shortDescription": "/, "")
-    sub(/",$/, "")
+# description: "Comedy ... lots of wigs."
+# Note: Some descriptions may contain quotes
+/^description: / {
     description = $0
+    sub(/^description: /, "", description)
     # print "description = " description > "/dev/stderr"
+    next
 }
 
-# "code": "TVPG-TV-PG",
-/"code": "TVPG-/ {
-    split($0, fld, "\"")
-    rating = fld[4]
-    sub(/TVPG-/, "", rating)
+# rating: TV-14
+/^rating: / {
+    dateType = "rating"
+    rating = $0
+    sub(/^rating: /, "", rating)
     # print "rating = " rating > "/dev/stderr"
+    next
 }
 
 # "path": "/episode/15_Days_S1_E1_p07l24yd",
-/"path": "\/episode\// {
-    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > S01E001
-    split($0, fld, "\"")
-    episodePath = fld[4]
-    full_URL = "https://www.britbox.com/us" episodePath
-    shortEpisodeURL = "www.britbox.com/us" episodePath
+# full_URL: https://www.britbox.com/us/episode/15_Days_S1_E1_p07l24yd
+/^full_URL: / {
+    full_URL = $0
+    sub(/^full_URL: /, "", full_URL)
     # print "full_URL = " full_URL > "/dev/stderr"
-    numFields = split(episodePath, fld, "_")
-    seasonNumber = fld[numFields - 2]
-    sub(/S/, "", seasonNumber)
+    shortEpisodeURL = full_URL
+    sub(/^https:\/\//, "", shortEpisodeURL)
+    # print "shortEpisodeURL = " shortEpisodeURL > "/dev/stderr"
+    # Goal: 15_Days_S01E001_Episode_1_p07l24yd > S01E001
+    numFields = split(full_URL, fld, "/")
+    episodePath = fld[numFields]
+    # print "episodePath = " episodePath > "/dev/stderr"
+}
+
+# seasonNumber: 1
+/^seasonNumber: / {
+    seasonNumber = $0
+    sub(/^seasonNumber: /, "", seasonNumber)
     # print "seasonNumber = " seasonNumber > "/dev/stderr"
-    episodeNumber = fld[numFields - 1]
-    sub(/E/, "", episodeNumber)
+    next
+}
+
+# episodeNumber: 5
+/^episodeNumber: / {
+    episodeNumber = $0
+    sub(/^episodeNumber: /, "", episodeNumber)
     # print "episodeNumber = " episodeNumber > "/dev/stderr"
     SnEp = sprintf("S%02dE%03d", seasonNumber, episodeNumber)
+    next
 }
 
-# "releaseYear": 2019,
-/"releaseYear": / {
+# releaseYear: 2017
+/^releaseYear: / {
     dateType = "releaseYear"
-    split($0, fld, "\"")
-    year = fld[3]
-    sub(/: /, "", year)
-    sub(/,.*/, "", year)
-    # print "year = " year > "/dev/stderr"
+    releaseYear = $0
+    sub(/^releaseYear: /, "", releaseYear)
+    # print "releaseYear = " releaseYear > "/dev/stderr"
+    next
 }
 
-# "episodeName": "Episode 1",
-/"episodeName": "/ {
-    split($0, fld, "\"")
-    episodeTitle = fld[4]
+# episodeTitle: Looking Good Dead
+/^episodeTitle: / {
+    episodeTitle = $0
+    sub(/^episodeTitle: /, "", episodeTitle)
     # print "episodeTitle = " episodeTitle > "/dev/stderr"
+    next
 }
 
-# "showId": "24474",
-/"showId": / {
-    split($0, fld, "\"")
-    showId = fld[4]
+# showId: 24474
+/^showId: / {
+    showId = $0
+    sub(/^showId: /, "", showId)
     # print "showId = " showId > "/dev/stderr"
 }
 
-# "showTitle": "15 Days",
-/"showTitle": / {
-    split($0, fld, "\"")
-    showTitle = fld[4]
+# showTitle: 15 Days
+/^showTitle: / {
+    showTitle = $0
+    sub(/^showTitle: /, "", showTitle)
     # print "showTitle = " showTitle > "/dev/stderr"
 
     # "Maigret" needs to be revised to clarify timeframe
@@ -213,31 +237,34 @@ BEGIN {
     }
 }
 
-# "seasonId": "24475",
-/"seasonId": / {
-    split($0, fld, "\"")
-    seasonId = fld[4]
+# customId: 24475
+/^seasonId: / {
+    seasonId = $0
+    sub(/^seasonId: /, "", seasonId)
     # print "seasonId = " seasonId > "/dev/stderr"
+    next
 }
 
-# "duration": 2690,
-/"duration": / {
-    split($0, fld, "\"")
-    seconds = fld[3]
-    sub(/: /, "", seconds)
-    sub(/,.*/, "", seconds)
-    duration = "0:" int(seconds / 60)
-    # print "duration = " duration > "/dev/stderr"
-}
-
-# "customId": "p07kvw8d",
-/"customId": "/ {
-    totalEpisodes += 1
+# duration: 2923
+/^duration: / {
+    duration = $0
+    sub(/^duration: /, "", duration)
     lastLineNum = NR
-    split($0, fld, "\"")
-    contentId = fld[4]
-    # print "contentId = " contentId > "/dev/stderr"
+    convertDurationToHMS()
+    # print "duration = " duration > "/dev/stderr"
+    next
+}
 
+# customId: p05wv7gy
+/^customId: / {
+    customId = $0
+    sub(/^customId: /, "", customId)
+    # print "customId = " customId > "/dev/stderr"
+    next
+}
+
+# --EOE--
+/^--EOE--$/ {
     # This should be the last line of every episode.
     # So finish processing and add line to spreadsheet
 
@@ -266,14 +293,14 @@ BEGIN {
         numEpisodes,
         duration,
         genre,
-        year,
+        releaseYear,
         rating,
         description\
     )
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
         contentType,
-        contentId,
+        customId,
         itemType,
         dateType,
         showId,

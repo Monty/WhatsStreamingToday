@@ -74,6 +74,17 @@ function convertDurationToHMS() {
     gsub(/&amp;/, "\\&")
 }
 
+# itemType: movie
+/^itemType: / {
+    clearShowVariables()
+    itemType = $0
+    sub(/^itemType: /, "", itemType)
+    contentType = "tv_movie"
+    totalMovies += 1
+    # print "itemType = " itemType > "/dev/stderr"
+    next
+}
+
 # title: 300 Years of French and Saunders
 /^movieTitle: / {
     title = $0
@@ -95,16 +106,6 @@ function convertDurationToHMS() {
     full_URL = $0
     sub(/^full_URL: /, "", full_URL)
     # print "full_URL = " full_URL > "/dev/stderr"
-    next
-}
-
-# itemType: movie
-/^itemType: / {
-    itemType = $0
-    sub(/^itemType: /, "", itemType)
-    contentType = "tv_movie"
-    totalMovies += 1
-    # print "itemType = " itemType > "/dev/stderr"
     next
 }
 

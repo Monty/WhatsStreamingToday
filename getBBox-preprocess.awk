@@ -85,6 +85,17 @@
     }
 }
 
+# ,"path":"/episode/A_Confession_S1_E4_p0891fpg","
+/,"path":"\/episode\// {
+    if (match($0, /,"path":"\/episode\/[^"]+","/)) {
+        partial_URL = substr($0, RSTART + 1, RLENGTH - 3)
+        # print "partial_URL = " partial_URL > "/dev/stderr"
+        split(partial_URL, fld, "\"")
+        partial_URL = fld[4]
+        print "full_URL: https://www.britbox.com/us/episode" partial_URL
+    }
+}
+
 # ,"genres":["Drama"],"
 # ["/movies/genres/Comedy"]
 /\["\/movies\/genres\// {
@@ -129,6 +140,35 @@
         releaseYear = substr($0, RSTART + 15, RLENGTH - 17)
         # print "releaseYear = " releaseYear > "/dev/stderr"
         print "releaseYear: " releaseYear
+    }
+}
+
+# ,"seasonNumber":1,"
+/,"seasonNumber":/ {
+    if (match($0, /,"seasonNumber":[^"]+,"/)) {
+        seasonNumber = substr($0, RSTART + 16, RLENGTH - 18)
+        # print "seasonNumber = " seasonNumber > "/dev/stderr"
+        print "seasonNumber: " seasonNumber
+    }
+}
+
+# ,"episodeNumber":5,"
+/,"episodeNumber":/ {
+    if (match($0, /,"episodeNumber":[^"]+,"/)) {
+        episodeNumber = substr($0, RSTART + 17, RLENGTH - 19)
+        # print "episodeNumber = " episodeNumber > "/dev/stderr"
+        print "episodeNumber: " episodeNumber
+    }
+}
+
+# ,"episodeName":"Episode 5","
+/,"episodeName":"/ {
+    if (match($0, /,"episodeName":"[^"]+","/)) {
+        episodeName = substr($0, RSTART + 1, RLENGTH - 3)
+        split(episodeName, fld, "\"")
+        episodeName = fld[4]
+        # print "episodeName = " episodeName > "/dev/stderr"
+        print "episodeName: " episodeName
     }
 }
 
