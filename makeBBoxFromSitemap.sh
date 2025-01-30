@@ -164,6 +164,26 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
     -f getBBoxMovies.awk "$TV_MOVIE_TXT" |
     sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
+# Get data for shows from /show/ URLs
+# Unless we already have one from today
+if [ ! -e "$TV_SHOW_TXT" ]; then
+    printf "==> Generating new $TV_SHOW_TXT\n"
+    while read -r url; do
+        curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
+            sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
+            sd '"offers".*' '' | sd '"subtype":"",' '' |
+            rg -v -f rg_BBox_skip.rgx |
+            awk -f getBBox-preprocess.awk >>"$TV_SHOW_TXT"
+    done < <(rg -N /show/ "$ALL_URLS")
+else
+    printf "==> using existing $TV_SHOW_TXT\n"
+fi
+# Generate shows spreadsheet
+printf "\n### Possible anomalies from processing $TV_SHOW_TXT\n" >>"$ERRORS"
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
+    -f getBBoxShows.awk "$TV_SHOW_TXT" |
+    sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
+
 # Get data for episodes from /season/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_EPISODE_TXT" ]; then
@@ -173,7 +193,7 @@ if [ ! -e "$TV_EPISODE_TXT" ]; then
             sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
             sd '"offers".*' '' | sd '"subtype":"",' '' |
             rg -v -f rg_BBox_skip.rgx |
-            awk -f getBBox-preprocess.awk | sort -ur >>"$TV_EPISODE_TXT"
+            awk -f getBBox-preprocess.awk >>"$TV_EPISODE_TXT"
     done < <(rg -N /season/ "$ALL_URLS")
 else
     printf "==> using existing $TV_EPISODE_TXT\n"
