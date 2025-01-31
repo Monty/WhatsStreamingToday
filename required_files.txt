@@ -24,6 +24,7 @@ calculateBBoxShowDurations.awk
 rg_BBox-movies.rgx
 rg_BBox-shows.rgx
 rg_BBox-seasons.rgx
+rg_BBox_keep.rgx
 rg_BBox_skip.rgx
 saveTodaysBBoxFiles.sh
 formatUnifiedDiffOutput.awk
