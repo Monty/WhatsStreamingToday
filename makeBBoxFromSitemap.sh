@@ -144,17 +144,21 @@ else
     printf "==> using existing $ALL_URLS\n"
 fi
 
+function winnowHTML() {
+    printf "==> Generating new $2\n"
+    while read -r url; do
+        curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
+            sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
+            sd '"offers".*' '' | sd '"subtype":"",' '' |
+            sd '^[[:space:]]+' '' | rg -v -f rg_BBox_skip.rgx |
+            sort -ur | awk -f getBBox-preprocess.awk >>"$2"
+    done < <(rg -N "$1" "$ALL_URLS")
+}
+
 # Get data for movies from /movie/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_MOVIE_TXT" ]; then
-    printf "==> Generating new $TV_MOVIE_TXT\n"
-    while read -r url; do
-        curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
-            sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
-            sd '"offers".*' '' | sd '"subtype":"",' '' |
-            rg -v -f rg_BBox_skip.rgx |
-            awk -f getBBox-preprocess.awk >>"$TV_MOVIE_TXT"
-    done < <(rg -N /movie/ "$ALL_URLS")
+    winnowHTML "/movie/" "$TV_MOVIE_TXT"
 else
     printf "==> using existing $TV_MOVIE_TXT\n"
 fi
@@ -167,14 +171,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
 # Get data for shows from /show/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_SHOW_TXT" ]; then
-    printf "==> Generating new $TV_SHOW_TXT\n"
-    while read -r url; do
-        curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
-            sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
-            sd '"offers".*' '' | sd '"subtype":"",' '' |
-            rg -v -f rg_BBox_skip.rgx |
-            awk -f getBBox-preprocess.awk >>"$TV_SHOW_TXT"
-    done < <(rg -N /show/ "$ALL_URLS")
+    winnowHTML "/show/" "$TV_SHOW_TXT"
 else
     printf "==> using existing $TV_SHOW_TXT\n"
 fi
@@ -187,14 +184,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS 
 # Get data for episodes from /season/ URLs
 # Unless we already have one from today
 if [ ! -e "$TV_EPISODE_TXT" ]; then
-    printf "==> Generating new $TV_EPISODE_TXT\n"
-    while read -r url; do
-        curl -s "$url" | rg '<hero-actions' | sd '&quot;' '"' |
-            sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
-            sd '"offers".*' '' | sd '"subtype":"",' '' |
-            rg -v -f rg_BBox_skip.rgx |
-            awk -f getBBox-preprocess.awk >>"$TV_EPISODE_TXT"
-    done < <(rg -N /season/ "$ALL_URLS")
+    winnowHTML "/season/" "$TV_EPISODE_TXT"
 else
     printf "==> using existing $TV_EPISODE_TXT\n"
 fi
