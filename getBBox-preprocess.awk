@@ -5,6 +5,37 @@
 # Skip empty lines
 /^$/ { next }
 
+# <meta property="og:title" content="Grace" />
+# <meta property="og:title" content="Macbeth (2018)" />
+# Extract the show title
+/meta property="og:title/ {
+    split($0, fld, "\"")
+    showTitleOG = fld[4]
+    # print "==> showTitleOG = " showTitleOG > "/dev/stderr"
+    print "showTitleOG: " showTitleOG
+    next
+}
+
+# <meta name="description" content="Martin Freeman stars..." />
+/<meta name="description" / {
+    sub(/.*name="description" content="/, "")
+    sub(/" \/>.*/, "")
+    showDescription = $0
+    # print "showDescription = " showDescription > "/dev/stderr"
+    print "showDescription: " showDescription
+    next
+}
+
+# <meta property="og:url" content="/us/movie/63_Up_p09668r0" />
+# <meta property="og:url" content="/us/show/Grace_65424" />
+# <meta property="og:url" content="/us/season/Grace_S1_10097327" />
+/<meta property="og:url" content=/ {
+    split($0, fld, "\"")
+    partial_URL = fld[4]
+    print "full_URL: https://www.britbox.com" partial_URL
+    next
+}
+
 # "type":"movie","
 # "type":"show","
 # "type":"season","
@@ -32,6 +63,17 @@
     }
 }
 
+# ,"showTitle":"A Confession","
+/,"showTitle":"/ {
+    if (match($0, /,"showTitle":"[^"]+","/)) {
+        showTitle2 = substr($0, RSTART + 1, RLENGTH - 3)
+        split(showTitle2, fld, "\"")
+        showTitle2 = fld[4]
+        # print "showTitle2 = " showTitle2 > "/dev/stderr"
+        print "showTitle2: " showTitle2
+    }
+}
+
 # ,"showId":"26113","
 /,"showId":"/ {
     if (match($0, /,"showId":"[^"]+","/)) {
@@ -40,17 +82,6 @@
         showId = fld[4]
         # print "showId = " showId > "/dev/stderr"
         print "showId: " showId
-    }
-}
-
-# ,"showTitle":"A Confession","
-/,"showTitle":"/ {
-    if (match($0, /,"showTitle":"[^"]+","/)) {
-        showTitle = substr($0, RSTART + 1, RLENGTH - 3)
-        split(showTitle, fld, "\"")
-        showTitle = fld[4]
-        # print "showTitle = " showTitle > "/dev/stderr"
-        print "showTitle: " showTitle
     }
 }
 
@@ -71,28 +102,6 @@
         description = substr($0, RSTART + 21, RLENGTH - 24)
         # print "description = " description > "/dev/stderr"
         print "description: " description
-    }
-}
-
-# ,"path":"/movie/300_Years_of_French_and_Saunders_p05wv7gy","
-/,"path":"\/movie\// {
-    if (match($0, /,"path":"\/movie\/[^"]+","/)) {
-        partial_URL = substr($0, RSTART + 1, RLENGTH - 3)
-        # print "partial_URL = " partial_URL > "/dev/stderr"
-        split(partial_URL, fld, "\"")
-        partial_URL = fld[4]
-        print "full_URL: https://www.britbox.com/us" partial_URL
-    }
-}
-
-# ,"path":"/episode/A_Confession_S1_E4_p0891fpg","
-/,"path":"\/episode\// {
-    if (match($0, /,"path":"\/episode\/[^"]+","/)) {
-        partial_URL = substr($0, RSTART + 1, RLENGTH - 3)
-        # print "partial_URL = " partial_URL > "/dev/stderr"
-        split(partial_URL, fld, "\"")
-        partial_URL = fld[4]
-        print "full_URL: https://www.britbox.com/us/episode" partial_URL
     }
 }
 
