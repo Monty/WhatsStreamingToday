@@ -4,18 +4,22 @@ BEGIN { print "==> New File" }
 # Skip empty lines
 /^$/ { next }
 
+# <meta property="og:title" content="63 Up" />
 # <meta property="og:title" content="Grace" />
 # <meta property="og:title" content="Macbeth (2018)" />
-# Extract the show title
+# Extract the show/movie title. It will always be the
+# show/movie title, not the season or episode title.
 /meta property="og:title/ {
     split($0, fld, "\"")
-    showTitleOG = fld[4]
-    # print "==> showTitleOG = " showTitleOG > "/dev/stderr"
-    print "showTitleOG: " showTitleOG
+    showTitle = fld[4]
+    # print "==> showTitle = " showTitle > "/dev/stderr"
+    print "showTitle: " showTitle
     next
 }
 
 # <meta name="description" content="Martin Freeman stars..." />
+# Extract the show/movie description. It will always be the
+# show/movie description, not the season or episode description.
 /<meta name="description" / {
     sub(/.*name="description" content="/, "")
     sub(/" \/>.*/, "")
@@ -59,17 +63,6 @@ BEGIN { print "==> New File" }
         contextualTitle = fld[4]
         # printf("%sTitle = %s\n", itemType, contextualTitle) > "/dev/stderr"
         printf("%sTitle: %s\n", itemType, contextualTitle)
-    }
-}
-
-# ,"showTitle":"A Confession","
-/,"showTitle":"/ {
-    if (match($0, /,"showTitle":"[^"]+","/)) {
-        showTitle2 = substr($0, RSTART + 1, RLENGTH - 3)
-        split(showTitle2, fld, "\"")
-        showTitle2 = fld[4]
-        # print "showTitle2 = " showTitle2 > "/dev/stderr"
-        print "showTitle2: " showTitle2
     }
 }
 
