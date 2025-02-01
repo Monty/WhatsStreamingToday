@@ -39,6 +39,10 @@ BEGIN { print "==> New File" }
     split(partial_URL, fld, "/")
     fileType = fld[3]
     # print "fileType = " fileType > "/dev/stderr"
+    if (fileType == "movie") { print "--BOM--" }
+
+    if (fileType == "show") { print "--BOS--" }
+
     fileName = fld[4]
     # print "fileName = " fileName > "/dev/stderr"
     next
@@ -57,6 +61,8 @@ BEGIN { print "==> New File" }
         if (fileType == "show" && itemType != "show") { next }
 
         if (fileType == "season" && itemType != "episode") { next }
+
+        if (itemType == "episode") { print "--BOE--" }
 
         # print "itemType = " itemType > "/dev/stderr"
         print "itemType: " itemType
