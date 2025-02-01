@@ -74,9 +74,10 @@ function convertDurationToHMS() {
     gsub(/&amp;/, "\\&")
 }
 
+/^--BO[MS]--$/ { clearShowVariables() }
+
 # full_URL: https://www.britbox.com/us/movie/A_Christmas_Carol_p00z2f5m
 /^full_URL: / {
-    clearShowVariables()
     full_URL = $0
     sub(/^full_URL: /, "", full_URL)
     # print "full_URL = " full_URL > "/dev/stderr"
