@@ -141,7 +141,7 @@ BEGIN { print "==> New File" }
 # Get showID and numberOfSeasons
 /,"seasons":\{"id":"/ {
     # Match everything from ,"seasons":{"id":" up to "items"
-    if (match($0, /,"seasons":\{"id":"[^"]*","size":[0-9]+,"items/)) {
+    if (match($0, /,"seasons":\{"id":"[0-9]+-seasons","size":[0-9]+,"items/)) {
         lastOfShow = substr($0, RSTART + 17, RLENGTH - 22)
         # print "lastOfShow = " lastOfShow > "/dev/stderr"
         split(lastOfShow, fld, "\"")
