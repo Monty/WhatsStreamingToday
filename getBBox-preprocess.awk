@@ -36,6 +36,11 @@ BEGIN { print "==> New File" }
     split($0, fld, "\"")
     partial_URL = fld[4]
     print "full_URL: https://www.britbox.com" partial_URL
+    split(partial_URL, fld, "/")
+    fileType = fld[3]
+    # print "fileType = " fileType > "/dev/stderr"
+    fileName = fld[4]
+    # print "fileName = " fileName > "/dev/stderr"
     next
 }
 
@@ -48,6 +53,11 @@ BEGIN { print "==> New File" }
         itemType = substr($0, RSTART, RLENGTH - 2)
         split(itemType, fld, "\"")
         itemType = fld[4]
+
+        if (fileType == "show" && itemType != "show") { next }
+
+        if (fileType == "season" && itemType != "episode") { next }
+
         # print "itemType = " itemType > "/dev/stderr"
         print "itemType: " itemType
     }
@@ -56,7 +66,8 @@ BEGIN { print "==> New File" }
 # ,"contextualTitle":"300 Years of French and Saunders","
 # ,"contextualTitle":"Season 1","
 # ,"contextualTitle":"1. Episode 1","
-/,"contextualTitle":"/ {
+# Movies use showTitle not movieTitle
+/,"contextualTitle":"/ && fileType != "movie" {
     if (match($0, /,"contextualTitle":"[^"]+","/)) {
         contextualTitle = substr($0, RSTART + 1, RLENGTH - 3)
         split(contextualTitle, fld, "\"")
@@ -123,6 +134,30 @@ BEGIN { print "==> New File" }
 
         credits = substr(credits, RSTART + RLENGTH)
     }
+}
+
+# ,"seasons":{"id":"26113-seasons","path":"","size":1,"items"
+# ,"seasons":{"id":"9509-seasons","path":"","size":3,"items"
+# Get showID and numberOfSeasons
+/,"seasons":\{"id":"/ {
+    # Match everything from ,"seasons":{"id":" up to "items"
+    if (match($0, /,"seasons":\{"id":"[^"]*","size":[0-9]+,"items/)) {
+        lastOfShow = substr($0, RSTART + 17, RLENGTH - 22)
+        # print "lastOfShow = " lastOfShow > "/dev/stderr"
+        split(lastOfShow, fld, "\"")
+        showId2 = fld[2]
+        sub(/-seasons/, "", showId2)
+        # print "showId2: " showId2 > "/dev/stderr"
+        print "showId2: " showId2
+        numberOfSeasons = fld[5]
+        sub(/:/, "", numberOfSeasons)
+        sub(/,$/, "", numberOfSeasons)
+        # print "numberOfSeasons: " numberOfSeasons > "/dev/stderr"
+        print "numberOfSeasons: " numberOfSeasons
+    }
+
+    # Print "End of Show" indicator
+    print "--EOS--\n"
 }
 
 # {"code":"TVPG-TV-14","name":"TV-14"}
@@ -198,9 +233,5 @@ BEGIN { print "==> New File" }
     else if (itemType == "episode") {
         # Print "End of Episode" indicator
         print "--EOE--\n"
-    }
-    else if (itemType == "season") {
-        # Print "End of Season" indicator
-        print "--EOS--\n"
     }
 }

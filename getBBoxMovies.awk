@@ -74,14 +74,12 @@ function convertDurationToHMS() {
     gsub(/&amp;/, "\\&")
 }
 
-# itemType: movie
-/^itemType: / {
+# full_URL: https://www.britbox.com/us/movie/A_Christmas_Carol_p00z2f5m
+/^full_URL: / {
     clearShowVariables()
-    itemType = $0
-    sub(/^itemType: /, "", itemType)
-    contentType = "tv_movie"
-    totalMovies += 1
-    # print "itemType = " itemType > "/dev/stderr"
+    full_URL = $0
+    sub(/^full_URL: /, "", full_URL)
+    # print "full_URL = " full_URL > "/dev/stderr"
     next
 }
 
@@ -93,20 +91,22 @@ function convertDurationToHMS() {
     next
 }
 
+# itemType: movie
+/^itemType: / {
+    itemType = $0
+    sub(/^itemType: /, "", itemType)
+    contentType = "tv_movie"
+    totalMovies += 1
+    # print "itemType = " itemType > "/dev/stderr"
+    next
+}
+
 # description: "Comedy ... lots of wigs."
 # Some descriptions may contain quotes
 /^description: / {
     description = $0
     sub(/^description: /, "", description)
     gsub(/\\"/, "\"", description)
-    next
-}
-
-# full_URL: https://www.britbox.com/us/movie/A_Christmas_Carol_p00z2f5m
-/^full_URL: / {
-    full_URL = $0
-    sub(/^full_URL: /, "", full_URL)
-    # print "full_URL = " full_URL > "/dev/stderr"
     next
 }
 
