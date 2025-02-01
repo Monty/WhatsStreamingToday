@@ -116,8 +116,9 @@ BEGIN { print "==> New File" }
 
 # ,"genres":["Drama"],"
 # ["/movies/genres/Comedy"]
-/\["\/movies\/genres\// {
-    if (match($0, /\["\/movies\/genres\/[^"]+"\]/)) {
+# ["/tv/genres/Mystery"]
+/\["\/movies\/genres\// || /\["\/tv\/genres\// {
+    if (match($0, /\["\/(movies|tv)\/genres\/[^"]+"\]/)) {
         genre = substr($0, RSTART + 1, RLENGTH - 3)
         # print "genre = " genre > "/dev/stderr"
         split(genre, fld, "/")
