@@ -150,7 +150,8 @@ function winnowHTML() {
         curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
             sd '"offers".*' '' | sd '"subtype":"",' '' |
-            sd '^[[:space:]]+' '' | rg -v -f rg_BBox_skip.rgx |
+            sd '"path":"",' '' | sd '^[[:space:]]+' '' |
+            rg -v -f rg_BBox_skip.rgx |
             sort -ur | awk -f getBBox-preprocess.awk >>"$2"
     done < <(rg -N "$1" "$ALL_URLS")
 }
