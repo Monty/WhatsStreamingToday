@@ -51,11 +51,11 @@ BEGIN {
     numEpisodes = ""
     duration = ""
     genre = ""
-    year = ""
+    releaseYear = ""
     rating = ""
     description = ""
     contentType = ""
-    contentId = ""
+    customId = ""
     itemType = ""
     dateType = ""
     showId = ""
@@ -163,8 +163,8 @@ BEGIN {
 # "customId": "p07kvw8d",
 /"customId": "/ {
     split($0, fld, "\"")
-    contentId = fld[4]
-    # print "contentId = " contentId > "/dev/stderr"
+    customId = fld[4]
+    # print "customId = " customId > "/dev/stderr"
 }
 
 # "YearRange": 2019,
@@ -173,7 +173,7 @@ BEGIN {
     dateType = "yearRange"
     split($0, fld, "\"")
     yearRange = fld[4]
-    year = yearRange
+    releaseYear = yearRange
     # print "yearRange = \"" yearRange "\""> "/dev/stderr"
 }
 
@@ -190,12 +190,12 @@ BEGIN {
     if (yearRange == "") {
         dateType = "releaseYear"
         split($0, fld, "\"")
-        year = fld[3]
-        sub(/: /, "", year)
-        sub(/,.*/, "", year)
+        releaseYear = fld[3]
+        sub(/: /, "", releaseYear)
+        sub(/,.*/, "", releaseYear)
     }
 
-    # print "year = " year > "/dev/stderr"
+    # print "releaseYear = " releaseYear > "/dev/stderr"
 }
 
 # "showId": "24474",
@@ -300,14 +300,14 @@ BEGIN {
         numEpisodes,
         duration,
         genre,
-        year,
+        releaseYear,
         rating,
         description\
     )
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
         contentType,
-        contentId,
+        customId,
         itemType,
         dateType,
         showId,
