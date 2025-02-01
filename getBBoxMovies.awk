@@ -18,6 +18,7 @@ function clearShowVariables() {
     # Only used during processing
     full_URL = ""
     title = ""
+    yearRange = ""
     # Used in printing credits
     person_role = ""
     person_name = ""
@@ -58,6 +59,8 @@ function convertDurationToHMS() {
 {
     gsub(/&#160;/, " ")
     gsub(/&#163;/, "£")
+    gsub(/&#193;/, "Á")
+    gsub(/&#211;/, "Ó")
     gsub(/&#225;/, "á")
     gsub(/&#226;/, "â")
     gsub(/&#229;/, "å")
@@ -65,7 +68,9 @@ function convertDurationToHMS() {
     gsub(/&#233;/, "é")
     gsub(/&#234;/, "ê")
     gsub(/&#235;/, "ë")
+    gsub(/&#237;/, "í")
     gsub(/&#239;/, "ï")
+    gsub(/&#243;/, "ó")
     gsub(/&#246;/, "ö")
     gsub(/&#248;/, "ø")
     gsub(/&#250;/, "ú")
