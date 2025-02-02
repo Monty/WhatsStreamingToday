@@ -35,13 +35,14 @@ BEGIN { print "==> New File" }
 /<meta property="og:url" content=/ {
     split($0, fld, "\"")
     partial_URL = fld[4]
-    print "full_URL: https://www.britbox.com" partial_URL
     split(partial_URL, fld, "/")
     fileType = fld[3]
     # print "fileType = " fileType > "/dev/stderr"
     if (fileType == "movie") { print "--BOM--" }
 
-    if (fileType == "show") { print "--BOS--" }
+    if (fileType == "show" || fileType == "season") { print "--BOS--" }
+
+    print "full_URL: https://www.britbox.com" partial_URL
 
     fileName = fld[4]
     # print "fileName = " fileName > "/dev/stderr"
