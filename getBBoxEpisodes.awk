@@ -46,129 +46,62 @@ function convertDurationToHMS() {
     gsub(/&amp;/, "\\&")
 }
 
-# genre: Drama
-/^genre: / {
-    genre = $0
-    sub(/^genre: /, "", genre)
-    # print "genre = " genre > "/dev/stderr"
-    next
-}
-
 function clearShowVariables() {
     # Make sure no fields have been carried over due to missing keys
     # Only used during processing
-    episodeTitle = ""
-    episodePath = ""
-    full_URL = ""
-    shortEpisodeURL = ""
-    showTitle = ""
-    SnEp = ""
+    show_URL = ""
+    title = ""
     yearRange = ""
+    # Used in printing credits
+    person_role = ""
+    person_name = ""
+    character_name = ""
     # Used in printing column data
     fullTitle = ""
-    numSeasons = ""
+    numberOfSeasons = ""
     numEpisodes = ""
     duration = ""
+    showGenre = ""
     releaseYear = ""
     rating = ""
     showDescription = ""
+    contentType = ""
     customId = ""
+    itemType = ""
     dateType = ""
     showId = ""
     seasonId = ""
     seasonNumber = ""
     episodeNumber = ""
+    #
     lastLineNum = ""
-    #
-    contentType = "tv_episode"
-    itemType = "episode"
-    #
     firstLineNum = NR
 }
 
-# showDescription: "Comedy ... lots of wigs."
-# Note: Some descriptions may contain quotes
-/^showDescription: / {
-    showDescription = $0
-    sub(/^showDescription: /, "", showDescription)
-    gsub(/\\"/, "\"", showDescription)
-    # print "showDescription = " showDescription > "/dev/stderr"
-    next
+function clearEpisodeVariables() {
+    episodeTitle = ""
+    episodePath = ""
+    episode_URL = ""
+    shortEpisodeURL = ""
 }
 
-# episodeDescription: "Fulcher is faced with ... whereabouts"
-# Note: Some descriptions may contain quotes
-/^episodeDescription: / {
-    episodeDescription = $0
-    sub(/^episodeDescription: /, "", episodeDescription)
-    gsub(/\\"/, "\"", episodeDescription)
-    # print "episodeDescription = " episodeDescription > "/dev/stderr"
-    next
+/^--BOS--$/ {
+    # Only clearShowVariables at the start, leave them for episodes
+    clearShowVariables()
 }
 
-# rating: TV-14
-/^rating: / {
-    dateType = "rating"
-    rating = $0
-    sub(/^rating: /, "", rating)
-    # print "rating = " rating > "/dev/stderr"
-    next
-}
-
-# "path": "/episode/15_Days_S1_E1_p07l24yd",
-# full_URL: https://www.britbox.com/us/episode/15_Days_S1_E1_p07l24yd
-/^full_URL: / {
-    full_URL = $0
-    sub(/^full_URL: /, "", full_URL)
-    # print "full_URL = " full_URL > "/dev/stderr"
-    shortEpisodeURL = full_URL
+# episode_URL: https://www.britbox.com/us/episode/15_Days_S1_E1_p07l24yd
+/^episode_URL: / {
+    episode_URL = $0
+    sub(/^episode_URL: /, "", episode_URL)
+    # print "episode_URL = " episode_URL > "/dev/stderr"
+    shortEpisodeURL = episode_URL
     sub(/^https:\/\//, "", shortEpisodeURL)
     # print "shortEpisodeURL = " shortEpisodeURL > "/dev/stderr"
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > S01E001
-    numFields = split(full_URL, fld, "/")
+    numFields = split(episode_URL, fld, "/")
     episodePath = fld[numFields]
     # print "episodePath = " episodePath > "/dev/stderr"
-}
-
-# seasonNumber: 1
-/^seasonNumber: / {
-    seasonNumber = $0
-    sub(/^seasonNumber: /, "", seasonNumber)
-    # print "seasonNumber = " seasonNumber > "/dev/stderr"
-    next
-}
-
-# episodeNumber: 5
-/^episodeNumber: / {
-    episodeNumber = $0
-    sub(/^episodeNumber: /, "", episodeNumber)
-    # print "episodeNumber = " episodeNumber > "/dev/stderr"
-    SnEp = sprintf("S%02dE%03d", seasonNumber, episodeNumber)
-    next
-}
-
-# releaseYear: 2017
-/^releaseYear: / {
-    dateType = "releaseYear"
-    releaseYear = $0
-    sub(/^releaseYear: /, "", releaseYear)
-    # print "releaseYear = " releaseYear > "/dev/stderr"
-    next
-}
-
-# episodeTitle: Looking Good Dead
-/^episodeTitle: / {
-    episodeTitle = $0
-    sub(/^episodeTitle: /, "", episodeTitle)
-    # print "episodeTitle = " episodeTitle > "/dev/stderr"
-    next
-}
-
-# showId: 24474
-/^showId: / {
-    showId = $0
-    sub(/^showId: /, "", showId)
-    # print "showId = " showId > "/dev/stderr"
 }
 
 # showTitle: 15 Days
@@ -248,11 +181,79 @@ function clearShowVariables() {
     }
 }
 
+# episodeDescription: "Fulcher is faced with ... whereabouts"
+# Note: Some descriptions may contain quotes
+/^episodeDescription: / {
+    episodeDescription = $0
+    sub(/^episodeDescription: /, "", episodeDescription)
+    gsub(/\\"/, "\"", episodeDescription)
+    # print "episodeDescription = " episodeDescription > "/dev/stderr"
+    next
+}
+
+# rating: TV-14
+/^rating: / {
+    dateType = "rating"
+    rating = $0
+    sub(/^rating: /, "", rating)
+    # print "rating = " rating > "/dev/stderr"
+    next
+}
+
+# seasonNumber: 1
+/^seasonNumber: / {
+    seasonNumber = $0
+    sub(/^seasonNumber: /, "", seasonNumber)
+    # print "seasonNumber = " seasonNumber > "/dev/stderr"
+    next
+}
+
+# episodeNumber: 5
+/^episodeNumber: / {
+    episodeNumber = $0
+    sub(/^episodeNumber: /, "", episodeNumber)
+    # print "episodeNumber = " episodeNumber > "/dev/stderr"
+    SnEp = sprintf("S%02dE%03d", seasonNumber, episodeNumber)
+    next
+}
+
+# releaseYear: 2017
+/^releaseYear: / {
+    dateType = "releaseYear"
+    releaseYear = $0
+    sub(/^releaseYear: /, "", releaseYear)
+    # print "releaseYear = " releaseYear > "/dev/stderr"
+    next
+}
+
+# episodeTitle: Looking Good Dead
+/^episodeTitle: / {
+    episodeTitle = $0
+    sub(/^episodeTitle: /, "", episodeTitle)
+    # print "episodeTitle = " episodeTitle > "/dev/stderr"
+    next
+}
+
+# showId: 24474
+/^showId: / {
+    showId = $0
+    sub(/^showId: /, "", showId)
+    # print "showId = " showId > "/dev/stderr"
+}
+
 # customId: 24475
 /^seasonId: / {
     seasonId = $0
     sub(/^seasonId: /, "", seasonId)
     # print "seasonId = " seasonId > "/dev/stderr"
+    next
+}
+
+# episodeGenre: Drama
+/^episodeGenre: / {
+    episodeGenre = $0
+    sub(/^episodeGenre: /, "", episodeGenre)
+    # print "episodeGenre = " episodeGenre > "/dev/stderr"
     next
 }
 
@@ -281,7 +282,7 @@ function clearShowVariables() {
 
     # Turn episodeTitle into a HYPERLINK
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
-    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" showTitle ", " SnEp ", "\
+    fullTitle = "=HYPERLINK(\"" episode_URL "\";\"" showTitle ", " SnEp ", "\
         episodeTitle\
         "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
@@ -303,7 +304,7 @@ function clearShowVariables() {
         numSeasons,
         numEpisodes,
         duration,
-        genre,
+        episodeGenre,
         releaseYear,
         rating,
         episodeDescription\
