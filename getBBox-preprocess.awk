@@ -129,7 +129,7 @@ BEGIN { print "==> New File" }
 }
 
 # ,"genres":["Drama"],"
-/,"genres":\["/ {
+/,"genres":\["/ && fileType != "movie" {
     if (match($0, /,"genres":\["[^"]*"\],/)) {
         episodeGenre = substr($0, RSTART, RLENGTH)
         split(episodeGenre, fld, "\"")
