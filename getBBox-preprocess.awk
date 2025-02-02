@@ -61,7 +61,7 @@ BEGIN { print "==> New File" }
 
         if (fileType == "show" && itemType != "show") { next }
 
-        if (fileType == "season" && itemType != "episode") { next }
+        if (fileType == "season" && itemType == "show") { next }
 
         if (itemType == "episode") { print "--BOE--" }
 
