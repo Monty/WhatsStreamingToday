@@ -31,7 +31,7 @@ function clearShowVariables() {
     genre = ""
     releaseYear = ""
     rating = ""
-    description = ""
+    showDescription = ""
     contentType = ""
     customId = ""
     itemType = ""
@@ -98,6 +98,8 @@ function convertDurationToHMS() {
 }
 
 # itemType: movie
+# itemType: show
+# itemType: episode
 /^itemType: / {
     itemType = $0
     sub(/^itemType: /, "", itemType)
@@ -107,12 +109,12 @@ function convertDurationToHMS() {
     next
 }
 
-# description: "Comedy ... lots of wigs."
+# showDescription: "Comedy ... lots of wigs."
 # Some descriptions may contain quotes
-/^description: / {
-    description = $0
-    sub(/^description: /, "", description)
-    gsub(/\\"/, "\"", description)
+/^showDescription: / {
+    showDescription = $0
+    sub(/^showDescription: /, "", showDescription)
+    gsub(/\\"/, "\"", showDescription)
     next
 }
 
@@ -242,7 +244,7 @@ function convertDurationToHMS() {
         genre,
         releaseYear,
         rating,
-        description\
+        showDescription\
     )
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
