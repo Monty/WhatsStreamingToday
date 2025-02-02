@@ -13,6 +13,38 @@ BEGIN {
     printf("Show_ID\tSeason_ID\tSn_#\tEp_#\t1st_#\tLast_#\n")
 }
 
+function clearShowVariables() {
+    # Make sure no fields have been carried over due to missing keys
+    # Only used during processing
+    full_URL = ""
+    title = ""
+    yearRange = ""
+    # Used in printing credits
+    person_role = ""
+    person_name = ""
+    character_name = ""
+    # Used in printing column data
+    fullTitle = ""
+    numberOfSeasons = ""
+    numEpisodes = ""
+    duration = ""
+    genre = ""
+    releaseYear = ""
+    rating = ""
+    showDescription = ""
+    contentType = ""
+    customId = ""
+    itemType = ""
+    dateType = ""
+    showId = ""
+    seasonId = ""
+    seasonNumber = ""
+    episodeNumber = ""
+    #
+    lastLineNum = ""
+    firstLineNum = NR
+}
+
 {
     gsub(/&#160;/, " ")
     gsub(/&#163;/, "£")
@@ -36,101 +68,73 @@ BEGIN {
     gsub(/&amp;/, "\\&")
 }
 
-# <title>15 Days S1 - Mystery | BritBox</title>
-/<title>/ {
-    # Make sure no fields have been carried over due to missing keys
-    # Only used during processing
-    full_URL = ""
-    title = ""
-    yearRange = ""
-    # Used in printing credits
-    person_role = ""
-    person_name = ""
-    character_name = ""
-    # Used in printing column data
-    fullTitle = ""
-    numSeasons = ""
-    numEpisodes = ""
-    duration = ""
-    genre = ""
-    releaseYear = ""
-    rating = ""
-    description = ""
-    contentType = ""
-    customId = ""
-    itemType = ""
-    dateType = ""
-    showId = ""
-    seasonId = ""
-    seasonNumber = ""
-    episodeNumber = ""
-    lastLineNum = ""
-    #
-    firstLineNum = NR
-}
+/^--BO[MS]--$/ { clearShowVariables() }
 
-# <meta name="description" content="Comedy dream team Dawn French and Jennifer Saunders reunite for the first time in ten years for a thirtieth-anniversary show bursting mirth, mayhem, And wigs. Lots and lots of wigs." />
-#
-# Some descripotions may contain quotes
-#
-# <meta name="description" content="Reversing the traditional investigative narrative, the crime thriller immediately flashes back to 15 days ago when a young    man is gunned down. Secrets and lies fester within the family, every one’s got a      motive, but who is going to do it?" /
-/<meta name="description" / {
-    sub(/.*name="description" content="/, "")
-    sub(/" \/>.*/, "")
-    description = $0
-    # print "description = " description > "/dev/stderr"
-}
-
-# <link rel="canonical" href="https://www.britbox.com/us/show/ 15_Days_p07kvw8d"
-/<link rel="canonical" / {
-    split($0, fld, "\"")
-    full_URL = fld[4]
+# full_URL: https://www.britbox.com/us/show/A_Confession_p0891f13
+/^full_URL: / {
+    full_URL = $0
+    sub(/^full_URL: /, "", full_URL)
     # print "full_URL = " full_URL > "/dev/stderr"
+    next
 }
 
-# <h1 class="Title-only-mobile">15 Days</h1>
-/class="Title-only-mobile"/ {
-    split($0, fld, "[<>]")
-    title = fld[3]
-
+# showTitle: A Confession
+/^showTitle: / {
+    title = $0
+    sub(/^.*Title: /, "", title)
     # print "title = " title > "/dev/stderr"
+    next
 }
 
-# "type": "season",
-/"type": "/ {
+# itemType: movie
+# itemType: show
+# itemType: episode
+/^itemType: / {
+    itemType = $0
+    sub(/^itemType: /, "", itemType)
     contentType = "tv_show"
-    split($0, fld, "\"")
-    itemType = fld[4]
     totalShows += 1
     # print "itemType = " itemType > "/dev/stderr"
+    next
 }
 
-# "/tv/genres/Mystery"
-/"\/tv\/genres\// {
-    split($0, fld, "/")
-    genre = fld[4]
-    sub(/".*/, "", genre)
+# showDescription: "Martin Freeman stars ... O’Callaghan"
+# Some descriptions may contain quotes
+/^showDescription: / {
+    showDescription = $0
+    sub(/^showDescription /, "", showDescription)
+    gsub(/\\"/, "\"", showDescription)
+    next
+}
+
+# genre: Mystery
+/^genre: / {
+    genre = $0
+    sub(/^genre: /, "", genre)
     # print "genre = " genre > "/dev/stderr"
+    next
 }
 
-# "role": "actor",
-/"role": "/ {
-    split($0, fld, "\"")
-    person_role = fld[4]
+# person_role: actor
+/^person_role: / {
+    person_role = $0
+    sub(/^person_role: /, "", person_role)
     # print "person_role = " person_role > "/dev/stderr"
+    next
 }
 
-# "name": "Tom Rhys Harries",
-/"name": "/ {
-    split($0, fld, "\"")
-    person_name = fld[4]
+# person_name: Tom Rhys Harries
+/^person_name: / {
+    person_name = $0
+    sub(/^person_name: /, "", person_name)
     # print "person_name = " person_name > "/dev/stderr"
+    next
 }
 
-# "character": "Rhys"
-/"character": "/ {
-    split($0, fld, "\"")
-    character_name = fld[4]
+# character_name: Scrooge
+/^character_name: / {
+    character_name = $0
+    sub(/^character_name: /, "", character_name)
     sub(/\\t/, "", character_name)
     sub(/^ */, "", character_name)
     sub(/ *$/, "", character_name)
@@ -142,31 +146,16 @@ BEGIN {
         character_name\
     ) >> RAW_CREDITS
     # print "character_name = " character_name > "/dev/stderr"
+    next
 }
 
-# "availableEpisodeCount": 10,
-/"availableEpisodeCount":/ {
-    split($0, fld, "\"")
-    sub(/.*"availableEpisodeCount": /, "")
-    sub(/,.*/, "")
-    numEpisodes = numEpisodes + $0
-    # print "numEpisodes = " numEpisodes > "/dev/stderr"
-}
-
-# "availableSeasonCount": 1,
-/"availableSeasonCount":/ {
-    split($0, fld, "\"")
-    sub(/.*"availableSeasonCount": /, "")
-    sub(/,.*/, "")
-    numSeasons = $0
-    # print "numSeasons = " numSeasons > "/dev/stderr"
-}
-
-# "customId": "p07kvw8d",
-/"customId": "/ {
-    split($0, fld, "\"")
-    customId = fld[4]
-    # print "customId = " customId > "/dev/stderr"
+# rating: TV-MA
+/^rating: / {
+    dateType = "rating"
+    rating = $0
+    sub(/^rating: /, "", rating)
+    # print "rating = " rating > "/dev/stderr"
+    next
 }
 
 # "YearRange": 2019,
@@ -179,39 +168,42 @@ BEGIN {
     # print "yearRange = \"" yearRange "\""> "/dev/stderr"
 }
 
-# "code": "TVPG-TV-PG",
-/"code": "TVPG-/ {
-    split($0, fld, "\"")
-    rating = fld[4]
-    sub(/TVPG-/, "", rating)
-    # print "rating = " rating > "/dev/stderr"
-}
-
-# "releaseYear": 2019,
-/"releaseYear": / {
-    if (yearRange == "") {
-        dateType = "releaseYear"
-        split($0, fld, "\"")
-        releaseYear = fld[3]
-        sub(/: /, "", releaseYear)
-        sub(/,.*/, "", releaseYear)
-    }
-
+# releaseYear: 2017
+/^releaseYear: / {
+    dateType = "releaseYear"
+    releaseYear = $0
+    sub(/^releaseYear: /, "", releaseYear)
     # print "releaseYear = " releaseYear > "/dev/stderr"
+    next
 }
 
-# "showId": "24474",
-/"showId": "/ {
-    split($0, fld, "\"")
-    showId = fld[4]
+# customId: p07kvw8d
+/^customId: / {
+    customId = $0
+    sub(/^customId: /, "", customId)
+    # print "customId = " customId > "/dev/stderr"
+    next
+}
+
+# showId: 24474
+/^showId: / {
+    showId = $0
+    sub(/^showId: /, "", showId)
     # print "showId = " showId > "/dev/stderr"
+    next
 }
 
-# <b>Years:</b> 2019            </p>
-# <b>Years:</b> 2014 - 2023            </p>
-/<b>Years:</ {
+# numberOfSeasons: 2
+/^numberOfSeasons: / {
+    numberOfSeasons = $0
+    sub(/^numberOfSeasons: /, "", numberOfSeasons)
+    # print "numberOfSeasons = " numberOfSeasons > "/dev/stderr"
+    next
+}
+
+# --EOS--
+/^--EOS--$/ {
     lastLineNum = NR
-    split($0, fld, "[<>]")
 
     # This should be the last line of every show.
     # So finish processing and add line to spreadsheet
@@ -298,13 +290,13 @@ BEGIN {
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
         fullTitle,
-        numSeasons,
+        numberOfSeasons,
         numEpisodes,
         duration,
         genre,
         releaseYear,
         rating,
-        description\
+        showDescription\
     )
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
