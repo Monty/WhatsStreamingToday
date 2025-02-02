@@ -107,7 +107,7 @@ BEGIN { print "==> New File" }
 }
 
 # ,"shortDescription":"Martin Freeman stars ... Sian O’Callaghan.","
-/,"shortDescription":"/ && fileType != "movie" {
+/,"shortDescription":"/ && itemType == "episode" {
     if (match($0, /,"shortDescription":"([^"]|\\")*","/)) {
         episodeDescription = substr($0, RSTART + 21, RLENGTH - 24)
         # print "episodeDescription = " episodeDescription > "/dev/stderr"
@@ -129,7 +129,7 @@ BEGIN { print "==> New File" }
 }
 
 # ,"genres":["Drama"],"
-/,"genres":\["/ && fileType != "movie" {
+/,"genres":\["/ && itemType == "episode" {
     if (match($0, /,"genres":\["[^"]*"\],/)) {
         episodeGenre = substr($0, RSTART, RLENGTH)
         split(episodeGenre, fld, "\"")
@@ -192,6 +192,17 @@ BEGIN { print "==> New File" }
         split(rating, fld, "\"")
         rating = fld[8]
         print "rating: " rating
+    }
+}
+
+# ,"path":"/episode/Grace_S1_E2_p0999xjr","
+/,"path":"\/episode\// {
+    if (match($0, /,"path":"\/episode[^"]*","/)) {
+        partial_URL = substr($0, RSTART + 1, RLENGTH - 3)
+        # print "partial_URL = " partial_URL > "/dev/stderr"
+        split(partial_URL, fld, "\"")
+        partial_URL = fld[4]
+        print "episode_URL: https://www.britbox.com" partial_URL
     }
 }
 
