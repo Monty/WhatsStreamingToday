@@ -123,7 +123,19 @@ BEGIN { print "==> New File" }
         genre = substr($0, RSTART + 1, RLENGTH - 3)
         # print "genre = " genre > "/dev/stderr"
         split(genre, fld, "/")
-        print "genre: " fld[4]
+        genre = fld[4]
+        print "genre: " genre
+    }
+}
+
+# ,"genres":["Drama"],"
+/,"genres":\["/ {
+    if (match($0, /,"genres":\["[^"]*"\],/)) {
+        episodeGenre = substr($0, RSTART, RLENGTH)
+        split(episodeGenre, fld, "\"")
+        episodeGenre = fld[4]
+        # print "episodeGenre = " episodeGenre > "/dev/stderr"
+        print "episodeGenre: " episodeGenre
     }
 }
 
@@ -135,10 +147,14 @@ BEGIN { print "==> New File" }
         castMember = substr(credits, RSTART + 1, RLENGTH - 2)
         # print "castMember = " castMember > "/dev/stderr"
         numFields = split(castMember, fld, "\"")
-        print "person_role: " fld[4]
-        print "person_name: " fld[8]
-        print "person_URL: " fld[12]
-        print "character_name: " fld[16]
+        person_role = fld[4]
+        print "person_role: " person_role
+        person_name = fld[8]
+        print "person_name: " person_name
+        person_URL = fld[12]
+        print "person_URL: " person_URL
+        character_name = fld[16]
+        print "character_name: " character_name
 
         credits = substr(credits, RSTART + RLENGTH)
     }
@@ -174,7 +190,8 @@ BEGIN { print "==> New File" }
         rating = substr($0, RSTART + 1, RLENGTH - 3)
         # print "rating = " rating > "/dev/stderr"
         split(rating, fld, "\"")
-        print "rating: " fld[8]
+        rating = fld[8]
+        print "rating: " rating
     }
 }
 
@@ -231,7 +248,8 @@ BEGIN { print "==> New File" }
         customId = substr($0, RSTART + 1, RLENGTH - 3)
         # print "customId = " customId > "/dev/stderr"
         split(customId, fld, "\"")
-        print "customId: " fld[4]
+        customId = fld[4]
+        print "customId: " customId
     }
 
     if (itemType == "movie") {
