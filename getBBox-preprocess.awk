@@ -107,7 +107,7 @@ BEGIN { print "==> New File" }
 }
 
 # ,"shortDescription":"Martin Freeman stars ... Sian O’Callaghan.","
-/,"shortDescription":"/ {
+/,"shortDescription":"/ && fileType != "movie" {
     if (match($0, /,"shortDescription":"([^"]|\\")*","/)) {
         episodeDescription = substr($0, RSTART + 21, RLENGTH - 24)
         # print "episodeDescription = " episodeDescription > "/dev/stderr"
