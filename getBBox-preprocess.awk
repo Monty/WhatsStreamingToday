@@ -17,11 +17,11 @@ BEGIN { print "==> New File" }
     next
 }
 
-# <meta name="description" content="Martin Freeman stars..." />
+# <meta property="og:description" content="Comedy ... of wigs." />
 # Extract the show/movie description. It will always be the
 # show/movie description, not the season or episode description.
-/<meta name="description" / {
-    sub(/.*name="description" content="/, "")
+/<meta property="og:description" content="/ {
+    sub(/<meta property="og:description" content="/, "")
     sub(/" \/>.*/, "")
     showDescription = $0
     # print "showDescription = " showDescription > "/dev/stderr"
@@ -108,9 +108,9 @@ BEGIN { print "==> New File" }
 # ,"shortDescription":"Martin Freeman stars ... Sian O’Callaghan.","
 /,"shortDescription":"/ {
     if (match($0, /,"shortDescription":"([^"]|\\")*","/)) {
-        description = substr($0, RSTART + 21, RLENGTH - 24)
-        # print "description = " description > "/dev/stderr"
-        print "description: " description
+        episodeDescription = substr($0, RSTART + 21, RLENGTH - 24)
+        # print "episodeDescription = " episodeDescription > "/dev/stderr"
+        print "episodeDescription: " episodeDescription
     }
 }
 
