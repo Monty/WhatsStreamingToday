@@ -42,7 +42,7 @@ BEGIN { print "==> New File" }
 
     if (fileType == "show" || fileType == "season") { print "--BOS--" }
 
-    print "full_URL: https://www.britbox.com" partial_URL
+    print "show_URL: https://www.britbox.com" partial_URL
 
     fileName = fld[4]
     # print "fileName = " fileName > "/dev/stderr"

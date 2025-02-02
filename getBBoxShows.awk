@@ -16,7 +16,7 @@ BEGIN {
 function clearShowVariables() {
     # Make sure no fields have been carried over due to missing keys
     # Only used during processing
-    full_URL = ""
+    show_URL = ""
     title = ""
     yearRange = ""
     # Used in printing credits
@@ -70,11 +70,11 @@ function clearShowVariables() {
 
 /^--BO[MS]--$/ { clearShowVariables() }
 
-# full_URL: https://www.britbox.com/us/show/A_Confession_p0891f13
-/^full_URL: / {
-    full_URL = $0
-    sub(/^full_URL: /, "", full_URL)
-    # print "full_URL = " full_URL > "/dev/stderr"
+# show_URL: https://www.britbox.com/us/show/A_Confession_p0891f13
+/^show_URL: / {
+    show_URL = $0
+    sub(/^show_URL: /, "", show_URL)
+    # print "show_URL = " show_URL > "/dev/stderr"
     next
 }
 
@@ -283,7 +283,7 @@ function clearShowVariables() {
     # print "title = " title > "/dev/stderr"
 
     # Turn title into a HYPERLINK
-    fullTitle = "=HYPERLINK(\"" full_URL "\";\"" title "\")"
+    fullTitle = "=HYPERLINK(\"" show_URL "\";\"" title "\")"
     # print "fullTitle = " fullTitle > "/dev/stderr"
 
     # Print a spreadsheet line
