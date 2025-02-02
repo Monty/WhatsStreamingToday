@@ -71,7 +71,7 @@ function clearShowVariables() {
     duration = ""
     releaseYear = ""
     rating = ""
-    description = ""
+    showDescription = ""
     customId = ""
     dateType = ""
     showId = ""
@@ -86,13 +86,23 @@ function clearShowVariables() {
     firstLineNum = NR
 }
 
-# description: "Comedy ... lots of wigs."
+# showDescription: "Comedy ... lots of wigs."
 # Note: Some descriptions may contain quotes
-/^description: / {
-    description = $0
-    sub(/^description: /, "", description)
-    gsub(/\\"/, "\"", description)
-    # print "description = " description > "/dev/stderr"
+/^showDescription: / {
+    showDescription = $0
+    sub(/^showDescription: /, "", showDescription)
+    gsub(/\\"/, "\"", showDescription)
+    # print "showDescription = " showDescription > "/dev/stderr"
+    next
+}
+
+# episodeDescription: "Fulcher is faced with ... whereabouts"
+# Note: Some descriptions may contain quotes
+/^episodeDescription: / {
+    episodeDescription = $0
+    sub(/^episodeDescription: /, "", episodeDescription)
+    gsub(/\\"/, "\"", episodeDescription)
+    # print "episodeDescription = " episodeDescription > "/dev/stderr"
     next
 }
 
@@ -296,7 +306,7 @@ function clearShowVariables() {
         genre,
         releaseYear,
         rating,
-        description\
+        episodeDescription\
     )
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
