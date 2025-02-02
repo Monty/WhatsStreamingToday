@@ -120,11 +120,11 @@ BEGIN { print "==> New File" }
 # ["/tv/genres/Mystery"]
 /\["\/movies\/genres\// || /\["\/tv\/genres\// {
     if (match($0, /\["\/(movies|tv)\/genres\/[^"]+"\]/)) {
-        genre = substr($0, RSTART + 1, RLENGTH - 3)
-        # print "genre = " genre > "/dev/stderr"
-        split(genre, fld, "/")
-        genre = fld[4]
-        print "genre: " genre
+        showGenre = substr($0, RSTART + 1, RLENGTH - 3)
+        # print "showGenre = " showGenre > "/dev/stderr"
+        split(showGenre, fld, "/")
+        showGenre = fld[4]
+        print "showGenre: " showGenre
     }
 }
 

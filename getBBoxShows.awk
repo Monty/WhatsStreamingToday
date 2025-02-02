@@ -28,7 +28,7 @@ function clearShowVariables() {
     numberOfSeasons = ""
     numEpisodes = ""
     duration = ""
-    genre = ""
+    showGenre = ""
     releaseYear = ""
     rating = ""
     showDescription = ""
@@ -107,11 +107,11 @@ function clearShowVariables() {
     next
 }
 
-# genre: Mystery
-/^genre: / {
-    genre = $0
-    sub(/^genre: /, "", genre)
-    # print "genre = " genre > "/dev/stderr"
+# showGenre: Mystery
+/^showGenre: / {
+    showGenre = $0
+    sub(/^showGenre: /, "", showGenre)
+    # print "showGenre = " showGenre > "/dev/stderr"
     next
 }
 
@@ -293,7 +293,7 @@ function clearShowVariables() {
         numberOfSeasons,
         numEpisodes,
         duration,
-        genre,
+        showGenre,
         releaseYear,
         rating,
         showDescription\

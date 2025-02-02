@@ -28,7 +28,7 @@ function clearShowVariables() {
     numSeasons = ""
     numEpisodes = ""
     duration = ""
-    genre = ""
+    showGenre = ""
     releaseYear = ""
     rating = ""
     showDescription = ""
@@ -118,11 +118,11 @@ function convertDurationToHMS() {
     next
 }
 
-# genre: Drama
-/^genre: / {
-    genre = $0
-    sub(/^genre: /, "", genre)
-    # print "genre = " genre > "/dev/stderr"
+# showGenre: Drama
+/^showGenre: / {
+    showGenre = $0
+    sub(/^showGenre: /, "", showGenre)
+    # print "showGenre = " showGenre > "/dev/stderr"
     next
 }
 
@@ -241,7 +241,7 @@ function convertDurationToHMS() {
         numSeasons,
         numEpisodes,
         duration,
-        genre,
+        showGenre,
         releaseYear,
         rating,
         showDescription\
