@@ -211,7 +211,7 @@ titleCol="1"
 if [ "$DEBUG" != "yes" ]; then
     spreadsheet_columns="1-9"
 else
-    spreadsheet_columns="1-17"
+    spreadsheet_columns="1-16"
 fi
 
 # Generate LONG_SPREADSHEET and SHORT_SPREADSHEET
