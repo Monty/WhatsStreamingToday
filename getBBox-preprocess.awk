@@ -84,14 +84,16 @@ BEGIN { print "==> New File" }
     }
 }
 
+# Get showID from the "type":"episode" section
+# Goes in the showId spreadsheet column for episodes but not shows
 # ,"showId":"26113","
 /,"showId":"/ {
     if (match($0, /,"showId":"[^"]+","/)) {
-        showId = substr($0, RSTART + 1, RLENGTH - 3)
-        split(showId, fld, "\"")
-        showId = fld[4]
-        # print "showId = " showId > "/dev/stderr"
-        print "showId: " showId
+        episode_showId = substr($0, RSTART + 1, RLENGTH - 3)
+        split(episode_showId, fld, "\"")
+        episode_showId = fld[4]
+        # print "episode_showId = " episode_showId > "/dev/stderr"
+        print "episode_showId: " episode_showId
     }
 }
 
@@ -162,17 +164,18 @@ BEGIN { print "==> New File" }
 
 # ,"seasons":{"id":"26113-seasons","path":"","size":1,"items"
 # ,"seasons":{"id":"9509-seasons","path":"","size":3,"items"
-# Get showID and numberOfSeasons
+# Get showID and numberOfSeasons from "type":"show" section
+# Goes in the showId spreadsheet column for shows, but not episodes
 /,"seasons":\{"id":"/ {
     # Match everything from ,"seasons":{"id":" up to "items"
     if (match($0, /,"seasons":\{"id":"[0-9]+-seasons","size":[0-9]+,"items/)) {
         lastOfShow = substr($0, RSTART + 17, RLENGTH - 22)
         # print "lastOfShow = " lastOfShow > "/dev/stderr"
         split(lastOfShow, fld, "\"")
-        showId2 = fld[2]
-        sub(/-seasons/, "", showId2)
-        # print "showId2: " showId2 > "/dev/stderr"
-        print "showId2: " showId2
+        show_showId = fld[2]
+        sub(/-seasons/, "", show_showId)
+        # print "show_showId: " show_showId > "/dev/stderr"
+        print "show_showId: " show_showId
         numberOfSeasons = fld[5]
         sub(/:/, "", numberOfSeasons)
         sub(/,$/, "", numberOfSeasons)
