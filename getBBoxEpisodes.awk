@@ -79,6 +79,8 @@ function clearShowVariables() {
 }
 
 function clearEpisodeVariables() {
+    itemType = "episode"
+    contentType = "tv_episode"
     episodeTitle = ""
     episodePath = ""
     episode_URL = ""
@@ -102,6 +104,18 @@ function clearEpisodeVariables() {
     numFields = split(episode_URL, fld, "/")
     episodePath = fld[numFields]
     # print "episodePath = " episodePath > "/dev/stderr"
+}
+
+# itemType: movie
+# itemType: show
+# itemType: episode
+/^itemType: / {
+    itemType = $0
+    sub(/^itemType: /, "", itemType)
+    contentType = "tv_episode"
+    totalEpisodes += 1
+    # print "itemType = " itemType > "/dev/stderr"
+    next
 }
 
 # showTitle: 15 Days
