@@ -210,7 +210,6 @@ function clearEpisodeVariables() {
 
 # rating: TV-14
 /^rating: / {
-    dateType = "rating"
     rating = $0
     sub(/^rating: /, "", rating)
     # print "rating = " rating > "/dev/stderr"
@@ -236,8 +235,8 @@ function clearEpisodeVariables() {
 
 # releaseYear: 2017
 /^releaseYear: / {
-    dateType = "releaseYear"
     releaseYear = $0
+    dateType = "releaseYear"
     sub(/^releaseYear: /, "", releaseYear)
     # print "releaseYear = " releaseYear > "/dev/stderr"
     next

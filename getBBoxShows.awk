@@ -152,7 +152,6 @@ function clearShowVariables() {
 
 # rating: TV-MA
 /^rating: / {
-    dateType = "rating"
     rating = $0
     sub(/^rating: /, "", rating)
     # print "rating = " rating > "/dev/stderr"
@@ -162,8 +161,8 @@ function clearShowVariables() {
 # "YearRange": 2019,
 # "YearRange": "1992 - 2010",
 /"YearRange": "/ {
-    dateType = "yearRange"
     split($0, fld, "\"")
+    dateType = "yearRange"
     yearRange = fld[4]
     releaseYear = yearRange
     # print "yearRange = \"" yearRange "\""> "/dev/stderr"
@@ -171,8 +170,8 @@ function clearShowVariables() {
 
 # releaseYear: 2017
 /^releaseYear: / {
-    dateType = "releaseYear"
     releaseYear = $0
+    dateType = "releaseYear"
     sub(/^releaseYear: /, "", releaseYear)
     # print "releaseYear = " releaseYear > "/dev/stderr"
     next
@@ -204,10 +203,10 @@ function clearShowVariables() {
 
 # --EOS--
 /^--EOS--$/ {
-    lastLineNum = NR
-
     # This should be the last line of every show.
     # So finish processing and add line to spreadsheet
+
+    lastLineNum = NR
 
     # "Maigret" needs to be revised to clarify timeframe
     if (title ~ /^Maigret/) {
