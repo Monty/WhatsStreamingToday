@@ -102,7 +102,7 @@ function clearShowVariables() {
 # Some descriptions may contain quotes
 /^showDescription: / {
     showDescription = $0
-    sub(/^showDescription /, "", showDescription)
+    sub(/^showDescription: /, "", showDescription)
     gsub(/\\"/, "\"", showDescription)
     next
 }
