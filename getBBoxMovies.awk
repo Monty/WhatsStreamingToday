@@ -78,6 +78,7 @@ function convertDurationToHMS() {
     gsub(/&#253;/, "ý")
     gsub(/&#39;/, "'")
     gsub(/&amp;/, "\\&")
+    gsub(/\\t/, "")
 }
 
 /^--BO[MS]--$/ { clearShowVariables() }
@@ -150,7 +151,6 @@ function convertDurationToHMS() {
 /^character_name: / {
     character_name = $0
     sub(/^character_name: /, "", character_name)
-    sub(/\\t/, "", character_name)
     sub(/^ */, "", character_name)
     sub(/ *$/, "", character_name)
     printf(\

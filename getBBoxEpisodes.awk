@@ -45,6 +45,7 @@ function convertDurationToHMS() {
     gsub(/&#253;/, "ý")
     gsub(/&#39;/, "'")
     gsub(/&amp;/, "\\&")
+    gsub(/\\t/, "")
 }
 
 function clearShowVariables() {
