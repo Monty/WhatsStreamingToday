@@ -69,7 +69,7 @@ function clearShowVariables() {
     customId = ""
     itemType = ""
     dateType = ""
-    showId = ""
+    show_showId = ""
     seasonId = ""
     seasonNumber = ""
     episodeNumber = ""
@@ -81,6 +81,7 @@ function clearShowVariables() {
 function clearEpisodeVariables() {
     itemType = "episode"
     contentType = "tv_episode"
+    episode_showId = ""
     episodeTitle = ""
     episodePath = ""
     episode_URL = ""
@@ -126,14 +127,14 @@ function clearEpisodeVariables() {
 
     # "Maigret" needs to be revised to clarify timeframe
     if (showTitle ~ /^Maigret/) {
-        if (showId == "15928") {
+        if (episode_showId == "15928") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Maigret (1992-1993)'\n", showTitle\
             ) >> ERRORS
             showTitle = "Maigret (1992-1993)"
         }
-        else if (showId == "15974") {
+        else if (episode_showId == "15974") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Maigret (2016-2017)'\n", showTitle\
@@ -142,19 +143,19 @@ function clearEpisodeVariables() {
         }
 
         # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> episode_showId = " episode_showId > "/dev/stderr"
     }
 
     # "Porridge" needs to be revised to avoid duplicate names
     if (showTitle == "Porridge") {
-        if (showId == "9509") {
+        if (episode_showId == "9509") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Porridge (1974-1977)'\n", showTitle\
             ) >> ERRORS
             showTitle = "Porridge (1974-1977)"
         }
-        else if (showId == "14747") {
+        else if (episode_showId == "14747") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Porridge (2016-2017)'\n", showTitle\
@@ -163,12 +164,12 @@ function clearEpisodeVariables() {
         }
 
         # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> episode_showId = " episode_showId > "/dev/stderr"
     }
 
     # "The Moonstone" needs to be revised to avoid duplicate names
     if (showTitle == "The Moonstone") {
-        if (showId == "9283") {
+        if (episode_showId == "9283") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'The Moonstone (2016)'\n", showTitle\
@@ -177,12 +178,12 @@ function clearEpisodeVariables() {
         }
 
         # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> episode_showId = " episode_showId > "/dev/stderr"
     }
 
     # "Wallander" needs to be revised to avoid duplicate names with MHz
     if (showTitle == "Wallander") {
-        if (showId == "24848") {
+        if (episode_showId == "24848") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Wallander (British)'\n", showTitle\
@@ -191,7 +192,7 @@ function clearEpisodeVariables() {
         }
 
         # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> episode_showId = " episode_showId > "/dev/stderr"
     }
 }
 
@@ -248,11 +249,11 @@ function clearEpisodeVariables() {
     next
 }
 
-# showId: 24474
-/^showId: / {
-    showId = $0
-    sub(/^showId: /, "", showId)
-    # print "showId = " showId > "/dev/stderr"
+# episode_showId: 24474
+/^episode_showId: / {
+    episode_showId = $0
+    sub(/^episode_showId: /, "", episode_showId)
+    # print "episode_showId = " episode_showId > "/dev/stderr"
 }
 
 # customId: 24475
@@ -329,7 +330,7 @@ function clearEpisodeVariables() {
         customId,
         itemType,
         dateType,
-        showId,
+        episode_showId,
         seasonId,
         seasonNumber\
     )
