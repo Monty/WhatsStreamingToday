@@ -36,7 +36,7 @@ function clearShowVariables() {
     customId = ""
     itemType = ""
     dateType = ""
-    showId = ""
+    show_showId = ""
     seasonId = ""
     seasonNumber = ""
     episodeNumber = ""
@@ -252,7 +252,7 @@ function convertDurationToHMS() {
         customId,
         itemType,
         dateType,
-        showId,
+        show_showId,
         seasonId,
         seasonNumber\
     )

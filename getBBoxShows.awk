@@ -36,7 +36,7 @@ function clearShowVariables() {
     customId = ""
     itemType = ""
     dateType = ""
-    showId = ""
+    show_showId = ""
     seasonId = ""
     seasonNumber = ""
     episodeNumber = ""
@@ -185,11 +185,11 @@ function clearShowVariables() {
     next
 }
 
-# showId: 24474
-/^showId: / {
-    showId = $0
-    sub(/^showId: /, "", showId)
-    # print "showId = " showId > "/dev/stderr"
+# show_showId: 24474
+/^show_showId: / {
+    show_showId = $0
+    sub(/^show_showId: /, "", show_showId)
+    # print "show_showId = " show_showId > "/dev/stderr"
     next
 }
 
@@ -210,14 +210,14 @@ function clearShowVariables() {
 
     # "Maigret" needs to be revised to clarify timeframe
     if (title ~ /^Maigret/) {
-        if (showId == "15928") {
+        if (show_showId == "15928") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Maigret (1992-1993)'\n", title\
             ) >> ERRORS
             title = "Maigret (1992-1993)"
         }
-        else if (showId == "15974") {
+        else if (show_showId == "15974") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Maigret (2016-2017)'\n", title\
@@ -226,19 +226,19 @@ function clearShowVariables() {
         }
 
         #print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
     # "Porridge" needs to be revised to avoid duplicate names
     if (title == "Porridge") {
-        if (showId == "9509") {
+        if (show_showId == "9509") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Porridge (1974-1977)'\n", title\
             ) >> ERRORS
             title = "Porridge (1974-1977)"
         }
-        else if (showId == "14747") {
+        else if (show_showId == "14747") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Porridge (2016-2017)'\n", title\
@@ -247,12 +247,12 @@ function clearShowVariables() {
         }
 
         #print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
     # "The Moonstone" needs to be revised to avoid duplicate names
     if (title == "The Moonstone") {
-        if (showId == "9283") {
+        if (show_showId == "9283") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'The Moonstone (2016)'\n", title\
@@ -261,12 +261,12 @@ function clearShowVariables() {
         }
 
         #print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
     # "Wallander" needs to be revised to avoid duplicate names with MHz
     if (title == "Wallander") {
-        if (showId == "24848") {
+        if (show_showId == "24848") {
             revisedTitles += 1
             printf(\
                 "==> Changed title '%s' to 'Wallander (British)'\n", title\
@@ -275,7 +275,7 @@ function clearShowVariables() {
         }
 
         #print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> showId = " showId > "/dev/stderr"
+        # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
     # Save titles for use in BBox_uniqTitles
@@ -304,7 +304,7 @@ function clearShowVariables() {
         customId,
         itemType,
         dateType,
-        showId,
+        show_showId,
         seasonId,
         seasonNumber\
     )
