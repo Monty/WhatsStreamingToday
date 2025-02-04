@@ -80,6 +80,12 @@ function clearShowVariables() {
     show_URL = $0
     sub(/^show_URL: /, "", show_URL)
     # print "show_URL = " show_URL > "/dev/stderr"
+    numFields = split(show_URL, fld, "_")
+    # Hardwire these to prevent a "season" from overriding them
+    customId = fld[numFields]
+    contentType = "tv_show"
+    itemType = "show"
+    totalShows += 1
     next
 }
 
@@ -88,18 +94,6 @@ function clearShowVariables() {
     title = $0
     sub(/^.*Title: /, "", title)
     # print "title = " title > "/dev/stderr"
-    next
-}
-
-# itemType: movie
-# itemType: show
-# itemType: episode
-/^itemType: / {
-    itemType = $0
-    sub(/^itemType: /, "", itemType)
-    contentType = "tv_show"
-    totalShows += 1
-    # print "itemType = " itemType > "/dev/stderr"
     next
 }
 
@@ -168,14 +162,6 @@ function clearShowVariables() {
     # print "releaseYear = " title " " releaseYear > "/dev/stderr"
     allYears = allYears " " releaseYear
     # print "allYears = " title " " allYears > "/dev/stderr"
-    next
-}
-
-# customId: p07kvw8d
-/^customId: / {
-    customId = $0
-    sub(/^customId: /, "", customId)
-    # print "customId = " customId > "/dev/stderr"
     next
 }
 
