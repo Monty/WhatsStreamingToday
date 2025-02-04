@@ -1,5 +1,5 @@
 # Extract meaningful fields from raw BBox HTML files
-BEGIN { print "==> New File" }
+BEGIN { print "\n==> New File: " FILE }
 
 # Skip empty lines
 /^$/ { next }
@@ -59,7 +59,7 @@ BEGIN { print "==> New File" }
         split(itemType, fld, "\"")
         itemType = fld[4]
 
-        if (fileType == "show" && itemType != "show") { next }
+        if (fileType == "show" && itemType == "episode") { next }
 
         if (fileType == "season" && itemType == "show") { next }
 
@@ -184,7 +184,7 @@ BEGIN { print "==> New File" }
     }
 
     # Print "End of Show" indicator
-    print "--EOS--\n"
+    print "--EOS--"
 }
 
 # {"code":"TVPG-TV-14","name":"TV-14"}
@@ -268,10 +268,10 @@ BEGIN { print "==> New File" }
 
     if (itemType == "movie") {
         # Print "End of Movie" indicator
-        print "--EOM--\n"
+        print "--EOM--"
     }
     else if (itemType == "episode") {
         # Print "End of Episode" indicator
-        print "--EOE--\n"
+        print "--EOE--"
     }
 }

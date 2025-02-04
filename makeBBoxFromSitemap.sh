@@ -147,12 +147,13 @@ fi
 function winnowHTML() {
     printf "==> Generating new $2\n"
     while read -r url; do
+        FILE=$(basename "$url")
         curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
             sd '"offers".*' '' | sd '"subtype":"",' '' |
             sd '"path":"",' '' | sd '^[[:space:]]+' '' |
-            rg -v -f rg_BBox_skip.rgx |
-            sort -ur | awk -f getBBox-preprocess.awk >>"$2"
+            rg -v -f rg_BBox_skip.rgx | sort -ur |
+            awk -v FILE="$FILE" -f getBBox-preprocess.awk >>"$2"
     done < <(rg -N "$1" "$ALL_URLS")
 }
 
