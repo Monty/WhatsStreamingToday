@@ -17,7 +17,9 @@ function clearShowVariables() {
     # Make sure no fields have been carried over due to missing keys
     # Only used during processing
     show_URL = ""
+    showTitle = ""
     title = ""
+    episodeTitle = ""
     yearRange = ""
     # Used in printing credits
     person_role = ""
@@ -29,6 +31,7 @@ function clearShowVariables() {
     numEpisodes = ""
     duration = ""
     showGenre = ""
+    allYears = ""
     releaseYear = ""
     rating = ""
     showDescription = ""
@@ -161,9 +164,10 @@ function clearShowVariables() {
 # releaseYear: 2017
 /^releaseYear: / {
     releaseYear = $0
-    dateType = "releaseYear"
     sub(/^releaseYear: /, "", releaseYear)
-    # print "releaseYear = " releaseYear > "/dev/stderr"
+    # print "releaseYear = " title " " releaseYear > "/dev/stderr"
+    allYears = allYears " " releaseYear
+    # print "allYears = " title " " allYears > "/dev/stderr"
     next
 }
 
@@ -191,12 +195,47 @@ function clearShowVariables() {
     next
 }
 
-# --EOS--
-/^--EOS--$/ {
+# --EOF--
+/^--EOF-- / {
     # This should be the last line of every show.
     # So finish processing and add line to spreadsheet
 
     lastLineNum = NR
+
+    numYears = split(allYears, yrs, " ")
+    firstYear = yrs[1]
+    lastYear = yrs[1]
+
+    # print "releaseYearEnd = " showTitle " " releaseYear > "/dev/stderr"
+    # print "allYearsEnd = " showTitle " " allYears "\n" > "/dev/stderr"
+    if (numYears == 0) {
+        print "==> No releaseYear in " show_URL >> ERRORS
+        dateType = "releaseYear"
+        releaseYear = ""
+    }
+    else if (numYears == 1) {
+        dateType = "releaseYear"
+        # Keep original releaseYear
+    }
+    else {
+        for (i = 1; i <= numYears; ++i) {
+            # print "==> Found releaseYear " i " " yrs[i] > "/dev/stderr"
+            if (yrs[i] < firstYear) { firstYear = yrs[i] }
+
+            if (yrs[i] > lastYear) { lastYear = yrs[i] }
+        }
+
+        if (firstYear != lastYear) {
+            dateType = "yearRange"
+            releaseYear = firstYear " - " lastYear
+        }
+        else {
+            # It was a false positive
+            print "==> Multiple identical releaseYears in " showTitle >> ERRORS
+            dateType = "releaseYear"
+            releaseYear = firstYear
+        }
+    }
 
     # "Maigret" needs to be revised to clarify timeframe
     if (title ~ /^Maigret/) {
@@ -215,7 +254,7 @@ function clearShowVariables() {
             title = "Maigret (2016-2017)"
         }
 
-        #print "==> revisedTitle = " title > "/dev/stderr"
+        # print "==> revisedTitle = " title > "/dev/stderr"
         # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
@@ -236,7 +275,7 @@ function clearShowVariables() {
             title = "Porridge (2016-2017)"
         }
 
-        #print "==> revisedTitle = " title > "/dev/stderr"
+        # print "==> revisedTitle = " title > "/dev/stderr"
         # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
@@ -250,7 +289,7 @@ function clearShowVariables() {
             title = "The Moonstone (2016)"
         }
 
-        #print "==> revisedTitle = " title > "/dev/stderr"
+        # print "==> revisedTitle = " title > "/dev/stderr"
         # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
@@ -264,7 +303,7 @@ function clearShowVariables() {
             title = "Wallander (British)"
         }
 
-        #print "==> revisedTitle = " title > "/dev/stderr"
+        # print "==> revisedTitle = " title > "/dev/stderr"
         # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 

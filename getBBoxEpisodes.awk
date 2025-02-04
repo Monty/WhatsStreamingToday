@@ -52,7 +52,9 @@ function clearShowVariables() {
     # Make sure no fields have been carried over due to missing keys
     # Only used during processing
     show_URL = ""
+    showTitle = ""
     title = ""
+    episodeTitle = ""
     yearRange = ""
     # Used in printing credits
     person_role = ""
@@ -64,6 +66,7 @@ function clearShowVariables() {
     numEpisodes = ""
     duration = ""
     showGenre = ""
+    allYears = ""
     releaseYear = ""
     rating = ""
     showDescription = ""
@@ -81,6 +84,8 @@ function clearShowVariables() {
 }
 
 function clearEpisodeVariables() {
+    allYears = ""
+    releaseYear = ""
     itemType = "episode"
     contentType = "tv_episode"
     episode_showId = ""
@@ -93,6 +98,11 @@ function clearEpisodeVariables() {
 /^--BOS--$/ {
     # Only clearShowVariables at the start, leave them for episodes
     clearShowVariables()
+}
+
+/^--BOE--$/ {
+    # Only clearEpisodeVariables at the start, leave them for episodes
+    clearEpisodeVariables()
 }
 
 # episode_URL: https://www.britbox.com/us/episode/15_Days_S1_E1_p07l24yd
@@ -236,9 +246,10 @@ function clearEpisodeVariables() {
 # releaseYear: 2017
 /^releaseYear: / {
     releaseYear = $0
-    dateType = "releaseYear"
     sub(/^releaseYear: /, "", releaseYear)
     # print "releaseYear = " releaseYear > "/dev/stderr"
+    allYears = allYears " " releaseYear
+    # print "allYears = " title " " allYears > "/dev/stderr"
     next
 }
 
@@ -295,6 +306,43 @@ function clearEpisodeVariables() {
 /^--EOE--$/ {
     # This should be the last line of every episode.
     # So finish processing and add line to spreadsheet
+
+    numYears = split(allYears, yrs, " ")
+    firstYear = yrs[1]
+    lastYear = yrs[1]
+
+    # print "releaseYearEnd = " episodeTitle " " releaseYear > "/dev/stderr"
+    # print "allYearsEnd = " episodeTitle " " allYears "\n" > "/dev/stderr"
+    if (numYears == 0) {
+        print "==> No releaseYear in " show_URL >> ERRORS
+        dateType = "releaseYear"
+        releaseYear = ""
+    }
+    else if (numYears == 1) {
+        # This should always be the case for episodes.
+        dateType = "releaseYear"
+        # Keep original releaseYear
+    }
+    else {
+        for (i = 1; i <= numYears; ++i) {
+            # print "==> Found releaseYear " i " " yrs[i] > "/dev/stderr"
+            if (yrs[i] < firstYear) { firstYear = yrs[i] }
+
+            if (yrs[i] > lastYear) { lastYear = yrs[i] }
+        }
+
+        if (firstYear != lastYear) {
+            dateType = "yearRange"
+            releaseYear = firstYear " - " lastYear
+        }
+        else {
+            # It was a false positive
+            print\
+                "==> Multiple identical releaseYears in " episodeTitle >> ERRORS
+            dateType = "releaseYear"
+            releaseYear = firstYear
+        }
+    }
 
     # Turn episodeTitle into a HYPERLINK
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
