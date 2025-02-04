@@ -147,7 +147,7 @@ fi
 function winnowHTML() {
     printf "==> Generating new $2\n"
     while read -r url; do
-        FILE=$(basename "$url")
+        FILE="$url"
         curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
             sd '"offers".*' '' | sd '"subtype":"",' '' |

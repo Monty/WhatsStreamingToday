@@ -1,5 +1,10 @@
 # Extract meaningful fields from raw BBox HTML files
-BEGIN { print "\n==> New File: " FILE }
+BEGIN {
+    print "==> New File"
+    source = FILE
+    sub(/^https:\/\/www.britbox.com\/us\//, "", source)
+    print "--BOF-- " source
+}
 
 # Skip empty lines
 /^$/ { next }
@@ -275,3 +280,5 @@ BEGIN { print "\n==> New File: " FILE }
         print "--EOE--"
     }
 }
+
+END { print "--EOF-- " source "\n" }
