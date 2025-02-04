@@ -158,16 +158,6 @@ function clearShowVariables() {
     next
 }
 
-# "YearRange": 2019,
-# "YearRange": "1992 - 2010",
-/"YearRange": "/ {
-    split($0, fld, "\"")
-    dateType = "yearRange"
-    yearRange = fld[4]
-    releaseYear = yearRange
-    # print "yearRange = \"" yearRange "\""> "/dev/stderr"
-}
-
 # releaseYear: 2017
 /^releaseYear: / {
     releaseYear = $0
