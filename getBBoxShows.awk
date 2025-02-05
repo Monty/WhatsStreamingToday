@@ -73,7 +73,10 @@ function clearShowVariables() {
     gsub(/\\t/, "")
 }
 
-/^--BO[MS]--$/ { clearShowVariables() }
+/^--BO[MS]--$/ {
+    clearShowVariables()
+    next
+}
 
 # show_URL: https://www.britbox.com/us/show/A_Confession_p0891f13
 /^show_URL: / {
@@ -325,6 +328,7 @@ function clearShowVariables() {
     )
 
     printf("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
+    next
 }
 
 END {

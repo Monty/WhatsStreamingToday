@@ -84,7 +84,10 @@ function convertDurationToHMS() {
     gsub(/\\t/, "")
 }
 
-/^--BO[MS]--$/ { clearShowVariables() }
+/^--BO[MS]--$/ {
+    clearShowVariables()
+    next
+}
 
 # show_URL: https://www.britbox.com/us/movie/A_Christmas_Carol_p00z2f5m
 /^show_URL: / {
@@ -298,6 +301,7 @@ function convertDurationToHMS() {
     )
 
     printf("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
+    next
 }
 
 END {

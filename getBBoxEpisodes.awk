@@ -98,11 +98,13 @@ function clearEpisodeVariables() {
 /^--BOS--$/ {
     # Only clearShowVariables at the start, leave them for episodes
     clearShowVariables()
+    next
 }
 
 /^--BOE--$/ {
     # Only clearEpisodeVariables at the start, leave them for episodes
     clearEpisodeVariables()
+    next
 }
 
 # episode_URL: https://www.britbox.com/us/episode/15_Days_S1_E1_p07l24yd
@@ -117,6 +119,7 @@ function clearEpisodeVariables() {
     numFields = split(episode_URL, fld, "/")
     episodePath = fld[numFields]
     # print "episodePath = " episodePath > "/dev/stderr"
+    next
 }
 
 # itemType: movie
@@ -206,6 +209,8 @@ function clearEpisodeVariables() {
         # print "==> showTitle = " showTitle > "/dev/stderr"
         # print "==> episode_showId = " episode_showId > "/dev/stderr"
     }
+
+    next
 }
 
 # episodeDescription: "Fulcher is faced with ... whereabouts"
@@ -266,6 +271,7 @@ function clearEpisodeVariables() {
     episode_showId = $0
     sub(/^episode_showId: /, "", episode_showId)
     # print "episode_showId = " episode_showId > "/dev/stderr"
+    next
 }
 
 # customId: 24475
@@ -384,6 +390,7 @@ function clearEpisodeVariables() {
         seasonNumber\
     )
     printf("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
+    next
 }
 
 END {
