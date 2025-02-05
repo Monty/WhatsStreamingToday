@@ -100,6 +100,65 @@ function clearShowVariables() {
     next
 }
 
+# show_showId: 24474
+/^show_showId: / {
+    show_showId = $0
+    sub(/^show_showId: /, "", show_showId)
+    # print "show_showId = " show_showId > "/dev/stderr"
+
+    # "Maigret" needs to be revised to clarify timeframe
+    if (show_showId == "15928") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed title '%s' to 'Maigret (1992-1993)'\n", title\
+        ) >> ERRORS
+        title = "Maigret (1992-1993)"
+    }
+    else if (show_showId == "15974") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed title '%s' to 'Maigret (2016-2017)'\n", title\
+        ) >> ERRORS
+        title = "Maigret (2016-2017)"
+    }
+
+    # "Porridge" needs to be revised to avoid duplicate names
+    if (show_showId == "9509") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed title '%s' to 'Porridge (1974-1977)'\n", title\
+        ) >> ERRORS
+        title = "Porridge (1974-1977)"
+    }
+    else if (show_showId == "14747") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed title '%s' to 'Porridge (2016-2017)'\n", title\
+        ) >> ERRORS
+        title = "Porridge (2016-2017)"
+    }
+
+    # "The Moonstone" needs to be revised to avoid duplicate names
+    if (show_showId == "9283") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed title '%s' to 'The Moonstone (2016)'\n", title\
+        ) >> ERRORS
+        title = "The Moonstone (2016)"
+    }
+
+    # "Wallander" needs to be revised to avoid duplicate names with MHz
+    if (show_showId == "24848") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed title '%s' to 'Wallander (British)'\n", title\
+        ) >> ERRORS
+        title = "Wallander (British)"
+    }
+
+    next
+}
+
 # showDescription: "Martin Freeman stars ... O’Callaghan"
 # Some descriptions may contain quotes
 /^showDescription: / {
@@ -168,14 +227,6 @@ function clearShowVariables() {
     next
 }
 
-# show_showId: 24474
-/^show_showId: / {
-    show_showId = $0
-    sub(/^show_showId: /, "", show_showId)
-    # print "show_showId = " show_showId > "/dev/stderr"
-    next
-}
-
 # numberOfSeasons: 2
 /^numberOfSeasons: / {
     numberOfSeasons = $0
@@ -195,8 +246,8 @@ function clearShowVariables() {
     firstYear = yrs[1]
     lastYear = yrs[1]
 
-    # print "releaseYearEnd = " showTitle " " releaseYear > "/dev/stderr"
-    # print "allYearsEnd = " showTitle " " allYears "\n" > "/dev/stderr"
+    # print "releaseYearEnd = " title " " releaseYear > "/dev/stderr"
+    # print "allYearsEnd = " title " " allYears "\n" > "/dev/stderr"
     if (numYears == 0) {
         print "==> No releaseYear in " show_URL >> ERRORS
         dateType = "releaseYear"
@@ -208,7 +259,6 @@ function clearShowVariables() {
     }
     else {
         for (i = 1; i <= numYears; ++i) {
-            # print "==> Found releaseYear " i " " yrs[i] > "/dev/stderr"
             if (yrs[i] < firstYear) { firstYear = yrs[i] }
 
             if (yrs[i] > lastYear) { lastYear = yrs[i] }
@@ -220,80 +270,10 @@ function clearShowVariables() {
         }
         else {
             # It was a false positive
-            print "==> Multiple identical releaseYears in " showTitle >> ERRORS
+            print "==> Multiple identical releaseYears in " show_URL >> ERRORS
             dateType = "releaseYear"
             releaseYear = firstYear
         }
-    }
-
-    # "Maigret" needs to be revised to clarify timeframe
-    if (title ~ /^Maigret/) {
-        if (show_showId == "15928") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Maigret (1992-1993)'\n", title\
-            ) >> ERRORS
-            title = "Maigret (1992-1993)"
-        }
-        else if (show_showId == "15974") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Maigret (2016-2017)'\n", title\
-            ) >> ERRORS
-            title = "Maigret (2016-2017)"
-        }
-
-        # print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> show_showId = " show_showId > "/dev/stderr"
-    }
-
-    # "Porridge" needs to be revised to avoid duplicate names
-    if (title == "Porridge") {
-        if (show_showId == "9509") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Porridge (1974-1977)'\n", title\
-            ) >> ERRORS
-            title = "Porridge (1974-1977)"
-        }
-        else if (show_showId == "14747") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Porridge (2016-2017)'\n", title\
-            ) >> ERRORS
-            title = "Porridge (2016-2017)"
-        }
-
-        # print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> show_showId = " show_showId > "/dev/stderr"
-    }
-
-    # "The Moonstone" needs to be revised to avoid duplicate names
-    if (title == "The Moonstone") {
-        if (show_showId == "9283") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'The Moonstone (2016)'\n", title\
-            ) >> ERRORS
-            title = "The Moonstone (2016)"
-        }
-
-        # print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> show_showId = " show_showId > "/dev/stderr"
-    }
-
-    # "Wallander" needs to be revised to avoid duplicate names with MHz
-    if (title == "Wallander") {
-        if (show_showId == "24848") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Wallander (British)'\n", title\
-            ) >> ERRORS
-            title = "Wallander (British)"
-        }
-
-        # print "==> revisedTitle = " title > "/dev/stderr"
-        # print "==> show_showId = " show_showId > "/dev/stderr"
     }
 
     # Save titles for use in BBox_uniqTitles

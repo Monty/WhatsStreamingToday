@@ -75,6 +75,17 @@ BEGIN {
     }
 }
 
+# "type":"season","id":"52990","
+/^"type":"season","id":"/ {
+    if (match($0, /^"type":"season","id":"[0-9]+","/)) {
+        seasonKey = substr($0, RSTART, RLENGTH - 2)
+        split(seasonKey, fld, "\"")
+        seasonKey = fld[8]
+    }
+
+    print "seasonKey: " seasonKey
+}
+
 # ,"contextualTitle":"300 Years of French and Saunders","
 # ,"contextualTitle":"Season 1","
 # ,"contextualTitle":"1. Episode 1","
@@ -99,6 +110,15 @@ BEGIN {
         episode_showId = fld[4]
         # print "episode_showId = " episode_showId > "/dev/stderr"
         print "episode_showId: " episode_showId
+    }
+}
+
+# ,"episodeNumber":5,"
+/,"episodeNumber":/ {
+    if (match($0, /,"episodeNumber":[^"]+,"/)) {
+        episodeNumber = substr($0, RSTART + 17, RLENGTH - 19)
+        # print "episodeNumber = " episodeNumber > "/dev/stderr"
+        print "episodeNumber: " episodeNumber
     }
 }
 
@@ -229,15 +249,6 @@ BEGIN {
         seasonNumber = substr($0, RSTART + 16, RLENGTH - 18)
         # print "seasonNumber = " seasonNumber > "/dev/stderr"
         print "seasonNumber: " seasonNumber
-    }
-}
-
-# ,"episodeNumber":5,"
-/,"episodeNumber":/ {
-    if (match($0, /,"episodeNumber":[^"]+,"/)) {
-        episodeNumber = substr($0, RSTART + 17, RLENGTH - 19)
-        # print "episodeNumber = " episodeNumber > "/dev/stderr"
-        print "episodeNumber: " episodeNumber
     }
 }
 

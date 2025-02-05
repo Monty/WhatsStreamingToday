@@ -101,9 +101,153 @@ function clearEpisodeVariables() {
     next
 }
 
+# showTitle: 15 Days
+/^showTitle: / {
+    showTitle = $0
+    sub(/^showTitle: /, "", showTitle)
+    # print "showTitle = " showTitle > "/dev/stderr"
+    next
+}
+
+# seasonKey: 52990
+/^seasonKey: / {
+    seasonKey = $0
+    sub(/^seasonKey: /, "", seasonKey)
+    # print "seasonKey = " seasonKey > "/dev/stderr"
+    next
+}
+
+# seasonNumber: 1
+/^seasonNumber: / {
+    seasonNumber = $0
+    sub(/^seasonNumber: /, "", seasonNumber)
+    # print "seasonNumber = " seasonNumber > "/dev/stderr"
+    allSeasonKeys[seasonKey] = seasonNumber
+    next
+}
+
 /^--BOE--$/ {
     # Only clearEpisodeVariables at the start, leave them for episodes
     clearEpisodeVariables()
+    next
+}
+
+# itemType: movie
+# itemType: show
+# itemType: episode
+/^itemType: / {
+    itemType = $0
+    sub(/^itemType: /, "", itemType)
+    contentType = "tv_episode"
+    totalEpisodes += 1
+    # print "itemType = " itemType > "/dev/stderr"
+    next
+}
+
+# episodeTitle: Looking Good Dead
+/^episodeTitle: / {
+    episodeTitle = $0
+    sub(/^episodeTitle: /, "", episodeTitle)
+    # print "episodeTitle = " episodeTitle > "/dev/stderr"
+    next
+}
+
+# episode_showId: 24474
+/^episode_showId: / {
+    episode_showId = $0
+    sub(/^episode_showId: /, "", episode_showId)
+    # print "episode_showId = " episode_showId > "/dev/stderr"
+
+    # "Maigret" needs to be revised to clarify timeframe
+    if (episode_showId == "15928") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed showTitle '%s' to 'Maigret (1992-1993)'\n", showTitle\
+        ) >> ERRORS
+        showTitle = "Maigret (1992-1993)"
+    }
+    else if (episode_showId == "15974") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed showTitle '%s' to 'Maigret (2016-2017)'\n", showTitle\
+        ) >> ERRORS
+        showTitle = "Maigret (2016-2017)"
+    }
+
+    # "Porridge" needs to be revised to avoid duplicate names
+    if (episode_showId == "9509") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed showTitle '%s' to 'Porridge (1974-1977)'\n", showTitle\
+        ) >> ERRORS
+        showTitle = "Porridge (1974-1977)"
+    }
+    else if (episode_showId == "14747") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed showTitle '%s' to 'Porridge (2016-2017)'\n", showTitle\
+        ) >> ERRORS
+        showTitle = "Porridge (2016-2017)"
+    }
+
+    # "The Moonstone" needs to be revised to avoid duplicate names
+    if (episode_showId == "9283") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed showTitle '%s' to 'The Moonstone (2016)'\n", showTitle\
+        ) >> ERRORS
+        showTitle = "The Moonstone (2016)"
+    }
+
+    # "Wallander" needs to be revised to avoid duplicate names with MHz
+    if (episode_showId == "24848") {
+        revisedTitles += 1
+        printf(\
+            "==> Changed showTitle '%s' to 'Wallander (British)'\n", showTitle\
+        ) >> ERRORS
+        showTitle = "Wallander (British)"
+    }
+
+    next
+}
+
+# seasonId: 24475
+/^seasonId: / {
+    seasonId = $0
+    sub(/^seasonId: /, "", seasonId)
+    # print "==> showTitle = " showTitle > "/dev/stderr"
+    # print "    episodeTitle = " episodeTitle > "/dev/stderr"
+    # print "    episodeNumber = " episodeNumber > "/dev/stderr"
+    episodeSeasonNumber = allSeasonKeys[seasonId]
+    # print "    episodeSeasonNumber = " episodeSeasonNumber > "/dev/stderr"
+    SnEp = sprintf("S%02dE%03d", episodeSeasonNumber, episodeNumber)
+    # print "    SnEp = " SnEp > "/dev/stderr"
+    next
+}
+
+# episodeDescription: "Fulcher is faced with ... whereabouts"
+# Note: Some descriptions may contain quotes
+/^episodeDescription: / {
+    episodeDescription = $0
+    sub(/^episodeDescription: /, "", episodeDescription)
+    gsub(/\\"/, "\"", episodeDescription)
+    # print "episodeDescription = " episodeDescription > "/dev/stderr"
+    next
+}
+
+# episodeGenre: Drama
+/^episodeGenre: / {
+    episodeGenre = $0
+    sub(/^episodeGenre: /, "", episodeGenre)
+    # print "episodeGenre = " episodeGenre > "/dev/stderr"
+    next
+}
+
+# rating: TV-14
+/^rating: / {
+    rating = $0
+    sub(/^rating: /, "", rating)
+    # print "rating = " rating > "/dev/stderr"
     next
 }
 
@@ -122,120 +266,13 @@ function clearEpisodeVariables() {
     next
 }
 
-# itemType: movie
-# itemType: show
-# itemType: episode
-/^itemType: / {
-    itemType = $0
-    sub(/^itemType: /, "", itemType)
-    contentType = "tv_episode"
-    totalEpisodes += 1
-    # print "itemType = " itemType > "/dev/stderr"
-    next
-}
-
-# showTitle: 15 Days
-/^showTitle: / {
-    showTitle = $0
-    sub(/^showTitle: /, "", showTitle)
-    # print "showTitle = " showTitle > "/dev/stderr"
-
-    # "Maigret" needs to be revised to clarify timeframe
-    if (showTitle ~ /^Maigret/) {
-        if (episode_showId == "15928") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Maigret (1992-1993)'\n", showTitle\
-            ) >> ERRORS
-            showTitle = "Maigret (1992-1993)"
-        }
-        else if (episode_showId == "15974") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Maigret (2016-2017)'\n", showTitle\
-            ) >> ERRORS
-            showTitle = "Maigret (2016-2017)"
-        }
-
-        # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> episode_showId = " episode_showId > "/dev/stderr"
-    }
-
-    # "Porridge" needs to be revised to avoid duplicate names
-    if (showTitle == "Porridge") {
-        if (episode_showId == "9509") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Porridge (1974-1977)'\n", showTitle\
-            ) >> ERRORS
-            showTitle = "Porridge (1974-1977)"
-        }
-        else if (episode_showId == "14747") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Porridge (2016-2017)'\n", showTitle\
-            ) >> ERRORS
-            showTitle = "Porridge (2016-2017)"
-        }
-
-        # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> episode_showId = " episode_showId > "/dev/stderr"
-    }
-
-    # "The Moonstone" needs to be revised to avoid duplicate names
-    if (showTitle == "The Moonstone") {
-        if (episode_showId == "9283") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'The Moonstone (2016)'\n", showTitle\
-            ) >> ERRORS
-            showTitle = "The Moonstone (2016)"
-        }
-
-        # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> episode_showId = " episode_showId > "/dev/stderr"
-    }
-
-    # "Wallander" needs to be revised to avoid duplicate names with MHz
-    if (showTitle == "Wallander") {
-        if (episode_showId == "24848") {
-            revisedTitles += 1
-            printf(\
-                "==> Changed title '%s' to 'Wallander (British)'\n", showTitle\
-            ) >> ERRORS
-            showTitle = "Wallander (British)"
-        }
-
-        # print "==> showTitle = " showTitle > "/dev/stderr"
-        # print "==> episode_showId = " episode_showId > "/dev/stderr"
-    }
-
-    next
-}
-
-# episodeDescription: "Fulcher is faced with ... whereabouts"
-# Note: Some descriptions may contain quotes
-/^episodeDescription: / {
-    episodeDescription = $0
-    sub(/^episodeDescription: /, "", episodeDescription)
-    gsub(/\\"/, "\"", episodeDescription)
-    # print "episodeDescription = " episodeDescription > "/dev/stderr"
-    next
-}
-
-# rating: TV-14
-/^rating: / {
-    rating = $0
-    sub(/^rating: /, "", rating)
-    # print "rating = " rating > "/dev/stderr"
-    next
-}
-
-# seasonNumber: 1
-/^seasonNumber: / {
-    seasonNumber = $0
-    sub(/^seasonNumber: /, "", seasonNumber)
-    # print "seasonNumber = " seasonNumber > "/dev/stderr"
+# releaseYear: 2017
+/^releaseYear: / {
+    releaseYear = $0
+    sub(/^releaseYear: /, "", releaseYear)
+    # print "releaseYear = " releaseYear > "/dev/stderr"
+    allYears = allYears " " releaseYear
+    # print "allYears = " showTitle " " allYears > "/dev/stderr"
     next
 }
 
@@ -244,49 +281,14 @@ function clearEpisodeVariables() {
     episodeNumber = $0
     sub(/^episodeNumber: /, "", episodeNumber)
     # print "episodeNumber = " episodeNumber > "/dev/stderr"
-    SnEp = sprintf("S%02dE%03d", seasonNumber, episodeNumber)
     next
 }
 
-# releaseYear: 2017
-/^releaseYear: / {
-    releaseYear = $0
-    sub(/^releaseYear: /, "", releaseYear)
-    # print "releaseYear = " releaseYear > "/dev/stderr"
-    allYears = allYears " " releaseYear
-    # print "allYears = " title " " allYears > "/dev/stderr"
-    next
-}
-
-# episodeTitle: Looking Good Dead
-/^episodeTitle: / {
-    episodeTitle = $0
-    sub(/^episodeTitle: /, "", episodeTitle)
-    # print "episodeTitle = " episodeTitle > "/dev/stderr"
-    next
-}
-
-# episode_showId: 24474
-/^episode_showId: / {
-    episode_showId = $0
-    sub(/^episode_showId: /, "", episode_showId)
-    # print "episode_showId = " episode_showId > "/dev/stderr"
-    next
-}
-
-# customId: 24475
-/^seasonId: / {
-    seasonId = $0
-    sub(/^seasonId: /, "", seasonId)
-    # print "seasonId = " seasonId > "/dev/stderr"
-    next
-}
-
-# episodeGenre: Drama
-/^episodeGenre: / {
-    episodeGenre = $0
-    sub(/^episodeGenre: /, "", episodeGenre)
-    # print "episodeGenre = " episodeGenre > "/dev/stderr"
+# episodeName: Episode 1
+/^episodeName: / {
+    episodeName = $0
+    sub(/^episodeName: /, "", episodeName)
+    # print "episodeName = " episodeName > "/dev/stderr"
     next
 }
 
@@ -387,7 +389,7 @@ function clearEpisodeVariables() {
         dateType,
         episode_showId,
         seasonId,
-        seasonNumber\
+        episodeSeasonNumber\
     )
     printf("%s\t%d\t%d\n", episodeNumber, firstLineNum, lastLineNum)
     next
