@@ -27,7 +27,7 @@ function clearShowVariables() {
     character_name = ""
     # Used in printing column data
     fullTitle = ""
-    numSeasons = ""
+    numberOfSeasons = ""
     numEpisodes = ""
     duration = ""
     showGenre = ""
@@ -281,7 +281,7 @@ function convertDurationToHMS() {
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
         fullTitle,
-        numSeasons,
+        numberOfSeasons,
         numEpisodes,
         duration,
         showGenre,
