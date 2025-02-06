@@ -161,50 +161,32 @@ function clearEpisodeVariables() {
     # "Maigret" needs to be revised to clarify timeframe
     if (episode_showId == "15928") {
         revisedTitles += 1
-        printf(\
-            "==> Changed showTitle '%s' to 'Maigret (1992-1993)'\n", showTitle\
-        ) >> ERRORS
         showTitle = "Maigret (1992-1993)"
     }
     else if (episode_showId == "15974") {
         revisedTitles += 1
-        printf(\
-            "==> Changed showTitle '%s' to 'Maigret (2016-2017)'\n", showTitle\
-        ) >> ERRORS
         showTitle = "Maigret (2016-2017)"
     }
 
     # "Porridge" needs to be revised to avoid duplicate names
     if (episode_showId == "9509") {
         revisedTitles += 1
-        printf(\
-            "==> Changed showTitle '%s' to 'Porridge (1974-1977)'\n", showTitle\
-        ) >> ERRORS
         showTitle = "Porridge (1974-1977)"
     }
     else if (episode_showId == "14747") {
         revisedTitles += 1
-        printf(\
-            "==> Changed showTitle '%s' to 'Porridge (2016-2017)'\n", showTitle\
-        ) >> ERRORS
         showTitle = "Porridge (2016-2017)"
     }
 
     # "The Moonstone" needs to be revised to avoid duplicate names
     if (episode_showId == "9283") {
         revisedTitles += 1
-        printf(\
-            "==> Changed showTitle '%s' to 'The Moonstone (2016)'\n", showTitle\
-        ) >> ERRORS
         showTitle = "The Moonstone (2016)"
     }
 
     # "Wallander" needs to be revised to avoid duplicate names with MHz
     if (episode_showId == "24848") {
         revisedTitles += 1
-        printf(\
-            "==> Changed showTitle '%s' to 'Wallander (British)'\n", showTitle\
-        ) >> ERRORS
         showTitle = "Wallander (British)"
     }
 
