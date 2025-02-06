@@ -281,6 +281,11 @@ function clearEpisodeVariables() {
     episodeNumber = $0
     sub(/^episodeNumber: /, "", episodeNumber)
     # print "episodeNumber = " episodeNumber > "/dev/stderr"
+    # Change "21. Episode 21" to "Episode 21"
+    if (match(episodeTitle, "^" episodeNumber "\\. ")) {
+        episodeTitle = substr(episodeTitle, RLENGTH + 1)
+    }
+
     next
 }
 
