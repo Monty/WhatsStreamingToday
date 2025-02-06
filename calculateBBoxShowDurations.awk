@@ -29,7 +29,7 @@ BEGIN {
 # this includes all movies and all episodes
 $4 != "" {
     # Check all durations for strict HH:MM:SS format
-    if ($4 !~ /^0:[0-9]+$/) {
+    if ($4 !~ /^[0-9]{2}:[0-9]{2}:[0-9]{2}$/) {
         print "==> Bad duration " $4 " in " $0 >> ERRORS
         print
         next
