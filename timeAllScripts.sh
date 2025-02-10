@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 # Time shell scripts that make spreadsheets -- fastest to slowest so first results are available quickly
 
-PATH=${PATH}:/usr/local/bin
-
 # Make sure we can execute the rust utilities rg, sd, and zet.
 # rustc rg zet
 if [ ! -x "$(which rustc 2>/dev/null)" ] ||
@@ -17,6 +15,9 @@ if [ ! -x "$(which rustc 2>/dev/null)" ] ||
     printf "    https://crates.io/crates/zet \n"
     exit 1
 fi
+
+PATH=/Users/monty/.volta/bin:${PATH}:/usr/local/bin
+printf "==> PATH = ${PATH}\n\n" | tee /dev/stderr
 
 printf "========================================\n" | tee /dev/stderr
 printf "==> time ./makeOPB.sh -td\n" | tee /dev/stderr
