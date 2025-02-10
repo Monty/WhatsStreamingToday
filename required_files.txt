@@ -54,4 +54,6 @@ rg_OPB_skip.rgx
 saveTodaysOPBFiles.sh
 formatUnifiedDiffOutput.awk
 rg_problems.rgx
+showPlaywrightVersion.sh
+chromium-version.js
 "
