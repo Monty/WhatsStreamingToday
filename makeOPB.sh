@@ -125,7 +125,7 @@ printf "### Possible anomalies from processing shows are listed below.\n\n" >"$E
 node save_password-02.js
 
 node getWalter.js
-prettier-eslint --write $RAW_HTML
+prettier --write $RAW_HTML
 rg -A 7 'href="/show/' $RAW_HTML | rg 'href="/show/|alt=' |
     awk -f getWalter.awk | sort >$SHOW_URLS
 
