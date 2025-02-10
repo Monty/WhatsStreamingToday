@@ -17,7 +17,7 @@ if [ ! -x "$(which rustc 2>/dev/null)" ] ||
 fi
 
 PATH=/Users/monty/.volta/bin:${PATH}:/usr/local/bin
-printf "==> PATH = ${PATH}\n\n" | tee /dev/stderr
+printf "==> PATH = ${PATH}\n\n" | sd ':' '\n' | tee /dev/stderr
 
 printf "========================================\n" | tee /dev/stderr
 printf "==> time ./makeOPB.sh -td\n" | tee /dev/stderr
