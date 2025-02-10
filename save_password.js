@@ -8,6 +8,7 @@ const { chromium } = require('playwright');
   const page = await context.newPage();
   await page.goto('https://www.pbs.org/franchise/walter-presents/');
   await page
+    .getByRole('navigation')
     .locator('div')
     .filter({ hasText: 'Sign in to keep track' })
     .getByRole('button')
