@@ -18,6 +18,7 @@
 ^  - paragraph: Stream Season [[:digit:]] 
 ^  - paragraph: Stream.* with PBS Passport$
 ^  - paragraph: Sundays at 
+^  - paragraph: The best of PBS, 
 ^  - paragraph: Watch additional episodes
 ^  - paragraph: Weekends on PBS$
 ^  - paragraph:$
