@@ -1,4 +1,4 @@
-const { chromium } = require('playwright');
+const { chromium } = require("playwright");
 
 (async () => {
   const browser = await chromium.launch({
@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 
   const version = await browser.version();
 
-  console.log('Chromium version:', version);
+  console.log("Chromium version:", version);
 
   await browser.close();
 })();
