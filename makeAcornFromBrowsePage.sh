@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on Acorn TV
+#
+# shellcheck disable=SC2317
 
 # trap ctrl-c and call cleanup
 trap cleanup INT
@@ -11,7 +13,7 @@ function cleanup() {
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Make sort consistent between Mac and Linux
 export LC_COLLATE="C"
@@ -104,86 +106,87 @@ ALL_TXT="$UNIQUE_TITLES $SHOW_URLS $EPISODE_URLS"
 ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
+# shellcheck disable=SC2086
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 printf "==> Downloading new $SHOW_URLS\n"
 curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
-    sort -f >$SHOW_URLS
+    sort -f >"$SHOW_URLS"
 
 # Print header for possible errors from processing shows
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
-sed -e 's+^+url = "+' -e 's+$+"+' $SHOW_URLS | curl -sS --config - |
-    awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
-        -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
-        -f getAcornFrom-showPages.awk >$UNSORTED
+sed -e 's+^+url = "+' -e 's+$+"+' "$SHOW_URLS" | curl -sS --config - |
+    awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
+        -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
+        -f getAcornFrom-showPages.awk >"$UNSORTED"
 
 # Field numbers returned by getAcornFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
 titleCol="1"
 
 # Print header for $LONG_SPREADSHEET
-printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$LONG_SPREADSHEET
+printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >"$LONG_SPREADSHEET"
 # Create $LONG_SPREADSHEET sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED >>$LONG_SPREADSHEET
-rm -f $UNSORTED
+sort -fu --key=4 --field-separator=\" "$UNSORTED" >>"$LONG_SPREADSHEET"
+rm -f "$UNSORTED"
 
 # Generate $SHORT_SPREADSHEET
-mv $SHORT_SPREADSHEET $UNSORTED
+mv "$SHORT_SPREADSHEET" "$UNSORTED"
 # Output $SHORT_SPREADSHEET header
-printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >$SHORT_SPREADSHEET
+printf "Title\tSeasons\tEpisodes\tDuration\tDescription\n" >"$SHORT_SPREADSHEET"
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED >>$SHORT_SPREADSHEET
-rm -f $UNSORTED
+sort -fu --key=4 --field-separator=\" "$UNSORTED" >>"$SHORT_SPREADSHEET"
+rm -f "$UNSORTED"
 
 # Sort the titles produced by getAcornFrom-showPages.awk
-sort -fu $RAW_TITLES >$UNIQUE_TITLES
-rm -f $RAW_TITLES
+sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
+rm -f "$RAW_TITLES"
 # Sort episode URLs produced by getAcornFrom-showPages.awk
-mv $EPISODE_URLS $UNSORTED
-sort -fu $UNSORTED >$EPISODE_URLS
-rm -f $UNSORTED
+mv "$EPISODE_URLS" "$UNSORTED"
+sort -fu "$UNSORTED" >"$EPISODE_URLS"
+rm -f "$UNSORTED"
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
-    numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
+    numlines=$(($(sed -n '$=' "$1") - $2))
+    ls -loh "$1" |
         awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $EPISODE_URLS 0
-printAdjustedFileInfo $SHOW_URLS 0
-printAdjustedFileInfo $SHORT_SPREADSHEET 1
-printAdjustedFileInfo $UNIQUE_TITLES 0
+printAdjustedFileInfo "$LONG_SPREADSHEET" 1
+printAdjustedFileInfo "$EPISODE_URLS" 0
+printAdjustedFileInfo "$SHOW_URLS" 0
+printAdjustedFileInfo "$SHORT_SPREADSHEET" 1
+printAdjustedFileInfo "$UNIQUE_TITLES" 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
     # Add labels in column A
     # Add totals formula in remaining columns
     colNames=ABCDEFGHIJKLMNOPQRSTU
-    ((lastRow = $(sed -n '$=' $1)))
-    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 1))
+    ((lastRow = $(sed -n '$=' "$1")))
+    ((numCountA = $(head -1 "$1" | awk -F"\t" '{print NF}') - 1))
     TOTAL="Non-blank values"
     for ((i = 1; i <= numCountA; i++)); do
         x=${colNames:i:1}
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
-    printf "$TOTAL\n" >>$1
+    printf "$TOTAL\n" >>"$1"
     #
     case "$2" in
     sum)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>"$1"
         ;;
     total)
-        TXT_TOTAL=$(cat $DURATION)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
+        TXT_TOTAL=$(cat "$DURATION")
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>"$1"
         ;;
     *)
         printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>"$ERRORS"
@@ -194,11 +197,12 @@ function addTotalsToSpreadsheet() {
 # Output spreadsheet footer if totals requested
 # Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
-    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
+    addTotalsToSpreadsheet "$SHORT_SPREADSHEET" "total"
+    addTotalsToSpreadsheet "$LONG_SPREADSHEET" "sum"
 fi
 
 # Look for any leftover HTML character codes or other problems
+# shellcheck disable=SC2086
 probs="$(rg -c --sort path -f rg_problems.rgx $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
     {
@@ -210,6 +214,7 @@ if [ -n "$probs" ]; then
 fi
 #
 # Also send to stdout
+# shellcheck disable=SC2086
 probs="$(rg -c --color ansi --sort path -f rg_problems.rgx \
     $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
@@ -222,6 +227,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
+        # shellcheck disable=SC2086
         rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
@@ -245,7 +251,7 @@ function checkdiffs() {
         # first the stats
         printf "./whatChanged \"$1\" \"$2\"\n"
         diff -u "$1" "$2" | diffstat -sq \
-            -D $(cd $(dirname "$2") && pwd -P) |
+            -D "$(cd "$(dirname "$2")" && pwd -P)" |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
         if cmp --quiet "$1" "$2"; then
@@ -257,6 +263,7 @@ function checkdiffs() {
 }
 
 # Preserve any possible errors for debugging
+# shellcheck disable=SC2086
 cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
@@ -278,6 +285,7 @@ $(wc $ALL_TXT $ALL_SPREADSHEETS)
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
+    # shellcheck disable=SC2086
     rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
