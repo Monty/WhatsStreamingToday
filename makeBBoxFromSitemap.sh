@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on BritBox
+#
+# shellcheck disable=SC2317
 
 # trap ctrl-c and call cleanup
 trap cleanup INT
@@ -74,7 +76,7 @@ POSSIBLE_DIFFS="BBox_diffs$LONGDATE.txt"
 ERRORS="BBox_anomalies$LONGDATE.txt"
 
 # List of all URLs obtained from SITEMAP_URL
-ALL_URLS="$COLS/all_URLs$DATE_ID.txt"
+SHOW_URLS="$COLS/all_URLs$DATE_ID.txt"
 
 # Final output spreadsheets
 CREDITS="BBox_TV_Credits$DATE_ID.csv"
@@ -86,11 +88,10 @@ EPISODES_CSV="$COLS/BBoxEpisodes$DATE_ID.csv"
 MOVIES_CSV="$COLS/BBoxMovies$DATE_ID.csv"
 SHOWS_CSV="$COLS/BBoxShows$DATE_ID.csv"
 
-# HTML files segregated by item type
-TV_EPISODE_HTML="$COLS/tv_episodes$DATE_ID.html"
-TV_MOVIE_HTML="$COLS/tv_movies$DATE_ID.html"
-TV_SEASON_HTML="$COLS/tv_seasons$DATE_ID.html"
-TV_SHOW_HTML="$COLS/tv_shows$DATE_ID.html"
+# Data files segregated by item type
+TV_EPISODE_TXT="$COLS/tv_episodes$DATE_ID.txt"
+TV_MOVIE_TXT="$COLS/tv_movies$DATE_ID.txt"
+TV_SHOW_TXT="$COLS/tv_shows$DATE_ID.txt"
 
 # Temp files used in generating final output spreadsheets
 TEMP_SPREADSHEET="$COLS/temp_spreadsheet$DATE_ID.csv"
@@ -108,16 +109,11 @@ PUBLISHED_CREDITS="$BASELINE/credits.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_EPISODES_CSV="$BASELINE/BBoxEpisodes.txt"
-PUBLISHED_MOVIES_CSV="$BASELINE/BBoxMovies.txt"
-PUBLISHED_SHOWS_CSV="$BASELINE/BBoxShows.txt"
-#
 PUBLISHED_UNIQUE_PERSONS="$BASELINE/uniqPersons.txt"
 PUBLISHED_UNIQUE_CHARACTERS="$BASELINE/uniqCharacters.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
-PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 #
-PUBLISHED_ALL_URLS="$BASELINE/all_URLs.txt"
+PUBLISHED_SHOW_URLS="$BASELINE/all_URLs.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$RAW_CREDITS $RAW_TITLES $TEMP_SPREADSHEET"
@@ -129,69 +125,72 @@ ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $CREDITS"
 ALL_CSVS="$MOVIES_CSV $SHOWS_CSV $EPISODES_CSV"
 
 # Cleanup any possible leftover files
+# shellcheck disable=SC2086
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 # Print header for credits file
-printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >$CREDITS
+printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >"$CREDITS"
 
 # Grab the sitemap file and extract the URLs for en-us items
 # Unless we already have one from today
-if [ ! -e "$ALL_URLS" ]; then
-    printf "==> Downloading new $ALL_URLS\n"
+if [ ! -e "$SHOW_URLS" ]; then
+    printf "==> Downloading new $SHOW_URLS\n"
     curl -s $SITEMAP_URL | rg en-us |
-        awk -f getBBoxURLsFromSitemap.awk | sort -fu >"$ALL_URLS"
+        awk -f getBBoxURLsFromSitemap.awk | sort -fu >"$SHOW_URLS"
 else
-    printf "==> using existing $ALL_URLS\n"
+    printf "==> using existing $SHOW_URLS\n"
 fi
 
-# Get HTML for movies from /movie/ URLs
-# Unless we already have one from today
-if [ ! -e "$TV_MOVIE_HTML" ]; then
-    printf "==> Generating new $TV_MOVIE_HTML\n"
+function winnowHTML() {
+    printf "==> Generating new $2\n"
     while read -r url; do
-        curl -s "$url" | rg -N -f rg_BBox-movies.rgx |
-            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_MOVIE_HTML"
-    done < <(rg -N /movie/ "$ALL_URLS")
+        FILE="$url"
+        # shellcheck disable=SC2016
+        curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
+            sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
+            sd '"offers".*' '' | sd '"subtype":"",' '' |
+            sd '"path":"",' '' | sd '^[[:space:]]+' '' |
+            rg -v -f rg_BBox_skip.rgx | sort -ur |
+            awk -v FILE="$FILE" -f getBBox-preprocess.awk >>"$2"
+    done < <(rg -N "$1" "$SHOW_URLS")
+}
+
+# Get data for movies from /movie/ URLs
+# Unless we already have one from today
+if [ ! -e "$TV_MOVIE_TXT" ]; then
+    winnowHTML "/movie/" "$TV_MOVIE_TXT"
 else
-    printf "==> using existing $TV_MOVIE_HTML\n"
+    printf "==> using existing $TV_MOVIE_TXT\n"
 fi
 # Generate movies spreadsheet
-printf "### Possible anomalies from processing $TV_MOVIE_HTML\n" >"$ERRORS"
-awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
-    -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
+printf "### Possible anomalies from processing $TV_MOVIE_TXT\n" >"$ERRORS"
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS="$RAW_CREDITS" \
+    -f getBBoxMovies.awk "$TV_MOVIE_TXT" |
     sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 
-# Get HTML for shows from /show/ URLs
+# Get data for shows from /show/ URLs
 # Unless we already have one from today
-if [ ! -e "$TV_SHOW_HTML" ]; then
-    printf "==> Generating new $TV_SHOW_HTML\n"
-    while read -r url; do
-        curl -s "$url" | rg -N -f rg_BBox-shows.rgx |
-            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_SHOW_HTML"
-    done < <(rg -N /show/ "$ALL_URLS")
+if [ ! -e "$TV_SHOW_TXT" ]; then
+    winnowHTML "/show/" "$TV_SHOW_TXT"
 else
-    printf "==> using existing $TV_SHOW_HTML\n"
+    printf "==> using existing $TV_SHOW_TXT\n"
 fi
 # Generate shows spreadsheet
-printf "\n### Possible anomalies from processing $TV_SHOW_HTML\n" >>"$ERRORS"
-awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS=$RAW_CREDITS \
-    -f getBBoxShowsFromHTML.awk "$TV_SHOW_HTML" |
+printf "\n### Possible anomalies from processing $TV_SHOW_TXT\n" >>"$ERRORS"
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS="$RAW_CREDITS" \
+    -f getBBoxShows.awk "$TV_SHOW_TXT" |
     sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 
-# Get HTML for episodes from /season/ URLs
+# Get data for episodes from /season/ URLs
 # Unless we already have one from today
-if [ ! -e "$TV_EPISODE_HTML" ]; then
-    printf "==> Generating new $TV_EPISODE_HTML\n"
-    while read -r url; do
-        curl -s "$url" | rg -N -f rg_BBox-seasons.rgx |
-            perl -pe 's+&quot;+"+g; tr/\r//d' >>"$TV_EPISODE_HTML"
-    done < <(rg -N /season/ "$ALL_URLS")
+if [ ! -e "$TV_EPISODE_TXT" ]; then
+    winnowHTML "/season/" "$TV_EPISODE_TXT"
 else
-    printf "==> using existing $TV_EPISODE_HTML\n"
+    printf "==> using existing $TV_EPISODE_TXT\n"
 fi
 # Generate episodes spreadsheet
-printf "\n### Possible anomalies from processing $TV_EPISODE_HTML\n" >>"$ERRORS"
-awk -v ERRORS="$ERRORS" -f getBBoxEpisodesFromHTML.awk "$TV_EPISODE_HTML" |
+printf "\n### Possible anomalies from processing $TV_EPISODE_TXT\n" >>"$ERRORS"
+awk -v ERRORS="$ERRORS" -f getBBoxEpisodes.awk "$TV_EPISODE_TXT" |
     sort -fu --key=4 --field-separator=\" >"$EPISODES_CSV"
 
 # Sort the titles produced by getBBox*.awk scripts
@@ -211,13 +210,15 @@ titleCol="1"
 if [ "$DEBUG" != "yes" ]; then
     spreadsheet_columns="1-9"
 else
-    spreadsheet_columns="1-17"
+    spreadsheet_columns="1-16"
 fi
 
 # Generate LONG_SPREADSHEET and SHORT_SPREADSHEET
+# shellcheck disable=SC2086
 touch $ALL_SPREADSHEETS $ALL_CSVS
 # Make TEMP_SPREADSHEET containing ALL columns
 head -1 "$MOVIES_CSV" >"$TEMP_SPREADSHEET"
+# shellcheck disable=SC2086
 rg -I '=HYPERLINK' $ALL_CSVS |
     sort -fu --key=4 --field-separator=\" >>"$TEMP_SPREADSHEET"
 # Make LONG_SPREADSHEET containing selected columne
@@ -227,71 +228,71 @@ tail -r "$LONG_SPREADSHEET" | awk -v ERRORS="$ERRORS" -v DURATION="$DURATION" \
     -f calculateBBoxShowDurations.awk | tail -r >>"$SHORT_SPREADSHEET"
 
 # Generate credits spreadsheets
-sort -fu $RAW_CREDITS | sort -fb >>$CREDITS
-cut -f 1 $RAW_CREDITS | sort -fu >>$UNIQUE_PERSONS
-cut -f 5 $RAW_CREDITS | sort -fu >>$UNIQUE_CHARACTERS
+sort -fu "$RAW_CREDITS" | sort -fb >>"$CREDITS"
+cut -f 1 "$RAW_CREDITS" | sort -fu >>"$UNIQUE_PERSONS"
+cut -f 5 "$RAW_CREDITS" | sort -fu >>"$UNIQUE_CHARACTERS"
 
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
-    numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
+    numlines=$(($(sed -n '$=' "$1") - $2))
+    ls -loh "$1" |
         awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
 # Output some stats from credits
 printf "\n==> Stats from processing credits:\n"
-numPersons=$(sed -n '$=' $UNIQUE_PERSONS)
-numCharacters=$(sed -n '$=' $UNIQUE_CHARACTERS)
+numPersons=$(sed -n '$=' "$UNIQUE_PERSONS")
+numCharacters=$(sed -n '$=' "$UNIQUE_CHARACTERS")
 printf "%8d people credited\n" "$numPersons"
 #
 # for i in actor producer director writer other guest narrator; do
 for i in actor director; do
-    count=$(cut -f 1,2 $CREDITS | sort -fu | grep -cw "$i$")
+    count=$(cut -f 1,2 "$CREDITS" | sort -fu | grep -cw "$i$")
     printf "%8d as %ss\n" "$count" "$i"
 done
 printf "%8d characters portrayed (in at most" "$numCharacters"
-count=$(cut -f 3,4 $CREDITS | sort -fu | grep -cw "^tv_show")
+count=$(cut -f 3,4 "$CREDITS" | sort -fu | grep -cw "^tv_show")
 printf " %d TV shows)\n" "$count"
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $ALL_URLS 0
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $SHORT_SPREADSHEET 1
-printAdjustedFileInfo $EPISODES_CSV 1
-printAdjustedFileInfo $MOVIES_CSV 1
-printAdjustedFileInfo $SHOWS_CSV 1
-printAdjustedFileInfo $UNIQUE_TITLES 0
-printAdjustedFileInfo $CREDITS 1
-printAdjustedFileInfo $UNIQUE_PERSONS 0
-printAdjustedFileInfo $UNIQUE_CHARACTERS 0
+printAdjustedFileInfo "$SHOW_URLS" 0
+printAdjustedFileInfo "$LONG_SPREADSHEET" 1
+printAdjustedFileInfo "$SHORT_SPREADSHEET" 1
+printAdjustedFileInfo "$EPISODES_CSV" 1
+printAdjustedFileInfo "$MOVIES_CSV" 1
+printAdjustedFileInfo "$SHOWS_CSV" 1
+printAdjustedFileInfo "$UNIQUE_TITLES" 0
+printAdjustedFileInfo "$CREDITS" 1
+printAdjustedFileInfo "$UNIQUE_PERSONS" 0
+printAdjustedFileInfo "$UNIQUE_CHARACTERS" 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
     # Add labels in column A
     # Add totals formula in remaining columns
     colNames=ABCDEFGHIJKLMNOPQRSTU
-    ((lastRow = $(sed -n '$=' $1)))
-    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 1))
+    ((lastRow = $(sed -n '$=' "$1")))
+    ((numCountA = $(head -1 "$1" | awk -F"\t" '{print NF}') - 1))
     TOTAL="Non-blank values"
     for ((i = 1; i <= numCountA; i++)); do
         x=${colNames:i:1}
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
-    printf "$TOTAL\n" >>$1
+    printf "$TOTAL\n" >>"$1"
     #
     case "$2" in
     skip)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\n" >>"$1"
         ;;
     sum)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>"$1"
         ;;
     total)
-        TXT_TOTAL=$(cat $DURATION)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
+        TXT_TOTAL=$(cat "$DURATION")
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>"$1"
         ;;
     *)
         printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>"$ERRORS"
@@ -302,15 +303,16 @@ function addTotalsToSpreadsheet() {
 # Output spreadsheet footer if totals requested
 # Either skip, sum, or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
-    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
+    addTotalsToSpreadsheet "$SHORT_SPREADSHEET" "total"
+    addTotalsToSpreadsheet "$LONG_SPREADSHEET" "sum"
     #
-    addTotalsToSpreadsheet $EPISODES_CSV "sum"
-    addTotalsToSpreadsheet $MOVIES_CSV "sum"
-    addTotalsToSpreadsheet $SHOWS_CSV "sum"
+    addTotalsToSpreadsheet "$EPISODES_CSV" "sum"
+    addTotalsToSpreadsheet "$MOVIES_CSV" "sum"
+    addTotalsToSpreadsheet "$SHOWS_CSV" "sum"
 fi
 
-# Look for any leftover HTML character codes or other problems
+# Look for any leftover TXT character codes or other problems
+# shellcheck disable=SC2086
 probs="$(rg -c --sort path -f rg_problems.rgx $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
     {
@@ -322,6 +324,7 @@ if [ -n "$probs" ]; then
 fi
 #
 # Also send to stdout
+# shellcheck disable=SC2086
 probs="$(rg -c --color ansi --sort path -f rg_problems.rgx \
     $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
@@ -334,6 +337,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
+        # shellcheck disable=SC2086
         rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
@@ -342,7 +346,8 @@ fi
 # Shortcut for counting occurrences of a string in all spreadsheets
 # countOccurrences string
 function countOccurrences() {
-    grep -H -c "$1" $ALL_SPREADSHEETS "$ALL_URLS"
+    # shellcheck disable=SC2086
+    grep -H -c "$1" $ALL_SPREADSHEETS "$SHOW_URLS"
 }
 
 # Shortcut for checking differences between two files.
@@ -363,7 +368,7 @@ function checkdiffs() {
         # first the stats
         printf "./whatChanged \"$1\" \"$2\"\n"
         diff -u "$1" "$2" | diffstat -sq \
-            -D $(cd $(dirname "$2") && pwd -P) |
+            -D "$(cd "$(dirname "$2")" && pwd -P)" |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
         if cmp --quiet "$1" "$2"; then
@@ -375,20 +380,21 @@ function checkdiffs() {
 }
 
 # Preserve any possible errors for debugging
-cat >>$POSSIBLE_DIFFS <<EOF
+# shellcheck disable=SC2086
+cat >>"$POSSIBLE_DIFFS" <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
-$(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
+$(grep "=HYPERLINK" "$SHORT_SPREADSHEET" | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
-$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
-$(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS $UNIQUE_CHARACTERS)
-$(checkdiffs $PUBLISHED_CREDITS $CREDITS)
-$(checkdiffs $PUBLISHED_ALL_URLS $ALL_URLS)
-$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
+$(checkdiffs $PUBLISHED_UNIQUE_TITLES "$UNIQUE_TITLES")
+$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET "$SHORT_SPREADSHEET")
+$(checkdiffs $PUBLISHED_UNIQUE_PERSONS "$UNIQUE_PERSONS")
+$(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS "$UNIQUE_CHARACTERS")
+$(checkdiffs $PUBLISHED_CREDITS "$CREDITS")
+$(checkdiffs $PUBLISHED_SHOW_URLS "$SHOW_URLS")
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET "$LONG_SPREADSHEET")
 
 ### These counts should not vary significantly over time
 ### if they do, the earlier download may have failed.
@@ -409,7 +415,7 @@ $(wc $ALL_TXT $ALL_SPREADSHEETS)
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
+    rm -f "$ALL_WORKING" "$ALL_TXT" "$ALL_SPREADSHEETS"
 fi
 
 exit
