@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on OPB TV
+#
+# shellcheck disable=SC2034,SC2155,SC2317
 
 # trap ctrl-c and call cleanup
 trap cleanup INT
@@ -11,7 +13,7 @@ function cleanup() {
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Make sort consistent between Mac and Linux
 export LC_COLLATE="C"
@@ -115,6 +117,7 @@ ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET $EXTRA_SPREADSHEET"
 TAB=$(printf "\t")
 
 # Cleanup any possible leftover files
+# shellcheck disable=SC2086
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 # Print header for possible errors from processing shows
@@ -124,32 +127,37 @@ printf "### Possible anomalies from processing shows are listed below.\n\n" >"$E
 # This contains your OPB login and password so don't put it in git
 node save_password-02.js
 
-node getWalter.js
-prettier --write $RAW_HTML
-rg -A 7 'href="/show/' $RAW_HTML | rg 'href="/show/|alt=' |
-    awk -f getWalter.awk | sort >$SHOW_URLS
-
-# Add URLs from PBS-only.csv making sure none are duplicates
-# Temporarily use UNSORTED_SHORT
-zet union $PBS_ONLY $SHOW_URLS >$UNSORTED_SHORT
-sort -f --field-separator="$TAB" --key=2,2 $UNSORTED_SHORT >$SHOW_URLS
-printf "==> Done writing $SHOW_URLS\n"
-
-rm -f $RAW_HTML
+if [ ! -e "$SHOW_URLS" ]; then
+    printf "==> Downloading new $SHOW_URLS\n"
+    node getWalter.js
+    # Use RAW_HTML as a temp file
+    prettier --write "$RAW_HTML"
+    rg -A 7 'href="/show/' "$RAW_HTML" | rg 'href="/show/|alt=' |
+        awk -f getWalter.awk | sort >"$SHOW_URLS"
+    # Add URLs from PBS-only.csv making sure none are duplicates
+    # Temporarily use UNSORTED_SHORT
+    zet union $PBS_ONLY "$SHOW_URLS" >"$UNSORTED_SHORT"
+    sort -f --field-separator="$TAB" --key=2,2 "$UNSORTED_SHORT" \
+        >"$SHOW_URLS"
+    printf "==> Done writing $SHOW_URLS\n"
+    rm -f "$RAW_HTML"
+else
+    printf "==> using existing $SHOW_URLS\n"
+fi
 
 # Loop through $SHOW_URLS to generate $RAW_DATA
 while read -r line; do
-    IFS="$TAB" read field1 field2 field3 <<<"$line"
-    # printf "field1 = '$field1'\n" >"/dev/stderr"
-    # printf "field2 = '$field2'\n" >"/dev/stderr"
-    # printf "field3 = '$field3'\n\n" >"/dev/stderr"
-    export TARGET="$field1"
+    IFS="$TAB" read -r show_addr show_title saved_file <<<"$line"
+    # printf "show_addr = '$show_addr'\n" >"/dev/stderr"
+    # printf "show_title = '$show_title'\n" >"/dev/stderr"
+    # printf "saved_file = '$saved_file'\n\n" >"/dev/stderr"
+    export TARGET="$show_addr"
     node getOPB.js >>"$LOGFILE"
     # If getOPB.js succeeded, RAW_HTML file was created
     if [ -e "$RAW_HTML" ]; then
         rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
-            awk -v ERRORS=$ERRORS -f getOPB.awk >>"$RAW_DATA"
-        rm -f $RAW_HTML
+            awk -v ERRORS="$ERRORS" -f getOPB.awk >>"$RAW_DATA"
+        rm -f "$RAW_HTML"
     else
         # getOPB.js failed, since no RAW_HTML file was created
         printf "==> getOPB.js failed on $line\n" >>"$ERRORS"
@@ -157,10 +165,10 @@ while read -r line; do
 done <"$SHOW_URLS"
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
-awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES \
-    -v DURATION=$DURATION -v LONG_SPREADSHEET=$UNSORTED_LONG \
-    -v EXTRA_SPREADSHEET=$UNSORTED_EXTRA \
-    -f getWalterFrom-raw_data.awk $RAW_DATA >$UNSORTED_SHORT
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" \
+    -v DURATION="$DURATION" -v LONG_SPREADSHEET="$UNSORTED_LONG" \
+    -v EXTRA_SPREADSHEET="$UNSORTED_EXTRA" \
+    -f getWalterFrom-raw_data.awk "$RAW_DATA" >"$UNSORTED_SHORT"
 
 # Field numbers returned by getWalterFrom-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
@@ -170,66 +178,66 @@ titleCol="1"
 # Print header for LONG_SPREADSHEET, SHORT_SPREADSHEET, EXTRA_SPREADSHEET
 printf \
     "Title\tSeasons\tEpisodes\tDuration\tGenre\tLanguage\tRating\tDescription\n" \
-    >$LONG_SPREADSHEET
-cp -p $LONG_SPREADSHEET $SHORT_SPREADSHEET
-cp -p $LONG_SPREADSHEET $EXTRA_SPREADSHEET
+    >"$LONG_SPREADSHEET"
+cp -p "$LONG_SPREADSHEET" "$SHORT_SPREADSHEET"
+cp -p "$LONG_SPREADSHEET" "$EXTRA_SPREADSHEET"
 
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED_SHORT >>$SHORT_SPREADSHEET
+sort -fu --key=4 --field-separator=\" "$UNSORTED_SHORT" >>"$SHORT_SPREADSHEET"
 
 # Output $LONG_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED_LONG >>$LONG_SPREADSHEET
+sort -fu --key=4 --field-separator=\" "$UNSORTED_LONG" >>"$LONG_SPREADSHEET"
 
 # Output $EXTRA_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" $UNSORTED_EXTRA >>$EXTRA_SPREADSHEET
+sort -fu --key=4 --field-separator=\" "$UNSORTED_EXTRA" >>"$EXTRA_SPREADSHEET"
 
 # Kludge to switch "S9999" "More Clips & Previews" season number to "SMore"
-sd S9999 SMore $EXTRA_SPREADSHEET
+sd S9999 SMore "$EXTRA_SPREADSHEET"
 
 # Sort the titles produced by getWalterFrom-raw_data.awk
-sort -fu $RAW_TITLES >$UNIQUE_TITLES
-rm -f $RAW_TITLES
+sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
+rm -f "$RAW_TITLES"
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
-    numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
+    numlines=$(($(sed -n '$=' "$1") - $2))
+    ls -loh "$1" |
         awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $SHOW_URLS 0
-printAdjustedFileInfo $SHORT_SPREADSHEET 1
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $EXTRA_SPREADSHEET 1
-printAdjustedFileInfo $UNIQUE_TITLES 0
-printAdjustedFileInfo $LOGFILE 0
+printAdjustedFileInfo "$SHOW_URLS" 0
+printAdjustedFileInfo "$SHORT_SPREADSHEET" 1
+printAdjustedFileInfo "$LONG_SPREADSHEET" 1
+printAdjustedFileInfo "$EXTRA_SPREADSHEET" 1
+printAdjustedFileInfo "$UNIQUE_TITLES" 0
+printAdjustedFileInfo "$LOGFILE" 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
     # Add labels in column A
     # Add totals formula in remaining columns
     colNames=ABCDEFGHIJKLMNOPQRSTU
-    ((lastRow = $(sed -n '$=' $1)))
-    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 1))
+    ((lastRow = $(sed -n '$=' "$1")))
+    ((numCountA = $(head -1 "$1" | awk -F"\t" '{print NF}') - 1))
     TOTAL="Non-blank values"
     for ((i = 1; i <= numCountA; i++)); do
         x=${colNames:i:1}
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
-    printf "$TOTAL\n" >>$1
+    printf "$TOTAL\n" >>"$1"
     #
     case "$2" in
     sum)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>"$1"
         ;;
     total)
-        TXT_TOTAL=$(cat $DURATION)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
+        TXT_TOTAL=$(cat "$DURATION")
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>"$1"
         ;;
     *)
         printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>"$ERRORS"
@@ -240,12 +248,13 @@ function addTotalsToSpreadsheet() {
 # Output spreadsheet footer if totals requested
 # Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
-    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
-    addTotalsToSpreadsheet $EXTRA_SPREADSHEET "total"
+    addTotalsToSpreadsheet "$SHORT_SPREADSHEET" "total"
+    addTotalsToSpreadsheet "$LONG_SPREADSHEET" "sum"
+    addTotalsToSpreadsheet "$EXTRA_SPREADSHEET" "total"
 fi
 
 # Look for any leftover HTML character codes or other problems
+# shellcheck disable=SC2086
 probs="$(rg -c --sort path -f rg_problems.rgx $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
     {
@@ -257,6 +266,7 @@ if [ -n "$probs" ]; then
 fi
 #
 # Also send to stdout
+# shellcheck disable=SC2086
 probs="$(rg -c --color ansi --sort path -f rg_problems.rgx \
     $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
@@ -269,6 +279,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
+        # shellcheck disable=SC2086
         rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
@@ -292,7 +303,7 @@ function checkdiffs() {
         # first the stats
         printf "./whatChanged \"$1\" \"$2\"\n"
         diff -u "$1" "$2" | diffstat -sq \
-            -D $(cd $(dirname "$2") && pwd -P) |
+            -D "$(cd "$(dirname "$2")" && pwd -P)" |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
         if cmp --quiet "$1" "$2"; then
@@ -304,19 +315,20 @@ function checkdiffs() {
 }
 
 # Preserve any possible errors for debugging
-cat >>$POSSIBLE_DIFFS <<EOF
+# shellcheck disable=SC2086
+cat >>"$POSSIBLE_DIFFS" <<EOF
 ==> ${0##*/} completed: $(date)
 
 ### Any duplicate titles?
-$(grep "=HYPERLINK" $SHORT_SPREADSHEET | cut -f $titleCol | uniq -d)
+$(grep "=HYPERLINK" "$SHORT_SPREADSHEET" | cut -f $titleCol | uniq -d)
 
 ### Check the diffs to see if any changes are meaningful
-$(checkdiffs $PUBLISHED_UNIQUE_TITLES $UNIQUE_TITLES)
-$(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
-$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET $SHORT_SPREADSHEET)
-$(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
-$(checkdiffs $PUBLISHED_EXTRA_SPREADSHEET $EXTRA_SPREADSHEET)
-$(checkdiffs $PUBLISHED_DURATION $DURATION)
+$(checkdiffs $PUBLISHED_UNIQUE_TITLES "$UNIQUE_TITLES")
+$(checkdiffs $PUBLISHED_SHOW_URLS "$SHOW_URLS")
+$(checkdiffs $PUBLISHED_SHORT_SPREADSHEET "$SHORT_SPREADSHEET")
+$(checkdiffs $PUBLISHED_LONG_SPREADSHEET "$LONG_SPREADSHEET")
+$(checkdiffs $PUBLISHED_EXTRA_SPREADSHEET "$EXTRA_SPREADSHEET")
+$(checkdiffs $PUBLISHED_DURATION "$DURATION")
 
 ### Any funny stuff with file lengths?
 
@@ -325,6 +337,7 @@ $(wc $ALL_TXT $ALL_SPREADSHEETS)
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
+    # shellcheck disable=SC2086
     rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
