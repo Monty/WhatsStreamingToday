@@ -51,7 +51,3 @@ yesnodelete "all credits" "MHz_TV_Credits*.csv" "BBox_TV_Credits*.csv" "IMDb_Cre
     "IMDb_Persons-Titles*.csv" "IMDb_associatedTitles*.csv"
 yesnodelete "all uniq files" "Acorn_uniq*.txt" "MHz_uniq*.txt" "BBox_uniq*.txt" \
     "OPB_uniq*.txt" "IMDb_uniq*.txt"
-
-
-
-
