@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on MHz Choice
+#
+# shellcheck disable=SC2317
 
 # trap ctrl-c and call cleanup
 trap cleanup INT
@@ -11,7 +13,7 @@ function cleanup() {
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Make sort consistent between Mac and Linux
 export LC_COLLATE="C"
@@ -119,6 +121,7 @@ ALL_TXT="$EPISODE_URLS $MOVIE_URLS $SEASON_URLS $UNIQUE_PERSONS $UNIQUE_CHARACTE
 ALL_SPREADSHEETS="$CREDITS $AVG_SPREADSHEET $SHORT_SPREADSHEET $LONG_SPREADSHEET"
 
 # Cleanup any possible leftover files
+# shellcheck disable=SC2086
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
 # Grab all the URLs from the sitemap
@@ -128,24 +131,25 @@ if [ ! -e "$MHZ_URLS" ]; then
     printf "==> Downloading new $MHZ_URLS\n"
     curl -s $SITEMAP_URL | rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
-        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' | sort -f >$MHZ_URLS
+        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' | sort -f >"$MHZ_URLS"
 else
     printf "==> using existing $MHZ_URLS\n"
 fi
 
 # Separate URLs into episodes, movies, and seasons
-rg 'https://watch.mhzchoice.com/.*/season:[0-9]*/.*$' $MHZ_URLS >$EPISODE_URLS
-rg 'https://watch.mhzchoice.com.*/season:[0-9]*$' $MHZ_URLS >$SEASON_URLS
-rg -v /season: $MHZ_URLS | rg /videos/ |
-    rg -v '/all-series/videos/|/drama-crime/videos/' >>$EPISODE_URLS
-rg -v /season: $MHZ_URLS | rg /videos/ |
+rg 'https://watch.mhzchoice.com/.*/season:[0-9]*/.*$' "$MHZ_URLS" >"$EPISODE_URLS"
+rg 'https://watch.mhzchoice.com.*/season:[0-9]*$' "$MHZ_URLS" >"$SEASON_URLS"
+rg -v /season: "$MHZ_URLS" | rg /videos/ |
+    rg -v '/all-series/videos/|/drama-crime/videos/' >>"$EPISODE_URLS"
+rg -v /season: "$MHZ_URLS" | rg /videos/ |
     rg -v '/all-series/videos/|/drama-crime/videos/' |
-    sd "/videos/.*" "" >$MOVIE_URLS
-cat $MOVIE_URLS >>$SEASON_URLS
+    sd "/videos/.*" "" >"$MOVIE_URLS"
+# shellcheck disable=SC2129
+cat "$MOVIE_URLS" >>"$SEASON_URLS"
 
 # Special processing for Montalbano which has episodes on page 2
-printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>$SEASON_URLS
-printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>$SEASON_URLS
+printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>"$SEASON_URLS"
+printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>"$SEASON_URLS"
 # Print header for error file
 printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\n" >"$ERRORS"
 
@@ -154,8 +158,8 @@ printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\
 #
 # Print spreadsheet headers (OK because they will always sort to the top)
 printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDescription\n" \
-    >$UNSORTED
-printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >$RAW_CREDITS
+    >"$UNSORTED"
+printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >"$RAW_CREDITS"
 
 # loop through the list of URLs from $SEASON_URLS and generate a full but unsorted spreadsheet
 # output any URLs that don't work to $ERRORS
@@ -163,8 +167,8 @@ while read -r line; do
     http_status=$(curl -o /dev/null -s -w "%{response_code}" "$line")
     if [ "$http_status" = "200" ]; then
         curl -sS "$line" |
-            awk -v ERRORS=$ERRORS -v RAW_CREDITS=$RAW_CREDITS -v RAW_TITLES=$RAW_TITLES \
-                -f getMHzFromSitemap.awk >>$UNSORTED
+            awk -v ERRORS="$ERRORS" -v RAW_CREDITS="$RAW_CREDITS" -v RAW_TITLES="$RAW_TITLES" \
+                -f getMHzFromSitemap.awk >>"$UNSORTED"
     else
         printf "==> HTTP status for $line is $http_status\n" | tee -a "$ERRORS"
     fi
@@ -172,18 +176,18 @@ done <"$SEASON_URLS"
 
 # Create both SHORT_SPREADSHEET and LONG_SPREADSHEET
 # Roll up seasons episodes into show episodes, don't print seasons lines
-sort -fu --key=4 --field-separator=\" $UNSORTED | tail -r | awk -v ERRORS=$ERRORS \
-    -v DURATION="$DURATION" -v LONG_SPREADSHEET=$LONG_SPREADSHEET -f calculateMHzShowDurations.awk |
-    tail -r >$SHORT_SPREADSHEET
+sort -fu --key=4 --field-separator=\" "$UNSORTED" | tail -r | awk -v ERRORS="$ERRORS" \
+    -v DURATION="$DURATION" -v LONG_SPREADSHEET="$LONG_SPREADSHEET" -f calculateMHzShowDurations.awk |
+    tail -r >"$SHORT_SPREADSHEET"
 #
-awk -f getMHzAvg.awk $SHORT_SPREADSHEET >$AVG_SPREADSHEET
-mv $LONG_SPREADSHEET $UNSORTED
-tail -r $UNSORTED >$LONG_SPREADSHEET
-rm -f $UNSORTED
+awk -f getMHzAvg.awk "$SHORT_SPREADSHEET" >"$AVG_SPREADSHEET"
+mv "$LONG_SPREADSHEET" "$UNSORTED"
+tail -r "$UNSORTED" >"$LONG_SPREADSHEET"
+rm -f "$UNSORTED"
 
 # Sort the titles produced by getMHzFromSitemap.awk
-sort -fu $RAW_TITLES >$UNIQUE_TITLES
-rm -f $RAW_TITLES
+sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
+rm -f "$RAW_TITLES"
 
 # For the shortest runtime, exit here
 [ -n "$QUICK" ] && exit
@@ -191,15 +195,15 @@ rm -f $RAW_TITLES
 # loop through the list of URLs from $EPISODE_URLS and generate an unsorted credits spreadsheet
 while read -r line; do
     curl -sS "$line" |
-        awk -v ERRORS=$ERRORS -f getMHzCast.awk >>$RAW_CREDITS
+        awk -v ERRORS="$ERRORS" -f getMHzCast.awk >>"$RAW_CREDITS"
 done <"$EPISODE_URLS"
 
 # Generate credits spreadsheets
-head -1 $RAW_CREDITS >$CREDITS
+head -1 "$RAW_CREDITS" >"$CREDITS"
 # Need sort -fu to get rid of dupes, followed by sort -fb to make Mac/Linux the same
-tail -n +2 $RAW_CREDITS | sort -fu | sort -fb >>$CREDITS
-tail -n +2 $CREDITS | cut -f 1 | sort -fu >>$UNIQUE_PERSONS
-tail -n +2 $CREDITS | cut -f 5 | sort -fu >>$UNIQUE_CHARACTERS
+tail -n +2 "$RAW_CREDITS" | sort -fu | sort -fb >>"$CREDITS"
+tail -n +2 "$CREDITS" | cut -f 1 | sort -fu >>"$UNIQUE_PERSONS"
+tail -n +2 "$CREDITS" | cut -f 5 | sort -fu >>"$UNIQUE_CHARACTERS"
 # rm -f $RAW_CREDITS
 
 # Shortcut for printing file info (before adding totals)
@@ -207,59 +211,59 @@ function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
     # Subtract lines to account for headers or trailers, 0 for no adjustment
     #   INVOCATION: printAdjustedFileInfo filename adjustment
-    numlines=$(($(sed -n '$=' $1) - $2))
-    ls -loh $1 |
+    numlines=$(($(sed -n '$=' "$1") - $2))
+    ls -loh "$1" |
         awk -v nl=$numlines '{ printf ("%-45s%6s%6s %s %s %8d lines\n", $8, $4, $5, $6, $7, nl); }'
 }
 
 # Output some stats from credits
 printf "\n==> Stats from processing credits:\n"
-numPersons=$(sed -n '$=' $UNIQUE_PERSONS)
-numCharacters=$(sed -n '$=' $UNIQUE_CHARACTERS)
+numPersons=$(sed -n '$=' "$UNIQUE_PERSONS")
+numCharacters=$(sed -n '$=' "$UNIQUE_CHARACTERS")
 printf "%8d people credited\n" "$numPersons"
 #
 # for i in actor producer director writer other guest narrator; do
 for i in actor director; do
-    count=$(cut -f 1,2 $CREDITS | sort -fu | grep -cw "$i$")
+    count=$(cut -f 1,2 "$CREDITS" | sort -fu | grep -cw "$i$")
     printf "%8d as %ss\n" "$count" "$i"
 done
 printf "%8d characters portrayed (in at most" "$numCharacters"
-count=$(cut -f 3,4 $CREDITS | sort -fu | grep -cw "^tv_show")
+count=$(cut -f 3,4 "$CREDITS" | sort -fu | grep -cw "^tv_show")
 printf " %d TV shows)\n" "$count"
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo $MHZ_URLS 0
-printAdjustedFileInfo $LONG_SPREADSHEET 1
-printAdjustedFileInfo $EPISODE_URLS 0
-printAdjustedFileInfo $SEASON_URLS 0
-printAdjustedFileInfo $MOVIE_URLS 0
-printAdjustedFileInfo $SHORT_SPREADSHEET 1
-printAdjustedFileInfo $UNIQUE_TITLES 0
-printAdjustedFileInfo $CREDITS 1
-printAdjustedFileInfo $UNIQUE_PERSONS 0
-printAdjustedFileInfo $UNIQUE_CHARACTERS 0
+printAdjustedFileInfo "$MHZ_URLS" 0
+printAdjustedFileInfo "$LONG_SPREADSHEET" 1
+printAdjustedFileInfo "$EPISODE_URLS" 0
+printAdjustedFileInfo "$SEASON_URLS" 0
+printAdjustedFileInfo "$MOVIE_URLS" 0
+printAdjustedFileInfo "$SHORT_SPREADSHEET" 1
+printAdjustedFileInfo "$UNIQUE_TITLES" 0
+printAdjustedFileInfo "$CREDITS" 1
+printAdjustedFileInfo "$UNIQUE_PERSONS" 0
+printAdjustedFileInfo "$UNIQUE_CHARACTERS" 0
 
 # Shortcut for adding totals to spreadsheets
 function addTotalsToSpreadsheet() {
     # Add labels in column A
     # Add totals formula in remaining columns
     colNames=ABCDEFGHIJKLMNOPQRSTU
-    ((lastRow = $(sed -n '$=' $1)))
-    ((numCountA = $(head -1 $1 | awk -F"\t" '{print NF}') - 1))
+    ((lastRow = $(sed -n '$=' "$1")))
+    ((numCountA = $(head -1 "$1" | awk -F"\t" '{print NF}') - 1))
     TOTAL="Non-blank values"
     for ((i = 1; i <= numCountA; i++)); do
         x=${colNames:i:1}
         TOTAL+="\t=COUNTA(${x}2:${x}$lastRow)"
     done
-    printf "$TOTAL\n" >>$1
+    printf "$TOTAL\n" >>"$1"
     case "$2" in
     sum)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>$1
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t=SUM(D2:D$lastRow)\n" >>"$1"
         ;;
     total)
-        TXT_TOTAL=$(cat $DURATION)
-        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>$1
+        TXT_TOTAL=$(cat "$DURATION")
+        printf "Total seasons & episodes\t=SUM(B2:B$lastRow)\t=SUM(C2:C$lastRow)\t$TXT_TOTAL\n" >>"$1"
         ;;
     *)
         printf "==> Bad parameter: addTotalsToSpreadsheet \"$2\" $1\n" >>"$ERRORS"
@@ -270,11 +274,12 @@ function addTotalsToSpreadsheet() {
 # Output spreadsheet footer if totals requested
 # Either sum or use computed totals from $DURATION
 if [ "$PRINT_TOTALS" = "yes" ]; then
-    addTotalsToSpreadsheet $SHORT_SPREADSHEET "total"
-    addTotalsToSpreadsheet $LONG_SPREADSHEET "sum"
+    addTotalsToSpreadsheet "$SHORT_SPREADSHEET" "total"
+    addTotalsToSpreadsheet "$LONG_SPREADSHEET" "sum"
 fi
 
 # Look for any leftover HTML character codes or other problems
+# shellcheck disable=SC2086
 probs="$(rg -c --sort path -f rg_problems.rgx $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
     {
@@ -286,6 +291,7 @@ if [ -n "$probs" ]; then
 fi
 #
 # Also send to stdout
+# shellcheck disable=SC2086
 probs="$(rg -c --color ansi --sort path -f rg_problems.rgx \
     $ALL_TXT $ALL_SPREADSHEETS)"
 if [ -n "$probs" ]; then
@@ -298,6 +304,7 @@ fi
 # If we don't want to create a "diffs" file for debugging, exit here
 if [ "$DEBUG" != "yes" ]; then
     if [ "$SUMMARY" = "yes" ]; then
+        # shellcheck disable=SC2086
         rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
     fi
     exit
@@ -321,7 +328,7 @@ function checkdiffs() {
         # first the stats
         printf "./whatChanged \"$1\" \"$2\"\n"
         diff -u "$1" "$2" | diffstat -sq \
-            -D $(cd $(dirname "$2") && pwd -P) |
+            -D "$(cd "$(dirname "$2")" && pwd -P)" |
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
         if cmp --quiet "$1" "$2"; then
@@ -333,6 +340,7 @@ function checkdiffs() {
 }
 
 # Preserve any possible errors for debugging
+# shellcheck disable=SC2086
 cat >>$POSSIBLE_DIFFS <<EOF
 ==> ${0##*/} completed: $(date)
 
@@ -356,6 +364,7 @@ $(wc $ALL_TXT $ALL_SPREADSHEETS)
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
+    # shellcheck disable=SC2086
     rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
