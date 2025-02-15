@@ -5,7 +5,7 @@
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Create a timestamp
 DATE="$(date +%y%m%d)"
@@ -33,10 +33,10 @@ COLS="Acorn-columns"
 BASELINE="Acorn-baseline"
 mkdir -p $COLS $BASELINE
 
-cp -p $VERBOSE $COLS/episode_urls-$DATE.txt $BASELINE/episode_urls.txt
-cp -p $VERBOSE $COLS/show_urls-$DATE.txt $BASELINE/show_urls.txt
-cp -p $VERBOSE $COLS/total_duration-$DATE.txt $BASELINE/total_duration.txt
+cp -p "$VERBOSE" $COLS/episode_urls-"$DATE".txt $BASELINE/episode_urls.txt
+cp -p "$VERBOSE" $COLS/show_urls-"$DATE".txt $BASELINE/show_urls.txt
+cp -p "$VERBOSE" $COLS/total_duration-"$DATE".txt $BASELINE/total_duration.txt
 
-cp -p $VERBOSE Acorn_uniqTitles-$DATE.txt $BASELINE/uniqTitles.txt
-cp -p $VERBOSE Acorn_TV_Shows-$DATE.csv $BASELINE/spreadsheet.txt
-cp -p $VERBOSE Acorn_TV_ShowsEpisodes-$DATE.csv $BASELINE/spreadsheetEpisodes.txt
+cp -p "$VERBOSE" Acorn_uniqTitles-"$DATE".txt $BASELINE/uniqTitles.txt
+cp -p "$VERBOSE" Acorn_TV_Shows-"$DATE".csv $BASELINE/spreadsheet.txt
+cp -p "$VERBOSE" Acorn_TV_ShowsEpisodes-"$DATE".csv $BASELINE/spreadsheetEpisodes.txt
