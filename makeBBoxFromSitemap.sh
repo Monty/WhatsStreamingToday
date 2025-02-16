@@ -346,7 +346,8 @@ fi
 # Shortcut for counting occurrences of a string in all spreadsheets
 # countOccurrences string
 function countOccurrences() {
-    grep -H -c "$1" "$ALL_SPREADSHEETS" "$SHOW_URLS"
+    # shellcheck disable=SC2086
+    grep -H -c "$1" $ALL_SPREADSHEETS "$SHOW_URLS"
 }
 
 # Shortcut for checking differences between two files.
@@ -379,6 +380,7 @@ function checkdiffs() {
 }
 
 # Preserve any possible errors for debugging
+# shellcheck disable=SC2086
 cat >>"$POSSIBLE_DIFFS" <<EOF
 ==> ${0##*/} completed: $(date)
 
@@ -408,7 +410,7 @@ $(countOccurrences "/show/")
 
 ### Any funny stuff with file lengths?
 
-$(wc "$ALL_TXT" "$ALL_SPREADSHEETS")
+$(wc $ALL_TXT $ALL_SPREADSHEETS)
 
 EOF
 
