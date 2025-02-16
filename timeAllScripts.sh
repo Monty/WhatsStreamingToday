@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Time shell scripts that make spreadsheets -- fastest to slowest so first results are available quickly
+#
+# shellcheck disable=SC2317
 
 # Make sure we can execute the rust utilities rg, sd, and zet.
 # rustc rg zet

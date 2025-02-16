@@ -3,8 +3,8 @@
 #
 # See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
 
-for file in $(ls *.gz); do
+for file in *.gz; do
     echo "File = $file"
-    gzcat $file | head -20
+    gzcat "$file" | head -20
     echo ""
 done
