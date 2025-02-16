@@ -14,14 +14,14 @@ function clearShowVariables() {
 #    - 'link "Central Florida Roadtrip: Hemingway in Florida"'
 # Also fix escaped double quotes
 #    - 'link "Central Florida Roadtrip Street Smarts: \"Presidents\""'
-/    - 'link "/ {
+/ {4}- 'link "/ {
     sub(/'link/, "link", $0)
     sub(/':$/, "", $0)
     sub(/'$/, "", $0)
     gsub(/\\"/, "\"", $0)
 }
 
-/  - 'heading "/ {
+/ {2}- 'heading "/ {
     sub(/'heading/, "heading", $0)
     sub(/':$/, "", $0)
     sub(/'$/, "", $0)
@@ -78,7 +78,7 @@ function clearShowVariables() {
 }
 
 #  - heading "Astrid" [level=1]:
-/^  - heading "/ && phase == "Main" {
+/^ {2}- heading "/ && phase == "Main" {
     split($0, fld, "\"")
     showTitle = fld[2]
     print "showTitle: " showTitle
@@ -88,7 +88,7 @@ function clearShowVariables() {
 #  - paragraph: Astrid Nielsen works in the library...
 #  showDescriptions are only indented two spaces
 #  episodeDescriptions are indented four spaces
-/^  - paragraph: / && phase == "Main" {
+/^ {2}- paragraph: / && phase == "Main" {
     showDescriptionLinesFound++
     showDescription = $0
     sub(/^  - paragraph: /, "", showDescription)
@@ -97,7 +97,7 @@ function clearShowVariables() {
 }
 
 #<!-- About tab data from https://www.pbs.org/show/expedition/ -->
-/^      - link "/ && phase == "About" {
+/^ {6}- link "/ && phase == "About" {
     showGenreLinesFound++
     split($0, fld, "\"")
     showGenre = fld[2]
@@ -107,7 +107,7 @@ function clearShowVariables() {
 
 #<!-- ... tab data from https://www.pbs.org/show/expedition/ -->
 #    - link "Osceola County"
-/^    - link "/ && phase != "Main" && phase != "About" {
+/^ {4}- link "/ && phase != "Main" && phase != "About" {
     episodeTitle = substr($0, 13)
     sub(/"$/, "", episodeTitle)
     print "episodeTitle: " episodeTitle
@@ -120,7 +120,7 @@ function clearShowVariables() {
     next
 }
 
-/^  - paragraph: / && phase != "Main" && phase != "About" {
+/^ {2}- paragraph: / && phase != "Main" && phase != "About" {
     episodeDescription = $0
     sub(/^  - paragraph: /, "", episodeDescription)
     print "episodeDescription: " episodeDescription
