@@ -29,6 +29,7 @@ function yesnodelete() {
     else
         printf "Deleting ...\n"
         # Don't quote $@. Globbing needs to take place here.
+        # shellcheck disable=SC2068,SC2086
         rm -rf $ASK $TELL $@
     fi
     printf "\n"
