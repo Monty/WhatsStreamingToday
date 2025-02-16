@@ -109,9 +109,14 @@ ALL_SPREADSHEETS="$SHORT_SPREADSHEET $LONG_SPREADSHEET"
 # shellcheck disable=SC2086
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
-printf "==> Downloading new $SHOW_URLS\n"
-curl -sS $BROWSE_URL | grep '<a itemprop="url"' | sed -e 's+.*http+http+' -e 's+/">$++' |
-    sort -f >"$SHOW_URLS"
+if [ ! -e "$SHOW_URLS" ]; then
+    printf "==> Downloading new $SHOW_URLS\n"
+    curl -sS $BROWSE_URL | grep '<a itemprop="url"' |
+        sed -e 's+.*http+http+' -e 's+/">$++' |
+        sort -f >"$SHOW_URLS"
+else
+    printf "==> using existing $SHOW_URLS\n"
+fi
 
 # Print header for possible errors from processing shows
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
