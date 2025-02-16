@@ -11,13 +11,14 @@ function cleanup() {
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Make sort consistent between Mac and Linux
 export LC_COLLATE="C"
 
 # Create some timestamps
 DATE_ID="-$(date +%y%m%d)"
+# shellcheck disable=SC2034
 LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
 # Make sure we can execute curl.
@@ -37,8 +38,8 @@ fi
 
 SPREADSHEET="Walter-Presents_Shows$DATE_ID.csv"
 
-printf "Show Title\tEpisodes\n" >$SPREADSHEET
+printf "Show Title\tEpisodes\n" >"$SPREADSHEET"
 
-curl -sS $BROWSE_URL | awk -f getWalterFromBrowsePage.awk | sort >>$SPREADSHEET
+curl -sS $BROWSE_URL | awk -f getWalterFromBrowsePage.awk | sort >>"$SPREADSHEET"
 
 printf "==> $SPREADSHEET\n"
