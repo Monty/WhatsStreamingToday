@@ -18,11 +18,11 @@ if [ ! -x "$(which rustc 2>/dev/null)" ] ||
     exit 1
 fi
 
+printf "========================================\n" | tee /dev/stderr
 PATH=/Users/monty/.volta/bin:${PATH}:/usr/local/bin
 printf "==> PATH\n${PATH}\n\n" | sd ':' '\n'
 export LANG=en_US.UTF-8
 
-printf "========================================\n" | tee /dev/stderr
 printf "==> time ./makeOPB.sh -td\n" | tee /dev/stderr
 date | tee /dev/stderr
 time ./makeOPB.sh -td
@@ -50,16 +50,14 @@ date | tee /dev/stderr
 
 exit
 
-printf -- "----------------------------------------\n"
-printf "==> time ./makeIMDbFromFiles.sh\n"
-date
+printf -- "----------------------------------------\n" | tee /dev/stderr
+printf "==> time ./makeIMDbFromFiles.sh\n" | tee /dev/stderr
+date | tee /dev/stderr
 time ./makeIMDbFromFiles.sh
-printf "\n"
+printf "\n" | tee /dev/stderr
 
-printf -- "----------------------------------------\n"
-printf "==> time ./makeIMDbFromFiles-noHype.sh\n"
-date
+printf -- "----------------------------------------\n" | tee /dev/stderr
+printf "==> time ./makeIMDbFromFiles-noHype.sh\n" | tee /dev/stderr
+date | tee /dev/stderr
 time ./makeIMDbFromFiles-noHype.sh
-printf "\n"
-
-printf "========================================\n"
+printf "\n" | tee /dev/stderr
