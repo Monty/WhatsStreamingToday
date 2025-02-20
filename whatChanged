@@ -41,7 +41,7 @@ fi
 # Now the diffs
 function checkdiffs() {
     if cmp --quiet "$1" "$2"; then
-        printf "==> no diffs found.\n"
+        printf "==> No diffs found.\n"
     else
         diff -U 0 "$1" "$2" | diffr | awk -f formatUnifiedDiffOutput.awk |
             cut -f 1-4
