@@ -29,7 +29,7 @@ while getopts ":bs" opt; do
 done
 shift $((OPTIND - 1))
 
-printf "==> changes between $1 and $2:\n"
+printf "==> Changes between $1 and $2:\n"
 # first the stats
 diff -u "$1" "$2" | diffstat -sq \
     -D $(cd $(dirname "$2") && pwd -P) |
