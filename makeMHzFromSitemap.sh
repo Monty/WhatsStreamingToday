@@ -133,7 +133,7 @@ if [ ! -e "$SHOW_URLS" ]; then
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
         rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' | sort -f >"$SHOW_URLS"
 else
-    printf "==> using existing $SHOW_URLS\n"
+    printf "==> Using existing $SHOW_URLS\n"
 fi
 
 # Separate URLs into episodes, movies, and seasons
