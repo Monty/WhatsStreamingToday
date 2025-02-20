@@ -115,7 +115,7 @@ if [ ! -e "$SHOW_URLS" ]; then
         sed -e 's+.*http+http+' -e 's+/">$++' |
         sort -f >"$SHOW_URLS"
 else
-    printf "==> using existing $SHOW_URLS\n"
+    printf "==> Using existing $SHOW_URLS\n"
 fi
 
 # Print header for possible errors from processing shows

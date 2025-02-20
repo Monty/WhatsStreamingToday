@@ -142,7 +142,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Done writing $SHOW_URLS\n"
     rm -f "$RAW_HTML"
 else
-    printf "==> using existing $SHOW_URLS\n"
+    printf "==> Using existing $SHOW_URLS\n"
 fi
 
 # Loop through $SHOW_URLS to generate $RAW_DATA

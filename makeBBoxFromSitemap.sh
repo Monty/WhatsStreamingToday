@@ -138,7 +138,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     curl -s $SITEMAP_URL | rg en-us |
         awk -f getBBoxURLsFromSitemap.awk | sort -fu >"$SHOW_URLS"
 else
-    printf "==> using existing $SHOW_URLS\n"
+    printf "==> Using existing $SHOW_URLS\n"
 fi
 
 function winnowHTML() {
@@ -160,7 +160,7 @@ function winnowHTML() {
 if [ ! -e "$TV_MOVIE_TXT" ]; then
     winnowHTML "/movie/" "$TV_MOVIE_TXT"
 else
-    printf "==> using existing $TV_MOVIE_TXT\n"
+    printf "==> Using existing $TV_MOVIE_TXT\n"
 fi
 # Generate movies spreadsheet
 printf "### Possible anomalies from processing $TV_MOVIE_TXT\n" >"$ERRORS"
@@ -173,7 +173,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS="$RAW_CREDITS
 if [ ! -e "$TV_SHOW_TXT" ]; then
     winnowHTML "/show/" "$TV_SHOW_TXT"
 else
-    printf "==> using existing $TV_SHOW_TXT\n"
+    printf "==> Using existing $TV_SHOW_TXT\n"
 fi
 # Generate shows spreadsheet
 printf "\n### Possible anomalies from processing $TV_SHOW_TXT\n" >>"$ERRORS"
@@ -186,7 +186,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS="$RAW_CREDITS
 if [ ! -e "$TV_EPISODE_TXT" ]; then
     winnowHTML "/season/" "$TV_EPISODE_TXT"
 else
-    printf "==> using existing $TV_EPISODE_TXT\n"
+    printf "==> Using existing $TV_EPISODE_TXT\n"
 fi
 # Generate episodes spreadsheet
 printf "\n### Possible anomalies from processing $TV_EPISODE_TXT\n" >>"$ERRORS"
