@@ -85,7 +85,7 @@ SHORT_SPREADSHEET="MHz_TV_Shows$DATE_ID.csv"
 LONG_SPREADSHEET="MHz_TV_ShowsEpisodes$DATE_ID.csv"
 
 # Basic URL files - all, episodes only, movies only, seasons only
-MHZ_URLS="$COLS/MHz_urls$DATE_ID.txt"
+SHOW_URLS="$COLS/MHz_urls$DATE_ID.txt"
 EPISODE_URLS="$COLS/episode_urls$DATE_ID.txt"
 MOVIE_URLS="$COLS/movie_urls$DATE_ID.txt"
 SEASON_URLS="$COLS/season_urls$DATE_ID.txt"
@@ -104,7 +104,7 @@ PUBLISHED_CREDITS="$BASELINE/credits.txt"
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
 PUBLISHED_LONG_SPREADSHEET="$BASELINE/spreadsheetEpisodes.txt"
 #
-PUBLISHED_MHZ_URLS="$BASELINE/MHz_urls.txt"
+PUBLISHED_SHOW_URLS="$BASELINE/MHz_urls.txt"
 PUBLISHED_EPISODE_URLS="$BASELINE/episode_urls.txt"
 PUBLISHED_MOVIE_URLS="$BASELINE/movie_urls.txt"
 PUBLISHED_SEASON_URLS="$BASELINE/season_urls.txt"
@@ -127,21 +127,21 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 # Grab all the URLs from the sitemap
 # Unless we already have a result from today
 # Don't keep anything that's dubbed, it's a duplicate
-if [ ! -e "$MHZ_URLS" ]; then
-    printf "==> Downloading new $MHZ_URLS\n"
+if [ ! -e "$SHOW_URLS" ]; then
+    printf "==> Downloading new $SHOW_URLS\n"
     curl -s $SITEMAP_URL | rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
-        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' | sort -f >"$MHZ_URLS"
+        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' | sort -f >"$SHOW_URLS"
 else
-    printf "==> using existing $MHZ_URLS\n"
+    printf "==> using existing $SHOW_URLS\n"
 fi
 
 # Separate URLs into episodes, movies, and seasons
-rg 'https://watch.mhzchoice.com/.*/season:[0-9]*/.*$' "$MHZ_URLS" >"$EPISODE_URLS"
-rg 'https://watch.mhzchoice.com.*/season:[0-9]*$' "$MHZ_URLS" >"$SEASON_URLS"
-rg -v /season: "$MHZ_URLS" | rg /videos/ |
+rg 'https://watch.mhzchoice.com/.*/season:[0-9]*/.*$' "$SHOW_URLS" >"$EPISODE_URLS"
+rg 'https://watch.mhzchoice.com.*/season:[0-9]*$' "$SHOW_URLS" >"$SEASON_URLS"
+rg -v /season: "$SHOW_URLS" | rg /videos/ |
     rg -v '/all-series/videos/|/drama-crime/videos/' >>"$EPISODE_URLS"
-rg -v /season: "$MHZ_URLS" | rg /videos/ |
+rg -v /season: "$SHOW_URLS" | rg /videos/ |
     rg -v '/all-series/videos/|/drama-crime/videos/' |
     sd "/videos/.*" "" >"$MOVIE_URLS"
 # shellcheck disable=SC2129
@@ -233,7 +233,7 @@ printf " %d TV shows)\n" "$count"
 
 # Output some stats, adjust by 1 if header line is included.
 printf "\n==> Stats from downloading and processing raw sitemap data:\n"
-printAdjustedFileInfo "$MHZ_URLS" 0
+printAdjustedFileInfo "$SHOW_URLS" 0
 printAdjustedFileInfo "$LONG_SPREADSHEET" 1
 printAdjustedFileInfo "$EPISODE_URLS" 0
 printAdjustedFileInfo "$SEASON_URLS" 0
@@ -353,7 +353,7 @@ $(checkdiffs $PUBLISHED_DURATION $DURATION)
 $(checkdiffs $PUBLISHED_UNIQUE_PERSONS $UNIQUE_PERSONS)
 $(checkdiffs $PUBLISHED_UNIQUE_CHARACTERS $UNIQUE_CHARACTERS)
 $(checkdiffs $PUBLISHED_CREDITS $CREDITS)
-$(checkdiffs $PUBLISHED_MHZ_URLS $MHZ_URLS)
+$(checkdiffs $PUBLISHED_SHOW_URLS $SHOW_URLS)
 $(checkdiffs $PUBLISHED_EPISODE_URLS $EPISODE_URLS)
 $(checkdiffs $PUBLISHED_LONG_SPREADSHEET $LONG_SPREADSHEET)
 
