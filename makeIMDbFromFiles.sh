@@ -349,7 +349,7 @@ function checkdiffs() {
             sed -e "s/ 1 file changed,/==>/" -e "s/([+-=\!])//g"
         # then the diffs
         if cmp --quiet "$1" "$2"; then
-            printf "==> no diffs found.\n"
+            printf "==> No diffs found.\n"
         else
             diff -U 0 "$1" "$2" | awk -f formatUnifiedDiffOutput.awk
         fi
