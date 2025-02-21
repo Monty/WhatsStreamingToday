@@ -119,9 +119,13 @@ function removeHeader() {
     # gsub(/u0026/, "\\&", showTitle)
 
     # Modify some show names
-    if (shortShowURL ~ /before-we-die/) { showTitle = "Before We Die (Swedish)" }
+    if (shortShowURL ~ /before-we-die/) {
+        showTitle = "Before We Die (Swedish)"
+    }
 
-    if (shortShowURL ~ /before-we-die-uk/) { showTitle = "Before We Die (British)" }
+    if (shortShowURL ~ /before-we-die-uk/) {
+        showTitle = "Before We Die (British)"
+    }
 
     if (shortShowURL ~ /expedition/) {
         showTitle = "Expedition with Steve Backshall"

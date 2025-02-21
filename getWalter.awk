@@ -1,6 +1,7 @@
 # Process data from getWalter.js and PBS-only.csv
 # Produce a list of show URLs with their Titles
 
+# First save the URL
 / {26}href="\/show\// {
     split($0, fld, "\"")
     showURL = "https://www.pbs.org" fld[2]
