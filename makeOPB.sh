@@ -85,6 +85,7 @@ PBS_ONLY="PBS-only.csv"
 
 # Basic URL files - all, episodes only, seasons only
 SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
+RETRY_URLS="$COLS/retry_urls$DATE_ID.txt"
 
 # Intermediate working files
 UNSORTED_SHORT="$COLS/unsorted_short$DATE_ID.csv"
@@ -146,23 +147,50 @@ else
 fi
 
 # Loop through $SHOW_URLS to generate $RAW_DATA
-while read -r line; do
-    IFS="$TAB" read -r show_addr show_title saved_file <<<"$line"
-    # printf "show_addr = '$show_addr'\n" >"/dev/stderr"
-    # printf "show_title = '$show_title'\n" >"/dev/stderr"
-    # printf "saved_file = '$saved_file'\n\n" >"/dev/stderr"
-    export TARGET="$show_addr"
-    node getOPB.js >>"$LOGFILE"
-    # If getOPB.js succeeded, RAW_HTML file was created
-    if [ -e "$RAW_HTML" ]; then
-        rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
-            awk -v ERRORS="$ERRORS" -f getOPB.awk >>"$RAW_DATA"
-        rm -f "$RAW_HTML"
+function getRawDataFromURLs() {
+    while read -r line; do
+        IFS="$TAB" read -r show_addr show_title saved_file <<<"$line"
+        # printf "show_addr = '$show_addr'\n" >"/dev/stderr"
+        # printf "show_title = '$show_title'\n" >"/dev/stderr"
+        # printf "saved_file = '$saved_file'\n\n" >"/dev/stderr"
+        export TARGET="$show_addr"
+        export RETRIES_FILE # Shows with errors as of current time
+        node getOPB.js >>"$LOGFILE"
+        # If getOPB.js succeeded, RAW_HTML file was created
+        if [ -e "$RAW_HTML" ]; then
+            rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
+                awk -v ERRORS="$ERRORS" -f getOPB.awk >>"$RAW_DATA"
+            rm -f "$RAW_HTML"
+        else
+            # getOPB.js failed, since no RAW_HTML file was created
+            printf "==> getOPB.js failed on $line\n" >>"$ERRORS"
+        fi
+    done <"$1"
+}
+
+# Get RAW_DATA from all shows in SHOW_URLS
+RETRIES_FILE="$COLS/retry_urls$LONGDATE.txt"
+getRawDataFromURLs "$SHOW_URLS"
+
+# Get RAW_DATA from all shows in RETRY_URLS if needed
+# Try up to 3 times
+for retries in {0..2}; do
+    if [ -e "$RETRIES_FILE" ]; then
+        sort -u "$RETRIES_FILE" >"$RETRY_URLS"
+        printf "==> Retrying shows in $RETRIES_FILE\n"
+        # Don't overwrite an existing RETRIES_FILE
+        TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
+        RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
+        getRawDataFromURLs "$RETRY_URLS"
     else
-        # getOPB.js failed, since no RAW_HTML file was created
-        printf "==> getOPB.js failed on $line\n" >>"$ERRORS"
+        tries="try"
+        [ "$retries" -ne 1 ] && tries="tries"
+        printf "==> Succeeded retrying shows in $retries $tries.\n"
+        break
     fi
-done <"$SHOW_URLS"
+    [ "$retries" -eq 2 ] &&
+        printf "==> [Error] Failed retrying shows in 3 tries.\n"
+done
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" \

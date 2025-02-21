@@ -9,6 +9,7 @@ const fs = require("fs");
 
 const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
+const retries_file = process.env.RETRIES_FILE;
 // Access the TIMEOUT environment variable, default to 1500 if not set
 const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 1500;
 // console.log(`==> Timeout set to ${timeoutDuration}`);
@@ -24,6 +25,16 @@ function appendToFile(headingTitle, showURL, filePath, sectionHeading) {
       console.error(`==> Error writing to file ${filePath}:`, err);
     } else {
       console.log(`==> Completed ${headingTitle} from ${showURL}`);
+    }
+  });
+}
+
+function appendToRetriesFile(showURL) {
+  fs.appendFile(retries_file, showURL + "\n", (err) => {
+    if (err) {
+      console.error(`==> Error writing to file ${retries_file}:`, err);
+    } else {
+      console.log(`==> Added ${showURL} to ${retries_file}`);
     }
   });
 }
@@ -66,6 +77,8 @@ async function handleTab(page, tabName) {
               `tab ${seasonName} after ${maxRetries} retries in`,
             series_URL,
           );
+          // Add the series_URL to the list of URLs to be retried
+          appendToRetriesFile(series_URL);
         }
       } else {
         if (retries > 0) {
