@@ -103,13 +103,22 @@ function removeHeader() {
     clearShowVariables()
     #
     removeHeader()
-    totalShows += 1
     showURL = $0
     # print "==> showURL = " showURL > "/dev/stderr"
 
     # Create shorter URL by removing https://
     shortShowURL = showURL
     sub(/.*pbs.org/, "pbs.org", shortShowURL)
+
+    numFields = split(shortShowURL, fld, "/")
+    showKey = fld[numFields - 1]
+
+    if (!(showKey in allShowKeys)) {
+        # print "==> showKey not found in allShowKeys\n"
+        allShowKeys[showKey] = showKey
+        totalShows += 1
+    }
+
     next
 }
 
