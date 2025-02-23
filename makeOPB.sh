@@ -132,8 +132,9 @@ node save_password-02.js
 if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
     node getWalter.js
-    prettier --write "$TEMPFILE"
-    rg -A 7 'href="/show/' "$TEMPFILE" | rg 'href="/show/|alt=' |
+    # getWalter.js writes to RAW_HTML
+    prettier --write "$RAW_HTML"
+    rg -A 7 'href="/show/' "$RAW_HTML" | rg 'href="/show/|alt=' |
         awk -f getWalter.awk | sort >"$SHOW_URLS"
     # Add URLs from PBS-only.csv making sure none are duplicates
     # Temporarily use UNSORTED_SHORT
@@ -141,7 +142,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     sort -f --field-separator="$TAB" --key=2,2 "$UNSORTED_SHORT" \
         >"$SHOW_URLS"
     printf "==> Done writing $SHOW_URLS\n"
-    rm -f "$TEMPFILE"
+    rm -f "$RAW_HTML"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
@@ -168,10 +169,6 @@ function getRawDataFromURLs() {
     done <"$1"
 }
 
-# Get RAW_DATA from all shows in SHOW_URLS
-RETRIES_FILE="$COLS/retry_urls$LONGDATE.txt"
-getRawDataFromURLs "$SHOW_URLS"
-
 function purgeRawDataBeforeRetry() {
     # For each unique line in RETRY_URLS
     # https://www.pbs.org/show/astrid/
@@ -185,6 +182,10 @@ function purgeRawDataBeforeRetry() {
         mv "$TEMPFILE" "$RAW_DATA"
     done <"$RETRY_URLS"
 }
+
+# Get RAW_DATA from all shows in SHOW_URLS
+RETRIES_FILE="$COLS/retry_urls$LONGDATE.txt"
+getRawDataFromURLs "$SHOW_URLS"
 
 # Get RAW_DATA from all shows in RETRY_URLS if needed
 # Try up to 3 times
