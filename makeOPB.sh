@@ -97,6 +97,7 @@ RAW_TITLES="$COLS/rawTitles$DATE_ID.txt"
 UNIQUE_TITLES="OPB_uniqTitles$DATE_ID.txt"
 DURATION="$COLS/total_duration$DATE_ID.txt"
 LOGFILE="$COLS/logfile$DATE_ID.txt"
+TEMPFILE="$COLS/tempfile$DATE_ID.txt"
 
 # Saved files used for comparison with current files
 PUBLISHED_SHORT_SPREADSHEET="$BASELINE/spreadsheet.txt"
@@ -109,7 +110,7 @@ PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $UNSORTED_EXTRA "
-ALL_WORKING+="$RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE"
+ALL_WORKING+="$RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE $TEMPFILE"
 #
 ALL_TXT="$UNIQUE_TITLES"
 #
@@ -131,9 +132,8 @@ node save_password-02.js
 if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
     node getWalter.js
-    # Use RAW_HTML as a temp file
-    prettier --write "$RAW_HTML"
-    rg -A 7 'href="/show/' "$RAW_HTML" | rg 'href="/show/|alt=' |
+    prettier --write "$TEMPFILE"
+    rg -A 7 'href="/show/' "$TEMPFILE" | rg 'href="/show/|alt=' |
         awk -f getWalter.awk | sort >"$SHOW_URLS"
     # Add URLs from PBS-only.csv making sure none are duplicates
     # Temporarily use UNSORTED_SHORT
@@ -141,7 +141,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     sort -f --field-separator="$TAB" --key=2,2 "$UNSORTED_SHORT" \
         >"$SHOW_URLS"
     printf "==> Done writing $SHOW_URLS\n"
-    rm -f "$RAW_HTML"
+    rm -f "$TEMPFILE"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
@@ -172,11 +172,26 @@ function getRawDataFromURLs() {
 RETRIES_FILE="$COLS/retry_urls$LONGDATE.txt"
 getRawDataFromURLs "$SHOW_URLS"
 
+function purgeRawDataBeforeRetry() {
+    # For each unique line in RETRY_URLS
+    # https://www.pbs.org/show/astrid/
+    while read -r line; do
+        read -r url <<<"$line"
+        printf "==> Retry url = $url\n" >"/dev/stderr"
+        url=${url%/}
+        show=${url##*/}
+        printf "==> Retry show = $show\n" >"/dev/stderr"
+        awk -v RS='' '!/$show/' "$RAW_DATA" >"$TEMPFILE"
+        mv "$TEMPFILE" "$RAW_DATA"
+    done <"$RETRY_URLS"
+}
+
 # Get RAW_DATA from all shows in RETRY_URLS if needed
 # Try up to 3 times
 for retries in {0..2}; do
     if [ -e "$RETRIES_FILE" ]; then
         sort -u "$RETRIES_FILE" >"$RETRY_URLS"
+        purgeRawDataBeforeRetry
         printf "==> Retrying shows in $RETRIES_FILE\n"
         # Don't overwrite an existing RETRIES_FILE
         TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
