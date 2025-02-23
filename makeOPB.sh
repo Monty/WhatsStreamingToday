@@ -173,12 +173,12 @@ function purgeRawDataBeforeRetry() {
     # For each unique line in RETRY_URLS
     # https://www.pbs.org/show/astrid/
     while read -r line; do
-        read -r url <<<"$line"
-        printf "==> Retry url = $url\n" >"/dev/stderr"
-        url=${url%/}
-        show=${url##*/}
-        printf "==> Retry show = $show\n" >"/dev/stderr"
-        awk -v RS='' '!/$show/' "$RAW_DATA" >"$TEMPFILE"
+        read -r retry_url <<<"$line"
+        # printf "==> Retry url = $retry_url\n" >"/dev/stderr"
+        retry_url=${retry_url%/}
+        retry_show=${retry_url##*/}
+        # printf "==> Retry show = $retry_show\n" >"/dev/stderr"
+        awk -v RS='' '!/$retry_show/' "$RAW_DATA" >"$TEMPFILE"
         mv "$TEMPFILE" "$RAW_DATA"
     done <"$RETRY_URLS"
 }
@@ -199,6 +199,7 @@ for retries in {0..2}; do
         RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
         getRawDataFromURLs "$RETRY_URLS"
     else
+        [ "$retries" -eq 0 ] && break # No retries needed
         tries="try"
         [ "$retries" -ne 1 ] && tries="tries"
         printf "==> Succeeded retrying shows in $retries $tries.\n"
