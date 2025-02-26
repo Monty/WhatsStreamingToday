@@ -133,7 +133,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
     node getWalter.js
     # getWalter.js writes to RAW_HTML
-    prettier --write "$RAW_HTML"
+    prettier --ignore-path .prettierignore --write "$RAW_HTML"
     rg -A 7 'href="/show/' "$RAW_HTML" | rg 'href="/show/|alt=' |
         awk -f getWalter.awk | sort >"$SHOW_URLS"
     # Add URLs from PBS-only.csv making sure none are duplicates
