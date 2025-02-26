@@ -1,0 +1,19 @@
+# Don't run prettier on cookies or auth data
+/auth/
+
+# Don't run prettier on modules loaded by npm
+/node_modules/
+/tests/
+/tests-examples/
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+playwright.config.js
+package.json
+package-lock.json
+
+# Don't run prettier on my personal hidden directories
+/hidden/
+/sitemaps/
+
