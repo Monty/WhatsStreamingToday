@@ -110,14 +110,7 @@ function removeHeader() {
     shortShowURL = showURL
     sub(/.*pbs.org/, "pbs.org", shortShowURL)
 
-    numFields = split(shortShowURL, fld, "/")
-    showKey = fld[numFields - 1]
-
-    if (!(showKey in allShowKeys)) {
-        # print "==> showKey not found in allShowKeys\n"
-        allShowKeys[showKey] = showKey
-        totalShows += 1
-    }
+    totalShows += 1
 
     next
 }
@@ -259,9 +252,9 @@ function removeHeader() {
 # Episode processing: URLs
 /^episodeURL: / {
     removeHeader()
-    shortEpisodeURL = "pbs.org" $0
     episodeURL = "https://www.pbs.org" $0
     # print "==> episodeURL = " episodeURL > "/dev/stderr"
+    shortEpisodeURL = "pbs.org" $0
     next
 }
 
@@ -272,7 +265,6 @@ function removeHeader() {
 /^episodeDescription: / {
     removeHeader()
 
-    # Extract episode duration
     episodeDescription = $0
     # Clean up episodeDescription
     # gsub(/u0026/, "\\&", episodeDescription)
