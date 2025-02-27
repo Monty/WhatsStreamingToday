@@ -137,12 +137,11 @@ if [ ! -e "$SHOW_URLS" ]; then
     rg -A 7 'href="/show/' "$RAW_HTML" | rg 'href="/show/|alt=' |
         awk -f getWalter.awk | sort >"$SHOW_URLS"
     # Add URLs from PBS-only.csv making sure none are duplicates
-    # Temporarily use UNSORTED_SHORT
-    zet union $PBS_ONLY "$SHOW_URLS" >"$UNSORTED_SHORT"
-    sort -f --field-separator="$TAB" --key=2,2 "$UNSORTED_SHORT" \
+    zet union $PBS_ONLY "$SHOW_URLS" >"$TEMPFILE"
+    sort -f --field-separator="$TAB" --key=2,2 "$TEMPFILE" \
         >"$SHOW_URLS"
     printf "==> Done writing $SHOW_URLS\n"
-    rm -f "$RAW_HTML"
+    rm -f "$RAW_HTML" "$TEMPFILE"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
