@@ -294,7 +294,7 @@ function addTotalsToSpreadsheet() {
 if [ "$PRINT_TOTALS" = "yes" ]; then
     addTotalsToSpreadsheet "$SHORT_SPREADSHEET" "total"
     addTotalsToSpreadsheet "$LONG_SPREADSHEET" "sum"
-    addTotalsToSpreadsheet "$EXTRA_SPREADSHEET" "total"
+    addTotalsToSpreadsheet "$EXTRA_SPREADSHEET" "sum"
 fi
 
 # Look for any leftover HTML character codes or other problems
