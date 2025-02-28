@@ -222,7 +222,7 @@ function removeHeader() {
 
     # print "==> numberOfSeasons = " numberOfSeasons > "/dev/stderr"
     if (numberOfSeasons <= 0) {
-        print "==> showTitle = " showTitle > "/dev/stderr"
+        print "\n==> [Warning] No seasons in " showTitle > "/dev/stderr"
         print "    shortShowURL = " shortShowURL > "/dev/stderr"
         print "    numberOfSeasons = " numberOfSeasons > "/dev/stderr"
     }
