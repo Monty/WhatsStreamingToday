@@ -158,8 +158,9 @@ function getRawDataFromURLs() {
         node getOPB.js >>"$LOGFILE"
         # If getOPB.js succeeded, RAW_HTML file was created
         if [ -e "$RAW_HTML" ]; then
+            # Produce a RAW_DATA file
             rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
-                awk -v ERRORS="$ERRORS" -f getOPB.awk >>"$RAW_DATA"
+                awk -v ERRORS="$ERRORS" -f getOPB.awk >>"$2"
             rm -f "$RAW_HTML"
         else
             # getOPB.js failed, since no RAW_HTML file was created
@@ -176,27 +177,37 @@ function purgeRawDataBeforeRetry() {
         # printf "==> Retry url = $retry_url\n" >"/dev/stderr"
         retry_url=${retry_url%/}
         retry_show=${retry_url##*/}
-        # printf "==> Retry show = $retry_show\n" >"/dev/stderr"
-        awk -v RS='' '!/$retry_show/' "$RAW_DATA" >"$TEMPFILE"
-        mv "$TEMPFILE" "$RAW_DATA"
+        printf "==> Retry show = $retry_show\n" >"/dev/stderr"
+        # Remove any vestiges of show being retried
+        # from its associated RAW_DATA file
+        awk -v RS='' -v ORS='\n\n' "!/\/$retry_show\//" \
+            "$1" >"$TEMPFILE"
+        mv "$TEMPFILE" "$1"
     done <"$RETRY_URLS"
 }
 
 # Get RAW_DATA from all shows in SHOW_URLS
 RETRIES_FILE="$COLS/retry_urls$LONGDATE.txt"
-getRawDataFromURLs "$SHOW_URLS"
+getRawDataFromURLs "$SHOW_URLS" "$RAW_DATA"
+CURRENT_RAW_DATA="$RAW_DATA"
 
 # Get RAW_DATA from all shows in RETRY_URLS if needed
 # Try up to 3 times
 for retries in {0..2}; do
     if [ -e "$RETRIES_FILE" ]; then
+        printf "\n==> Retrying shows in $RETRIES_FILE\n"
         sort -u "$RETRIES_FILE" >"$RETRY_URLS"
-        purgeRawDataBeforeRetry
-        printf "==> Retrying shows in $RETRIES_FILE\n"
+        printf "==> Purging shows to retry from $CURRENT_RAW_DATA\n"
+        purgeRawDataBeforeRetry "$CURRENT_RAW_DATA"
         # Don't overwrite an existing RETRIES_FILE
         TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
         RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
-        getRawDataFromURLs "$RETRY_URLS"
+        CURRENT_RAW_DATA="$COLS/raw_data$TIMESTAMP.txt"
+        getRawDataFromURLs "$RETRY_URLS" "$CURRENT_RAW_DATA"
+        if [ "$CURRENT_RAW_DATA" != "$RAW_DATA" ]; then
+            printf "\n==> Appending $CURRENT_RAW_DATA to "$RAW_DATA"\n"
+            cat "$CURRENT_RAW_DATA" >>"$RAW_DATA"
+        fi
     else
         [ "$retries" -eq 0 ] && break # No retries needed
         tries="try"
