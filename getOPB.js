@@ -7,6 +7,9 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
 
+const RED = "\x1b[31m";
+const NO_COLOR = "\x1b[0m";
+
 const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
 const retries_file = process.env.RETRIES_FILE;
@@ -73,7 +76,7 @@ async function handleTab(page, tabName) {
           await page.waitForTimeout(500);
         } else {
           console.error(
-            `==> [Error] ${numberOfEpisodes} episodes in ${tabName} ` +
+            `==> [${RED}Error${NO_COLOR}] ${numberOfEpisodes} episodes in ${tabName} ` +
               `tab ${seasonName} after ${maxRetries} retries in`,
             series_URL,
           );
