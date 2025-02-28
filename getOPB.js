@@ -10,6 +10,8 @@ const fs = require("fs");
 const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
 const retries_file = process.env.RETRIES_FILE;
+const RED_ERROR = "\x1b[31mError\x1b[0m";
+
 // Access the TIMEOUT environment variable, default to 1500 if not set
 const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 1500;
 // console.log(`==> Timeout set to ${timeoutDuration}`);
@@ -22,7 +24,7 @@ async function elementExists(page, role, ariaName) {
 function appendToFile(headingTitle, showURL, filePath, sectionHeading) {
   fs.appendFile(filePath, sectionHeading, (err) => {
     if (err) {
-      console.error(`==> Error writing to file ${filePath}:`, err);
+      console.error(`==> ${RED_ERROR} writing to file ${filePath}:`, err);
     } else {
       console.log(`==> Completed ${headingTitle} from ${showURL}`);
     }
@@ -32,7 +34,7 @@ function appendToFile(headingTitle, showURL, filePath, sectionHeading) {
 function appendToRetriesFile(showURL) {
   fs.appendFile(retries_file, showURL + "\n", (err) => {
     if (err) {
-      console.error(`==> Error writing to file ${retries_file}:`, err);
+      console.error(`==> ${RED_ERROR} writing to file ${retries_file}:`, err);
     } else {
       console.log(`==> Added ${showURL} to ${retries_file}`);
     }
@@ -73,7 +75,7 @@ async function handleTab(page, tabName) {
           await page.waitForTimeout(500);
         } else {
           console.error(
-            `==> [Error] ${numberOfEpisodes} episodes in ${tabName} ` +
+            `==> [${RED_ERROR}] ${numberOfEpisodes} episodes in ${tabName} ` +
               `tab ${seasonName} after ${maxRetries} retries in`,
             series_URL,
           );
@@ -121,7 +123,7 @@ async function handleTab(page, tabName) {
         const isSelected = await selectedOption.evaluate((el) => el.selected);
         if (!isSelected) {
           console.error(
-            `==> Option "${option.label}" in ${tabName} was not selected in`,
+            `==> [${RED_ERROR}] Option "${option.label}" in ${tabName} was not selected in`,
             series_URL,
           );
         }
@@ -213,7 +215,7 @@ async function writeOneSeasonsEpisodesData(page, headingTitle, snapshot) {
         episodes.push(episodeURL);
       } else {
         console.error(
-          `==> Link for "${currentLink}" in`,
+          `==> [${RED_ERROR}] Link for "${currentLink}" in`,
           `\n    ${headingTitle} not found in`,
           series_URL,
         );
@@ -258,7 +260,7 @@ async function writeEssentialData(headingTitle, snapshot, eofString, offset) {
 function removeFile(filePath) {
   fs.unlink(filePath, (err) => {
     if (err && err.code !== "ENOENT") {
-      console.error("==> Error deleting file: " + filePath, err);
+      console.error(`==> ${RED_ERROR} deleting file: ` + filePath, err);
     }
   });
 }
@@ -292,7 +294,10 @@ removeFile(output_file);
         .ariaSnapshot();
       writeEssentialData("About tab", aboutTab, "    - listitem:", 2);
     } else {
-      console.error('==> The "About" tab does not exist in', series_URL);
+      console.error(
+        `==> [${RED_ERROR}] The "About" tab does not exist in`,
+        series_URL,
+      );
     }
 
     // 3) Get episodes from the Clips & Previews tab
@@ -305,9 +310,9 @@ removeFile(output_file);
     await handleTab(page, "Episodes");
   } catch (error) {
     if (error.name === "TimeoutError") {
-      console.error("==> Page load timed out for", series_URL);
+      console.error(`==> [${RED_ERROR}] Page load timed out for`, series_URL);
     } else {
-      console.error("==> Error during page navigation:", error.message);
+      console.error(`==> ${RED_ERROR} during page navigation:`, error.message);
     }
   } finally {
     await context.close();
@@ -316,6 +321,11 @@ removeFile(output_file);
 })();
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("==> Unhandled Rejection at:", promise, "reason:", reason);
+  console.error(
+    `==> [${RED_ERROR}] Unhandled Rejection at:`,
+    promise,
+    "reason:",
+    reason,
+  );
   process.exit(1);
 });
