@@ -205,7 +205,7 @@ for retries in {0..2}; do
         CURRENT_RAW_DATA="$COLS/raw_data$TIMESTAMP.txt"
         getRawDataFromURLs "$RETRY_URLS" "$CURRENT_RAW_DATA"
         if [ "$CURRENT_RAW_DATA" != "$RAW_DATA" ]; then
-            printf "\n==> Appending $CURRENT_RAW_DATA to "$RAW_DATA"\n"
+            printf "\n==> Appending $CURRENT_RAW_DATA to $RAW_DATA\n"
             cat "$CURRENT_RAW_DATA" >>"$RAW_DATA"
         fi
     else
