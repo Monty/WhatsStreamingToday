@@ -50,14 +50,14 @@ BBOX="$(find BBox_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
 MHZ="$(find MHz_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
 OPB="$(find OPB_TV_ShowsEpisodes*csv 2>/dev/null | tail -1)"
 
-if [ "$ACORN" ] && [ $(cut -f 1,5 "$ACORN" | grep -i -c "$*") != 0 ]; then
+if [ "$ACORN" ] && [ "$(cut -f 1,5 "$ACORN" | grep -i -c "$*")" != 0 ]; then
     printf "==> From $ACORN\n"
     linesFound="yes"
     grep -i "$*" "$ACORN" | cut -f 1,4,5 | awk -v FMT="$FMT" -v WIDTH="$WIDTH" \
         -f printList.awk | $cmd
 fi
 
-if [ "$BBOX" ] && [ $(cut -f 1,8 "$BBOX" | grep -i -c "$*") != 0 ]; then
+if [ "$BBOX" ] && [ "$(cut -f 1,8 "$BBOX" | grep -i -c "$*")" != 0 ]; then
     if [ "$linesFound" = "yes" ]; then printf "\n"; fi
     printf "==> From $BBOX\n"
     linesFound="yes"
@@ -65,14 +65,14 @@ if [ "$BBOX" ] && [ $(cut -f 1,8 "$BBOX" | grep -i -c "$*") != 0 ]; then
         -f printList.awk | $cmd
 fi
 
-if [ "$MHZ" ] && [ $(cut -f 1,9 "$MHZ" | grep -i -c "$*") != 0 ]; then
+if [ "$MHZ" ] && [ "$(cut -f 1,9 "$MHZ" | grep -i -c "$*")" != 0 ]; then
     if [ "$linesFound" = "yes" ]; then printf "\n"; fi
     printf "==> From $MHZ\n"
     grep -i "$*" "$MHZ" | cut -f 1,4,9 | awk -v FMT="$FMT" -v WIDTH="$WIDTH" \
         -f printList.awk | $cmd
 fi
 
-if [ "$OPB" ] && [ $(cut -f 1,8 "$OPB" | grep -i -c "$*") != 0 ]; then
+if [ "$OPB" ] && [ "$(cut -f 1,8 "$OPB" | grep -i -c "$*")" != 0 ]; then
     printf "==> From $OPB\n"
     linesFound="yes"
     grep -i "$*" "$OPB" | cut -f 1,4,8 | awk -v FMT="$FMT" -v WIDTH="$WIDTH" \
