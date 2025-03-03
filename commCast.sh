@@ -30,7 +30,7 @@
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
-cd $DIRNAME
+cd "$DIRNAME" || exit
 
 # Need some tempfiles
 TMPFILE=$(mktemp)
@@ -40,7 +40,7 @@ SRCHFILE=$(mktemp)
 trap cleanup INT
 #
 function cleanup() {
-    rm -rf $TMPFILE $SRCHFILE
+    rm -rf "$TMPFILE" "$SRCHFILE"
     printf "\n"
     exit 130
 }
@@ -54,21 +54,21 @@ XLATE="$(find IMDb-columns/xlate-pl-noHype*.txt 2>/dev/null | tail -1)"
 
 printf "==> Files processed:\n"
 
-if [ $BBOX ]; then
+if [ "$BBOX" ]; then
     printf "BBOX:\t$BBOX\n"
     foundFiles="yes"
 else
     printf "BBOX:\tNo files match BBox_TV_Credits*csv\n"
 fi
 
-if [ $MHZ ]; then
+if [ "$MHZ" ]; then
     printf "MHZ:\t$MHZ\n"
     foundFiles="yes"
 else
     printf "MHZ:\tNo files match MHz_TV_Credits*csv\n"
 fi
 
-if [ $IMDb ]; then
+if [ "$IMDb" ]; then
     printf "IMDb:\t$IMDb\n"
     foundFiles="yes"
 else
@@ -80,7 +80,7 @@ if [ "$foundFiles" != "yes" ]; then
     exit 1
 fi
 
-if [ $XLATE ]; then
+if [ "$XLATE" ]; then
     printf "XLATE:\t$XLATE\n"
 else
     printf "XLATE:\tNo files match IMDb-columns/xlate-pl*.txt\n"
@@ -89,50 +89,50 @@ fi
 
 printf "\n==> Searching for:\n"
 for a in "$@"; do
-    printf "$a\n" >>$SRCHFILE
+    printf "$a\n" >>"$SRCHFILE"
 done
-cat $SRCHFILE
+cat "$SRCHFILE"
 
 printf "\n==> All names (Name|Job|Show|Role):\n"
 
-if [ $BBOX ]; then
-    if [ $(rg -wS -c -f $SRCHFILE $BBOX) ]; then
-        rg -wS -f $SRCHFILE $BBOX | cut -f 1,2,4,5 >>$TMPFILE
+if [ "$BBOX" ]; then
+    if [ "$(rg -wS -c -f "$SRCHFILE" "$BBOX")" ]; then
+        rg -wS -f "$SRCHFILE" "$BBOX" | cut -f 1,2,4,5 >>"$TMPFILE"
     fi
 fi
 
-if [ $MHZ ]; then
-    if [ $(rg -wS -c -f $SRCHFILE $MHZ) ]; then
-        rg -wS -f $SRCHFILE $MHZ | cut -f 1,2,4,5 >>$TMPFILE
+if [ "$MHZ" ]; then
+    if [ "$(rg -wS -c -f "$SRCHFILE" "$MHZ")" ]; then
+        rg -wS -f "$SRCHFILE" "$MHZ" | cut -f 1,2,4,5 >>"$TMPFILE"
     fi
 fi
 
-if [ $IMDb ]; then
-    if [ $(rg -wS -c -f $SRCHFILE $IMDb) ]; then
-        if [ $XLATE ]; then
-            perl -p -f $XLATE $IMDb | rg -wS -f $SRCHFILE |
-                awk -F "\t" '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$2,$6)}' >>$TMPFILE
+if [ "$IMDb" ]; then
+    if [ "$(rg -wS -c -f "$SRCHFILE" "$IMDb")" ]; then
+        if [ "$XLATE" ]; then
+            perl -p -f "$XLATE" "$IMDb" | rg -wS -f "$SRCHFILE" |
+                awk -F "\t" '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$2,$6)}' >>"$TMPFILE"
         else
-            rg -wS -f $SRCHFILE $IMDb |
-                awk -F "\t" '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$2,$6)}' >>$TMPFILE
+            rg -wS -f "$SRCHFILE" "$IMDb" |
+                awk -F "\t" '{printf ("%s\t%s\t%s\t%s\n", $1,$5,$2,$6)}' >>"$TMPFILE"
         fi
     fi
 fi
 
-perl -pi -e "s+\t'+\t+g;" $TMPFILE
+perl -pi -e "s+\t'+\t+g;" "$TMPFILE"
 
 # Print all search results
 TAB=$(printf "\t")
-sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu $TMPFILE |
-    rg -wS -f $SRCHFILE | column -s $'\t' -t | rg -wS -f $SRCHFILE
+sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu "$TMPFILE" |
+    rg -wS -f "$SRCHFILE" | column -s $'\t' -t | rg -wS -f "$SRCHFILE"
 
 printf "\n==> Duplicated names (Name|Job|Show|Role):\n"
 # Spacing is sometimes erratic due to UTF-8 characters
-sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu $TMPFILE |
+sort -f --field-separator="$TAB" --key=1,1 --key=3,3 -fu "$TMPFILE" |
     awk -F "\t" 'BEGIN {p="%s\t%s\t%s\t%s\n"}
     {if($1==f[1]&&$3!=f[3])
         {printf(p,f[1],f[2],f[3],f[4]); printf(p,$1,$2,$3,$4)}
         split($0,f)}' |
-    sort -fu | column -s $'\t' -t | rg -wS -f $SRCHFILE
+    sort -fu | column -s $'\t' -t | rg -wS -f "$SRCHFILE"
 
-rm -rf $TMPFILE $SRCHFILE
+rm -rf "$TMPFILE" "$SRCHFILE"
