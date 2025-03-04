@@ -183,6 +183,8 @@ TCONST_EPISODE_NAMES_PL="$COLS/tconst-episode_names-pl-noHype$DATE_ID.txt"
 TCONST_KNOWN_PL="$COLS/tconst-known-pl-noHype$DATE_ID.txt"
 NCONST_PL="$COLS/nconst-pl-noHype$DATE_ID.txt"
 XLATE_PL="$COLS/xlate-pl-noHype$DATE_ID.txt"
+#
+TEMPFILE="$COLS/tempfile$DATE_ID.txt"
 
 # Manually entered list of tconst ID's that we don't want tvEpisodes for
 # either because they have too many episodes, or the episodes don't translate well
@@ -252,7 +254,7 @@ if [ -s "$CONFLICTS" ]; then
     rg -H -f "$CONFLICTS" "$RAW_SHOWS"
     printf "\n"
     printf "==> Make sure to delete corresponding lines in Episode.tconst and Episode.xlate.\n"
-# shellcheck disable=SC2086
+    # shellcheck disable=SC2086
     rg -f "$CONFLICTS" $XLATE_FILES $TCONST_FILES
     printf "\n"
     exit 1
@@ -288,7 +290,8 @@ rg -wNz -f "$TCONST_LIST" title.principals.tsv.gz | rg -w -e actor -e actress -e
 rg -wNz -f "$EPISODES_LIST" title.principals.tsv.gz | rg -w -e actor -e actress -e writer -e director |
     sort --key=1,1 --key=2,2n | perl -p -e 's+\\N++g;' |
     perl -F"\t" -lane 'printf "%s\t%s\t%s\t%02d\t%s\t%s\n", @F[2,0,0,1,3,5]' | tee -a "$UNSORTED_CREDITS" |
-    cut -f 1 | sort -u | rg -v -f "$NCONST_LIST" >>"$NCONST_LIST"
+    cut -f 1 | sort -u | rg -v -f "$NCONST_LIST" >"$TEMPFILE" &&
+    cat "$TEMPFILE" >>"$NCONST_LIST"
 
 # Create a perl script to globally convert a show tconst to a show title
 cut -f 1,5 "$RAW_SHOWS" | perl -F"\t" -lane 'print "s{\\b@F[0]\\b}\{'\''@F[1]}g;";' >"$TCONST_SHOWS_PL"
