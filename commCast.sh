@@ -17,7 +17,7 @@
 #   It may help to start with an actor, e.g.
 #       ./commCast.sh 'Alexandra Rapaport'
 #   or a show, e.g.
-#       ../commCast.sh Endeavour
+#       ./commCast.sh Endeavour
 #
 #   Then move to more complex queries that expose other common cast members
 #       ./commCast.sh spring-tide the-sandhamn-murders the-team
