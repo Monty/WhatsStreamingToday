@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
-# Chack if playwright is installed, then print version numbers
+# Check if playwright is installed, then print version numbers
+
+# Make sure we are in the correct directory
+DIRNAME=$(dirname "$0")
+cd "$DIRNAME" || exit
 
 if [ -d "$HOME/Library/Caches/ms-playwright/" ]; then
     printf "Your installed playwright and chromium browser versions are:\n"
