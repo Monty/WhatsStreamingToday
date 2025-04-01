@@ -115,8 +115,18 @@
 /id="franchise-description"/ {
     if (skipCategory == "yes") { next }
 
-    descriptionLinesFound += 1
-    getline showDescription
+    getline showDescriptionLine
+
+    while (showDescriptionLine !~ "</p>") {
+        descriptionLinesFound += 1
+        sub(/^ */, " ", showDescriptionLine)
+        # print "==> showDescriptionLine " descriptionLinesFound " = " showDescriptionLine > "/dev/stderr"
+        showDescription = showDescription showDescriptionLine
+        getline showDescriptionLine
+    }
+
+    # print "==> " shortURL " description-01 = " showDescription > "/dev/stderr"
+
     # fix sloppy input spacing
     gsub(/\t/, "", showDescription)
     sub(/<.*$/, "", showDescription)
@@ -141,7 +151,7 @@
         showDescription = showDescription " \""
     }
 
-    # print "==> showDescription = " showDescription " " shortURL > "/dev/stderr"
+    # print "==> " shortURL " description-02 = " showDescription > "/dev/stderr"
     next
 }
 
@@ -158,12 +168,12 @@
 }
 
 # Extract the episode URL
-/<a itemprop="url"/ {
+/^ {18}href.*\/series/ {
     if (skipCategory == "yes") { next }
 
     totalEpisodes += 1
     split($0, fld, "\"")
-    episodeURL = fld[4]
+    episodeURL = fld[2]
     sub(/\/$/, "", episodeURL)
     # print "==> episodeURL = " episodeURL > "/dev/stderr"
     print episodeURL >> EPISODE_URLS
