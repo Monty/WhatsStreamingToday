@@ -115,14 +115,21 @@
 /id="franchise-description"/ {
     if (skipCategory == "yes") { next }
 
-    getline showDescriptionLine
-
-    while (showDescriptionLine !~ "</p>") {
+    if ($0 ~ "</p>") {
+        split($0, fld, "[<>]")
         descriptionLinesFound += 1
-        sub(/^ */, " ", showDescriptionLine)
-        # print "==> showDescriptionLine " descriptionLinesFound " = " showDescriptionLine > "/dev/stderr"
-        showDescription = showDescription showDescriptionLine
+        showDescription = fld[3]
+    }
+    else {
         getline showDescriptionLine
+
+        while (showDescriptionLine !~ "</p>") {
+            descriptionLinesFound += 1
+            sub(/^ */, " ", showDescriptionLine)
+            # print "==> showDescriptionLine " descriptionLinesFound " = " showDescriptionLine > "/dev/stderr"
+            showDescription = showDescription showDescriptionLine
+            getline showDescriptionLine
+        }
     }
 
     # print "==> " shortURL " description-01 = " showDescription > "/dev/stderr"
@@ -167,10 +174,21 @@
     next
 }
 
+# Deal with <a href
+/^ {16}<a href="https:\/\/acorn.tv\// {
+    # print $0 > "/dev/stderr"
+    sub(/<a/, " ", $0)
+}
+
 # Extract the episode URL
-/^ {18}href.*\/series/ {
+/^ {18}href="https:\/\/acorn.tv\// {
+    # print $0 > "/dev/stderr"
     if (skipCategory == "yes") { next }
 
+    showEpisodes += 1
+    # print "==> showEpisodes = " showEpisodes " " shortURL > "/dev/stderr"
+    numberOfEpisodes += 1
+    # print "==> numberOfEpisodes = " numberOfEpisodes " " shortURL > "/dev/stderr"
     totalEpisodes += 1
     split($0, fld, "\"")
     episodeURL = fld[2]
