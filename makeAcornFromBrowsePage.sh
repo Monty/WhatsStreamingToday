@@ -154,6 +154,14 @@ mv "$EPISODE_URLS" "$UNSORTED"
 sort -fu "$UNSORTED" >"$EPISODE_URLS"
 rm -f "$UNSORTED"
 
+# Print shell script stats to compare against awk script stats
+numShows=$(cut -d / -f 4 "$EPISODE_URLS" | sort -u | wc -l)
+numSeasons=$(cut -d / -f 4-5 "$EPISODE_URLS" | sort -u | wc -l)
+numEpisodes=$(cut -d / -f 4- "$EPISODE_URLS" | sort -u | wc -l)
+printf "\nIn %s\n" "$(basename "$0")"
+printf "    Processed %d shows, %d seasons, %d episodes\n" \
+    "$numShows" "$numSeasons" "$numEpisodes"
+
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
     # Print filename, size, date, number of lines
