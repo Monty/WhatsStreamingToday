@@ -40,7 +40,6 @@ function clearEpisodeVariables() {
     showType = "S"
     episodeURL = ""
     shortEpisodeURL = ""
-    shortSeasonURL = ""
     episodeType = "E"
     episodeTitle = ""
     episodeNumber = ""
@@ -82,7 +81,7 @@ function fixSeasonNumber() {
                 "==> Changed S%02d to S%02d: %s\n",
                 seasonNumber,
                 URLseasonNumber,
-                shortSeasonURL\
+                shortEpisodeURL\
             ) >> ERRORS
             seasonNumber = URLseasonNumber
         }
@@ -284,11 +283,11 @@ function wrapUpEpisode() {
     # print "==> episodeURL = " episodeURL > "/dev/stderr"
     print episodeURL >> EPISODE_URLS
 
-    # May need to fix the season number using the episodeURL
-    fixSeasonNumber()
-
     shortEpisodeURL = episodeURL
     sub(/.*acorn\.tv/, "acorn.tv", shortEpisodeURL)
+
+    # May need to fix the season number using the episodeURL
+    fixSeasonNumber()
 
     # If episode is a Doc Martin Prequel, set showType to "P"
     if (episodeURL ~ /\/docmartin\/prequelmovies\//) {
@@ -318,7 +317,7 @@ function wrapUpEpisode() {
     }
 
     split(episodeURL, part, "/")
-    shortSeasonURL = "acorn.tv/" part[4] "/" part[5]
+    shortEpisodeURL = "acorn.tv/" part[4] "/" part[5]
 
     getDataFromEpisode()
 
