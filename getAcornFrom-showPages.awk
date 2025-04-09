@@ -94,7 +94,7 @@ function fixSeasonNumber() {
 function getDataFromEpisode() {
     # extract the episode description
     cmd = "curl -s " episodeURL\
-        " | grep '<meta itemprop=\"description\"' | head -1"
+        " | rg -m 1 '^ {8}<meta itemprop=\"description\"'"
 
     while ((cmd | getline desc) > 0) {
         split(desc, fld, "\"")
@@ -113,7 +113,7 @@ function getDataFromEpisode() {
     close(cmd)
 
     # Get episodeNumber which is no longer available from showURL
-    cmd = "curl -s " episodeURL " | grep '<meta itemprop=\"episodeNumber\"'"
+    cmd = "curl -s " episodeURL " | rg '^ {8}<meta itemprop=\"episodeNumber\"'"
 
     while ((cmd | getline epNum) > 0) {
         # print "==> epNum = " epNum > "/dev/stderr"
