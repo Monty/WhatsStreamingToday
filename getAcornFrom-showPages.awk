@@ -20,9 +20,10 @@ function clearShowVariables() {
     showURL = ""
     shortURL = ""
     showLink = ""
+    seasonTitle = ""
+    seasonNumber = ""
     showSeasons = ""
     showEpisodes = ""
-    seasonEpisodes = ""
     showSecs = 0
     showMins = 0
     showHrs = 0
@@ -36,10 +37,11 @@ function clearShowVariables() {
 }
 
 function clearEpisodeVariables() {
+    showType = "S"
     episodeURL = ""
     shortEpisodeURL = ""
     shortSeasonURL = ""
-    episodeType = ""
+    episodeType = "E"
     episodeTitle = ""
     episodeNumber = ""
     episodeDuration = ""
@@ -57,6 +59,37 @@ function fixUnicode() {
     gsub(/\\u00ed/, "í", showDescription)
     gsub(/\\u00f6/, "ö", showDescription)
     gsub(/\\u01a0/, "Ơ", showDescription)
+}
+
+function fixSeasonNumber() {
+    split(episodeURL, part, "/")
+    URLseasonNumber = part[5]
+    sub(/bonus$/, "", URLseasonNumber)
+    sub(/christmasspecial$/, "", URLseasonNumber)
+    sub(/aftershow$/, "", URLseasonNumber)
+
+    # The season number should match the one in the URL
+    # Doc Martin, Murdoch, and others have problems
+    if (match(URLseasonNumber, /[[:digit:]]{1,2}$/)) {
+        # print "==> URLseasonString = " URLseasonNumber > "/dev/stderr"
+        URLseasonNumber = substr(URLseasonNumber, RSTART)
+        # print "==> episodeURL = " episodeURL > "/dev/stderr"
+        # print "==> seasonTitle = " seasonTitle " " shortURL > "/dev/stderr"
+        # print "==> seasonNumber = " seasonNumber > "/dev/stderr"
+        # print "==> URLseasonNumber = " URLseasonNumber "\n" > "/dev/stderr"
+        if (URLseasonNumber != seasonNumber) {
+            printf(\
+                "==> Changed S%02d to S%02d: %s\n",
+                seasonNumber,
+                URLseasonNumber,
+                shortSeasonURL\
+            ) >> ERRORS
+            seasonNumber = URLseasonNumber
+        }
+    }
+
+    # cryptoftears is all one season
+    if (episodeURL ~ /\/cryptoftears\//) { seasonNumber = 1 }
 }
 
 function getDataFromEpisode() {
@@ -90,16 +123,51 @@ function getDataFromEpisode() {
         # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
     }
 
+    if (episodeURL ~ /\/thegreattrainrobbery\/trailer/) { episodeNumber = 3 }
+
+    close(cmd)
+
+    # Get duration which is no longer available from showURL
+    cmd = "curl -s " episodeURL " | rg '^ {8}<meta itemprop=\"timeRequired\"'"
+
+    while ((cmd | getline timeRequired) > 0) {
+        durationLinesFound += 1
+        split(timeRequired, fld, "\"")
+        split(fld[4], tm, /[TMS]/)
+        secs = tm[3]
+        mins = tm[2] + int(secs / 60)
+        hrs = int(mins / 60)
+        secs %= 60
+        mins %= 60
+        #
+        totalTime[3] += secs
+        totalTime[2] += mins + int(totalTime[3] / 60)
+        totalTime[1] += hrs + int(totalTime[2] / 60)
+        totalTime[3] %= 60
+        totalTime[2] %= 60
+
+        #
+        showSecs += secs
+        showMins += mins + int(showSecs / 60)
+        showHrs += hrs + int(showMins / 60)
+        showSecs %= 60
+        showMins %= 60
+        #
+        episodeDuration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
+
+        # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL >"/dev/stderr"
+        if (episodeDuration == "00:00:00")
+            printf(\
+                "==> Blank episode duration: %s  %s\n",
+                shortEpisodeURL,
+                showTitle\
+            ) >> ERRORS
+    }
+
     close(cmd)
 }
 
 function wrapUpEpisode() {
-    # acorn.tv/greattrainrobbery/thegreattrainrobbery/trailer
-    if (shortEpisodeURL ~ /thegreattrainrobbery\/trailer/) {
-        episodeNumber = 3
-        episodeType = "E"
-    }
-
     # Report invalid episodeNumber
     if (episodeNumber + 0 == 0) {
         printf(\
@@ -122,21 +190,15 @@ function wrapUpEpisode() {
         episodeTitle\
     )
     # Print "episode" line to UNSORTED
-    # But don't include duration for trailers
-    if (episodeType == "T") episodeDuration = ""
-
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
     # \t\t\t 00:59:17 \t As they arrive
     printf("%s\t\t\t%s\t%s\n", episodeLink, episodeDuration, episodeDescription)
-
-    # Default showType to "S" for Season so it can change from Prequel to Season unless it's a Movie
-    if (showType != "M") showType = "S"
 }
 
 # Extract the show URL, title, and description
 /<script type="application\/ld\+json">/, /"description": "/ {
     # Extract the show URL
-    if ($0 ~ /"url": "/) {
+    if ($0 ~ /^ {8}"url": "/) {
         clearShowVariables()
 
         totalShows += 1
@@ -160,7 +222,7 @@ function wrapUpEpisode() {
     }
 
     # Extract the show description
-    if ($0 ~ /"description": "/) {
+    if ($0 ~ /^ {8}"description": "/) {
         descriptionLinesFound += 1
         showDescription = $0
         sub(/.*"description": "/, "", showDescription)
@@ -183,72 +245,19 @@ function wrapUpEpisode() {
     }
 }
 
-# Extract the number of episodes in the show
-/itemprop="numberOfEpisodes"/ {
-    episodeLinesFound += 1
-    split($0, fld, "\"")
+# Determine the number of seasons in the show
+/^ {12}<h4 class="subnav2">/ {
+    split($0, fld, "[<>]")
+    seasonTitle = fld[3]
+    seasonNumber += 1
+    # print "\n==> seasonTitle = " shortURL " " seasonTitle > "/dev/stderr"
+    # print "==> seasonNumber = " shortURL " " seasonNumber > "/dev/stderr"
 
-    if (episodeLinesFound == 1) {
-        # Make seasonEpisodes a spreadsheet formula
-        seasonEpisodes = "="
-        showEpisodes = fld[4]
-
-        if (showEpisodes == "") {
-            printf(\
-                "==> Blank showEpisodes in numberOfEpisodes: %s\t%s\n",
-                shortURL,
-                showTitle\
-            ) >> ERRORS
-        }
-
-        # print "==> showEpisodes = " showEpisodes " " shortURL > "/dev/stderr"
-    }
-
-    if (episodeLinesFound != 1) {
-        seasonEpisodes = seasonEpisodes "+" fld[4]
-
-        if (seasonEpisodes == "") {
-            printf(\
-                "==> Blank seasonEpisodes in numberOfEpisodes: %s\t%s\n",
-                shortURL,
-                showTitle\
-            ) >> ERRORS
-        }
-
-        # print "==> seasonEpisodes = " seasonEpisodes " " shortURL > "/dev/stderr"
-    }
-
-    next
-}
-
-# Extract the number of seasons in the show
-/itemprop="numberOfSeasons"/ {
     seasonLinesFound += 1
-    split($0, fld, "\"")
-    showSeasons = fld[4]
-    totalSeasons += showSeasons
-    # Default showType to "S" for Season
-    showType = "S"
-
-    if (showSeasons == "") {
-        printf(\
-            "==> Blank showSeasons in numberOfSeasons: %s\t%s\n",
-            shortURL,
-            showTitle\
-        ) >> ERRORS
-    }
-
-    # print "==> showSeasons = " showSeasons " " shortURL > "/dev/stderr"
-    next
-}
-
-# Extract the seasonNumber
-# Note that Acorn "season" numbers may not correspond to actual season numbers.
-# They simply refer to the number of seasons available on Acorn.
-/<meta itemprop="seasonNumber" content="/ {
-    split($0, fld, "\"")
-    seasonNumber = fld[4]
-    # print "==> seasonNumber = " seasonNumber " " shortURL > "/dev/stderr"
+    showSeasons += 1
+    totalSeasons += 1
+    # print "\n==> seasonNumber = " seasonNumber " " shortURL > "/dev/stderr"
+    # print "==> seasonTitle = " seasonTitle " " shortURL > "/dev/stderr"
     next
 }
 
@@ -275,8 +284,21 @@ function wrapUpEpisode() {
     # print "==> episodeURL = " episodeURL > "/dev/stderr"
     print episodeURL >> EPISODE_URLS
 
+    # May need to fix the season number using the episodeURL
+    fixSeasonNumber()
+
     shortEpisodeURL = episodeURL
     sub(/.*acorn\.tv/, "acorn.tv", shortEpisodeURL)
+
+    # If episode is a Doc Martin Prequel, set showType to "P"
+    if (episodeURL ~ /\/docmartin\/prequelmovies\//) {
+        showType = "P"
+        printf(\
+            "==> Changed showType to prequel '%s': %s\n",
+            showTitle,
+            shortEpisodeURL\
+        ) >> ERRORS
+    }
 
     # If episode is a Jack Irish movie, set showType to "M"
     if (episodeURL ~ /\/jackirish\/themovies\//) {
@@ -291,6 +313,10 @@ function wrapUpEpisode() {
     # but don't make the series a movie
     if (episodeURL ~ /\/jackirish\/series/) { showType = "S" }
 
+    if (episodeURL ~ /\/bonus|bonus-\/|christmas[-]?special/) {
+        episodeType = "X"
+    }
+
     split(episodeURL, part, "/")
     shortSeasonURL = "acorn.tv/" part[4] "/" part[5]
 
@@ -303,150 +329,42 @@ function wrapUpEpisode() {
 /^ {20}<h5>/ {
     split($0, fld, "[<>]")
     episodeTitle = fld[3]
+    # print "==> episodeTitle = '" episodeTitle "' " shortEpisodeURL > "/dev/stderr"
+    if ($0 !~ /<\/h5>/) {
+        getline possibleTitle
+
+        while (possibleTitle !~ /<\/h5>/) {
+            sub(/^ */, "", possibleTitle)
+            # print "==> possibleTitle = " possibleTitle > "/dev/stderr"
+            episodeTitle = episodeTitle " " possibleTitle
+            # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
+            getline possibleTitle
+        }
+    }
+
+    sub(/^ */, "", episodeTitle)
     gsub(/&amp;/, "\\&", episodeTitle)
     gsub(/&#039;/, "'", episodeTitle)
-    # print "==> episodeTitle = " episodeTitle " " shortEpisodeURL > "/dev/stderr"
     wrapUpEpisode()
     next
 }
 
 # Set showType to "M" for Movies
 /<h6>Movie/ {
+    totalMovies += 1
+    showType = "M"
+
     # Detectorists has a movie as its last season/episode
     if (showURL ~ /\/detectorists$/) next
 
-    totalMovies += 1
-    showType = "M"
     # Movies don't usually have seasons or episodes, but some do
     # Don't make the movie a season by itself - bonus features should belong to the same "season"
     showSeasons > 1 ? showSeasons -= 1 : showSeasons = ""
     # Subtract the movie itself from the number of episodes
     showEpisodes > 1 ? showEpisodes -= 1 : showEpisodes = ""
-    showEpisodes > 1 ? seasonEpisodes = "=" : seasonEpisodes = ""
     # print "==> showSeasons = " showSeasons " " shortURL > "/dev/stderr"
     # print "==> showEpisodes = " showEpisodes " " shortURL > "/dev/stderr"
-    # print "==> seasonEpisodes = " seasonEpisodes " " shortURL > "/dev/stderr"
     # print "---" > "/dev/stderr"
-}
-
-# Set showType to "P" for Prequel episodes so they sort before any Season episodes
-/<h6>Prequel Movies: / {
-    showType = "P"
-    # printf("==> Prequel to '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
-}
-
-# Extract the episode duration
-/<meta itemprop="timeRequired"/ {
-    durationLinesFound += 1
-    split($0, fld, "\"")
-    split(fld[4], tm, /[TMS]/)
-    secs = tm[3]
-    mins = tm[2] + int(secs / 60)
-    hrs = int(mins / 60)
-    secs %= 60
-    mins %= 60
-    #
-    if (showURL !~ /_cs$/) {
-        totalTime[3] += secs
-        totalTime[2] += mins + int(totalTime[3] / 60)
-        totalTime[1] += hrs + int(totalTime[2] / 60)
-        totalTime[3] %= 60
-        totalTime[2] %= 60
-    }
-
-    #
-    showSecs += secs
-    showMins += mins + int(showSecs / 60)
-    showHrs += hrs + int(showMins / 60)
-    showSecs %= 60
-    showMins %= 60
-    #
-    episodeDuration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
-    # Save the first duration to deal with movies with bonus episodes
-    if (durationLinesFound == 1) firstDuration = episodeDuration
-
-    # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL > "/dev/stderr"
-    if (episodeDuration == "00:00:00")
-        printf(\
-            "==> Blank episode duration: %s  %s\n", shortEpisodeURL, showTitle\
-        ) >> ERRORS
-
-    next
-}
-
-# Extract the episode title
-/<h5 itemprop="name">/ {
-    split($0, fld, "[<>]")
-    episodeTitle = fld[3]
-    gsub(/&amp;/, "\\&", episodeTitle)
-    gsub(/&#039;/, "'", episodeTitle)
-    print "==> episodeTitle = " episodeTitle " " shortEpisodeURL > "/dev/stderr"
-    # print "==> episodeNumber = " episodeNumber " " shortEpisodeURL > "/dev/stderr"
-    #
-    # Setup episodeType so episodes group/sort properly
-    # Default episodeType to "E"
-    episodeType = "E"
-    # Default bonus and christmas specials episodeType to "X"
-    if (episodeURL ~ /\/bonus|bonus\/|christmas[-]?special/) {
-        episodeType = "X"
-        # printf("==> Bonus to '%s': %s\n", showTitle, shortEpisodeURL) > "/dev/stderr"
-    }
-
-    # If episode is a Trailer, set episodeType to "T" - even though not all these have episodes
-    if (episodeURL ~ /_cs\/|\/trailer$/) {
-        episodeType = "T"
-        # printf("==> Trailer '%s': %s\n", showTitle, shortEpisodeURL) >> ERRORS
-    }
-
-    #
-    # cryptoftears, newworlds & newtonslaw bonus seasonNumber should be 1
-    if (\
-        episodeURL ~ /\/cryptoftears\/bonus\/|\/newworlds\/bonus\/|\/newtonslaw\/bonus\// &&
-        seasonNumber != 1\
-    ) {
-        printf(\
-            "==> Changed S%02d to S01: %s\n", seasonNumber, shortSeasonURL\
-        ) >> ERRORS
-        seasonNumber = 1
-    }
-
-    # Plain christmasspecial, seriesfinale don't increment seasonNumber
-    if (episodeURL ~ /\/christmasspecial\/|\/seriesfinale\//) {
-        printf(\
-            "==> Changed S%02d to S%02d: %s\n",
-            seasonNumber,
-            seasonNumber - 1,
-            shortSeasonURL\
-        ) >> ERRORS
-        seasonNumber -= 1
-    }
-
-    #
-    # The season number should match that in the URL
-    # Birds of a Feather, Doc Martin, Murdoch, Poirot, Rebus, Vera, and others have problems
-    if (episodeURL ~ /\/series[0-9]+\/|[0-9]+bonus\/|\/murdoch\/season[0-9]+/) {
-        split(episodeURL, part, "/")
-        URLseasonNumber = part[5]
-        sub(/bonus/, "", URLseasonNumber)
-        # Foyle's War has sets: foyleswar/series9set8bonus/
-        sub(/set[0-9]/, "", URLseasonNumber)
-        # Midsomer Murders has two parts: midsomermurders/series19parttwo/
-        sub(/parttwo/, "", URLseasonNumber)
-        sub(/christmasspecial/, "", URLseasonNumber)
-        sub(/[[:alpha:]]*/, "", URLseasonNumber)
-
-        if (URLseasonNumber != seasonNumber) {
-            printf(\
-                "==> Changed S%02d to S%02d: %s\n",
-                seasonNumber,
-                URLseasonNumber,
-                shortSeasonURL\
-            ) >> ERRORS
-            seasonNumber = URLseasonNumber
-        }
-    }
-
-    next
 }
 
 # Wrap up this show
@@ -476,50 +394,44 @@ function wrapUpEpisode() {
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
     showDuration = sprintf("%02d:%02d:%02d", showHrs, showMins, showSecs)
     showDurationText = sprintf("%02dh %02dm", showHrs, showMins)
-    # If it's not a trailer
-    if (showURL !~ /_cs$/) {
-        # Print "show" line to SHORT_SPREADSHEET with showDurationText
-        printf(\
-            "%s\t%s\t%s\t%s\t%s\n",
-            showLink,
-            showSeasons,
-            seasonEpisodes,
-            showDurationText,
-            showDescription\
-        ) >> SHORT_SPREADSHEET
-        # Print "show" line to UNSORTED without showDuration except movies & single episode shows
-        if (showSeasons == 1 && showEpisodes == 1) {
-            printf(\
-                "==> Only one episode: %s '%s'\n", shortURL, showTitle\
-            ) >> ERRORS
-            showDuration = ""
-        }
-
-        if (showType != "M") { showDuration = "" }
-
-        # print  "==> showTitle = " showTitle > "/dev/stderr"
-        # print  "==> showType = " showType > "/dev/stderr"
-        # print  "==> showEpisodes = " showEpisodes > "/dev/stderr"
-        # print "---" > "/dev/stderr"
-        if (showType == "M" && showEpisodes != "") {
-            showDuration = firstDuration
-            printf(\
-                "==> Movie '%s' has %d bonus episodes: %s\n",
-                showTitle,
-                showEpisodes,
-                shortURL\
-            ) >> ERRORS
-        }
-
-        printf(\
-            "%s\t%s\t%s\t%s\t%s\n",
-            showLink,
-            showSeasons,
-            seasonEpisodes,
-            showDuration,
-            showDescription\
-        )
+    # Print "show" line to SHORT_SPREADSHEET with showDurationText
+    printf(\
+        "%s\t%s\t%s\t%s\t%s\n",
+        showLink,
+        showSeasons,
+        showEpisodes,
+        showDurationText,
+        showDescription\
+    ) >> SHORT_SPREADSHEET
+    # Print "show" line to UNSORTED without showDuration except movies & single episode shows
+    if (showSeasons == 1 && showEpisodes == 1) {
+        printf("==> Only one episode: %s '%s'\n", shortURL, showTitle) >> ERRORS
+        showDuration = ""
     }
+
+    if (showType != "M") { showDuration = "" }
+
+    # print  "==> showTitle = " showTitle > "/dev/stderr"
+    # print  "==> showType = " showType > "/dev/stderr"
+    # print  "==> showEpisodes = " showEpisodes > "/dev/stderr"
+    # print "---" > "/dev/stderr"
+    if (showType == "M" && showEpisodes != "") {
+        printf(\
+            "==> Movie '%s' has %d bonus episodes: %s\n",
+            showTitle,
+            showEpisodes,
+            shortURL\
+        ) >> ERRORS
+    }
+
+    printf(\
+        "%s\t%s\t%s\t%s\t%s\n",
+        showLink,
+        showSeasons,
+        showEpisodes,
+        showDuration,
+        showDescription\
+    )
 }
 
 END {
