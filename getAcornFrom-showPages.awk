@@ -94,73 +94,69 @@ function fixSeasonNumber() {
 function getDataFromEpisode() {
     # extract the episode description
     cmd = "curl -s " episodeURL\
-        " | rg -m 1 '^ {8}<meta itemprop=\"description\"'"
+        " | rg -m 3 '^ {8}<meta itemprop=\"description\"|^ {8}<meta itemprop=\"episodeNumber\"|^ {8}<meta itemprop=\"timeRequired\"'"
 
-    while ((cmd | getline desc) > 0) {
-        split(desc, fld, "\"")
-        episodeDescription = fld[4]
-        # fix sloppy input spacing
-        gsub(/ \./, ".", episodeDescription)
-        gsub(/  */, " ", episodeDescription)
-        sub(/^ */, "", episodeDescription)
-        sub(/ *$/, "", episodeDescription)
-        # fix funky HTML characters
-        gsub(/&amp;/, "\\&", episodeDescription)
-        gsub(/&quot;/, "\"\"", episodeDescription)
-        gsub(/&#039;/, "'", episodeDescription)
-    }
+    while ((cmd | getline episodeData) > 0) {
+        if (episodeData ~ /itemprop="description"/) {
+            split(episodeData, fld, "\"")
+            episodeDescription = fld[4]
+            # fix sloppy input spacing
+            gsub(/ \./, ".", episodeDescription)
+            gsub(/  */, " ", episodeDescription)
+            sub(/^ */, "", episodeDescription)
+            sub(/ *$/, "", episodeDescription)
+            # fix funky HTML characters
+            gsub(/&amp;/, "\\&", episodeDescription)
+            gsub(/&quot;/, "\"\"", episodeDescription)
+            gsub(/&#039;/, "'", episodeDescription)
+            # print "==> episodeDescription = " episodeDescription > "/dev/stderr"
+        }
 
-    close(cmd)
+        if (episodeData ~ /itemprop="episodeNumber"/) {
+            # Get episodeNumber which is no longer available from showURL
+            split(episodeData, fld, "\"")
+            episodeNumber = fld[4]
+            # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
+        }
 
-    # Get episodeNumber which is no longer available from showURL
-    cmd = "curl -s " episodeURL " | rg '^ {8}<meta itemprop=\"episodeNumber\"'"
+        if (episodeURL ~ /\/thegreattrainrobbery\/trailer/) {
+            episodeNumber = 3
+        }
 
-    while ((cmd | getline epNum) > 0) {
-        # print "==> epNum = " epNum > "/dev/stderr"
-        split(epNum, fld, "\"")
-        episodeNumber = fld[4]
-        # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
-    }
+        if (episodeData ~ /itemprop="timeRequired"/) {
+            # Get duration which is no longer available from showURL
+            durationLinesFound += 1
+            split(episodeData, fld, "\"")
+            split(fld[4], tm, /[TMS]/)
+            secs = tm[3]
+            mins = tm[2] + int(secs / 60)
+            hrs = int(mins / 60)
+            secs %= 60
+            mins %= 60
+            #
+            totalTime[3] += secs
+            totalTime[2] += mins + int(totalTime[3] / 60)
+            totalTime[1] += hrs + int(totalTime[2] / 60)
+            totalTime[3] %= 60
+            totalTime[2] %= 60
 
-    if (episodeURL ~ /\/thegreattrainrobbery\/trailer/) { episodeNumber = 3 }
+            #
+            showSecs += secs
+            showMins += mins + int(showSecs / 60)
+            showHrs += hrs + int(showMins / 60)
+            showSecs %= 60
+            showMins %= 60
+            #
+            episodeDuration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
 
-    close(cmd)
-
-    # Get duration which is no longer available from showURL
-    cmd = "curl -s " episodeURL " | rg '^ {8}<meta itemprop=\"timeRequired\"'"
-
-    while ((cmd | getline timeRequired) > 0) {
-        durationLinesFound += 1
-        split(timeRequired, fld, "\"")
-        split(fld[4], tm, /[TMS]/)
-        secs = tm[3]
-        mins = tm[2] + int(secs / 60)
-        hrs = int(mins / 60)
-        secs %= 60
-        mins %= 60
-        #
-        totalTime[3] += secs
-        totalTime[2] += mins + int(totalTime[3] / 60)
-        totalTime[1] += hrs + int(totalTime[2] / 60)
-        totalTime[3] %= 60
-        totalTime[2] %= 60
-
-        #
-        showSecs += secs
-        showMins += mins + int(showSecs / 60)
-        showHrs += hrs + int(showMins / 60)
-        showSecs %= 60
-        showMins %= 60
-        #
-        episodeDuration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
-
-        # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL >"/dev/stderr"
-        if (episodeDuration == "00:00:00")
-            printf(\
-                "==> Blank episode duration: %s  %s\n",
-                shortEpisodeURL,
-                showTitle\
-            ) >> ERRORS
+            # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL "\n" > "/dev/stderr"
+            if (episodeDuration == "00:00:00")
+                printf(\
+                    "==> Blank episode duration: %s  %s\n",
+                    shortEpisodeURL,
+                    showTitle\
+                ) >> ERRORS
+        }
     }
 
     close(cmd)
