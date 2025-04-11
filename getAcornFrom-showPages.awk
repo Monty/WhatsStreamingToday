@@ -406,6 +406,15 @@ function wrapUpEpisode() {
     if (descriptionLinesFound == 0) {
         printf("==> No description: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
+    else if (split(showDescription, words, " ") <= 5) {
+        printf(\
+            "==> Short showDescription in \"%s: %s\" %s\n    %s\n",
+            showTitle,
+            episodeTitle,
+            shortEpisodeURL,
+            showDescription\
+        ) >> ERRORS
+    }
 
     if (durationLinesFound == 0) {
         printf("==> No duration: %s\t%s\n", shortURL, showTitle) >> ERRORS
