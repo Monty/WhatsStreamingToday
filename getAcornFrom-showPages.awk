@@ -174,7 +174,7 @@ function wrapUpEpisode() {
             shortEpisodeURL\
         ) >> ERRORS
     }
-    else if (split(episodeDescription, words, " ") <= 3) {
+    else if (split(episodeDescription, words, " ") <= 5) {
         printf(\
             "==> Short episodeDescription in \"%s: %s\" %s\n    %s\n",
             showTitle,
@@ -325,7 +325,7 @@ function wrapUpEpisode() {
     if (episodeURL ~ /\/docmartin\/prequelmovies\//) {
         showType = "P"
         printf(\
-            "==> Changed showType to prequel '%s': %s\n",
+            "==> Changed showType to prequel \"%s\": %s\n",
             showTitle,
             shortEpisodeURL\
         ) >> ERRORS
@@ -335,7 +335,7 @@ function wrapUpEpisode() {
     if (episodeURL ~ /\/jackirish\/themovies\//) {
         showType = "M"
         printf(\
-            "==> Changed showType to movie '%s': %s\n",
+            "==> Changed showType to movie \"%s\": %s\n",
             showTitle,
             shortEpisodeURL\
         ) >> ERRORS
@@ -396,25 +396,19 @@ function wrapUpEpisode() {
 # Wrap up this show
 /<footer/ {
     if (episodeLinesFound == 0) {
-        printf(\
-            "==> No numberOfEpisodes: %s\t%s\n", shortURL, showTitle\
-        ) >> ERRORS
+        printf("==> No episodes: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
 
     if (seasonLinesFound == 0) {
-        printf(\
-            "==> No numberOfSeasons: %s\t%s\n", shortURL, showTitle\
-        ) >> ERRORS
+        printf("==> No seasons: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
 
     if (descriptionLinesFound == 0) {
-        printf(\
-            "==> No franchise-description: %s\t%s\n", shortURL, showTitle\
-        ) >> ERRORS
+        printf("==> No description: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
 
     if (durationLinesFound == 0) {
-        printf("==> No durations: %s\t%s\n", shortURL, showTitle) >> ERRORS
+        printf("==> No duration: %s\t%s\n", shortURL, showTitle) >> ERRORS
     }
 
     showLink = "=HYPERLINK(\"" showURL "\";\"" showTitle "\")"
@@ -429,9 +423,10 @@ function wrapUpEpisode() {
         showDurationText,
         showDescription\
     ) >> SHORT_SPREADSHEET
+
     # Print "show" line to UNSORTED without showDuration except movies & single episode shows
     if (showSeasons == 1 && showEpisodes == 1) {
-        printf("==> Only one episode: %s '%s'\n", shortURL, showTitle) >> ERRORS
+        printf("==> Only one episode: %s %s\n", shortURL, showTitle) >> ERRORS
         showDuration = ""
     }
 
@@ -443,7 +438,7 @@ function wrapUpEpisode() {
     # print "---" > "/dev/stderr"
     if (showType == "M" && showEpisodes != "") {
         printf(\
-            "==> Movie '%s' has %d bonus episodes: %s\n",
+            "==> Movie \"%s\" has %d bonus episodes: %s\n",
             showTitle,
             showEpisodes,
             shortURL\
