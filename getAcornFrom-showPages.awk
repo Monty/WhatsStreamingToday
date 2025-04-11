@@ -165,13 +165,22 @@ function getDataFromEpisode() {
 }
 
 function wrapUpEpisode() {
-    # Report missing episodeDescription
+    # Report missing or short episodeDescription
     if (episodeDescription == "") {
         printf(\
             "==> No episodeDescription in \"%s: %s\" %s\n",
             showTitle,
             episodeTitle,
             shortEpisodeURL\
+        ) >> ERRORS
+    }
+    else if (split(episodeDescription, words, " ") <= 3) {
+        printf(\
+            "==> Short episodeDescription in \"%s: %s\" %s\n    %s\n",
+            showTitle,
+            episodeTitle,
+            shortEpisodeURL,
+            episodeDescription\
         ) >> ERRORS
     }
 
