@@ -42,6 +42,7 @@ function clearEpisodeVariables() {
     shortEpisodeURL = ""
     episodeType = "E"
     episodeTitle = ""
+    episodeDescription = ""
     episodeNumber = ""
     episodeDuration = ""
 }
@@ -91,8 +92,46 @@ function fixSeasonNumber() {
     if (episodeURL ~ /\/cryptoftears\//) { seasonNumber = 1 }
 }
 
+function fixEpisodeDescription() {
+    # Fix sloppy input spacing
+    gsub(/ \./, ".", episodeDescription)
+    gsub(/  */, " ", episodeDescription)
+    sub(/^ */, "", episodeDescription)
+    sub(/ *$/, "", episodeDescription)
+    # fix funky HTML characters
+    gsub(/&amp;/, "\\&", episodeDescription)
+    gsub(/&quot;/, "\"\"", episodeDescription)
+    gsub(/&#039;/, "'", episodeDescription)
+    # print "==> episodeDescription = " episodeDescription > "/dev/stderr"
+}
+
+function computeEpisodeDuration() {
+    # T00M05S, T115M26S, etc
+    split(episodeTMS, tm, /[TMS]/)
+    secs = tm[3]
+    mins = tm[2]
+    hrs = int(mins / 60)
+    mins %= 60
+    #
+    totalTime[3] += secs
+    totalTime[2] += mins + int(totalTime[3] / 60)
+    totalTime[1] += hrs + int(totalTime[2] / 60)
+    totalTime[3] %= 60
+    totalTime[2] %= 60
+
+    #
+    showSecs += secs
+    showMins += mins + int(showSecs / 60)
+    showHrs += hrs + int(showMins / 60)
+    showSecs %= 60
+    showMins %= 60
+    #
+    episodeDuration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
+    # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL "\n" > "/dev/stderr"
+}
+
 function getDataFromEpisode() {
-    # extract the episode description
+    # Extract the episode description
     cmd = "curl -s " episodeURL\
         " | rg -m 3 '^ {8}<meta itemprop=\"description\"|^ {8}<meta itemprop=\"episodeNumber\"|^ {8}<meta itemprop=\"timeRequired\"'"
 
@@ -100,62 +139,25 @@ function getDataFromEpisode() {
         if (episodeData ~ /itemprop="description"/) {
             split(episodeData, fld, "\"")
             episodeDescription = fld[4]
-            # fix sloppy input spacing
-            gsub(/ \./, ".", episodeDescription)
-            gsub(/  */, " ", episodeDescription)
-            sub(/^ */, "", episodeDescription)
-            sub(/ *$/, "", episodeDescription)
-            # fix funky HTML characters
-            gsub(/&amp;/, "\\&", episodeDescription)
-            gsub(/&quot;/, "\"\"", episodeDescription)
-            gsub(/&#039;/, "'", episodeDescription)
-            # print "==> episodeDescription = " episodeDescription > "/dev/stderr"
+            fixEpisodeDescription()
         }
 
         if (episodeData ~ /itemprop="episodeNumber"/) {
             # Get episodeNumber which is no longer available from showURL
+            # <meta itemprop="episodeNumber" content="1"> acorn.tv/192/season1
             split(episodeData, fld, "\"")
             episodeNumber = fld[4]
             # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
         }
 
-        if (episodeURL ~ /\/thegreattrainrobbery\/trailer/) {
-            episodeNumber = 3
-        }
-
         if (episodeData ~ /itemprop="timeRequired"/) {
             # Get duration which is no longer available from showURL
+            # <meta itemprop="timeRequired" content="T115M26S"> acorn.tv/betrayaloftrust/feature
+            # <meta itemprop="timeRequired" content="T00M05S">
             durationLinesFound += 1
             split(episodeData, fld, "\"")
-            split(fld[4], tm, /[TMS]/)
-            secs = tm[3]
-            mins = tm[2] + int(secs / 60)
-            hrs = int(mins / 60)
-            secs %= 60
-            mins %= 60
-            #
-            totalTime[3] += secs
-            totalTime[2] += mins + int(totalTime[3] / 60)
-            totalTime[1] += hrs + int(totalTime[2] / 60)
-            totalTime[3] %= 60
-            totalTime[2] %= 60
-
-            #
-            showSecs += secs
-            showMins += mins + int(showSecs / 60)
-            showHrs += hrs + int(showMins / 60)
-            showSecs %= 60
-            showMins %= 60
-            #
-            episodeDuration = sprintf("%02d:%02d:%02d", hrs, mins, secs)
-
-            # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL "\n" > "/dev/stderr"
-            if (episodeDuration == "00:00:00")
-                printf(\
-                    "==> Blank episode duration: %s  %s\n",
-                    shortEpisodeURL,
-                    showTitle\
-                ) >> ERRORS
+            episodeTMS = fld[4]
+            computeEpisodeDuration()
         }
     }
 
@@ -163,15 +165,34 @@ function getDataFromEpisode() {
 }
 
 function wrapUpEpisode() {
-    # Report invalid episodeNumber
-    if (episodeNumber + 0 == 0) {
+    # Report missing episodeDescription
+    if (episodeDescription == "") {
         printf(\
-            "==> Zero episodeNumber in \"%s: %s\" %s\n",
+            "==> No episodeDescription in \"%s: %s\" %s\n",
             showTitle,
             episodeTitle,
             shortEpisodeURL\
         ) >> ERRORS
     }
+
+    # Report missing episodeNumber
+    if (episodeNumber == "") {
+        printf(\
+            "==> No episodeNumber in \"%s: %s\" %s\n",
+            showTitle,
+            episodeTitle,
+            shortEpisodeURL\
+        ) >> ERRORS
+    }
+
+    # Report missing episodeDuration
+    if (episodeDuration == "")
+        printf(\
+            "==> No episodeDuration in \"%s: %s\" %s\n",
+            showTitle,
+            episodeTitle,
+            shortEpisodeURL\
+        ) >> ERRORS
 
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One")
     episodeLink = sprintf(\
@@ -184,6 +205,7 @@ function wrapUpEpisode() {
         episodeNumber,
         episodeTitle\
     )
+
     # Print "episode" line to UNSORTED
     # =HYPERLINK("https://acorn.tv/1900island/series1/week-one";"1900 Island, S01E01, Week One") \
     # \t\t\t 00:59:17 \t As they arrive
@@ -262,7 +284,7 @@ function wrapUpEpisode() {
     sub(/<a/, " ", $0)
 }
 
-# Extract the episode URL
+# Extract the episode URL and process the episode
 /^ {18}href="https:\/\/acorn.tv\// {
     clearEpisodeVariables()
 
@@ -284,6 +306,11 @@ function wrapUpEpisode() {
 
     # May need to fix the season number using the episodeURL
     fixSeasonNumber()
+
+    # Use "curl" to download and "rg" to process date from the episode
+    getDataFromEpisode()
+
+    if (episodeURL ~ /\/thegreattrainrobbery\/trailer/) { episodeNumber = 3 }
 
     # If episode is a Doc Martin Prequel, set showType to "P"
     if (episodeURL ~ /\/docmartin\/prequelmovies\//) {
@@ -311,11 +338,6 @@ function wrapUpEpisode() {
     if (episodeURL ~ /\/bonus|bonus-\/|christmas[-]?special/) {
         episodeType = "X"
     }
-
-    split(episodeURL, part, "/")
-    shortEpisodeURL = "acorn.tv/" part[4] "/" part[5]
-
-    getDataFromEpisode()
 
     next
 }
