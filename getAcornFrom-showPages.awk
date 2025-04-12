@@ -321,8 +321,11 @@ function wrapUpEpisode() {
 
     if (episodeURL ~ /\/thegreattrainrobbery\/trailer/) { episodeNumber = 3 }
 
-    # If episode is a Doc Martin Prequel, set showType to "P"
-    if (episodeURL ~ /\/docmartin\/prequelmovies\//) {
+    # If episode is a prequel, set showType to "P"
+    if (\
+        episodeURL ~ /\/docmartin\/prequelmovies\// ||
+        episodeURL ~ /\/jackirish\/themovies\//\
+    ) {
         showType = "P"
         printf(\
             "==> Changed showType to prequel \"%s\": %s\n",
@@ -330,19 +333,6 @@ function wrapUpEpisode() {
             shortEpisodeURL\
         ) >> ERRORS
     }
-
-    # If episode is a Jack Irish movie, set showType to "M"
-    if (episodeURL ~ /\/jackirish\/themovies\//) {
-        showType = "M"
-        printf(\
-            "==> Changed showType to movie \"%s\": %s\n",
-            showTitle,
-            shortEpisodeURL\
-        ) >> ERRORS
-    }
-
-    # but don't make the series a movie
-    if (episodeURL ~ /\/jackirish\/series/) { showType = "S" }
 
     if (episodeURL ~ /\/bonus|bonus-\/|christmas[-]?special/) {
         episodeType = "X"
