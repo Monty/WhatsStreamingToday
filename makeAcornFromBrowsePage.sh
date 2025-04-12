@@ -158,9 +158,10 @@ rm -f "$UNSORTED"
 numShows=$(cut -d / -f 4 "$EPISODE_URLS" | sort -u | wc -l)
 numSeasons=$(cut -d / -f 4-5 "$EPISODE_URLS" | sort -u | wc -l)
 numEpisodes=$(cut -d / -f 4- "$EPISODE_URLS" | sort -u | wc -l)
+numMovies=$(cut -d / -f 5 "$EPISODE_URLS" | rg -c -f rg_Acorn_MovieTypes.rgx)
 printf "\nIn %s\n" "$(basename "$0")"
-printf "    Processed %d shows, %d seasons, %d episodes\n" \
-    "$numShows" "$numSeasons" "$numEpisodes"
+printf "    Processed %d movies, %d shows, %d seasons, %d episodes\n" \
+    "$numMovies" "$numShows" "$numSeasons" "$numEpisodes"
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
