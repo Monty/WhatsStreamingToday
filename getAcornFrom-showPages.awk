@@ -334,7 +334,17 @@ function wrapUpEpisode() {
         ) >> ERRORS
     }
 
-    if (episodeURL ~ /\/bonus|bonus-\/|christmas[-]?special/) {
+    if (\
+        episodeURL ~ /\/movie\/|\/feature\/|\/featurefilm\// ||
+        episodeURL ~ /\/prequelmovies\/|\/documentary\/|\/themovies\// ||
+        episodeURL ~ /\/murdochmysteriesmovies\// ||
+        episodeURL ~ /\/detectoristsmoviespecial\//\
+    ) {
+        episodeType = "M"
+        totalMovies += 1
+    }
+
+    if (episodeURL ~ /\/bonus|bonus\/|bonus-|christmas[-]?special/) {
         episodeType = "X"
     }
 
@@ -363,24 +373,6 @@ function wrapUpEpisode() {
     gsub(/&#039;/, "'", episodeTitle)
     wrapUpEpisode()
     next
-}
-
-# Set showType to "M" for Movies
-/<h6>Movie/ {
-    totalMovies += 1
-    showType = "M"
-
-    # Detectorists has a movie as its last season/episode
-    if (showURL ~ /\/detectorists$/) next
-
-    # Movies don't usually have seasons or episodes, but some do
-    # Don't make the movie a season by itself - bonus features should belong to the same "season"
-    showSeasons > 1 ? showSeasons -= 1 : showSeasons = ""
-    # Subtract the movie itself from the number of episodes
-    showEpisodes > 1 ? showEpisodes -= 1 : showEpisodes = ""
-    # print "==> showSeasons = " showSeasons " " shortURL > "/dev/stderr"
-    # print "==> showEpisodes = " showEpisodes " " shortURL > "/dev/stderr"
-    # print "---" > "/dev/stderr"
 }
 
 # Wrap up this show
