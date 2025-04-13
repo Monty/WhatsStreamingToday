@@ -59,9 +59,9 @@ fi
 printf "\n==> Show new episodes since $ACORN_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
-        <(cut -f 1 "$ACORN_EPISODES" | rg ', [SM][0-9][0-9]' |
+        <(cut -f 1 "$ACORN_EPISODES" | rg ', [SMP][0-9][0-9]' |
             awk -f printTitles.awk) \
-        <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', [SM][0-9][0-9]' |
+        <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', [SMP][0-9][0-9]' |
             awk -f printTitles.awk) | rg -v 'Coming Soon'
 fi
 
