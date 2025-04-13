@@ -29,6 +29,7 @@ function clearShowVariables() {
     showHrs = 0
     showDuration = ""
     showDescription = ""
+    showHasMovies = ""
     #
     episodeLinesFound = 0
     seasonLinesFound = 0
@@ -342,6 +343,7 @@ function wrapUpEpisode() {
     ) {
         episodeType = "M"
         totalMovies += 1
+        showHasMovies = "yes"
     }
 
     if (episodeURL ~ /\/bonus|bonus\/|bonus-|christmas[-]?special/) {
@@ -416,7 +418,7 @@ function wrapUpEpisode() {
     ) >> SHORT_SPREADSHEET
 
     # Print "show" line to UNSORTED without showDuration except movies & single episode shows
-    if (showSeasons == 1 && showEpisodes == 1) {
+    if (showSeasons == 1 && showEpisodes == 1 && showHasMovies = "") {
         printf("==> Only one episode: %s %s\n", shortURL, showTitle) >> ERRORS
         showDuration = ""
     }
