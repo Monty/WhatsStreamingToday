@@ -129,9 +129,12 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 # Don't keep anything that's dubbed, it's a duplicate
 if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
-    curl -s $SITEMAP_URL | rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
+    curl -s $SITEMAP_URL |
+        rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
-        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' | sort -f >"$SHOW_URLS"
+        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' |
+        rg -v '/all-series/videos/|/drama-crime/videos/' |
+        sort -f >"$SHOW_URLS"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
@@ -139,11 +142,9 @@ fi
 # Separate URLs into episodes, movies, and seasons
 rg 'https://watch.mhzchoice.com/.*/season:[0-9]*/.*$' "$SHOW_URLS" >"$EPISODE_URLS"
 rg 'https://watch.mhzchoice.com.*/season:[0-9]*$' "$SHOW_URLS" >"$SEASON_URLS"
+rg -v /season: "$SHOW_URLS" | rg /videos/ >>"$EPISODE_URLS"
 rg -v /season: "$SHOW_URLS" | rg /videos/ |
-    rg -v '/all-series/videos/|/drama-crime/videos/' >>"$EPISODE_URLS"
-rg -v /season: "$SHOW_URLS" | rg /videos/ |
-    rg -v '/all-series/videos/|/drama-crime/videos/' |
-    sd "/videos/.*" "" >"$MOVIE_URLS"
+    sd "/videos/.*" "" | zet single >"$MOVIE_URLS"
 # shellcheck disable=SC2129
 cat "$MOVIE_URLS" >>"$SEASON_URLS"
 
