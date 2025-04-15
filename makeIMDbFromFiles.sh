@@ -66,7 +66,7 @@ done
 shift $((OPTIND - 1))
 
 # Make sure we can execute rg.
-if [ ! -x "$(which rg 2>/dev/null)" ]; then
+if ! command -v curl >/dev/null; then
     printf "[Error] Can't run rg. Install rg and rerun this script.\n"
     printf "        zgrep could be used, but is 15x slower in my tests.\n"
     printf "        See https://crates.io/crates/ripgrep for details.\n"
@@ -80,7 +80,7 @@ if [ -e "name.basics.tsv.gz" ] && [ -e "title.basics.tsv.gz" ] && [ -e "title.pr
 else
     printf "==> Downloading new IMDb .gz files.\n"
     # Make sure we can execute curl.
-    if [ ! -x "$(which curl 2>/dev/null)" ]; then
+    if ! command -v curl >/dev/null; then
         printf "[Error] Can't run curl. Install curl and rerun this script.\n"
         printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
         exit 1

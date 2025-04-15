@@ -43,7 +43,7 @@ while getopts ":dst" opt; do
 done
 
 # Make sure we can execute curl.
-if [ ! -x "$(which curl 2>/dev/null)" ]; then
+if ! command -v curl >/dev/null; then
     printf "[Error] Can't run curl. Install curl and rerun this script.\n"
     printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
@@ -123,6 +123,7 @@ printf "\n### Possible anomalies from processing shows are listed below.\n\n" >"
 
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
 sed -e 's+^+url = "+' -e 's+$+"+' "$SHOW_URLS" | curl -sS --config - |
+    prettier --parser html |
     awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
         -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
         -f getAcornFrom-showPages.awk >"$UNSORTED"
@@ -152,6 +153,15 @@ rm -f "$RAW_TITLES"
 mv "$EPISODE_URLS" "$UNSORTED"
 sort -fu "$UNSORTED" >"$EPISODE_URLS"
 rm -f "$UNSORTED"
+
+# Print shell script stats to compare against awk script stats
+numShows=$(cut -d / -f 4 "$EPISODE_URLS" | sort -u | wc -l)
+numSeasons=$(cut -d / -f 4-5 "$EPISODE_URLS" | sort -u | wc -l)
+numEpisodes=$(cut -d / -f 4- "$EPISODE_URLS" | sort -u | wc -l)
+numMovies=$(cut -d / -f 5 "$EPISODE_URLS" | rg -c -f rg_Acorn_MovieTypes.rgx)
+printf "\nIn %s\n" "$(basename "$0")"
+printf "    Processed %d movies, %d shows, %d seasons, %d episodes\n" \
+    "$numMovies" "$numShows" "$numSeasons" "$numEpisodes"
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
