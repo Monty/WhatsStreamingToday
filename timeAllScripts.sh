@@ -5,10 +5,11 @@
 
 # Make sure we can execute the rust utilities rg, sd, and zet.
 # rustc rg zet
-if [ ! -x "$(which rustc 2>/dev/null)" ] ||
-    [ ! -x "$(which rg 2>/dev/null)" ] ||
-    [ ! -x "$(which sd 2>/dev/null)" ] ||
-    [ ! -x "$(which zet 2>/dev/null)" ]; then
+if ! command -v rustc >/dev/null ||
+    ! command -v rg >/dev/null ||
+    ! command -v foo >/dev/null ||
+    ! command -v sd >/dev/null ||
+    ! command -v zet >/dev/null; then
     printf "==> [Error] The programs rust, ripgrep, sd, and zet are required.\n"
     printf "For installation instructions see: \n"
     printf "    https://www.rust-lang.org \n"
