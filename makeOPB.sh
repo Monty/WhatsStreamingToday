@@ -238,7 +238,9 @@ cp -p "$LONG_SPREADSHEET" "$SHORT_SPREADSHEET"
 cp -p "$LONG_SPREADSHEET" "$EXTRA_SPREADSHEET"
 
 # Output $SHORT_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" "$UNSORTED_SHORT" >>"$SHORT_SPREADSHEET"
+# but don't include lines with zero episodes and duration
+sort -fu --key=4 --field-separator=\" "$UNSORTED_SHORT" |
+    rg -v '\t0\t00h 00m' >>"$SHORT_SPREADSHEET"
 
 # Output $LONG_SPREADSHEET body sorted by title, not URL
 sort -fu --key=4 --field-separator=\" "$UNSORTED_LONG" >>"$LONG_SPREADSHEET"
