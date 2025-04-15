@@ -2,14 +2,25 @@
 
 # Check if playwright is installed, then print version numbers
 
-# Make sure we are in the correct directory
-DIRNAME=$(dirname "$0")
-cd "$DIRNAME" || exit
-
-if [ -d "$HOME/Library/Caches/ms-playwright/" ]; then
+if [ -d "${HOME}/Library/Caches/ms-playwright/" ]; then
     printf "Your installed playwright and chromium browser versions are:\n"
-    npx playwright --version
-    node chromium-version.js
+
+    # Run playwright version command with error handling
+    if ! npx playwright --version; then
+        printf "Error: Failed to get playwright version\n"
+        exit 1
+    fi
+
+    # Check if chromium-version.js exists before running it
+    if [ -f "chromium-version.js" ]; then
+        if ! node chromium-version.js; then
+            printf "Error: Failed to get Chromium version\n"
+            exit 1
+        fi
+    else
+        printf "Warning: chromium-version.js not found\n"
+    fi
+
     printf "\nYou can check the playwright release notes to find out the latest version.\n"
     printf "https://playwright.dev/docs/release-notes\n"
 else
