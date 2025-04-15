@@ -329,6 +329,13 @@ function removeHeader() {
         episodeNumber = episodeNumber - seasonNumber * 100
     }
 
+    # Special case for two known movies
+    # kludge until there is a way to look for S01E01 as the max episode
+    if (\
+        episodeURL ~ /\/agatha-and-the-curse-of-ishtar-qwb4h3\// ||
+        episodeURL ~ /\/agatha-and-the-midnight-murders-kxpe4l\//\
+    ) { episodeType = "M" }
+
     # print "episodeNumber = \"" episodeNumber "\"" > "/dev/stderr"
     if (length(episodeNumber) < 4) {
         episodeNumber = sprintf("%02d", episodeNumber)
