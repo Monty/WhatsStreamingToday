@@ -7,7 +7,6 @@
 # rustc rg zet
 if ! command -v rustc >/dev/null ||
     ! command -v rg >/dev/null ||
-    ! command -v foo >/dev/null ||
     ! command -v sd >/dev/null ||
     ! command -v zet >/dev/null; then
     printf "==> [Error] The programs rust, ripgrep, sd, and zet are required.\n"
