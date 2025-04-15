@@ -135,13 +135,6 @@
     split($0, fld, "\"")
     showURL = fld[4]
 
-    # Special case for category collection Provence-Alpes-Côte d'Azur
-    # since it is missing the normal "category-title" indicator
-    if (showURL ~ /watch.mhzchoice.com\/provence-alpes-cote-d-azur-2$/) {
-        skipCategory = "yes"
-        printf("==> Skipped category \"%s\"\n", showTitle) >> ERRORS
-    }
-
     # Special case for Awake. Two shows with the same name.
     if (showURL ~ /watch.mhzchoice.com\/awake-1$/) {
         showTitle = "Awake (Serbia)"
@@ -167,7 +160,7 @@
 }
 
 # If this is a category collection, not a primary series - skip it
-# e.g. "Set in Warm Places", "Medical Dramas", "Wine Crime"
+# e.g. "Based on True Stories", "Medical Dramas", "Set in the 70s"
 /collection-title category-title/ {
     skipCategory = "yes"
     printf("==> Skipped category \"%s\"\n", showTitle) >> ERRORS
