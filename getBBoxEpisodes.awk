@@ -61,7 +61,7 @@ function clearShowVariables() {
     person_name = ""
     character_name = ""
     # Used in printing column data
-    fullTitle = ""
+    hyperTitle = ""
     numberOfSeasons = ""
     numEpisodes = ""
     duration = ""
@@ -77,7 +77,6 @@ function clearShowVariables() {
     show_showId = ""
     seasonId = ""
     seasonNumber = ""
-    episodeNumber = ""
     #
     lastLineNum = ""
     firstLineNum = NR
@@ -93,10 +92,13 @@ function clearEpisodeVariables() {
     episodePath = ""
     episode_URL = ""
     shortEpisodeURL = ""
+    episodeNumber = ""
+    titleEpisodeNumber = ""
+    realEpisodeNumber = ""
 }
 
 /^--BOS--$/ {
-    # Only clearShowVariables at the start, leave them for episodes
+    # Only clearShowVariables at the start of a show, leave the rest for episodes
     clearShowVariables()
     next
 }
@@ -127,7 +129,7 @@ function clearEpisodeVariables() {
 }
 
 /^--BOE--$/ {
-    # Only clearEpisodeVariables at the start, leave them for episodes
+    # Only clearEpisodeVariables at the start of an episode
     clearEpisodeVariables()
     next
 }
@@ -144,11 +146,32 @@ function clearEpisodeVariables() {
     next
 }
 
+# episodeFullTitle: McDonald &amp; Dodds S4 E2
+# episodeFullTitle: Shameless S2 E11
+/^episodeFullTitle: / {
+    episodeFullTitle = $0
+    sub(/^episodeFullTitle: /, "", episodeFullTitle)
+    # print "episodeFullTitle = " episodeFullTitle > "/dev/stderr"
+    if (match(episodeFullTitle, / S[[:digit:]]{1,2} E[[:digit:]]{1,3}$/)) {
+        match(episodeFullTitle, /[[:digit:]]{1,3}$/)
+        realEpisodeNumber = substr(episodeFullTitle, RSTART)
+        # print "==> realEpisodeNumber = " realEpisodeNumber > "/dev/stderr"
+    }
+}
+
 # episodeTitle: Looking Good Dead
+# episodeTitle: Episode 7
+# BBox sometimes has an episodeTitle with the wrong episodeNumber
 /^episodeTitle: / {
     episodeTitle = $0
     sub(/^episodeTitle: /, "", episodeTitle)
-    # print "episodeTitle = " episodeTitle > "/dev/stderr"
+    # print "episodeTitle = \"" episodeTitle "\"" > "/dev/stderr"
+    if (match(episodeTitle, /Episode [[:digit:]]{1,3}$/)) {
+        titleEpisodeNumber = episodeTitle
+        titleEpisodeNumber = substr(titleEpisodeNumber, RSTART + 8)
+        # print "==> titleEpisodeNumber = " titleEpisodeNumber > "/dev/stderr"
+    }
+
     next
 }
 
@@ -339,12 +362,24 @@ function clearEpisodeVariables() {
         }
     }
 
+    if (titleEpisodeNumber != "" && titleEpisodeNumber != realEpisodeNumber) {
+        revisedTitles += 1
+        episodeTitle = "Episode " realEpisodeNumber
+        printf(\
+            "==> Changed Episode %d to Episode %d in %s, %s\n",
+            titleEpisodeNumber,
+            realEpisodeNumber,
+            showTitle,
+            SnEp\
+        ) >> ERRORS
+    }
+
     # Turn episodeTitle into a HYPERLINK
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
-    fullTitle = "=HYPERLINK(\"" episode_URL "\";\"" showTitle ", " SnEp ", "\
+    hyperTitle = "=HYPERLINK(\"" episode_URL "\";\"" showTitle ", " SnEp ", "\
         episodeTitle\
         "\")"
-    # print "fullTitle = " fullTitle > "/dev/stderr"
+    # print "hyperTitle = " hyperTitle > "/dev/stderr"
 
     # Report invalid episodeNumber
     if (episodeNumber + 0 == 0) {
@@ -359,7 +394,7 @@ function clearEpisodeVariables() {
     # Print a spreadsheet line
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
-        fullTitle,
+        hyperTitle,
         numSeasons,
         numEpisodes,
         duration,
