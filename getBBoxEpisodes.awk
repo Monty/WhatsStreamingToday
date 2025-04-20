@@ -54,7 +54,6 @@ function clearShowVariables() {
     show_URL = ""
     showTitle = ""
     title = ""
-    episodeTitle = ""
     yearRange = ""
     # Used in printing credits
     person_role = ""
@@ -87,14 +86,16 @@ function clearEpisodeVariables() {
     releaseYear = ""
     itemType = "episode"
     contentType = "tv_episode"
-    episode_showId = ""
+    episodeFullTitle = ""
     episodeTitle = ""
-    episodePath = ""
+    episode_showId = ""
+    episodeDescription = ""
+    episodeGenre = ""
     episode_URL = ""
-    shortEpisodeURL = ""
     episodeNumber = ""
-    titleEpisodeNumber = ""
-    realEpisodeNumber = ""
+    episodeName = ""
+    episodePath = ""
+    shortEpisodeURL = ""
 }
 
 /^--BOS--$/ {
@@ -152,26 +153,16 @@ function clearEpisodeVariables() {
     episodeFullTitle = $0
     sub(/^episodeFullTitle: /, "", episodeFullTitle)
     # print "episodeFullTitle = " episodeFullTitle > "/dev/stderr"
-    if (match(episodeFullTitle, / S[[:digit:]]{1,2} E[[:digit:]]{1,3}$/)) {
-        match(episodeFullTitle, /[[:digit:]]{1,3}$/)
-        realEpisodeNumber = substr(episodeFullTitle, RSTART)
-        # print "==> realEpisodeNumber = " realEpisodeNumber > "/dev/stderr"
-    }
 }
 
 # episodeTitle: Looking Good Dead
+# episodeTitle: 31. The War Machines: Episode 1
 # episodeTitle: Episode 7
 # BBox sometimes has an episodeTitle with the wrong episodeNumber
 /^episodeTitle: / {
     episodeTitle = $0
     sub(/^episodeTitle: /, "", episodeTitle)
     # print "episodeTitle = \"" episodeTitle "\"" > "/dev/stderr"
-    if (match(episodeTitle, /Episode [[:digit:]]{1,3}$/)) {
-        titleEpisodeNumber = episodeTitle
-        titleEpisodeNumber = substr(titleEpisodeNumber, RSTART + 8)
-        # print "==> titleEpisodeNumber = " titleEpisodeNumber > "/dev/stderr"
-    }
-
     next
 }
 
@@ -286,11 +277,6 @@ function clearEpisodeVariables() {
     episodeNumber = $0
     sub(/^episodeNumber: /, "", episodeNumber)
     # print "episodeNumber = " episodeNumber > "/dev/stderr"
-    # Change "21. Episode 21" to "Episode 21"
-    if (match(episodeTitle, "^" episodeNumber "\\. ")) {
-        episodeTitle = substr(episodeTitle, RLENGTH + 1)
-    }
-
     next
 }
 
@@ -329,8 +315,8 @@ function clearEpisodeVariables() {
     firstYear = yrs[1]
     lastYear = yrs[1]
 
-    # print "releaseYearEnd = " episodeTitle " " releaseYear > "/dev/stderr"
-    # print "allYearsEnd = " episodeTitle " " allYears "\n" > "/dev/stderr"
+    # print "releaseYearEnd = " episodeName " " releaseYear > "/dev/stderr"
+    # print "allYearsEnd = " episodeName " " allYears "\n" > "/dev/stderr"
     if (numYears == 0) {
         print "==> No releaseYear in " show_URL >> ERRORS
         dateType = "releaseYear"
@@ -356,28 +342,16 @@ function clearEpisodeVariables() {
         else {
             # It was a false positive
             print\
-                "==> Multiple identical releaseYears in " episodeTitle >> ERRORS
+                "==> Multiple identical releaseYears in " episodeName >> ERRORS
             dateType = "releaseYear"
             releaseYear = firstYear
         }
     }
 
-    if (titleEpisodeNumber != "" && titleEpisodeNumber != realEpisodeNumber) {
-        revisedTitles += 1
-        episodeTitle = "Episode " realEpisodeNumber
-        printf(\
-            "==> Changed Episode %d to Episode %d in %s, %s\n",
-            titleEpisodeNumber,
-            realEpisodeNumber,
-            showTitle,
-            SnEp\
-        ) >> ERRORS
-    }
-
-    # Turn episodeTitle into a HYPERLINK
+    # Turn episodeName into a HYPERLINK
     # Goal: 15_Days_S01E001_Episode_1_p07l24yd > 15 Days, S01E001, Episode 1
     hyperTitle = "=HYPERLINK(\"" episode_URL "\";\"" showTitle ", " SnEp ", "\
-        episodeTitle\
+        episodeName\
         "\")"
     # print "hyperTitle = " hyperTitle > "/dev/stderr"
 
@@ -386,7 +360,7 @@ function clearEpisodeVariables() {
         printf(\
             "==> Zero episodeNumber in \"%s: %s\" %s\n",
             showTitle,
-            episodeTitle,
+            episodeName,
             shortEpisodeURL\
         ) >> ERRORS
     }
