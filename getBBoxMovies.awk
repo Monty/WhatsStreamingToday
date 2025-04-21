@@ -27,8 +27,8 @@ function clearShowVariables() {
     character_name = ""
     # Used in printing column data
     hyperTitle = ""
-    numberOfSeasons = ""
-    numEpisodes = ""
+    numberOfSeasons = "1"
+    numEpisodes = "1"
     duration = ""
     showGenre = ""
     allYears = ""
