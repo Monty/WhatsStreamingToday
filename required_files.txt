@@ -21,6 +21,7 @@ getBBox-preprocess.awk
 getBBoxMovies.awk
 getBBoxShows.awk
 getBBoxEpisodes.awk
+calculateBBoxEpisodeCount.awk
 calculateBBoxShowDurations.awk
 rg_BBox-movies.rgx
 rg_BBox-shows.rgx
