@@ -11,6 +11,7 @@ getAcornFrom-showPages.awk
 saveTodaysAcornFiles.sh
 formatUnifiedDiffOutput.awk
 rg_problems.rgx
+rg_Acorn_MovieTypes.rgx
 "
 
 BBOX_FILES="
