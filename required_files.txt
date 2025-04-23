@@ -11,6 +11,7 @@ getAcornFrom-showPages.awk
 saveTodaysAcornFiles.sh
 formatUnifiedDiffOutput.awk
 rg_problems.rgx
+rg_Acorn_MovieTypes.rgx
 "
 
 BBOX_FILES="
@@ -20,6 +21,7 @@ getBBox-preprocess.awk
 getBBoxMovies.awk
 getBBoxShows.awk
 getBBoxEpisodes.awk
+calculateBBoxEpisodeCount.awk
 calculateBBoxShowDurations.awk
 rg_BBox-movies.rgx
 rg_BBox-shows.rgx

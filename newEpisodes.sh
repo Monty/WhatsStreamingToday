@@ -49,37 +49,37 @@ OPB_EPISODES_OLD=$(find OPB_TV_ShowsEpisodes-*csv | tail -"$BACK" | head -1)
 printf "\n==> Show new episodes since $MHZ_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
-        <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9][0-9]' |
+        <(cut -f 1 "$MHZ_EPISODES" | rg ', S[0-9]{2}' |
             awk -f printTitles.awk) \
-        <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+        <(cut -f 1 "$MHZ_EPISODES_OLD" | rg ', S[0-9]{2}' |
             awk -f printTitles.awk) | rg -v ', $' |
-        rg -v ' Available '
+        rg -v ' Available |, S[0-9]{2}T[0-9]{2}'
 fi
 
 printf "\n==> Show new episodes since $ACORN_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
-        <(cut -f 1 "$ACORN_EPISODES" | rg ', [SMP][0-9][0-9]' |
+        <(cut -f 1 "$ACORN_EPISODES" | rg ', [SMP][0-9]{2}' |
             awk -f printTitles.awk) \
-        <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', [SMP][0-9][0-9]' |
-            awk -f printTitles.awk) | rg -v 'Coming Soon'
+        <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', [SMP][0-9]{2}' |
+            awk -f printTitles.awk) | rg -v 'Coming Soon|/comingsoon'
 fi
 
 printf "\n==> Show new episodes since $OPB_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
-        <(cut -f 1 "$OPB_EPISODES" | rg ', S[0-9][0-9]' |
+        <(cut -f 1 "$OPB_EPISODES" | rg ', S[0-9]{2}' |
             awk -f printTitles.awk) \
-        <(cut -f 1 "$OPB_EPISODES_OLD" | rg ', S[0-9][0-9]' |
+        <(cut -f 1 "$OPB_EPISODES_OLD" | rg ', S[0-9]{2}' |
             awk -f printTitles.awk)
 fi
 
 printf "\n==> Show new episodes since $BBOX_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
-        <(cut -f 1 "$BBOX_EPISODES" | rg ', S[0-9][0-9]|/movie' |
+        <(cut -f 1 "$BBOX_EPISODES" | rg ', S[0-9]{2}|/movie' |
             awk -f printTitles.awk) \
-        <(cut -f 1 "$BBOX_EPISODES_OLD" | rg ', S[0-9][0-9]|/movie' |
+        <(cut -f 1 "$BBOX_EPISODES_OLD" | rg ', S[0-9]{2}|/movie' |
             awk -f printTitles.awk) |
         rg -v "Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale" |
         rg -v "Good Morning Britain|Landward|Question Time|Casualty" |

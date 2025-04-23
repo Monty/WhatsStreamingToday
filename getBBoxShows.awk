@@ -26,7 +26,7 @@ function clearShowVariables() {
     person_name = ""
     character_name = ""
     # Used in printing column data
-    fullTitle = ""
+    hyperTitle = ""
     numberOfSeasons = ""
     numEpisodes = ""
     duration = ""
@@ -281,13 +281,13 @@ function clearShowVariables() {
     # print "title = " title > "/dev/stderr"
 
     # Turn title into a HYPERLINK
-    fullTitle = "=HYPERLINK(\"" show_URL "\";\"" title "\")"
-    # print "fullTitle = " fullTitle > "/dev/stderr"
+    hyperTitle = "=HYPERLINK(\"" show_URL "\";\"" title "\")"
+    # print "hyperTitle = " hyperTitle > "/dev/stderr"
 
     # Print a spreadsheet line
     printf(\
         "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
-        fullTitle,
+        hyperTitle,
         numberOfSeasons,
         numEpisodes,
         duration,
