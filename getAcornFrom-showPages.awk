@@ -59,7 +59,9 @@ function fixUnicode() {
     gsub(/\\u00eb/, "ë", showDescription)
     gsub(/\\u00ed/, "í", showDescription)
     gsub(/\\u00f6/, "ö", showDescription)
+    gsub(/\\u0101/, "ā", showDescription)
     gsub(/\\u01a0/, "Ơ", showDescription)
+    gsub(/\\u2026/, "…", showDescription)
 }
 
 function fixSeasonNumber() {
