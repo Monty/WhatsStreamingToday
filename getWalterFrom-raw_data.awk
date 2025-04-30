@@ -118,7 +118,6 @@ function removeHeader() {
 /^showTitle: / {
     removeHeader()
     showTitle = $0
-    # gsub(/u0026/, "\\&", showTitle)
 
     # Modify some show names
     if (shortShowURL ~ /before-we-die/) {
@@ -159,9 +158,6 @@ function removeHeader() {
     removeHeader()
     descriptionLinesFound++
     showDescription = $0
-    # gsub(/u0026/, "\\&", showDescription)
-    # gsub(/&#x27;/, "'", showDescription)
-    # gsub(/&quot;/, "\"", showDescription)
     sub(/ with English subtitles/, "", showDescription)
     sub(/ From Walter Presents, in/, " In", showDescription)
     # print "==> showDescription = " showDescription > "/dev/stderr"
@@ -241,7 +237,6 @@ function removeHeader() {
     episodeTitle = $0
     sub(/ \| Superabundant$/, "", episodeTitle)
     # Clean up episodeTitle
-    # gsub(/u0026/, "\\&", episodeTitle)
     gsub(/"/, "\"\"", episodeTitle)
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     next
@@ -267,12 +262,6 @@ function removeHeader() {
 
     episodeDescription = $0
     # Clean up episodeDescription
-    # gsub(/u0026/, "\\&", episodeDescription)
-    # sub(/^> /, "", episodeDescription)
-    # sub(/ $/, "", episodeDescription)
-    # sub(/&amp;/, "\\&", episodeDescription)
-    # gsub(/&#x27;/, "'", episodeDescription)
-    # gsub(/&quot;/, "\"", episodeDescription)
     # print "==> episodeDescription = " episodeDescription > "/dev/stderr"
 
     # Extract episode duration
