@@ -7,9 +7,7 @@ const browse_url = process.env.BROWSE_URL;
   const browser = await chromium.launch({
     headless: true,
   });
-  const context = await browser.newContext({
-    storageState: "auth/cookies.json",
-  });
+  const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto(browse_url);
   const shows = await page.content();
@@ -24,7 +22,6 @@ const browse_url = process.env.BROWSE_URL;
     },
   );
 
-  await context.storageState({ path: "auth/cookies.json" });
   // ---------------------
   await context.close();
   await browser.close();

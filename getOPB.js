@@ -272,9 +272,7 @@ removeFile(output_file);
   const browser = await chromium.launch({
     headless: true,
   });
-  const context = await browser.newContext({
-    storageState: "auth/cookies.json",
-  });
+  const context = await browser.newContext();
   const page = await context.newPage();
   console.log("\n==> Processing", series_URL);
 
