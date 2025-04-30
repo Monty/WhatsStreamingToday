@@ -99,6 +99,7 @@ function fixEpisodeDescription() {
     # Fix sloppy input spacing
     gsub(/ \./, ".", episodeDescription)
     gsub(/  */, " ", episodeDescription)
+    gsub(/\\"/, "\"", episodeDescription)
     sub(/^ */, "", episodeDescription)
     sub(/ *$/, "", episodeDescription)
     # fix funky HTML characters
@@ -255,6 +256,7 @@ function wrapUpEpisode() {
         descriptionLinesFound += 1
         showDescription = $0
         sub(/.*"description": "/, "", showDescription)
+        gsub(/\\"/, "\"", showDescription)
         sub(/",$/, "", showDescription)
         sub(/"$/, "", showDescription)
 

@@ -81,6 +81,7 @@ function clearShowVariables() {
 /^ {2}- heading "/ && phase == "Main" {
     split($0, fld, "\"")
     showTitle = fld[2]
+    gsub(/\\"/, "\"", showTitle)
     print "showTitle: " showTitle
     next
 }
@@ -92,6 +93,7 @@ function clearShowVariables() {
     showDescriptionLinesFound++
     showDescription = $0
     sub(/^  - paragraph: /, "", showDescription)
+    gsub(/\\"/, "\"", showDescription)
     print "showDescription: " showDescription
     next
 }
@@ -110,6 +112,7 @@ function clearShowVariables() {
 /^ {4}- link "/ && phase != "Main" && phase != "About" {
     episodeTitle = substr($0, 13)
     sub(/"$/, "", episodeTitle)
+    gsub(/\\"/, "\"", episodeTitle)
     print "episodeTitle: " episodeTitle
     next
 }
@@ -123,6 +126,7 @@ function clearShowVariables() {
 /^ {2}- paragraph: / && phase != "Main" && phase != "About" {
     episodeDescription = $0
     sub(/^  - paragraph: /, "", episodeDescription)
+    gsub(/\\"/, "\"", episodeDescription)
     print "episodeDescription: " episodeDescription
     print "--EOE--"
     next
