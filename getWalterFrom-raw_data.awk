@@ -262,6 +262,10 @@ function removeHeader() {
 
     episodeDescription = $0
     # Clean up episodeDescription
+    if (match(episodeDescription, /\| /)) {
+        episodeDescription = substr($0, RSTART + 2)
+    }
+
     # print "==> episodeDescription = " episodeDescription > "/dev/stderr"
 
     # Extract episode duration
