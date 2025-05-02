@@ -12,8 +12,8 @@ const output_file = process.env.RAW_HTML;
 const retries_file = process.env.RETRIES_FILE;
 const RED_ERROR = "\x1b[31mError\x1b[0m";
 
-// Access the TIMEOUT environment variable, default to 1500 if not set
-const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 1500;
+// Access the TIMEOUT environment variable, default to 2000 if not set
+const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 2000;
 // console.log(`==> Timeout set to ${timeoutDuration}`);
 
 async function elementExists(page, role, ariaName) {
