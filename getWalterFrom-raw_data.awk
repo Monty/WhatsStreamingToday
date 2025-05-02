@@ -290,18 +290,16 @@ function removeHeader() {
     }
 
     # Figure out any specific episode number
-    if ($0 ~ /Ep[0-9]{1,4} \|/) {
-        split($0, fld, "|")
-        episodeField = fld[1]
-        # print "episodeField = " episodeField > "/dev/stderr"
-        sub(/ $/, "", episodeField)
-        sub(/^.*Ep/, "", episodeField)
-        sub(/ \|.*/, "", episodeField)
+    episodeText = $0
 
-        if (episodeClass != "clip") { episodeNumber = episodeField }
-        else { clipsEpisodeNumber = episodeField }
-
-        # print "episodeNumber = " episodeNumber > "/dev/stderr"
+    if (match(episodeText, /Ep[0-9]{1,4} \|/)) {
+        episodeText = substr($0, RSTART + 2, RLENGTH - 4)
+        # print "episodeText = " episodeText > "/dev/stderr"
+        if (episodeClass != "clip") {
+            episodeNumber = episodeText
+            # print "episodeNumber = " episodeNumber > "/dev/stderr"
+        }
+        else { clipsEpisodeNumber = episodeText }
     }
     else {
         # It's a generic episode
