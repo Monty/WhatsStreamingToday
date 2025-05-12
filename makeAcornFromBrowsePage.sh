@@ -113,7 +113,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
     curl -sS $BROWSE_URL | grep '<a itemprop="url"' |
         sed -e 's+.*http+http+' -e 's+/">$++' |
-        sort -f >"$SHOW_URLS"
+        rg -v mysterymaysampler | sort -f >"$SHOW_URLS"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
