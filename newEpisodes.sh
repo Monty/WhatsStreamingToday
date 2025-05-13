@@ -59,10 +59,10 @@ fi
 printf "\n==> Show new episodes since $ACORN_EPISODES_OLD"
 if waitUntil -Y "?"; then
     zet diff \
-        <(cut -f 1 "$ACORN_EPISODES" | rg ', [SMP][0-9]{2}' |
-            awk -f printTitles.awk) \
-        <(cut -f 1 "$ACORN_EPISODES_OLD" | rg ', [SMP][0-9]{2}' |
-            awk -f printTitles.awk) | rg -v 'Coming Soon|/comingsoon'
+        <(rg -v 'Coming Soon|/comingsoon' "$ACORN_EPISODES" |
+            cut -f 1 | rg ', [SMP][0-9]{2}' | awk -f printTitles.awk) \
+        <(rg -v 'Coming Soon|/comingsoon' "$ACORN_EPISODES_OLD" |
+            rg ', [SMP][0-9]{2}' | awk -f printTitles.awk)
 fi
 
 printf "\n==> Show new episodes since $OPB_EPISODES_OLD"
@@ -83,7 +83,7 @@ if waitUntil -Y "?"; then
             awk -f printTitles.awk) |
         rg -v "Coming Soon|Coronation Street|Doctors|EastEnders|Emmerdale" |
         rg -v "Good Morning Britain|Landward|Question Time|Casualty" |
-        rg -v "QI,|RHS Chelsea Flower Show|The Beechgrove Garden" |
+        rg -v "QI,|RHS Chelsea Flower Show|The Beechgrove Garden|Jonathan Ross" |
         rg -v "Escape to the Country|Gardeners' World|Prime Minister's Questions"
 fi
 
