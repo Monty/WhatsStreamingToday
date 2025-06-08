@@ -63,9 +63,18 @@ OPB_URLS_OLD=$(find OPB-columns/show_urls-*.txt | tail -"$BACK" | head -1)
 printf "\n==> Show new URLs since $MHZ_URLS_OLD"
 if waitUntil -Y "?"; then
     rm -f "$MHZ_URLS"
+    SITEMAP_URL="https://watch.mhzchoice.com/sitemap.xml"
+    printf "==> Downloading new $MHZ_URLS\n"
+    curl -s $SITEMAP_URL |
+        rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
+        sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
+        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' |
+        rg -v '/all-series/videos/|/drama-crime/videos/' |
+        sort -f >"$MHZ_URLS"
     zet diff "$MHZ_URLS" "$MHZ_URLS_OLD" |
         sd "https://watch.mhzchoice.com/" "" |
-        rg -v "^coming-soon/|-available-"
+        rg -v "^coming-soon/|-available-|/videos/pr-" |
+        rg -v "/season:[0-9]{1,2}$"
 fi
 
 printf "\n==> Show new URLs since $ACORN_URLS_OLD"
