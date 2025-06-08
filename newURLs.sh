@@ -67,26 +67,26 @@ OPB_URLS_OLD=$(find OPB-columns/show_urls-*.txt | tail -"$BACK" | head -1)
 printf "\n==> Show new URLs since $MHZ_URLS_OLD"
 if waitUntil -Y "?"; then
     zet diff "$MHZ_URLS" "$MHZ_URLS_OLD" |
-        sd 'https://watch.mhzchoice.com/' '' |
-        rg -v '^coming-soon/|-available-'
+        sd "https://watch.mhzchoice.com/" "" |
+        rg -v "^coming-soon/|-available-"
 fi
 
 printf "\n==> Show new URLs since $ACORN_URLS_OLD"
 if waitUntil -Y "?"; then
     zet diff "$ACORN_URLS" "$ACORN_URLS_OLD" |
-        sd 'https://acorn.tv/' ''
+        sd "https://acorn.tv/" ""
 fi
 
 printf "\n==> Show new URLs since $OPB_URLS_OLD"
 if waitUntil -Y "?"; then
     zet diff "$OPB_URLS" "$OPB_URLS_OLD" |
-        sd 'https://www.pbs.org/' ''
+        sd "https://www.pbs.org/" ""
 fi
 
 printf "\n==> Show new URLs since $BBOX_URLS_OLD"
 if waitUntil -Y "?"; then
     zet diff "$BBOX_URLS" "$BBOX_URLS_OLD" |
-        sd 'https://www.britbox.com/(us|ca)/' '' | rg '^episode/' |
+        sd "https://www.britbox.com/(us|ca)/" "" | rg "^episode/" |
         rg -v "Casualty_|Coming_Soon_|Coronation_Street_|Eastenders_" |
         rg -v "Emmerdale_|Gardeners_World_|Hetty_Wainthropp_|Taggart_"
 fi
