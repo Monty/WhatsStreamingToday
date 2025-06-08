@@ -85,8 +85,14 @@ fi
 printf "\n==> Show new URLs since $BBOX_URLS_OLD"
 if waitUntil -Y "?"; then
     rm -f "$BBOX_URLS"
+    SITEMAP_URL="https://www.britbox.com/dynamic-sitemap.xml"
+    printf "==> Downloading new $BBOX_URLS\n"
+    curl -s $SITEMAP_URL | rg en-us |
+        awk -f getBBoxURLsFromSitemap.awk | sort -fu >"$BBOX_URLS"
     zet diff "$BBOX_URLS" "$BBOX_URLS_OLD" |
-        sd "https://www.britbox.com/(us|ca)/" "" | rg "^episode/" |
+        sd "https://www.britbox.com/(us|ca)/" "" | rg -v "^season/|^show/" |
         rg -v "Casualty_|Coming_Soon_|Coronation_Street_|Eastenders_" |
-        rg -v "Emmerdale_|Gardeners_World_|Hetty_Wainthropp_|Taggart_"
+        rg -v "Emmerdale_|Gardeners_World_|Hetty_Wainthropp_" |
+        rg -v "Prime_Ministers_Questions_|Taggart_" |
+        rg -v "The_Darling_Buds_of_May|The_Inspector_Lynley_Mysteries_"
 fi
