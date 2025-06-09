@@ -66,10 +66,11 @@ if waitUntil -Y "?"; then
         rg -v "/season:[0-9]{1,2}$"
 fi
 
-printf "\n==> Show new URLs since $ACORN_URLS_OLD"
+printf "\n==> Show new URLs since $ACORN_SHOWS_OLD"
 if waitUntil -Y "?"; then
     rm -f "$ACORN_SHOWS" "$ACORN_URLS"
     SITEMAP_URL="https://acorn.tv/browse/all"
+    printf "==> Downloading new $ACORN_SHOWS\n"
     curl -s $SITEMAP_URL | grep '<a itemprop="url"' |
         sed -e 's+.*http+http+' -e 's+/">$++' |
         sort -f >"$ACORN_SHOWS"
