@@ -6,11 +6,6 @@
 # Possible target URL files
 #    Acorn-columns/episode_urls-250603.txt
 #    - Acorn-columns/show_urls-250603.txt
-#    BBox-columns/all_URLs-250603.txt
-#    MHz-columns/MHz_urls-250603.txt
-#    - MHz-columns/episode_urls-250603.txt
-#    - MHz-columns/movie_urls-250603.txt
-#    - MHz-columns/season_urls-250603.txt
 #    OPB-columns/show_urls-250603.txt
 #    - OPB-columns/raw_data-250603.txt
 
@@ -40,23 +35,15 @@ BACK="${BACK:-1}"
 # shellcheck disable=SC1091 # waitUntil.function is a local file
 source waitUntil.function
 
-#    Acorn-columns/episode_urls-250603.txt
 ACORN_URLS=Acorn-columns/new_episode_urls.txt
 ACORN_URLS_OLD=$(find Acorn-columns/episode_urls-*.txt | tail -"$BACK" | head -1)
 #
-#    BBox-columns/all_URLs-250603.txt
 BBOX_URLS=BBox-columns/new_episode_urls.txt
 BBOX_URLS_OLD=$(find BBox-columns/all_URLs-*.txt | tail -"$BACK" | head -1)
 #
-#    MHz-columns/MHz_urls-250603.txt
-#    - MHz-columns/episode_urls-250603.txt
-#    - MHz-columns/movie_urls-250603.txt
-#    - MHz-columns/season_urls-250603.txt
 MHZ_URLS=MHz-columns/new_episode_urls.txt
 MHZ_URLS_OLD=$(find MHz-columns/MHz_urls-*.txt | tail -"$BACK" | head -1)
 #
-#    OPB-columns/show_urls-250603.txt
-#    - OPB-columns/raw_data-250603.txt
 OPB_URLS=OPB-columns/new_episode_urls.txt
 OPB_URLS_OLD=$(find OPB-columns/show_urls-*.txt | tail -"$BACK" | head -1)
 
