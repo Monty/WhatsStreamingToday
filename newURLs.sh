@@ -35,6 +35,8 @@ BACK="${BACK:-1}"
 # shellcheck disable=SC1091 # waitUntil.function is a local file
 source waitUntil.function
 
+ACORN_SHOWS=Acorn-columns/new_show_urls.txt
+ACORN_SHOWS_OLD=$(find Acorn-columns/show_urls-*.txt | tail -"$BACK" | head -1)
 ACORN_URLS=Acorn-columns/new_episode_urls.txt
 ACORN_URLS_OLD=$(find Acorn-columns/episode_urls-*.txt | tail -"$BACK" | head -1)
 #
@@ -66,8 +68,12 @@ fi
 
 printf "\n==> Show new URLs since $ACORN_URLS_OLD"
 if waitUntil -Y "?"; then
-    rm -f "$ACORN_URLS"
-    zet diff "$ACORN_URLS" "$ACORN_URLS_OLD" |
+    rm -f "$ACORN_SHOWS" "$ACORN_URLS"
+    SITEMAP_URL="https://acorn.tv/browse/all"
+    curl -s $SITEMAP_URL | grep '<a itemprop="url"' |
+        sed -e 's+.*http+http+' -e 's+/">$++' |
+        sort -f >"$ACORN_SHOWS"
+    zet diff "$ACORN_SHOWS" "$ACORN_SHOWS_OLD" |
         sd "https://acorn.tv/" ""
 fi
 
