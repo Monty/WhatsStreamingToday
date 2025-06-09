@@ -90,11 +90,12 @@ if waitUntil -Y "?"; then
     SITEMAP_URL="https://www.britbox.com/dynamic-sitemap.xml"
     printf "==> Downloading new $BBOX_URLS\n"
     curl -s $SITEMAP_URL | rg en-us |
-        awk -f getBBoxURLsFromSitemap.awk | sort -fu >"$BBOX_URLS"
+        awk -f getBBoxURLsFromSitemap.awk |
+        sd /ca/ /us/ | sort -fu >"$BBOX_URLS"
     zet diff "$BBOX_URLS" "$BBOX_URLS_OLD" |
-        sd "https://www.britbox.com/(us|ca)/" "" | rg -v "^season/|^show/" |
+        rg -v "/us/season/|/us/show/" |
+        sd "https://www.britbox.com/us/(episode/|movie/)" "" |
         rg -v "Casualty_|Coming_Soon_|Coronation_Street_|Eastenders_" |
-        rg -v "Emmerdale_|Gardeners_World_|Hetty_Wainthropp_" |
-        rg -v "Prime_Ministers_Questions_|Taggart_" |
-        rg -v "The_Darling_Buds_of_May|The_Inspector_Lynley_Mysteries_"
+        rg -v "Emmerdale_|Gardeners_World_|Prime_Ministers_Questions_" |
+        rg -v "The_Inspector_Lynley_Mysteries_" | sort -f
 fi
