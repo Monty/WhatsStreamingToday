@@ -76,6 +76,14 @@ if waitUntil -Y "?"; then
         sort -f >"$ACORN_SHOWS"
     zet diff "$ACORN_SHOWS" "$ACORN_SHOWS_OLD" |
         sd "https://acorn.tv/" ""
+    #
+    printf "==> Downloading new $ACORN_URLS\n"
+    xargs <"$ACORN_SHOWS" curl -sS | prettier --parser html |
+        awk '/^ {18}href="https:\/\/acorn.tv\// {split($0, fld, "\""); \
+        episodeURL = fld[2]; sub(/\/$/, "", episodeURL); print episodeURL}' \
+            >"$ACORN_URLS"
+    zet diff "$ACORN_URLS" "$ACORN_URLS_OLD" |
+        sd "https://acorn.tv/" ""
 fi
 
 printf "\n==> Show new URLs since $OPB_URLS_OLD"
