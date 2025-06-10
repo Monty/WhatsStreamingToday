@@ -122,7 +122,7 @@ fi
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
-xargs <"$SHOW_URLS" curl -sS --config - | prettier --parser html |
+xargs <"$SHOW_URLS" curl -sS | prettier --parser html |
     awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
         -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
         -f getAcornFrom-showPages.awk >"$UNSORTED"
