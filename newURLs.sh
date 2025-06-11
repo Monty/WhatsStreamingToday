@@ -46,7 +46,7 @@ BBOX_URLS_OLD=$(find BBox-columns/all_URLs-*.txt | tail -"$BACK" | head -1)
 MHZ_URLS=MHz-columns/new_episode_urls.txt
 MHZ_URLS_OLD=$(find MHz-columns/MHz_urls-*.txt | tail -"$BACK" | head -1)
 #
-OPB_URLS=OPB-columns/new_episode_urls.txt
+OPB_URLS=OPB-columns/new_show_urls.txt
 OPB_URLS_OLD=$(find OPB-columns/show_urls-*.txt | tail -"$BACK" | head -1)
 
 printf "\n==> Show new URLs since $MHZ_URLS_OLD"
@@ -70,14 +70,10 @@ printf "\n==> Show new URLs since $ACORN_SHOWS_OLD"
 if waitUntil -Y "?"; then
     rm -f "$ACORN_SHOWS" "$ACORN_URLS"
     SITEMAP_URL="https://acorn.tv/browse/all"
-    printf "==> Downloading new $ACORN_SHOWS\n"
+    printf "==> Generating new $ACORN_URLS\n"
     curl -s $SITEMAP_URL | grep '<a itemprop="url"' |
         sed -e 's+.*http+http+' -e 's+/">$++' |
         sort -f >"$ACORN_SHOWS"
-    zet diff "$ACORN_SHOWS" "$ACORN_SHOWS_OLD" |
-        sd "https://acorn.tv/" ""
-    #
-    printf "==> Generating new $ACORN_URLS\n"
     xargs <"$ACORN_SHOWS" curl -sS | prettier --parser html |
         awk '/^ {18}href="https:\/\/acorn.tv\// {split($0, fld, "\""); \
         episodeURL = fld[2]; sub(/\/$/, "", episodeURL); print episodeURL}' \
@@ -89,8 +85,19 @@ fi
 printf "\n==> Show new URLs since $OPB_URLS_OLD"
 if waitUntil -Y "?"; then
     rm -f "$OPB_URLS"
-    zet diff "$OPB_URLS" "$OPB_URLS_OLD" |
-        sd "https://www.pbs.org/" ""
+    TEMPFILE="OPB-columns/tempfile.txt"
+    # getWalter.js reads from BROWSE_URL and writes to RAW_HTML
+    export BROWSE_URL="https://www.pbs.org/franchise/walter-presents/"
+    export RAW_HTML="$OPB_URLS"
+    printf "==> Generating new $OPB_URLS\n"
+    node getWalter.js 1>/dev/null
+    prettier --ignore-path .prettierignore --parser html "$OPB_URLS" \
+        1>/dev/null >"$TEMPFILE"
+    rg -A 7 'href="/show/' "$TEMPFILE" | rg 'href="/show/|alt=' |
+        awk -f getWalter.awk | sort -f --field-separator="$TAB" \
+        --key=2,2 >"$OPB_URLS"
+    zet diff "$OPB_URLS" "$OPB_URLS_OLD" | cut -d / -f 5
+    rm -f "$TEMPFILE"
 fi
 
 printf "\n==> Show new URLs since $BBOX_URLS_OLD"
