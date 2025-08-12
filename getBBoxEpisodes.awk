@@ -39,6 +39,7 @@ function convertDurationToHMS() {
     gsub(/&#237;/, "í")
     gsub(/&#239;/, "ï")
     gsub(/&#243;/, "ó")
+    gsub(/&#244;/, "ô")
     gsub(/&#246;/, "ö")
     gsub(/&#248;/, "ø")
     gsub(/&#250;/, "ú")
