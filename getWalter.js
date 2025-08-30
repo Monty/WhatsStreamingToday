@@ -35,8 +35,10 @@ const BROWSE_URL = process.env.BROWSE_URL;
 
   const tsv = uniqueShows
     .map(({ url, name }) => {
-      // Clean name: replace non-alphanumeric with underscores
-      const cleanName = name.replace(/[^a-zA-Z0-9]/g, "_") + ".csv";
+      // Remove any potentially invalid filename characters
+      const validName = name.replace(/[^a-zA-Z0-9 ]/g, "");
+      // Replace any spaces with underscores
+      const cleanName = validName.replace(/ /g, "_");
       return `${url}\t${name}\t${cleanName}`;
     })
     .join("\n");
