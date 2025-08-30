@@ -33,7 +33,14 @@ const BROWSE_URL = process.env.BROWSE_URL;
     new Map(showData.map((item) => [item.url, item])).values(),
   ).sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
 
-  const tsv = uniqueShows.map(({ url, name }) => `${url}\t${name}`).join("\n");
+  const tsv = uniqueShows
+    .map(({ url, name }) => {
+      // Clean name: replace non-alphanumeric with underscores
+      const cleanName = name.replace(/[^a-zA-Z0-9]/g, "_") + ".csv";
+      return `${url}\t${name}\t${cleanName}`;
+    })
+    .join("\n");
+
   fs.writeFileSync(SHOW_URLS, tsv, "utf8");
 
   console.log(`==> Wrote ${uniqueShows.length} URLs to ` + SHOW_URLS);
