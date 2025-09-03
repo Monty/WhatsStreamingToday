@@ -179,9 +179,9 @@ async function writeOneSeasonsEpisodesData(page, headingTitle, snapshot) {
 
       // Extract currentLink based on the line format
       if (line.startsWith('    - link "')) {
-        currentLink = line.substring(12, line.length - 1);
+        currentLink = line.substring(12, line.length - 2);
       } else {
-        currentLink = line.substring(13, line.length - 2);
+        currentLink = line.substring(13, line.length - 3);
       }
       currentLink = currentLink.replace(/\\"/g, '"');
       currentLink = currentLink.replace(/''/g, "'");
