@@ -132,21 +132,21 @@ if [ ! -e "$SHOW_URLS" ]; then
     curl -s $SITEMAP_URL |
         rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
-        rg -v 'dubbed/|hjerson-english/|-dubbed-collection/' |
-        rg -v '/all-series/videos/|/drama-crime/videos/' |
+        rg -v -- '-dubbed-|-hjerson-english-|/coming-soon' |
         sort -f >"$SHOW_URLS"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
 
 # Separate URLs into episodes, movies, and seasons
-rg 'https://watch.mhzchoice.com/.*/season:[0-9]*/.*$' "$SHOW_URLS" >"$EPISODE_URLS"
-rg 'https://watch.mhzchoice.com.*/season:[0-9]*$' "$SHOW_URLS" >"$SEASON_URLS"
-rg -v /season: "$SHOW_URLS" | rg /videos/ >>"$EPISODE_URLS"
-rg -v /season: "$SHOW_URLS" | rg /videos/ |
+rg 'https://watch.mhzchoice.com/.*-season-[0-9]*/.*$' "$SHOW_URLS" >"$EPISODE_URLS"
+rg 'https://watch.mhzchoice.com.*-season-[0-9]*$' "$SHOW_URLS" >"$SEASON_URLS"
+rg -v -season- "$SHOW_URLS" | rg /videos/ >>"$EPISODE_URLS"
+rg -v -season- "$SHOW_URLS" | rg /videos/ |
     sd "/videos/.*" "" | zet single >"$MOVIE_URLS"
 # shellcheck disable=SC2129
 cat "$MOVIE_URLS" >>"$SEASON_URLS"
+sd -- "-season-" "/season:" "$SEASON_URLS"
 
 # Special processing for Montalbano which has episodes on page 2
 printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>"$SEASON_URLS"
