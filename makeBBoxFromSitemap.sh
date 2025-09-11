@@ -148,7 +148,7 @@ function winnowHTML() {
         # shellcheck disable=SC2016
         curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
-            sd '"offers".*' '' | sd '"subtype":"",' '' |
+            sd '"offers".*' '' | sd '"subtype":"",' '' | sd '\\"' '&#39;' |
             sd '"path":"",' '' | sd '^[[:space:]]+' '' |
             rg -v -f rg_BBox_skip.rgx | sort -ur |
             awk -v FILE="$FILE" -f getBBox-preprocess.awk >>"$2"
