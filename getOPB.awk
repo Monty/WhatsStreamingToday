@@ -110,9 +110,12 @@ function clearShowVariables() {
 #<!-- ... tab data from https://www.pbs.org/show/expedition/ -->
 #    - link "Osceola County"
 /^ {4}- link "/ && phase != "Main" && phase != "About" {
+    # print "link = " $0 > "/dev/stderr"
     episodeTitle = substr($0, 13)
     sub(/"$/, "", episodeTitle)
+    sub(/":$/, "", episodeTitle) # new format after 250901
     gsub(/\\"/, "\"", episodeTitle)
+    # print "episodeTitle = " episodeTitle > "/dev/stderr"
     print "episodeTitle: " episodeTitle
     next
 }
