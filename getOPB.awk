@@ -81,6 +81,7 @@ function clearShowVariables() {
 /^ {2}- heading "/ && phase == "Main" {
     split($0, fld, "\"")
     showTitle = fld[2]
+    gsub(/\\"/, "\"", showTitle)
     print "showTitle: " showTitle
     next
 }
@@ -92,6 +93,7 @@ function clearShowVariables() {
     showDescriptionLinesFound++
     showDescription = $0
     sub(/^  - paragraph: /, "", showDescription)
+    gsub(/\\"/, "\"", showDescription)
     print "showDescription: " showDescription
     next
 }
@@ -108,8 +110,12 @@ function clearShowVariables() {
 #<!-- ... tab data from https://www.pbs.org/show/expedition/ -->
 #    - link "Osceola County"
 /^ {4}- link "/ && phase != "Main" && phase != "About" {
+    # print "link = " $0 > "/dev/stderr"
     episodeTitle = substr($0, 13)
     sub(/"$/, "", episodeTitle)
+    sub(/":$/, "", episodeTitle) # new format after 250901
+    gsub(/\\"/, "\"", episodeTitle)
+    # print "episodeTitle = " episodeTitle > "/dev/stderr"
     print "episodeTitle: " episodeTitle
     next
 }
@@ -123,6 +129,7 @@ function clearShowVariables() {
 /^ {2}- paragraph: / && phase != "Main" && phase != "About" {
     episodeDescription = $0
     sub(/^  - paragraph: /, "", episodeDescription)
+    gsub(/\\"/, "\"", episodeDescription)
     print "episodeDescription: " episodeDescription
     print "--EOE--"
     next
