@@ -18,7 +18,7 @@ const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 2000;
 // console.log(`==> Timeout set to ${timeoutDuration}`);
 
 async function tabExists(page, role, ariaName, timeout = 5000) {
-  const pollInterval = 200;
+  const pollInterval = 500;
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
     try {
@@ -85,7 +85,7 @@ async function handleTab(page, tabName) {
         retries++;
         if (retries < maxRetries) {
           console.log(`    Retrying... Attempt ${retries}/${maxRetries}`);
-          await page.waitForTimeout(500);
+          await page.waitForTimeout(1000);
         } else {
           console.error(
             `==> [${RED_ERROR}] ${numberOfEpisodes} episodes in ${tabName} ` +
@@ -298,7 +298,7 @@ removeFile(output_file);
   console.log("\n==> Processing", series_URL);
 
   try {
-    await page.goto(series_URL, { timeout: 30000 });
+    await page.goto(series_URL, { timeout: 60000 });
     await page.waitForTimeout(10000); // Wait for 10 seconds
 
     // 1) Get the top level page
