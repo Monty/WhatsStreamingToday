@@ -113,7 +113,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
     curl -sS $BROWSE_URL | grep '<a itemprop="url"' |
         sed -e 's+.*http+http+' -e 's+/">$++' |
-        sort -f >"$SHOW_URLS"
+        rg -v criminallycozy | sort -f >"$SHOW_URLS"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
@@ -122,8 +122,7 @@ fi
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
 # loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
-sed -e 's+^+url = "+' -e 's+$+"+' "$SHOW_URLS" | curl -sS --config - |
-    prettier --parser html |
+xargs <"$SHOW_URLS" curl -sS | prettier --parser html |
     awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
         -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
         -f getAcornFrom-showPages.awk >"$UNSORTED"
