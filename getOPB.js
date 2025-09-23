@@ -115,7 +115,7 @@ async function handleTab(page, tabName) {
           const episodeText = numberOfEpisodes !== 1 ? "episodes" : "episode";
           const retriesText = retries !== 1 ? "retries" : "retry";
           console.warn(
-            `==> [Warning] Finding ${numberOfEpisodes} ${episodeText} in ` +
+            `==> [${YELLOW_WARNING}] Finding ${numberOfEpisodes} ${episodeText} in ` +
               `${tabName} tab ${seasonName}took ${retries} ${retriesText} in`,
             series_URL,
           );
@@ -188,7 +188,7 @@ async function handleTab(page, tabName) {
         );
       } else {
         appendToRetriesFile(series_URL);
-        console.error(
+        console.warn(
           `==> [${YELLOW_WARNING}] No "${tabName}" tab in`,
           series_URL,
         );
