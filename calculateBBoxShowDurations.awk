@@ -75,6 +75,7 @@ $9 == "tv_movie" {
     mins = 0
     hrs = 0
     print
+    next
 }
 
 END { printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION }

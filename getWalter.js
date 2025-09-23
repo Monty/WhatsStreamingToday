@@ -1,31 +1,50 @@
 const { chromium } = require("playwright");
 const fs = require("fs");
-const raw_html = process.env.RAW_HTML;
-const browse_url = process.env.BROWSE_URL;
+const SHOW_URLS = process.env.SHOW_URLS;
+const BROWSE_URL = process.env.BROWSE_URL;
 
 (async () => {
   const browser = await chromium.launch({
     headless: true,
   });
-  const context = await browser.newContext({
-    storageState: "auth/cookies.json",
-  });
-  const page = await context.newPage();
-  await page.goto(browse_url);
-  const shows = await page.content();
-  fs.writeFile(
-    raw_html,
-    "<!-- Data from " + browse_url + " -->\n\n" + shows + "\n",
-    (err) => {
-      if (err) {
-        throw err;
-      }
-      console.log("==> Done writing " + raw_html);
-    },
-  );
+  const page = await browser.newPage();
+  await page.goto(BROWSE_URL);
 
-  await context.storageState({ path: "auth/cookies.json" });
-  // ---------------------
-  await context.close();
+  await page.waitForSelector("a.ShowPoster_show_poster__link__gzPSH img[alt]");
+
+  const showData = await page.evaluate(() => {
+    const anchors = Array.from(
+      document.querySelectorAll("a.ShowPoster_show_poster__link__gzPSH"),
+    );
+    return anchors
+      .map((a) => {
+        const img = a.querySelector("img[alt]");
+        const url = a.href.startsWith("http")
+          ? a.href
+          : `https://www.pbs.org${a.getAttribute("href")}`;
+        const name = img ? img.getAttribute("alt").trim() : "";
+        return { url, name };
+      })
+      .filter((item) => item.name && item.url);
+  });
+
+  // Deduplicate and sort by show title
+  const uniqueShows = Array.from(
+    new Map(showData.map((item) => [item.url, item])).values(),
+  ).sort((a, b) => a.name.localeCompare(b.name, "en", { sensitivity: "base" }));
+
+  const tsv = uniqueShows
+    .map(({ url, name }) => {
+      // Remove any potentially invalid filename characters
+      const validName = name.replace(/[^a-zA-Z0-9 ]/g, "");
+      // Replace any spaces with underscores
+      const cleanName = validName.replace(/ /g, "_");
+      return `${url}\t${name}\t${cleanName}`;
+    })
+    .join("\n");
+
+  fs.writeFileSync(SHOW_URLS, tsv, "utf8");
+
+  console.log(`==> Wrote ${uniqueShows.length} URLs to ` + SHOW_URLS);
   await browser.close();
 })();

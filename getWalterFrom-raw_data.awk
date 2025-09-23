@@ -118,7 +118,6 @@ function removeHeader() {
 /^showTitle: / {
     removeHeader()
     showTitle = $0
-    # gsub(/u0026/, "\\&", showTitle)
 
     # Modify some show names
     if (shortShowURL ~ /before-we-die/) {
@@ -159,9 +158,6 @@ function removeHeader() {
     removeHeader()
     descriptionLinesFound++
     showDescription = $0
-    # gsub(/u0026/, "\\&", showDescription)
-    # gsub(/&#x27;/, "'", showDescription)
-    # gsub(/&quot;/, "\"", showDescription)
     sub(/ with English subtitles/, "", showDescription)
     sub(/ From Walter Presents, in/, " In", showDescription)
     # print "==> showDescription = " showDescription > "/dev/stderr"
@@ -241,7 +237,6 @@ function removeHeader() {
     episodeTitle = $0
     sub(/ \| Superabundant$/, "", episodeTitle)
     # Clean up episodeTitle
-    # gsub(/u0026/, "\\&", episodeTitle)
     gsub(/"/, "\"\"", episodeTitle)
     # print "==> episodeTitle = " episodeTitle > "/dev/stderr"
     next
@@ -267,12 +262,14 @@ function removeHeader() {
 
     episodeDescription = $0
     # Clean up episodeDescription
-    # gsub(/u0026/, "\\&", episodeDescription)
-    # sub(/^> /, "", episodeDescription)
-    # sub(/ $/, "", episodeDescription)
-    # sub(/&amp;/, "\\&", episodeDescription)
-    # gsub(/&#x27;/, "'", episodeDescription)
-    # gsub(/&quot;/, "\"", episodeDescription)
+    if (match(episodeDescription, /^".*"$/)) {
+        episodeDescription = substr(episodeDescription, RSTART + 1, RLENGTH - 2)
+    }
+
+    if (match(episodeDescription, /\| /)) {
+        episodeDescription = substr(episodeDescription, RSTART + 2)
+    }
+
     # print "==> episodeDescription = " episodeDescription > "/dev/stderr"
 
     # Extract episode duration
@@ -293,18 +290,16 @@ function removeHeader() {
     }
 
     # Figure out any specific episode number
-    if ($0 ~ /Ep[0-9]{1,4} \|/) {
-        split($0, fld, "|")
-        episodeField = fld[1]
-        # print "episodeField = " episodeField > "/dev/stderr"
-        sub(/ $/, "", episodeField)
-        sub(/^.*Ep/, "", episodeField)
-        sub(/ \|.*/, "", episodeField)
+    episodeText = $0
 
-        if (episodeClass != "clip") { episodeNumber = episodeField }
-        else { clipsEpisodeNumber = episodeField }
-
-        # print "episodeNumber = " episodeNumber > "/dev/stderr"
+    if (match(episodeText, /Ep[0-9]{1,4} \|/)) {
+        episodeText = substr($0, RSTART + 2, RLENGTH - 4)
+        # print "episodeText = " episodeText > "/dev/stderr"
+        if (episodeClass != "clip") {
+            episodeNumber = episodeText
+            # print "episodeNumber = " episodeNumber > "/dev/stderr"
+        }
+        else { clipsEpisodeNumber = episodeText }
     }
     else {
         # It's a generic episode

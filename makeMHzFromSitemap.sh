@@ -46,7 +46,7 @@ while getopts ":dqst" opt; do
 done
 
 # Make sure we can execute curl.
-if [ ! -x "$(which curl 2>/dev/null)" ]; then
+if ! command -v curl >/dev/null; then
     printf "[Error] Can't run curl. Install curl and rerun this script.\n"
     printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1

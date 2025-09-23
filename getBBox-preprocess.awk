@@ -86,6 +86,22 @@ BEGIN {
     print "seasonKey: " seasonKey
 }
 
+# ,"title":"Shameless S11","contextualTitle":"Season 11","
+# ,"title":"Shameless S1 E8","contextualTitle":"Episode 8","
+#
+# Some have a mismatch between title and contextualTitle
+# ,"title":"Shameless S2 E11","contextualTitle":"Episode 10","
+#
+/,"title":"/ && fileType != "movie" {
+    if (match($0, /,"title":"[^"]+","/)) {
+        fullTitle = substr($0, RSTART + 1, RLENGTH - 3)
+        split(fullTitle, fld, "\"")
+        fullTitle = fld[4]
+        # printf("%sFullTitle = %s\n", itemType, fullTitle) > "/dev/stderr"
+        printf("%sFullTitle: %s\n", itemType, fullTitle)
+    }
+}
+
 # ,"contextualTitle":"300 Years of French and Saunders","
 # ,"contextualTitle":"Season 1","
 # ,"contextualTitle":"1. Episode 1","
@@ -95,7 +111,7 @@ BEGIN {
         contextualTitle = substr($0, RSTART + 1, RLENGTH - 3)
         split(contextualTitle, fld, "\"")
         contextualTitle = fld[4]
-        # printf("%sTitle = %s\n", itemType, contextualTitle) > "/dev/stderr"
+        # printf("%sContextualTitle = %s\n", itemType, contextualTitle) > "/dev/stderr"
         printf("%sTitle: %s\n", itemType, contextualTitle)
     }
 }
