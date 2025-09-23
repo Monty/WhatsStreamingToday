@@ -43,7 +43,7 @@ while getopts ":dst" opt; do
 done
 
 # Make sure we can execute curl.
-if [ ! -x "$(which curl 2>/dev/null)" ]; then
+if ! command -v curl >/dev/null; then
     printf "[Error] Can't run curl. Install curl and rerun this script.\n"
     printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
@@ -84,7 +84,7 @@ EXTRA_SPREADSHEET="OPB_TV_ExtraEpisodes$DATE_ID.csv"
 PBS_ONLY="PBS-only.csv"
 
 # Basic URL files - all, episodes only, seasons only
-SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
+export SHOW_URLS="$COLS/show_urls$DATE_ID.txt"
 RETRY_URLS="$COLS/retry_urls$DATE_ID.txt"
 
 # Intermediate working files
@@ -131,17 +131,14 @@ node save_password-02.js
 
 if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
+    # getWalter.js writes to $SHOW_URLS
     node getWalter.js
-    # getWalter.js writes to RAW_HTML
-    prettier --ignore-path .prettierignore --write "$RAW_HTML"
-    rg -A 7 'href="/show/' "$RAW_HTML" | rg 'href="/show/|alt=' |
-        awk -f getWalter.awk | sort >"$SHOW_URLS"
     # Add URLs from PBS-only.csv making sure none are duplicates
     zet union $PBS_ONLY "$SHOW_URLS" >"$TEMPFILE"
     sort -f --field-separator="$TAB" --key=2,2 "$TEMPFILE" \
         >"$SHOW_URLS"
-    printf "==> Done writing $SHOW_URLS\n"
-    rm -f "$RAW_HTML" "$TEMPFILE"
+    printf "==> Added \$PBS_ONLY to $SHOW_URLS\n"
+    rm -f "$TEMPFILE"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi
@@ -149,10 +146,9 @@ fi
 # Loop through $SHOW_URLS to generate $RAW_DATA
 function getRawDataFromURLs() {
     while read -r line; do
-        IFS="$TAB" read -r show_addr show_title saved_file <<<"$line"
+        IFS="$TAB" read -r show_addr show_title <<<"$line"
         # printf "show_addr = '$show_addr'\n" >"/dev/stderr"
         # printf "show_title = '$show_title'\n" >"/dev/stderr"
-        # printf "saved_file = '$saved_file'\n\n" >"/dev/stderr"
         export TARGET="$show_addr"
         export RETRIES_FILE # Shows with errors as of current time
         node getOPB.js >>"$LOGFILE"

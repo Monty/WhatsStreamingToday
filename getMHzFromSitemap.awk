@@ -30,6 +30,7 @@
     gsub(/&amp;/, "\\&", showTitle)
     gsub(/&#x27;/, "'", showTitle)
     gsub(/&#39;/, "'", showTitle)
+    gsub(/\\"/, "\"", showTitle)
     # print "==> showTitle = " showTitle > "/dev/stderr"
     # Defer adding showTitle to RAW_TITLES until we check it's not a category-title
     next
@@ -110,6 +111,7 @@
         gsub(/&rsquo;/, "’")
         gsub(/&ldquo;/, "“")
         gsub(/&rdquo;/, "”")
+        gsub(/\\"/, "\"")
         gsub(/\r/, " ")
         # if it's not the last line of the description, add it
         if ($0 !~ /"\>/) {
@@ -511,6 +513,7 @@
         gsub(/&amp;/, "\\&", episodeDescription)
         gsub(/&#x27;/, "'", episodeDescription)
         gsub(/&#39;/, "'", episodeDescription)
+        gsub(/\\"/, "\"", episodeDescription)
         next
     }
 

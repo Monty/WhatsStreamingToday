@@ -43,7 +43,7 @@ while getopts ":dst" opt; do
 done
 
 # Make sure we can execute curl.
-if [ ! -x "$(which curl 2>/dev/null)" ]; then
+if ! command -v curl >/dev/null; then
     printf "[Error] Can't run curl. Install curl and rerun this script.\n"
     printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
@@ -225,7 +225,11 @@ rg -I '=HYPERLINK' $ALL_CSVS |
 cut -f $spreadsheet_columns "$TEMP_SPREADSHEET" >"$LONG_SPREADSHEET"
 # Make SHORT_SPREADSHEET by adding up durations from LONG_SPREADSHEET
 tail -r "$LONG_SPREADSHEET" | awk -v ERRORS="$ERRORS" -v DURATION="$DURATION" \
-    -f calculateBBoxShowDurations.awk | tail -r >>"$SHORT_SPREADSHEET"
+    -f calculateBBoxShowDurations.awk | tail -r >"$SHORT_SPREADSHEET"
+# Add number of episodes to LONG_SPREADSHEET
+mv "$LONG_SPREADSHEET" "$TEMP_SPREADSHEET"
+tail -r "$TEMP_SPREADSHEET" | awk -v ERRORS="$ERRORS" \
+    -f calculateBBoxEpisodeCount.awk | tail -r >"$LONG_SPREADSHEET"
 
 # Generate credits spreadsheets
 sort -fu "$RAW_CREDITS" | sort -fb >>"$CREDITS"
