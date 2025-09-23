@@ -6,16 +6,31 @@
 
 const { chromium } = require("playwright");
 const fs = require("fs");
+const noEpisodesRgxFile = "rg_OPB_no-episodes.rgx";
 
 const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
 const retries_file = process.env.RETRIES_FILE;
 const RED_ERROR = "\x1b[31mError\x1b[0m";
 const YELLOW_WARNING = "\x1b[33mWarning\x1b[0m";
+const BLUE_INFO = "\x1b[34mInfo\x1b[0m";
 
 // Access the TIMEOUT environment variable, default to 2000 if not set
 const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 2000;
 // console.log(`==> Timeout set to ${timeoutDuration}`);
+
+// Load the list of series URLs without episodes once, at startup
+let noEpisodesSeriesArr = [];
+try {
+  // Each line in rg_OPB_no-episodes.rgx should be a URL (trim for safety)
+  noEpisodesSeriesArr = fs
+    .readFileSync(noEpisodesRgxFile, "utf8")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+} catch {
+  console.warn(`==> [${YELLOW_WARNING}] Could not open rg_OPB_no-episodes.rgx`);
+}
 
 async function tabExists(page, role, ariaName, timeout = 5000) {
   const pollInterval = 500;
@@ -166,10 +181,18 @@ async function handleTab(page, tabName) {
     }
   } else {
     if (tabName === "Episodes") {
-      console.error(
-        `==> [${YELLOW_WARNING}] No "${tabName}" tab in`,
-        series_URL,
-      );
+      if (noEpisodesSeriesArr.includes(series_URL)) {
+        console.log(`==> [Info] ${series_URL} is in no-episodes list.`);
+        console.warn(
+          `==> [${BLUE_INFO}] ${series_URL} is in no-episodes list.`,
+        );
+      } else {
+        appendToRetriesFile(series_URL);
+        console.error(
+          `==> [${YELLOW_WARNING}] No "${tabName}" tab in`,
+          series_URL,
+        );
+      }
     }
   }
 }
