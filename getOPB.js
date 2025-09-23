@@ -6,19 +6,47 @@
 
 const { chromium } = require("playwright");
 const fs = require("fs");
+const noEpisodesRgxFile = "rg_OPB_no-episodes.rgx";
 
 const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
 const retries_file = process.env.RETRIES_FILE;
 const RED_ERROR = "\x1b[31mError\x1b[0m";
+const YELLOW_WARNING = "\x1b[33mWarning\x1b[0m";
+const BLUE_INFO = "\x1b[34mInfo\x1b[0m";
 
-// Access the TIMEOUT environment variable, default to 1500 if not set
-const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 1500;
+// Access the TIMEOUT environment variable, default to 2000 if not set
+const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 2000;
 // console.log(`==> Timeout set to ${timeoutDuration}`);
 
-async function elementExists(page, role, ariaName) {
-  const elementCount = await page.getByRole(role, { name: ariaName }).count();
-  return elementCount > 0;
+// Load the list of series URLs without episodes once, at startup
+let noEpisodesSeriesArr = [];
+try {
+  // Each line in rg_OPB_no-episodes.rgx should be a URL (trim for safety)
+  noEpisodesSeriesArr = fs
+    .readFileSync(noEpisodesRgxFile, "utf8")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+} catch {
+  console.warn(`==> [${YELLOW_WARNING}] Could not open rg_OPB_no-episodes.rgx`);
+}
+
+async function tabExists(page, role, ariaName, timeout = 5000) {
+  const pollInterval = 500;
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    try {
+      const tabHandle = page.getByRole(role, { name: ariaName });
+      if (await tabHandle.isVisible()) {
+        return true;
+      }
+    } catch {
+      // If not found, retry
+    }
+    await page.waitForTimeout(pollInterval);
+  }
+  return false;
 }
 
 function appendToFile(headingTitle, showURL, filePath, sectionHeading) {
@@ -72,7 +100,7 @@ async function handleTab(page, tabName) {
         retries++;
         if (retries < maxRetries) {
           console.log(`    Retrying... Attempt ${retries}/${maxRetries}`);
-          await page.waitForTimeout(500);
+          await page.waitForTimeout(1000);
         } else {
           console.error(
             `==> [${RED_ERROR}] ${numberOfEpisodes} episodes in ${tabName} ` +
@@ -87,7 +115,7 @@ async function handleTab(page, tabName) {
           const episodeText = numberOfEpisodes !== 1 ? "episodes" : "episode";
           const retriesText = retries !== 1 ? "retries" : "retry";
           console.warn(
-            `==> [Warning] Finding ${numberOfEpisodes} ${episodeText} in ` +
+            `==> [${YELLOW_WARNING}] Finding ${numberOfEpisodes} ${episodeText} in ` +
               `${tabName} tab ${seasonName}took ${retries} ${retriesText} in`,
             series_URL,
           );
@@ -98,7 +126,7 @@ async function handleTab(page, tabName) {
     return seasonContent;
   }
 
-  if (await elementExists(page, "tab", tabName)) {
+  if (await tabExists(page, "tab", tabName)) {
     await page.getByRole("tab", { name: tabName }).click();
 
     // Is there a combobox in this tab?
@@ -112,6 +140,7 @@ async function handleTab(page, tabName) {
         })),
       );
       const numberOfSeasons = options.length;
+      // console.log("==> numberOfSeasons:", numberOfSeasons);
 
       for (const option of options) {
         // Select the option
@@ -150,6 +179,21 @@ async function handleTab(page, tabName) {
       const currentSeason = await fetchOneSeasonWithRetries(tabName);
       await writeOneSeasonsEpisodesData(page, `${tabName} tab`, currentSeason);
     }
+  } else {
+    if (tabName === "Episodes") {
+      if (noEpisodesSeriesArr.includes(series_URL)) {
+        console.log(`==> [Info] ${series_URL} is in no-episodes list.`);
+        console.warn(
+          `==> [${BLUE_INFO}] ${series_URL} is in no-episodes list.`,
+        );
+      } else {
+        appendToRetriesFile(series_URL);
+        console.warn(
+          `==> [${YELLOW_WARNING}] No "${tabName}" tab in`,
+          series_URL,
+        );
+      }
+    }
   }
 }
 
@@ -179,9 +223,9 @@ async function writeOneSeasonsEpisodesData(page, headingTitle, snapshot) {
 
       // Extract currentLink based on the line format
       if (line.startsWith('    - link "')) {
-        currentLink = line.substring(12, line.length - 1);
+        currentLink = line.substring(12, line.length - 2);
       } else {
-        currentLink = line.substring(13, line.length - 2);
+        currentLink = line.substring(13, line.length - 3);
       }
       currentLink = currentLink.replace(/\\"/g, '"');
       currentLink = currentLink.replace(/''/g, "'");
@@ -272,14 +316,12 @@ removeFile(output_file);
   const browser = await chromium.launch({
     headless: true,
   });
-  const context = await browser.newContext({
-    storageState: "auth/cookies.json",
-  });
+  const context = await browser.newContext();
   const page = await context.newPage();
   console.log("\n==> Processing", series_URL);
 
   try {
-    await page.goto(series_URL, { timeout: 30000 });
+    await page.goto(series_URL, { timeout: 60000 });
     await page.waitForTimeout(10000); // Wait for 10 seconds
 
     // 1) Get the top level page
@@ -287,7 +329,7 @@ removeFile(output_file);
     writeEssentialData("Main page", mainPage, "  - tablist:", 0);
 
     // 2) Get the Genre from the About tab, which should always exist
-    if (await elementExists(page, "tab", "About")) {
+    if (await tabExists(page, "tab", "About")) {
       await page.getByRole("tab", { name: "About" }).click();
       const aboutTab = await page
         .getByRole("tabpanel", { name: "About" })
@@ -311,6 +353,8 @@ removeFile(output_file);
   } catch (error) {
     if (error.name === "TimeoutError") {
       console.error(`==> [${RED_ERROR}] Page load timed out for`, series_URL);
+      // Add the series_URL to the list of URLs to be retried
+      appendToRetriesFile(series_URL);
     } else {
       console.error(`==> ${RED_ERROR} during page navigation:`, error.message);
     }
