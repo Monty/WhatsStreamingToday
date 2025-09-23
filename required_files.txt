@@ -46,7 +46,6 @@ rg_problems.rgx
 
 OPB_FILES="
 makeOPB.sh
-getWalter.awk
 getOPB.awk
 getWalterFrom-raw_data.awk
 PBS-only.csv

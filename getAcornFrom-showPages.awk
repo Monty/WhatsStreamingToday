@@ -51,6 +51,7 @@ function clearEpisodeVariables() {
 function fixUnicode() {
     gsub(/\\u00a0/, " ", showDescription)
     gsub(/\\u00ae/, "®", showDescription)
+    gsub(/\\u00d3/, "Ó", showDescription)
     gsub(/\\u00e1/, "á", showDescription)
     gsub(/\\u00e4/, "ä", showDescription)
     gsub(/\\u00e7/, "ç", showDescription)
@@ -59,7 +60,10 @@ function fixUnicode() {
     gsub(/\\u00eb/, "ë", showDescription)
     gsub(/\\u00ed/, "í", showDescription)
     gsub(/\\u00f6/, "ö", showDescription)
+    gsub(/\\u00fa/, "ú", showDescription)
+    gsub(/\\u0101/, "ā", showDescription)
     gsub(/\\u01a0/, "Ơ", showDescription)
+    gsub(/\\u2026/, "…", showDescription)
 }
 
 function fixSeasonNumber() {
@@ -97,6 +101,7 @@ function fixEpisodeDescription() {
     # Fix sloppy input spacing
     gsub(/ \./, ".", episodeDescription)
     gsub(/  */, " ", episodeDescription)
+    gsub(/\\"/, "\"", episodeDescription)
     sub(/^ */, "", episodeDescription)
     sub(/ *$/, "", episodeDescription)
     # fix funky HTML characters
@@ -253,6 +258,7 @@ function wrapUpEpisode() {
         descriptionLinesFound += 1
         showDescription = $0
         sub(/.*"description": "/, "", showDescription)
+        gsub(/\\"/, "\"", showDescription)
         sub(/",$/, "", showDescription)
         sub(/"$/, "", showDescription)
 
