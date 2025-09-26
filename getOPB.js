@@ -15,9 +15,17 @@ const RED_ERROR = "\x1b[31mError\x1b[0m";
 const YELLOW_WARNING = "\x1b[33mWarning\x1b[0m";
 const BLUE_INFO = "\x1b[34mInfo\x1b[0m";
 
-// Access the TIMEOUT environment variable, default to 2000 if not set
-const timeoutDuration = parseInt(process.env.TIMEOUT, 10) || 2000;
-// console.log(`==> Timeout set to ${timeoutDuration}`);
+// Consolidate various waits and timeouts in one place
+const defaultSnapshotWait = 2000;
+const waitBeforeEpisodeSnapshot =
+  parseInt(process.env.TIMEOUT, 10) || defaultSnapshotWait;
+// console.log(`==> Snapshot wait set to ${waitBeforeEpisodeSnapshot}`);
+const timeoutForTabExists = 5000;
+const pollInterval = 500;
+const maxEpisodeRetries = 5; // Maximum number of retries to get episode data
+const waitBetweenRetries = 1000;
+const timeoutForPageLoad = 60000;
+const waitAfterPageLoad = 10000;
 
 // Load the list of series URLs without episodes once, at startup
 let noEpisodesSeriesArr = [];
@@ -32,8 +40,7 @@ try {
   console.warn(`==> [${YELLOW_WARNING}] Could not open rg_OPB_no-episodes.rgx`);
 }
 
-async function tabExists(page, role, ariaName, timeout = 5000) {
-  const pollInterval = 500;
+async function tabExists(page, role, ariaName, timeout = timeoutForTabExists) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
     try {
@@ -87,10 +94,9 @@ async function handleTab(page, tabName) {
     // console.log(`tabName = ${tabName}`);
     // console.log(`seasonName = ${seasonName}`);
 
-    const maxRetries = 5; // Maximum number of retries to get episode data
     let seasonContent;
     let retries = 0;
-    while (retries < maxRetries) {
+    while (retries < maxEpisodeRetries) {
       seasonContent = await page
         .getByRole("tabpanel", { name: tabName })
         .ariaSnapshot();
@@ -98,13 +104,15 @@ async function handleTab(page, tabName) {
       // console.log(`    numberOfEpisodes =  ${numberOfEpisodes}`);
       if (numberOfEpisodes === 0) {
         retries++;
-        if (retries < maxRetries) {
-          console.log(`    Retrying... Attempt ${retries}/${maxRetries}`);
-          await page.waitForTimeout(1000);
+        if (retries < maxEpisodeRetries) {
+          console.log(
+            `    Retrying... Attempt ${retries}/${maxEpisodeRetries}`,
+          );
+          await page.waitForTimeout(waitBetweenRetries);
         } else {
           console.error(
             `==> [${RED_ERROR}] ${numberOfEpisodes} episodes in ${tabName} ` +
-              `tab ${seasonName} after ${maxRetries} retries in`,
+              `tab ${seasonName} after ${maxEpisodeRetries} retries in`,
             series_URL,
           );
           // Add the series_URL to the list of URLs to be retried
@@ -162,7 +170,7 @@ async function handleTab(page, tabName) {
         // console.log(`Option ${option.label} was selected.`);
 
         // A specific waitForSelector would be better
-        await page.waitForTimeout(timeoutDuration);
+        await page.waitForTimeout(waitBeforeEpisodeSnapshot);
 
         // There is a combobox
         const currentSeason = await fetchOneSeasonWithRetries(tabName, {
@@ -321,8 +329,8 @@ removeFile(output_file);
   console.log("\n==> Processing", series_URL);
 
   try {
-    await page.goto(series_URL, { timeout: 60000 });
-    await page.waitForTimeout(10000); // Wait for 10 seconds
+    await page.goto(series_URL, { timeout: timeoutForPageLoad });
+    await page.waitForTimeout(waitAfterPageLoad);
 
     // 1) Get the top level page
     const mainPage = await page.locator("#maincontent").ariaSnapshot();
