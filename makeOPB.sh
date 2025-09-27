@@ -108,6 +108,13 @@ PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
 
+# Variables used in retry section
+MAX_RETRIES=5
+RETRY_MULTIPLIER=3
+RED="\e[0;31m"
+BLUE="\e[0;34;1m"
+NO_COLOR="\e[0m"
+
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $UNSORTED_EXTRA "
 ALL_WORKING+="$RAW_DATA $RAW_HTML $RAW_TITLES $DURATION $LOGFILE $TEMPFILE"
@@ -188,10 +195,15 @@ getRawDataFromURLs "$SHOW_URLS" "$RAW_DATA"
 CURRENT_RAW_DATA="$RAW_DATA"
 
 # Get RAW_DATA from all shows in RETRY_URLS if needed
-# Try up to 3 times
-for retries in {0..2}; do
+# Try up to MAX_RETRIES times
+for retries in $(seq 1 "$MAX_RETRIES"); do
     if [ -e "$RETRIES_FILE" ]; then
-        printf "\n==> Retrying shows in $RETRIES_FILE\n"
+        printf "\n==> Retry #$retries using $RETRIES_FILE\n"
+        printf "\n==> Retry #$retries using $RETRIES_FILE\n" >>"$LOGFILE"
+        printf "==> [${BLUE}Info${NO_COLOR}]"
+        printf " Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
+        duration=$((retries * RETRY_MULTIPLIER * 60))
+        sleep "$duration"
         sort -u "$RETRIES_FILE" >"$RETRY_URLS"
         printf "==> Purging shows to retry from $CURRENT_RAW_DATA\n"
         purgeRawDataBeforeRetry "$CURRENT_RAW_DATA"
@@ -208,11 +220,12 @@ for retries in {0..2}; do
         [ "$retries" -eq 0 ] && break # No retries needed
         tries="try"
         [ "$retries" -ne 1 ] && tries="tries"
-        printf "==> Succeeded retrying shows in $retries $tries.\n"
+        printf "==> Succeeded scraping shows in $retries tries.\n"
         break
     fi
-    [ "$retries" -eq 2 ] &&
-        printf "==> [Error] Failed retrying shows in 3 tries.\n"
+    [ "$retries" -eq $MAX_RETRIES ] &&
+        printf "==> [${RED}Error${NO_COLOR}]" \
+            " Failed scraping shows in $MAX_RETRIES retries.\n"
 done
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
