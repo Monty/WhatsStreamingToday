@@ -22,13 +22,20 @@ export LC_COLLATE="C"
 export DATE_ID="-$(date +%y%m%d)"
 export LONGDATE="-$(date +%y%m%d.%H%M%S)"
 
+# Variables used in retry section
+MAX_RETRIES=5
+RETRY_MULTIPLIER=3
+
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":dst" opt; do
+while getopts ":dm:st" opt; do
     case $opt in
     d)
         DEBUG="yes"
+        ;;
+    m)
+        MAX_RETRIES="$OPTARG"
         ;;
     s)
         SUMMARY="yes"
@@ -38,6 +45,11 @@ while getopts ":dst" opt; do
         ;;
     \?)
         printf "Ignoring invalid option: -$OPTARG\n" >&2
+        ;;
+    :)
+        printf "Option -$OPTARG requires a numeric argument specifying " >&2
+        printf "the maximum number of times to retry scraping.\n" >&2
+        exit 1
         ;;
     esac
 done
@@ -70,6 +82,11 @@ mkdir -p $COLS $BASELINE
 # In the default case -- input, output, and baseline files have no date information.
 #   but intermediate files have today's date $DATE_ID inserted before the file extension.
 # Error and debugging files always have a LONGDATE of the execution time inserted.
+
+# Colors used in printing messages
+RED="\e[0;31m"
+BLUE="\e[0;34;1m"
+NO_COLOR="\e[0m"
 
 # Error and debugging info (per run)
 POSSIBLE_DIFFS="OPB_diffs$LONGDATE.txt"
@@ -107,13 +124,6 @@ PUBLISHED_EXTRA_SPREADSHEET="$BASELINE/extra.txt"
 PUBLISHED_SHOW_URLS="$BASELINE/show_urls.txt"
 PUBLISHED_UNIQUE_TITLES="$BASELINE/uniqTitles.txt"
 PUBLISHED_DURATION="$BASELINE/total_duration.txt"
-
-# Variables used in retry section
-MAX_RETRIES=5
-RETRY_MULTIPLIER=3
-RED="\e[0;31m"
-BLUE="\e[0;34;1m"
-NO_COLOR="\e[0m"
 
 # Filename groups used for cleanup
 ALL_WORKING="$UNSORTED_SHORT $UNSORTED_LONG $UNSORTED_EXTRA "
@@ -220,12 +230,11 @@ for retries in $(seq 1 "$MAX_RETRIES"); do
         [ "$retries" -eq 0 ] && break # No retries needed
         tries="try"
         [ "$retries" -ne 1 ] && tries="tries"
-        printf "==> Succeeded scraping shows in $retries tries.\n"
+        printf "==> Succeeded scraping shows in $retries $tries.\n"
         break
     fi
-    [ "$retries" -eq $MAX_RETRIES ] &&
-        printf "==> [${RED}Error${NO_COLOR}]" \
-            " Failed scraping shows in $MAX_RETRIES retries.\n"
+    [ "$retries" -ge $MAX_RETRIES ] &&
+        printf "==> [${RED}Error${NO_COLOR}] Failed scraping shows in $MAX_RETRIES $tries.\n"
 done
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
