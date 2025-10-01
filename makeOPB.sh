@@ -27,15 +27,20 @@ MAX_RETRIES=5
 RETRY_MULTIPLIER=3
 
 # Use "-d" switch to output a "diffs" file useful for debugging
+# Use "-m" switch to change the maximum number of retries
+# Use "-r" switch to change the retry multiplier
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
-while getopts ":dm:st" opt; do
+while getopts ":dm:r:st" opt; do
     case $opt in
     d)
         DEBUG="yes"
         ;;
     m)
         MAX_RETRIES="$OPTARG"
+        ;;
+    r)
+        RETRY_MULTIPLIER="$OPTARG"
         ;;
     s)
         SUMMARY="yes"
@@ -53,6 +58,17 @@ while getopts ":dm:st" opt; do
         ;;
     esac
 done
+
+# Colors used in printing messages
+RED="\e[0;31m"
+BLUE="\e[0;34;1m"
+NO_COLOR="\e[0m"
+
+# Let us know MAX_RETRIES and RETRY_MULTIPLIER
+printf "==> [${BLUE}Info${NO_COLOR}]"
+printf " MAX_RETRIES is $MAX_RETRIES\n"
+printf "==> [${BLUE}Info${NO_COLOR}]"
+printf " RETRY_MULTIPLIER is $RETRY_MULTIPLIER\n"
 
 # Make sure we can execute curl.
 if ! command -v curl >/dev/null; then
@@ -82,11 +98,6 @@ mkdir -p $COLS $BASELINE
 # In the default case -- input, output, and baseline files have no date information.
 #   but intermediate files have today's date $DATE_ID inserted before the file extension.
 # Error and debugging files always have a LONGDATE of the execution time inserted.
-
-# Colors used in printing messages
-RED="\e[0;31m"
-BLUE="\e[0;34;1m"
-NO_COLOR="\e[0m"
 
 # Error and debugging info (per run)
 POSSIBLE_DIFFS="OPB_diffs$LONGDATE.txt"
@@ -199,6 +210,20 @@ function purgeRawDataBeforeRetry() {
     done <"$RETRY_URLS"
 }
 
+function printStatus() {
+    status="$1"
+    attempts="$2"
+    retries="retry"
+    [ "$attempts" -ne 1 ] && retries="retries"
+    if [ "$status" = "succeeded" ]; then
+        printf "==> [${BLUE}Info${NO_COLOR}]"
+        printf " Succeeded scraping shows in $attempts $retries.\n"
+    else
+        printf "==> [${RED}Error${NO_COLOR}]"
+        printf " Failed scraping shows in $attempts $retries.\n"
+    fi
+}
+
 # Get RAW_DATA from all shows in SHOW_URLS
 RETRIES_FILE="$COLS/retry_urls$LONGDATE.txt"
 getRawDataFromURLs "$SHOW_URLS" "$RAW_DATA"
@@ -206,36 +231,43 @@ CURRENT_RAW_DATA="$RAW_DATA"
 
 # Get RAW_DATA from all shows in RETRY_URLS if needed
 # Try up to MAX_RETRIES times
-for retries in $(seq 1 "$MAX_RETRIES"); do
+if [ "$MAX_RETRIES" -eq 0 ]; then
     if [ -e "$RETRIES_FILE" ]; then
-        printf "\n==> Retry #$retries using $RETRIES_FILE\n"
-        printf "\n==> Retry #$retries using $RETRIES_FILE\n" >>"$LOGFILE"
-        printf "==> [${BLUE}Info${NO_COLOR}]"
-        printf " Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
-        duration=$((retries * RETRY_MULTIPLIER * 60))
-        sleep "$duration"
-        sort -u "$RETRIES_FILE" >"$RETRY_URLS"
-        printf "==> Purging shows to retry from $CURRENT_RAW_DATA\n"
-        purgeRawDataBeforeRetry "$CURRENT_RAW_DATA"
-        # Don't overwrite an existing RETRIES_FILE
-        TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
-        RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
-        CURRENT_RAW_DATA="$COLS/raw_data$TIMESTAMP.txt"
-        getRawDataFromURLs "$RETRY_URLS" "$CURRENT_RAW_DATA"
-        if [ "$CURRENT_RAW_DATA" != "$RAW_DATA" ]; then
-            printf "\n==> Appending $CURRENT_RAW_DATA to $RAW_DATA\n"
-            cat "$CURRENT_RAW_DATA" >>"$RAW_DATA"
-        fi
+        printStatus "failed" "$MAX_RETRIES"
     else
-        [ "$retries" -eq 0 ] && break # No retries needed
-        tries="try"
-        [ "$retries" -ne 1 ] && tries="tries"
-        printf "==> Succeeded scraping shows in $retries $tries.\n"
-        break
+        printStatus "succeeded" "$MAX_RETRIES"
     fi
-    [ "$retries" -ge $MAX_RETRIES ] &&
-        printf "==> [${RED}Error${NO_COLOR}] Failed scraping shows in $MAX_RETRIES $tries.\n"
-done
+else
+    for retries in $(seq 1 "$MAX_RETRIES"); do
+        if [ -e "$RETRIES_FILE" ]; then
+            printf "\n==> Retry #$retries using $RETRIES_FILE\n"
+            printf "\n==> Retry #$retries using $RETRIES_FILE\n" >>"$LOGFILE"
+            printf "==> [${BLUE}Info${NO_COLOR}]"
+            printf " Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
+            duration=$((retries * RETRY_MULTIPLIER * 60))
+            sleep "$duration"
+            sort -u "$RETRIES_FILE" >"$RETRY_URLS"
+            printf "==> Purging shows to retry from $CURRENT_RAW_DATA\n"
+            purgeRawDataBeforeRetry "$CURRENT_RAW_DATA"
+            # Don't overwrite an existing RETRIES_FILE
+            TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
+            RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
+            CURRENT_RAW_DATA="$COLS/raw_data$TIMESTAMP.txt"
+            getRawDataFromURLs "$RETRY_URLS" "$CURRENT_RAW_DATA"
+            if [ "$CURRENT_RAW_DATA" != "$RAW_DATA" ]; then
+                printf "\n==> Appending $CURRENT_RAW_DATA to $RAW_DATA\n"
+                cat "$CURRENT_RAW_DATA" >>"$RAW_DATA"
+            fi
+            if [ "$retries" -ge "$MAX_RETRIES" ]; then
+                printStatus "failed" "$retries"
+            fi
+        else
+            [ "$retries" -eq 0 ] && break # No retries needed
+            printStatus "succeeded" "$retries"
+            break
+        fi
+    done
+fi
 
 # loop through the RAW_DATA generate a full but unsorted spreadsheet
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" \
@@ -261,10 +293,14 @@ sort -fu --key=4 --field-separator=\" "$UNSORTED_SHORT" |
     rg -v '\t0\t00h 00m' >>"$SHORT_SPREADSHEET"
 
 # Output $LONG_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" "$UNSORTED_LONG" >>"$LONG_SPREADSHEET"
+if [ -e "$UNSORTED_LONG" ]; then
+    sort -fu --key=4 --field-separator=\" "$UNSORTED_LONG" >>"$LONG_SPREADSHEET"
+fi
 
 # Output $EXTRA_SPREADSHEET body sorted by title, not URL
-sort -fu --key=4 --field-separator=\" "$UNSORTED_EXTRA" >>"$EXTRA_SPREADSHEET"
+if [ -e "$UNSORTED_EXTRA" ]; then
+    sort -fu --key=4 --field-separator=\" "$UNSORTED_EXTRA" >>"$EXTRA_SPREADSHEET"
+fi
 
 # Kludge to switch "S9999" "More Clips & Previews" season number to "SMore"
 sd S9999 SMore "$EXTRA_SPREADSHEET"
