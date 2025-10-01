@@ -5,7 +5,7 @@
 #   Bannan, S08E01, Episode 01
 #   Bannan, S08E02, Episode 02
 # becomes
-#   Bannan, S08E01, Episode 01-02
+#   Bannan, S08E01-02, Episode 01-02
 
 import re
 from pathlib import Path
@@ -14,45 +14,66 @@ from pathlib import Path
 def compress_file(input_path, output_path):
     lines = Path(input_path).read_text().splitlines()
 
-    # Matches any text ending with "Episode N" or "Part N"
-    pattern = re.compile(r"^(.*\b(?:Episode|Part))\s+(\d+)\s*$", re.IGNORECASE)
+    # Match "Episode N" or "Part N" at the end of the last comma-separated field
+    trailing_pattern = re.compile(r"^(.*\b(?:Episode|Part))\s+(\d+)\s*$", re.IGNORECASE)
+    # Match the SxxEyyy code in the middle field
+    code_pattern = re.compile(r"^(S\d+E)(\d+)$", re.IGNORECASE)
 
     out_lines = []
     i = 0
 
     while i < len(lines):
         line = lines[i]
-        if "," in line:
-            left, right = line.rsplit(",", 1)
-            right = right.strip()
-            m = pattern.match(right)
-            if m:
-                base = m.group(1)
-                start_num = int(m.group(2))
-                start_width = len(m.group(2))
+        parts = [p.strip() for p in line.split(",", 2)]
+        if len(parts) == 3:
+            show, code, trailer = parts
+            m_trail = trailing_pattern.match(trailer)
+            m_code = code_pattern.match(code)
+            if m_trail and m_code:
+                base_trailer = m_trail.group(1)
+                start_num = int(m_trail.group(2))
+                start_width = len(m_trail.group(2))
+
+                code_prefix = m_code.group(1)
+                code_num = int(m_code.group(2))
+                code_width = len(m_code.group(2))
+
                 seq_lines = [line]
                 j = i + 1
                 last_num = start_num
-                last_width = start_width
+                last_code = code_num
+                last_code_width = code_width
                 while j < len(lines):
-                    next_line = lines[j]
-                    if "," in next_line:
-                        l2, r2 = next_line.rsplit(",", 1)
-                        r2 = r2.strip()
-                        m2 = pattern.match(r2)
-                        if m2 and m2.group(1) == base:
-                            num2 = int(m2.group(2))
-                            if num2 == last_num + 1:
-                                seq_lines.append(next_line)
+                    next_parts = [p.strip() for p in lines[j].split(",", 2)]
+                    if len(next_parts) == 3:
+                        _, code2, trailer2 = next_parts
+                        m_trail2 = trailing_pattern.match(trailer2)
+                        m_code2 = code_pattern.match(code2)
+                        if (
+                            m_trail2
+                            and m_code2
+                            and m_trail2.group(1) == base_trailer
+                            and m_code2.group(1) == code_prefix
+                        ):
+                            num2 = int(m_trail2.group(2))
+                            code_num2 = int(m_code2.group(2))
+                            if num2 == last_num + 1 and code_num2 == last_code + 1:
+                                seq_lines.append(lines[j])
                                 last_num = num2
-                                last_width = len(m2.group(2))
+                                last_code = code_num2
+                                last_code_width = len(m_code2.group(2))
                                 j += 1
                                 continue
                     break
                 if len(seq_lines) > 1:
-                    # Build compressed line
-                    new_trailer = f"{base} {str(start_num).zfill(start_width)}-{str(last_num).zfill(last_width)}"
-                    new_line = f"{left.strip()}, {new_trailer}"
+                    # Build compressed episode code range
+                    if last_code == code_num:
+                        code_range = f"{code_prefix}{str(code_num).zfill(code_width)}"
+                    else:
+                        code_range = f"{code_prefix}{str(code_num).zfill(code_width)}-{str(last_code).zfill(last_code_width)}"
+                    # Build compressed trailer range
+                    new_trailer = f"{base_trailer} {str(start_num).zfill(start_width)}-{str(last_num).zfill(last_code_width)}"
+                    new_line = f"{show}, {code_range}, {new_trailer}"
                     out_lines.append(new_line)
                     i = j
                     continue
