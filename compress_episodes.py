@@ -10,21 +10,19 @@
 import re
 import sys
 import argparse
-from pathlib import Path
 
 
-def compress_file_lines(lines, output_path):
+def compress_file_lines(lines):
     # lines should be a list of strings
-    # rest of function remains the same, replacing lines read from file with parameter lines
 
     # Match "Episode N" or "Part N" at the end of the last comma-separated field
     trailing_pattern = re.compile(r"^(.*\b(?:Episode|Part))\s+(\d+)\s*$", re.IGNORECASE)
+
     # Match the SxxEyyy code in the middle field
     code_pattern = re.compile(r"^(S\d+E)(\d+)$", re.IGNORECASE)
 
     out_lines = []
     i = 0
-
     while i < len(lines):
         line = lines[i]
         parts = [p.strip() for p in line.split(",", 2)]
@@ -37,7 +35,6 @@ def compress_file_lines(lines, output_path):
                 start_num = int(m_trail.group(2))
                 start_str = m_trail.group(2)
                 start_width = len(start_str)
-
                 code_prefix = m_code.group(1)
                 code_num = int(m_code.group(2))
                 code_str = m_code.group(2)
@@ -70,33 +67,36 @@ def compress_file_lines(lines, output_path):
                                 seq_lines.append(lines[j])
                                 last_num = num2
                                 last_str = m_trail2.group(2)
-                                last_width = len(last_str)
                                 last_code = code_num2
                                 last_code_str = m_code2.group(2)
-                                last_code_width = len(last_code_str)
                                 j += 1
                                 continue
                     break
+
                 if len(seq_lines) > 1:
                     # Build compressed episode code range (preserve padding)
                     if last_code == code_num:
                         code_range = f"{code_prefix}{code_str}"
                     else:
                         code_range = f"{code_prefix}{code_str}-{last_code_str}"
+
                     # Build compressed trailer range (preserve padding)
                     if last_num == start_num:
                         new_trailer = f"{base_trailer} {start_str}"
                     else:
                         new_trailer = f"{base_trailer} {start_str}-{last_str}"
+
                     new_line = f"{show}, {code_range}, {new_trailer}"
                     out_lines.append(new_line)
                     i = j
                     continue
+
         out_lines.append(line)
         i += 1
 
-    Path(output_path).write_text("\n".join(out_lines) + "\n")
-    print(f"Compressed file written to {output_path}")
+    # Output to stdout
+    for line in out_lines:
+        print(line)
 
 
 if __name__ == "__main__":
@@ -110,10 +110,8 @@ if __name__ == "__main__":
         default=sys.stdin,
         help="Input file (default: stdin)",
     )
-    parser.add_argument("output", type=str, help="Output file path")
     args = parser.parse_args()
 
     # Read all lines from input (file or stdin)
     lines = [line.rstrip("\n") for line in args.input]
-
-    compress_file_lines(lines, args.output)
+    compress_file_lines(lines)
