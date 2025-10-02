@@ -8,11 +8,14 @@
 #   Bannan, S08E01-02, Episode 01-02
 
 import re
+import sys
+import argparse
 from pathlib import Path
 
 
-def compress_file(input_path, output_path):
-    lines = Path(input_path).read_text().splitlines()
+def compress_file_lines(lines, output_path):
+    # lines should be a list of strings
+    # rest of function remains the same, replacing lines read from file with parameter lines
 
     # Match "Episode N" or "Part N" at the end of the last comma-separated field
     trailing_pattern = re.compile(r"^(.*\b(?:Episode|Part))\s+(\d+)\s*$", re.IGNORECASE)
@@ -97,9 +100,20 @@ def compress_file(input_path, output_path):
 
 
 if __name__ == "__main__":
-    import sys
+    parser = argparse.ArgumentParser(
+        description="Compress episode codes with padded ranges"
+    )
+    parser.add_argument(
+        "input",
+        nargs="?",
+        type=argparse.FileType("r"),
+        default=sys.stdin,
+        help="Input file (default: stdin)",
+    )
+    parser.add_argument("output", type=str, help="Output file path")
+    args = parser.parse_args()
 
-    if len(sys.argv) != 3:
-        print("Usage: ./compress_episodes.py input.txt output.txt")
-    else:
-        compress_file(sys.argv[1], sys.argv[2])
+    # Read all lines from input (file or stdin)
+    lines = [line.rstrip("\n") for line in args.input]
+
+    compress_file_lines(lines, args.output)
