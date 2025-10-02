@@ -95,13 +95,13 @@ def compress_file_lines(lines, output_path):
         out_lines.append(line)
         i += 1
 
-    Path(output_path).write_text("\n".join(out_lines))
+    Path(output_path).write_text("\n".join(out_lines) + "\n")
     print(f"Compressed file written to {output_path}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Compress episode codes with padded ranges"
+        description="Squish output of newEpisodes.sh to reduce numeric episode sequences"
     )
     parser.add_argument(
         "input",
