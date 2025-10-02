@@ -28,6 +28,9 @@ clear
 
 tail -8 timeAllScripts.stdout.txt timeAllScripts.stderr.txt
 
+# Check if makeOPB failed
+rg -A 1  'makeOPB.sh -td|Error' timeAllScripts.stdout.txt
+
 waitUntil -k
 clear
 
