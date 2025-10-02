@@ -221,6 +221,9 @@ function printStatus() {
     else
         printf "==> [${RED}Error${NO_COLOR}]"
         printf " Failed scraping shows in $attempts $retries.\n"
+        #
+        printf "==> [${RED}Error${NO_COLOR}]" >>"$ERRORS"
+        printf " Failed scraping shows in $attempts $retries.\n" >>"$ERRORS"
     fi
 }
 
