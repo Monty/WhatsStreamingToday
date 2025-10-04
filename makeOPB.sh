@@ -217,13 +217,13 @@ function printStatus() {
     [ "$attempts" -ne 1 ] && retries="retries"
     if [ "$status" = "succeeded" ]; then
         printf "==> [${BLUE}Info${NO_COLOR}]"
-        printf " Succeeded scraping shows in $attempts $retries.\n"
+        printf " Succeeded scraping shows with $attempts $retries.\n"
     else
         printf "==> [${RED}Error${NO_COLOR}]"
-        printf " Failed scraping shows in $attempts $retries.\n"
+        printf " Failed scraping shows with $attempts $retries.\n"
         #
         printf "==> [${RED}Error${NO_COLOR}]" >>"$ERRORS"
-        printf " Failed scraping shows in $attempts $retries.\n" >>"$ERRORS"
+        printf " Failed scraping shows with $attempts $retries.\n" >>"$ERRORS"
     fi
 }
 
@@ -233,15 +233,16 @@ getRawDataFromURLs "$SHOW_URLS" "$RAW_DATA"
 CURRENT_RAW_DATA="$RAW_DATA"
 
 # Get RAW_DATA from all shows in RETRY_URLS if needed
-# Try up to MAX_RETRIES times
-if [ "$MAX_RETRIES" -eq 0 ]; then
-    if [ -e "$RETRIES_FILE" ]; then
-        printStatus "failed" "$MAX_RETRIES"
-    else
-        printStatus "succeeded" "$MAX_RETRIES"
-    fi
+if [ ! -e "$RETRIES_FILE" ]; then
+    # Succeded without any retries
+    printStatus "succeeded" 0
 else
+    # Retry loop if the first attempt failed
     for retries in $(seq 1 "$MAX_RETRIES"); do
+        if [ ! -e "$RETRIES_FILE" ]; then
+            printStatus "succeeded" "$retries"
+            break
+        fi
         if [ -e "$RETRIES_FILE" ]; then
             printf "\n==> Retry #$retries using $RETRIES_FILE\n"
             printf "\n==> Retry #$retries using $RETRIES_FILE\n" >>"$LOGFILE"
@@ -264,10 +265,6 @@ else
             if [ "$retries" -ge "$MAX_RETRIES" ]; then
                 printStatus "failed" "$retries"
             fi
-        else
-            [ "$retries" -eq 0 ] && break # No retries needed
-            printStatus "succeeded" "$retries"
-            break
         fi
     done
 fi
