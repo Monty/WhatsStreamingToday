@@ -251,8 +251,8 @@ else
             duration=$((retries * RETRY_MULTIPLIER * 60))
             sleep "$duration"
             sort -u "$RETRIES_FILE" >"$RETRY_URLS"
-            printf "==> Purging shows to retry from $CURRENT_RAW_DATA\n"
-            purgeRawDataBeforeRetry "$CURRENT_RAW_DATA"
+            printf "==> Purging shows to retry from $RAW_DATA\n"
+            purgeRawDataBeforeRetry "$RAW_DATA"
             # Don't overwrite an existing RETRIES_FILE
             TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
             RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
@@ -307,7 +307,7 @@ sd S9999 SMore "$EXTRA_SPREADSHEET"
 
 # Sort the titles produced by getWalterFrom-raw_data.awk
 sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
-rm -f "$RAW_TITLES"
+# rm -f "$RAW_TITLES"
 
 # Shortcut for printing file info (before adding totals)
 function printAdjustedFileInfo() {
