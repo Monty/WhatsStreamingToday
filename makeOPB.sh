@@ -262,7 +262,10 @@ else
                 printf "\n==> Appending $CURRENT_RAW_DATA to $RAW_DATA\n"
                 cat "$CURRENT_RAW_DATA" >>"$RAW_DATA"
             fi
-            if [ "$retries" -ge "$MAX_RETRIES" ]; then
+            if [ ! -e "$RETRIES_FILE" ]; then
+                printStatus "succeeded" "$retries"
+                break
+            elif [ "$retries" -eq "$MAX_RETRIES" ]; then
                 printStatus "failed" "$retries"
             fi
         fi
