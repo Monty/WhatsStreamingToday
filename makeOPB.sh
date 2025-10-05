@@ -219,11 +219,10 @@ function printStatus() {
         printf "==> [${BLUE}Info${NO_COLOR}]"
         printf " Succeeded scraping shows with $attempts $retries.\n"
     else
-        printf "==> [${RED}Error${NO_COLOR}]"
-        printf " Failed scraping shows with $attempts $retries.\n"
-        #
-        printf "==> [${RED}Error${NO_COLOR}]" >>"$ERRORS"
-        printf " Failed scraping shows with $attempts $retries.\n" >>"$ERRORS"
+        {
+            printf "==> [${RED}Error${NO_COLOR}]"
+            printf " Failed scraping shows with %s %s.\n" "$attempts" "$retries"
+        } | tee -a "$ERRORS"
     fi
 }
 
@@ -244,8 +243,10 @@ else
             break
         fi
         if [ -e "$RETRIES_FILE" ]; then
-            printf "\n==> Retry #$retries using $RETRIES_FILE\n"
-            printf "\n==> Retry #$retries using $RETRIES_FILE\n" >>"$LOGFILE"
+            {
+                printf "\n==> Retry #%s using %s\n" "$retries" "$RETRIES_FILE"
+                printf "    at: %s\n" "$(date '+%y-%m-%d %H:%M:%S')"
+            } | tee -a "$LOGFILE"
             printf "==> [${BLUE}Info${NO_COLOR}]"
             printf " Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
             duration=$((retries * RETRY_MULTIPLIER * 60))
