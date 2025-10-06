@@ -65,10 +65,8 @@ BLUE="\e[0;34;1m"
 NO_COLOR="\e[0m"
 
 # Let us know MAX_RETRIES and RETRY_MULTIPLIER
-printf "==> [${BLUE}Info${NO_COLOR}]"
-printf " MAX_RETRIES is $MAX_RETRIES\n"
-printf "==> [${BLUE}Info${NO_COLOR}]"
-printf " RETRY_MULTIPLIER is $RETRY_MULTIPLIER\n"
+printf "==> [${BLUE}Info${NO_COLOR}] MAX_RETRIES is $MAX_RETRIES\n"
+printf "==> [${BLUE}Info${NO_COLOR}] RETRY_MULTIPLIER is $RETRY_MULTIPLIER\n"
 
 # Make sure we can execute curl.
 if ! command -v curl >/dev/null; then
@@ -216,13 +214,17 @@ function printStatus() {
     retries="retry"
     [ "$attempts" -ne 1 ] && retries="retries"
     if [ "$status" = "succeeded" ]; then
-        printf "==> [${BLUE}Info${NO_COLOR}]"
-        printf " Succeeded scraping shows with $attempts $retries.\n"
+        printf "\n" >>"$LOGFILE"
+        {
+            printf "==> [${BLUE}Info${NO_COLOR}]"
+            printf " Succeeded scraping shows with $attempts $retries.\n"
+        } | tee -a "$LOGFILE"
     else
+        printf "\n" >>"$LOGFILE"
         {
             printf "==> [${RED}Error${NO_COLOR}]"
             printf " Failed scraping shows with %s %s.\n" "$attempts" "$retries"
-        } | tee -a "$ERRORS"
+        } | tee -a "$ERRORS" | tee -a "$LOGFILE"
     fi
 }
 
@@ -246,9 +248,9 @@ else
             {
                 printf "\n==> Retry #%s using %s\n" "$retries" "$RETRIES_FILE"
                 printf "    at: %s\n" "$(date '+%y-%m-%d %H:%M:%S')"
+                printf "==> [${BLUE}Info${NO_COLOR}]"
+                printf " Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
             } | tee -a "$LOGFILE"
-            printf "==> [${BLUE}Info${NO_COLOR}]"
-            printf " Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
             duration=$((retries * RETRY_MULTIPLIER * 60))
             sleep "$duration"
             sort -u "$RETRIES_FILE" >"$RETRY_URLS"
