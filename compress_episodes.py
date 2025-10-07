@@ -7,111 +7,146 @@
 # becomes
 #   Bannan, S08E01-02, Episode 01-02
 
-import re
 import sys
-import argparse
+import re
+from typing import List, Optional, Dict
 
 
-def compress_file_lines(lines):
-    # lines should be a list of strings
+# If a line starts with '"' and ends with '"""', remove all double quotes.
+def normalize_quotes(line: str) -> str:
+    if line.startswith('"') and line.rstrip().endswith('"""'):
+        return line.replace('"', "")
+    return line
 
-    # Match "Episode N" or "Part N" at the end of the last comma-separated field
-    trailing_pattern = re.compile(r"^(.*\b(?:Episode|Part))\s+(\d+)\s*$", re.IGNORECASE)
 
-    # Match the SxxEyyy code in the middle field
-    code_pattern = re.compile(r"^(S\d+E)(\d+)$", re.IGNORECASE)
+# Pattern to parse: prefix, season, episode, suffix
+PATTERN = re.compile(r"^(.*),\s*S(\d+)E(\d+),\s*(.*)$", re.IGNORECASE)
+EP_PART_RE = re.compile(r"(?i)\b(Episode|Part)\b\s*(\d{1,4})")
+PART_RE = re.compile(r"(?i)\bPart\b\s*(\d{1,4})")
+EPISODE_RE = re.compile(r"(?i)\bEpisode\b\s*(\d{1,4})")
 
-    out_lines = []
-    i = 0
-    while i < len(lines):
-        line = lines[i]
-        parts = [p.strip() for p in line.split(",", 2)]
-        if len(parts) == 3:
-            show, code, trailer = parts
-            m_trail = trailing_pattern.match(trailer)
-            m_code = code_pattern.match(code)
-            if m_trail and m_code:
-                base_trailer = m_trail.group(1)
-                start_num = int(m_trail.group(2))
-                start_str = m_trail.group(2)
-                start_width = len(start_str)
-                code_prefix = m_code.group(1)
-                code_num = int(m_code.group(2))
-                code_str = m_code.group(2)
-                code_width = len(code_str)
 
-                seq_lines = [line]
-                j = i + 1
-                last_num = start_num
-                last_str = start_str
-                last_width = start_width
-                last_code = code_num
-                last_code_str = code_str
-                last_code_width = code_width
+# Parse a line into prefix, season, episode, suffix dict.
+def parse_line(line: str) -> Optional[Dict[str, str]]:
+    m = PATTERN.match(line)
+    if not m:
+        return None
+    return {
+        "prefix": m.group(1),
+        "season": m.group(2),
+        "episode": m.group(3),
+        "suffix": m.group(4),
+    }
 
-                while j < len(lines):
-                    next_parts = [p.strip() for p in lines[j].split(",", 2)]
-                    if len(next_parts) == 3:
-                        _, code2, trailer2 = next_parts
-                        m_trail2 = trailing_pattern.match(trailer2)
-                        m_code2 = code_pattern.match(code2)
-                        if (
-                            m_trail2
-                            and m_code2
-                            and m_trail2.group(1) == base_trailer
-                            and m_code2.group(1) == code_prefix
-                        ):
-                            num2 = int(m_trail2.group(2))
-                            code_num2 = int(m_code2.group(2))
-                            if num2 == last_num + 1 and code_num2 == last_code + 1:
-                                seq_lines.append(lines[j])
-                                last_num = num2
-                                last_str = m_trail2.group(2)
-                                last_code = code_num2
-                                last_code_str = m_code2.group(2)
-                                j += 1
-                                continue
-                    break
 
-                if len(seq_lines) > 1:
-                    # Build compressed episode code range (preserve padding)
-                    if last_code == code_num:
-                        code_range = f"{code_prefix}{code_str}"
-                    else:
-                        code_range = f"{code_prefix}{code_str}-{last_code_str}"
+# Strip Episode/Part numbers for logical grouping comparison.
+def suffix_base(suffix: str) -> str:
+    cleaned = re.sub(r"(?i)\b(?:Episode|Part)\b\s*\d{1,4}", "", suffix)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    cleaned = re.sub(r"^[\s:,\-]+|[\s:,\-]+$", "", cleaned)
+    return cleaned.lower()
 
-                    # Build compressed trailer range (preserve padding)
-                    if last_num == start_num:
-                        new_trailer = f"{base_trailer} {start_str}"
-                    else:
-                        new_trailer = f"{base_trailer} {start_str}-{last_str}"
 
-                    new_line = f"{show}, {code_range}, {new_trailer}"
-                    out_lines.append(new_line)
-                    i = j
-                    continue
+# Determine if two lines belong to the same show/season/arc.
+def same_series(a: Dict[str, str], b: Dict[str, str]) -> bool:
+    if not a or not b:
+        return False
+    return (
+        a["prefix"] == b["prefix"]
+        and a["season"] == b["season"]
+        and suffix_base(a["suffix"]) == suffix_base(b["suffix"])
+    )
 
-        out_lines.append(line)
-        i += 1
 
-    # Output to stdout
-    for line in out_lines:
-        print(line)
+# Emit a compressed or single line for a group of parsed entries.
+def flush_range(group: List[Dict[str, str]], out: List[str]) -> None:
+    if not group:
+        return
+
+    # Single line, nothing to compress, print as-is
+    if len(group) == 1:
+        e = group[0]
+        out.append(f"{e['prefix']}, S{e['season']}E{e['episode']}, {e['suffix']}")
+        return
+
+    first, last = group[0], group[-1]
+    prefix, season = first["prefix"], first["season"]
+    e1, e2 = first["episode"], last["episode"]
+    suffix_first = first["suffix"]
+    suffix_last = last["suffix"]
+
+    # Extract episode/part numbers to determine padding
+    e1_match = EPISODE_RE.search(suffix_first)
+    e2_match = EPISODE_RE.search(suffix_last)
+    p1_match = PART_RE.search(suffix_first)
+    p2_match = PART_RE.search(suffix_last)
+
+    # Determine widths for episode and part numbers separately
+    ep_pad_first = len(e1_match.group(1)) if e1_match else len(e1)
+    ep_pad_last = len(e2_match.group(1)) if e2_match else len(e2)
+    part_pad_first = len(p1_match.group(1)) if p1_match else 0
+    part_pad_last = len(p2_match.group(1)) if p2_match else 0
+
+    # Format SxxEyyy field keeping its own padding
+    e1_field = str(int(e1)).zfill(len(e1))
+    e2_field = str(int(e2)).zfill(len(e2))
+
+    # Format Episode range preserving its padding
+    e1_ep = (
+        str(int(e1_match.group(1))).zfill(ep_pad_first) if e1_match else str(int(e1))
+    )
+    e2_ep = str(int(e2_match.group(1))).zfill(ep_pad_last) if e2_match else str(int(e2))
+
+    # Format Part range preserving its own padding
+    if p1_match and p2_match:
+        p1_val = str(int(p1_match.group(1))).zfill(part_pad_first)
+        p2_val = str(int(p2_match.group(1))).zfill(part_pad_last)
+    else:
+        p1_val = p2_val = None
+
+    # Replace Episode/Part occurrences with appropriate ranges
+    def repl(m: re.Match) -> str:
+        word = m.group(1)
+        if word.lower() == "episode":
+            return f"{word} {e1_ep}-{e2_ep}"
+        elif word.lower() == "part" and p1_val and p2_val:
+            return f"{word} {p1_val}-{p2_val}"
+        return m.group(0)
+
+    new_suffix = EP_PART_RE.sub(repl, suffix_first)
+    out.append(f"{prefix}, S{season}E{e1_field}-{e2_field}, {new_suffix}")
+
+
+# Process all lines and group/compress consecutive entries.
+def process_lines(lines: List[str]) -> List[str]:
+    out: List[str] = []
+    group: List[Dict[str, str]] = []
+    for raw in lines:
+        line = normalize_quotes(raw.rstrip("\n"))
+        parsed = parse_line(line)
+        if parsed and (not group or same_series(group[-1], parsed)):
+            group.append(parsed)
+        else:
+            flush_range(group, out)
+            group = [parsed] if parsed else []
+            if not parsed:
+                out.append(line)
+    flush_range(group, out)
+    return out
+
+
+# Entry point: read from stdin or a file, write to stdout.
+def main(argv: List[str]) -> int:
+    if len(argv) >= 2:
+        with open(argv[1], "r", encoding="utf-8") as f:
+            lines = [ln.rstrip("\n") for ln in f]
+    else:
+        lines = [ln.rstrip("\n") for ln in sys.stdin]
+
+    out_lines = process_lines(lines)
+    sys.stdout.write("\n".join(out_lines) + "\n")
+    return 0
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Squish output of newEpisodes.sh to reduce numeric episode sequences"
-    )
-    parser.add_argument(
-        "input",
-        nargs="?",
-        type=argparse.FileType("r"),
-        default=sys.stdin,
-        help="Input file (default: stdin)",
-    )
-    args = parser.parse_args()
-
-    # Read all lines from input (file or stdin)
-    lines = [line.rstrip("\n") for line in args.input]
-    compress_file_lines(lines)
+    raise SystemExit(main(sys.argv))
