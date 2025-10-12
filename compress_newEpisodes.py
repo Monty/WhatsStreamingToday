@@ -1,15 +1,4 @@
 #!/usr/bin/env python3
-
-# Squish output of newEpisodes.sh to reduce numeric episode sequences
-# i.e.
-#   Bannan, S08E01, Episode 01
-#   Bannan, S08E02, Episode 02
-# becomes
-#   Bannan, S08E01-02, Episode 01-02
-
-# Usage: ./newEpisodes.sh | ./compress_newEpisodes.py
-#        ./compress_newEpisodes.py <[input file]
-
 import sys
 import re
 
@@ -111,17 +100,51 @@ def squish_lines(lines):
     return out
 
 
-# Entry point: read from file argument or stdin, write to stdout.
-def main():
-    # Read from file argument or stdin
-    if len(sys.argv) > 1:
-        with open(sys.argv[1], "r") as f:
+# Provide helpful description and examples
+def print_help() -> None:
+    """Display usage and examples."""
+    prog = sys.argv[0].split("/")[-1]
+    print(
+        f"""Usage:
+  {prog} [-h|--help] [input]
+
+Description:
+  Reads show episode listings from stdin or a file
+  and compresses consecutive episode sequences.
+  For example:
+      Bannan, S08E01, Episode 01
+      Bannan, S08E02, Episode 02
+  becomes:
+      Bannan, S08E01-02, Episode 01-02
+
+Options:
+  -h, --help   Show this help message and exit.
+
+Examples:
+  ./newEpisodes.sh | ./{prog} > newEpisodes.txt
+  ./{prog} episodes.txt > newEpisodes.txt
+"""
+    )
+
+
+def main() -> None:
+    """Entry point: read from file argument or stdin, write to stdout."""
+    # Handle help request before any processing
+    if any(arg in ("-h", "--help") for arg in sys.argv[1:]):
+        print_help()
+        sys.exit(0)
+
+    # First non-flag argument is the input file
+    input_file = next((a for a in sys.argv[1:] if not a.startswith("-")), None)
+
+    if input_file:
+        with open(input_file, "r") as f:
             lines = [normalize_quotes(line.rstrip("\n")) for line in f]
     else:
         lines = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
 
     output_lines = squish_lines(lines)
-    sys.stdout.write("\n".join(output_lines) + "\n")
+    print("\n".join(output_lines))
 
 
 if __name__ == "__main__":
