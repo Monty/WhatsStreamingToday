@@ -111,9 +111,15 @@ def squish_lines(lines):
     return out
 
 
-# Entry point: read from stdin, write to stdout.
+# Entry point: read from file argument or stdin, write to stdout.
 def main():
-    lines = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
+    # Read from file argument or stdin
+    if len(sys.argv) > 1:
+        with open(sys.argv[1], "r") as f:
+            lines = [normalize_quotes(line.rstrip("\n")) for line in f]
+    else:
+        lines = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
+
     output_lines = squish_lines(lines)
     sys.stdout.write("\n".join(output_lines) + "\n")
 
