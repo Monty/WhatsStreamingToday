@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys
 import re
+import argparse
+from typing import Optional
 
 # Regex patterns to parse: prefix, season, episode, suffix
 PAT = re.compile(r"^(.*),\s*S(\d+)E(\d+),\s*(.*)$", re.I)
@@ -18,22 +20,22 @@ def normalize_quotes(s: str) -> str:
 
 
 def base_suffix(s: str) -> str:
-    # Strip Episode/Part numbers for logical grouping comparison.
+    # Strip Episode/Part numbers for logical grouping comparison
     t = re.sub(r"(?i)\b(?:Episode|Part)\s*\d{1,4}", "", s)
     t = re.sub(r"\s+", " ", t)
     return re.sub(r"^[\s:,\-]+|[\s:,\-]+$", "", t).lower()
 
 
-def parse(line: str):
-    # Parse a line into prefix, season, episode, suffix dict.
+def parse(line: str) -> Optional[dict[str, str]]:
+    # Parse a line into prefix, season, episode, suffix dict
     m = PAT.match(line)
     if not m:
         return None
     return {"pre": m[1], "S": m[2], "E": m[3], "suf": m[4]}
 
 
-def same(a, b) -> bool:
-    # Determine if two lines belong to the same show/season/arc.
+def same(a: Optional[dict[str, str]], b: Optional[dict[str, str]]) -> bool:
+    # Determine if two lines belong to the same show/season/arc
     return (
         a
         and b
@@ -43,15 +45,15 @@ def same(a, b) -> bool:
     )
 
 
-# Core function: Emit a compressed or single line for a group of parsed entries.
-def flush(group, out):
+# Core function: Emit a compressed or single line for a group of parsed entries
+def append_group(group: list[dict[str, str]], output_lines: list[str]) -> None:
     if not group:
         return
 
     # Single line, nothing to compress
     if len(group) == 1:
         e = group[0]
-        out.append(f"{e['pre']}, S{e['S']}E{e['E']}, {e['suf']}")
+        output_lines.append(f"{e['pre']}, S{e['S']}E{e['E']}, {e['suf']}")
         return
 
     # Multiple consecutive entries → compress into one line
@@ -81,70 +83,75 @@ def flush(group, out):
         return m[0]
 
     suf = EP_PT.sub(repl, s1)
-    out.append(f"{first['pre']}, S{first['S']}E{e1}-{e2}, {suf}")
+    output_lines.append(f"{first['pre']}, S{first['S']}E{e1}-{e2}, {suf}")
 
 
-# Process all lines and group/compress consecutive entries.
-def squish_lines(lines):
-    out, group = [], []
+# Process all lines and group/compress consecutive entries
+def squish_lines(lines: list[str]) -> list[str]:
+    output_lines, group = [], []
     for line in lines:
         p = parse(line)
         if p and (not group or same(group[-1], p)):
             group.append(p)
         else:
-            flush(group, out)
+            append_group(group, output_lines)
             group = [p] if p else []
             if not p:
-                out.append(line)
-    flush(group, out)
-    return out
+                output_lines.append(line)
+    append_group(group, output_lines)
+    return output_lines
 
 
-# Provide helpful description and examples
-def print_help() -> None:
-    """Display usage and examples."""
+# Provide description and examples for -h or --help
+def build_parser() -> argparse.ArgumentParser:
     prog = sys.argv[0].split("/")[-1]
-    print(
-        f"""Usage:
-  {prog} [-h|--help] [input]
 
-Description:
-  Reads show episode listings from stdin or a file
-  and compresses consecutive episode sequences.
-  For example:
-      Bannan, S08E01, Episode 01
-      Bannan, S08E02, Episode 02
-  becomes:
-      Bannan, S08E01-02, Episode 01-02
-
-Options:
-  -h, --help   Show this help message and exit.
-
-Examples:
-  ./newEpisodes.sh | ./{prog} > newEpisodes.txt
-  ./{prog} episodes.txt > newEpisodes.txt
-"""
+    description = (
+        "Reads show episode listings from stdin or a file "
+        "and compresses consecutive episode sequences.\n\n"
+        "For example:\n"
+        "  Bannan, S08E01, Episode 01\n"
+        "  Bannan, S08E02, Episode 02\n"
+        "becomes:\n"
+        "  Bannan, S08E01-02, Episode 01-02"
     )
 
+    epilog = (
+        "Examples:\n"
+        f"  ./newEpisodes.sh | ./{prog} > newEpisodes.txt\n"
+        f"  ./{prog} episodes.txt > newEpisodes.txt"
+    )
 
+    parser = argparse.ArgumentParser(
+        prog=prog,
+        description=description,
+        epilog=epilog,
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+
+    parser.add_argument(
+        "input",
+        nargs="?",
+        help="Optional input filename (reads from stdin if omitted)",
+    )
+
+    return parser
+
+
+# Entry point: read from file argument or stdin, write to stdout
 def main() -> None:
-    """Entry point: read from file argument or stdin, write to stdout."""
-    # Handle help request before any processing
-    if any(arg in ("-h", "--help") for arg in sys.argv[1:]):
-        print_help()
-        sys.exit(0)
+    parser = build_parser()
+    args = parser.parse_args()
 
-    # First non-flag argument is the input file
-    input_file = next((a for a in sys.argv[1:] if not a.startswith("-")), None)
-
-    if input_file:
-        with open(input_file, "r") as f:
+    # Read input lines
+    if args.input:
+        with open(args.input, "r") as f:
             lines = [normalize_quotes(line.rstrip("\n")) for line in f]
     else:
         lines = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
 
-    output_lines = squish_lines(lines)
-    print("\n".join(output_lines))
+    squished_lines = squish_lines(lines)
+    print("\n".join(squished_lines))
 
 
 if __name__ == "__main__":
