@@ -4,6 +4,10 @@ import re
 import argparse
 from typing import Optional
 
+# Grab name of running program from argv
+prog = sys.argv[0].split("/")[-1]
+
+
 # Regex patterns to parse: prefix, season, episode, suffix
 PAT = re.compile(r"^(.*),\s*S(\d+)E(\d+),\s*(.*)$", re.I)
 EP_RE = re.compile(r"(?i)\bEpisode\s*(\d{1,4})")
@@ -104,8 +108,6 @@ def squish_lines(lines: list[str]) -> list[str]:
 
 # Provide description and examples for -h or --help
 def build_parser() -> argparse.ArgumentParser:
-    prog = sys.argv[0].split("/")[-1]
-
     description = (
         "Reads show episode listings from stdin or a file "
         "and compresses consecutive episode sequences.\n\n"
@@ -142,6 +144,17 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
+
+    # Error if no input file or piped input
+    RED_ERROR = "\033[31mError\033[0m"
+    if not args.input and sys.stdin.isatty():
+        sys.stderr.write(
+            f"{prog}: [{RED_ERROR}] No input file or piped input\n"
+            f"Usage: ./{prog} <file> or use a pipe, e.g.:\n"
+            f"  ./{prog} episodes.txt\n"
+            f"  ./newEpisodes.sh | ./{prog}\n"
+        )
+        sys.exit(1)
 
     # Read input lines
     if args.input:
