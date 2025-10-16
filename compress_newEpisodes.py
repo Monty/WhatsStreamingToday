@@ -143,10 +143,16 @@ def build_parser() -> argparse.ArgumentParser:
 # Entry point: read from file argument or stdin, write to stdout
 def main() -> None:
     parser = build_parser()
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+    RED_ERROR = "\033[31mError\033[0m"
+
+    # Handle unknown arguments
+    if unknown:
+        for arg in unknown:
+            sys.stderr.write(f"{prog}: [{RED_ERROR}] Unrecognized argument '{arg}'\n")
+        sys.exit(1)
 
     # Error if no input file or piped input
-    RED_ERROR = "\033[31mError\033[0m"
     if not args.input and sys.stdin.isatty():
         sys.stderr.write(
             f"{prog}: [{RED_ERROR}] No input file or piped input\n"
