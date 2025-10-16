@@ -158,8 +158,14 @@ def main() -> None:
 
     # Read input lines
     if args.input:
-        with open(args.input, "r") as f:
-            lines = [normalize_quotes(line.rstrip("\n")) for line in f]
+        try:
+            with open(args.input, "r") as f:
+                lines = [normalize_quotes(line.rstrip("\n")) for line in f]
+        except FileNotFoundError as e:
+            sys.stderr.write(
+                f"{prog}: [{RED_ERROR}] File '{e.filename}' does not exist.\n"
+            )
+        sys.exit(1)
     else:
         lines = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
 
