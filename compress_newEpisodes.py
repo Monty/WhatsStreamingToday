@@ -150,7 +150,7 @@ def main() -> None:
     if unknown:
         for arg in unknown:
             sys.stderr.write(f"{prog}: [{RED_ERROR}] Unrecognized argument '{arg}'\n")
-        sys.exit(1)
+        sys.exit(2)
 
     # Error if no input file or piped input
     if not args.input and sys.stdin.isatty():
@@ -160,7 +160,7 @@ def main() -> None:
             f"  ./{prog} episodes.txt\n"
             f"  ./newEpisodes.sh | ./{prog}\n"
         )
-        sys.exit(1)
+        sys.exit(2)
 
     # Read input lines
     if args.input:
