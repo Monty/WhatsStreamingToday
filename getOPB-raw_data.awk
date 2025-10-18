@@ -1,4 +1,4 @@
-# Process data from getOPB.js
+# Process data from getOPB-raw_data.js
 function clearShowVariables() {
     # Make sure there is no carryover
     showURL = ""

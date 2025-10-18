@@ -1,4 +1,4 @@
-# Grab fields from preprocessed Walter Presents HTML files
+# Grab fields from preprocessed OPB HTML files
 #
 # Title  Seasons  Episodes  Duration  Genre  Language  Rating  Description
 
@@ -455,7 +455,7 @@ function removeHeader() {
 ## End of "Show" processing section
 END {
     printf("%02dh %02dm\n", totalTime[1], totalTime[2]) > DURATION
-    printf("\nIn getWalterFrom-raw_data.awk\n") > "/dev/stderr"
+    printf("\nIn processOPB-raw_data.awk\n") > "/dev/stderr"
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
     totalEpisodes == 1\
