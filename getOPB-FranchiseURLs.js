@@ -1,7 +1,11 @@
+// Get a list of URLs from a https://www.pbs.org/franchise/*/ BROWSE_URL
+// Append them to SHOW_URLS
+
 const { chromium } = require("playwright");
 const fs = require("fs");
 const SHOW_URLS = process.env.SHOW_URLS;
 const BROWSE_URL = process.env.BROWSE_URL;
+const RED_ERROR = "\x1b[31mError\x1b[0m";
 
 (async () => {
   const browser = await chromium.launch({
@@ -43,8 +47,12 @@ const BROWSE_URL = process.env.BROWSE_URL;
     })
     .join("\n");
 
-  fs.writeFileSync(SHOW_URLS, tsv, "utf8");
+  try {
+    fs.appendFileSync(SHOW_URLS, tsv, "utf8");
+  } catch (err) {
+    console.error(`==> ${RED_ERROR} appending to ${SHOW_URLS}`, err);
+  }
+  console.log(`==> Added ${uniqueShows.length} URLs to ${SHOW_URLS}`);
 
-  console.log(`==> Wrote ${uniqueShows.length} URLs to ` + SHOW_URLS);
   await browser.close();
 })();
