@@ -46,11 +46,11 @@ rg_problems.rgx
 
 OPB_FILES="
 makeOPB.sh
-getOPB.awk
-getWalterFrom-raw_data.awk
+getOPB-FranchiseURLs.js
+getOPB-raw_data.awk
+getOPB-raw_data.js
 PBS-only.csv
-getOPB.js
-getWalter.js
+processOPB-raw_data.awk
 rg_OPB_no-episodes.rgx
 rg_OPB_skip.rgx
 saveTodaysOPBFiles.sh

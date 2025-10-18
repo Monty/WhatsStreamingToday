@@ -75,13 +75,17 @@ if ! command -v curl >/dev/null; then
     exit 1
 fi
 
-# Make sure network is up and Walter Presents site is reachable
-export BROWSE_URL="https://www.pbs.org/franchise/walter-presents/"
-if ! curl -o /dev/null -Isf $BROWSE_URL; then
-    printf "[Error] $BROWSE_URL isn't available, or your network is down.\n"
-    printf "        Try accessing $BROWSE_URL in your browser.\n"
-    exit 1
-fi
+getURLsFrom() {
+    # Make sure network is up and OPB site is reachable
+    local BROWSE_URL="$1"
+    if ! curl -o /dev/null -Isf "$BROWSE_URL"; then
+        printf "[Error] %s isn't available, or your network is down.\n" "$BROWSE_URL"
+        printf "        Try accessing %s in your browser.\n" "$BROWSE_URL"
+        exit 1
+    fi
+    # If successful, run the Node.js script
+    BROWSE_URL="$BROWSE_URL" node getOPB-FranchiseURLs.js
+}
 
 # Required subdirectories
 COLS="OPB-columns"
@@ -157,8 +161,9 @@ node save_password-02.js
 
 if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
-    # getWalter.js writes to $SHOW_URLS
-    node getWalter.js
+    # getOPB-FranchiseURLs.js appends to $SHOW_URLS
+    getURLsFrom "https://www.pbs.org/franchise/walter-presents/"
+    getURLsFrom "https://www.pbs.org/franchise/masterpiece/"
     # Add URLs from PBS-only.csv making sure none are duplicates
     zet union $PBS_ONLY "$SHOW_URLS" >"$TEMPFILE"
     sort -f --field-separator="$TAB" --key=2,2 "$TEMPFILE" \
@@ -177,16 +182,16 @@ function getRawDataFromURLs() {
         # printf "show_title = '$show_title'\n" >"/dev/stderr"
         export TARGET="$show_addr"
         export RETRIES_FILE # Shows with errors as of current time
-        node getOPB.js >>"$LOGFILE"
-        # If getOPB.js succeeded, RAW_HTML file was created
+        node getOPB-raw_data.js >>"$LOGFILE"
+        # If getOPB-raw_data.js succeeded, RAW_HTML file was created
         if [ -e "$RAW_HTML" ]; then
             # Produce a RAW_DATA file
             rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
-                awk -v ERRORS="$ERRORS" -f getOPB.awk >>"$2"
+                awk -v ERRORS="$ERRORS" -f getOPB-raw_data.awk >>"$2"
             rm -f "$RAW_HTML"
         else
-            # getOPB.js failed, since no RAW_HTML file was created
-            printf "==> getOPB.js failed on $line\n" >>"$ERRORS"
+            # getOPB-raw_data.js failed, since no RAW_HTML file was created
+            printf "==> getOPB-raw_data.js failed on $line\n" >>"$ERRORS"
         fi
     done <"$1"
 }
@@ -279,9 +284,9 @@ fi
 awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" \
     -v DURATION="$DURATION" -v LONG_SPREADSHEET="$UNSORTED_LONG" \
     -v EXTRA_SPREADSHEET="$UNSORTED_EXTRA" \
-    -f getWalterFrom-raw_data.awk "$RAW_DATA" >"$UNSORTED_SHORT"
+    -f processOPB-raw_data.awk "$RAW_DATA" >"$UNSORTED_SHORT"
 
-# Field numbers returned by getWalterFrom-raw_data.awk
+# Field numbers returned by processOPB-raw_data.awk
 #     1 Title     2 Seasons   3 Episodes   4 Duration   5 Genre
 #     6 Language  7 Rating    8 Description
 titleCol="1"
@@ -311,7 +316,7 @@ fi
 # Kludge to switch "S9999" "More Clips & Previews" season number to "SMore"
 sd S9999 SMore "$EXTRA_SPREADSHEET"
 
-# Sort the titles produced by getWalterFrom-raw_data.awk
+# Sort the titles produced by processOPB-raw_data.awk
 sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
 # rm -f "$RAW_TITLES"
 
