@@ -49,6 +49,41 @@ def same(a: Optional[dict[str, str]], b: Optional[dict[str, str]]) -> bool:
     )
 
 
+# Checks if all numbers (main E, Episode, Part) are sequential.
+def is_consecutive(a: dict[str, str], b: dict[str, str]) -> bool:
+    """Determine if line 'b' is a direct sequential episode to line 'a'."""
+    # 1. Check main episode number
+    if int(b["E"]) != int(a["E"]) + 1:
+        return False
+
+    # 2. Check for 'Episode N' in title
+    a_ep_m = EP_RE.search(a["suf"])
+    b_ep_m = EP_RE.search(b["suf"])
+
+    if a_ep_m and b_ep_m:
+        # Both have "Episode N", check if they are consecutive
+        if int(b_ep_m.group(1)) != int(a_ep_m.group(1)) + 1:
+            return False
+    elif a_ep_m or b_ep_m:
+        # One has "Episode N" and one doesn't; they are not sequential.
+        return False
+
+    # 3. Check for 'Part N' in title
+    a_pt_m = PT_RE.search(a["suf"])
+    b_pt_m = PT_RE.search(b["suf"])
+
+    if a_pt_m and b_pt_m:
+        # Both have "Part N", check if they are consecutive
+        if int(b_pt_m.group(1)) != int(a_pt_m.group(1)) + 1:
+            return False
+    elif a_pt_m or b_pt_m:
+        # One has "Part N" and  doesn't; they are not sequential.
+        return False
+
+    # All checks passed
+    return True
+
+
 # Core function: Emit a compressed or single line for a group of parsed entries
 def append_group(group: list[dict[str, str]], output_lines: list[str]) -> None:
     if not group:
@@ -95,14 +130,27 @@ def squish_lines(lines: list[str]) -> list[str]:
     output_lines, group = [], []
     for line in lines:
         p = parse(line)
-        if p and (not group or same(group[-1], p)):
-            group.append(p)
+        if p:
+            if not group:
+                # Always start a new group if one isn't active
+                group.append(p)
+            elif same(group[-1], p) and is_consecutive(group[-1], p):
+                # If 'same' and 'consecutive', add to the current group
+                group.append(p)
+            else:
+                # Otherwise, sequence is broken. Flush the old group.
+                # and start a new group with the current line.
+                append_group(group, output_lines)
+                group = [p]
         else:
+            # Not a parsable line
+            # Flush the last group
             append_group(group, output_lines)
-            group = [p] if p else []
-            if not p:
-                output_lines.append(line)
-    append_group(group, output_lines)
+            group = []
+            # And print the non-parsable line
+            output_lines.append(line)
+
+    append_group(group, output_lines)  # Flush the last group
     return output_lines
 
 
@@ -171,7 +219,7 @@ def main() -> None:
             sys.stderr.write(
                 f"{prog}: [{RED_ERROR}] File '{e.filename}' does not exist.\n"
             )
-        sys.exit(1)
+            sys.exit(1)
     else:
         lines = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
 
