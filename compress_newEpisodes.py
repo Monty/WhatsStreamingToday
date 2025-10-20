@@ -7,6 +7,9 @@ from typing import Optional
 # Grab name of running program from argv
 prog = sys.argv[0].split("/")[-1]
 
+# ANSI color code for warning
+YELLOW_WARNING = "\033[33mWarning\033[0m"
+RED_ERROR = "\033[31mError\033[0m"
 
 # Regex patterns to parse: prefix, season, episode, suffix
 PAT = re.compile(r"^(.*),\s*S(\d+)E(\d+),\s*(.*)$", re.I)
@@ -65,7 +68,7 @@ def is_consecutive(a: dict[str, str], b: dict[str, str]) -> bool:
         if int(b_ep_m.group(1)) != int(a_ep_m.group(1)) + 1:
             return False
     elif a_ep_m or b_ep_m:
-        # One has "Episode N" and one doesn't; they are not sequential.
+        # One has "Episode N" and one doesn't; they are not sequential
         return False
 
     # 3. Check for 'Part N' in title
@@ -77,7 +80,7 @@ def is_consecutive(a: dict[str, str], b: dict[str, str]) -> bool:
         if int(b_pt_m.group(1)) != int(a_pt_m.group(1)) + 1:
             return False
     elif a_pt_m or b_pt_m:
-        # One has "Part N" and  doesn't; they are not sequential.
+        # One has "Part N" and  doesn't; they are not sequential
         return False
 
     # All checks passed
@@ -125,6 +128,24 @@ def append_group(group: list[dict[str, str]], output_lines: list[str]) -> None:
     output_lines.append(f"{first['pre']}, S{first['S']}E{e1}-{e2}, {suf}")
 
 
+# --- NEW HELPER FUNCTION ---
+def _get_title_num(p: dict[str, str]) -> str:
+    """Helper to get title number (Part or Ep) or fall back to main E num."""
+    # Check for Part number
+    pt_m = PT_RE.search(p["suf"])
+    if pt_m:
+        return pt_m.group(1)
+
+    # Check for Episode number
+    ep_m = EP_RE.search(p["suf"])
+    if ep_m:
+        return ep_m.group(1)
+
+    # Fallback to main episode number
+    return p["E"]
+
+
+# --- MODIFIED FUNCTION ---
 # Process all lines and group/compress consecutive entries
 def squish_lines(lines: list[str]) -> list[str]:
     output_lines, group = [], []
@@ -134,20 +155,42 @@ def squish_lines(lines: list[str]) -> list[str]:
             if not group:
                 # Always start a new group if one isn't active
                 group.append(p)
-            elif same(group[-1], p) and is_consecutive(group[-1], p):
-                # If 'same' and 'consecutive', add to the current group
-                group.append(p)
             else:
-                # Otherwise, sequence is broken. Flush the old group.
-                # and start a new group with the current line.
-                append_group(group, output_lines)
-                group = [p]
+                last_in_group = group[-1]
+                if same(last_in_group, p):
+                    # It's the same show/season/arc.
+                    if is_consecutive(last_in_group, p):
+                        # It's consecutive. Add it to the group.
+                        group.append(p)
+                    else:
+                        # --- GAP DETECTED ---
+                        # It's the same show, but not consecutive.
+
+                        # 1. Emit warning to stderr
+                        start_num = _get_title_num(last_in_group)
+                        end_num = _get_title_num(p)
+
+                        sys.stderr.write(
+                            f"{prog}: [{YELLOW_WARNING}] "
+                            f"{p['pre']} S{p['S']}: missing episodes between "
+                            f"{start_num} and {end_num}\n"
+                        )
+
+                        # 2. Flush the old group
+                        append_group(group, output_lines)
+
+                        # 3. Start a new group with the current item
+                        group = [p]
+                else:
+                    # It's a different show/season/arc. This is a normal break.
+                    append_group(group, output_lines)
+                    group = [p]
         else:
-            # Not a parsable line
+            # Not a parsable line (e.g., a header)
             # Flush the last group
             append_group(group, output_lines)
             group = []
-            # And print the non-parsable line
+            # and print the non-parsable line
             output_lines.append(line)
 
     append_group(group, output_lines)  # Flush the last group
@@ -192,7 +235,6 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args, unknown = parser.parse_known_args()
-    RED_ERROR = "\033[31mError\033[0m"
 
     # Handle unknown arguments
     if unknown:
@@ -211,19 +253,20 @@ def main() -> None:
         sys.exit(2)
 
     # Read input lines
+    lines_to_process = []
     if args.input:
         try:
             with open(args.input, "r") as f:
-                lines = [normalize_quotes(line.rstrip("\n")) for line in f]
+                lines_to_process = [normalize_quotes(line.rstrip("\n")) for line in f]
         except FileNotFoundError as e:
             sys.stderr.write(
                 f"{prog}: [{RED_ERROR}] File '{e.filename}' does not exist.\n"
             )
             sys.exit(1)
     else:
-        lines = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
+        lines_to_process = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
 
-    squished_lines = squish_lines(lines)
+    squished_lines = squish_lines(lines_to_process)
     print("\n".join(squished_lines))
 
 
