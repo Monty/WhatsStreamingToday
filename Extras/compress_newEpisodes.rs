@@ -43,12 +43,16 @@ fn normalize_quotes(s: &str) -> String {
 
 /// Parses a (normalized) line into its components.
 fn parse(line: &str) -> Option<ParsedLine> {
-    PAT.captures(line).map(|caps| ParsedLine {
-        original: line.to_string(),
-        prefix: caps[1].to_string(),
-        season: caps[2].to_string(),
-        episode: caps[3].to_string(),
-        suffix: caps[4].to_string(),
+    PAT.captures(line).map(|caps| {
+        // Reconstruct the line with proper formatting (ensuring space after commas)
+        let original = format!("{}, S{}E{}, {}", &caps[1], &caps[2], &caps[3], &caps[4]);
+        ParsedLine {
+            original,
+            prefix: caps[1].to_string(),
+            season: caps[2].to_string(),
+            episode: caps[3].to_string(),
+            suffix: caps[4].to_string(),
+        }
     })
 }
 
@@ -63,6 +67,97 @@ fn base_suffix(s: &str) -> String {
 /// Determines if two lines belong to the same show/season/arc
 fn same(a: &ParsedLine, b: &ParsedLine) -> bool {
     a.prefix == b.prefix && a.season == b.season && base_suffix(&a.suffix) == base_suffix(&b.suffix)
+}
+
+/// Checks if all numbers (main E, Episode, Part) are sequential.
+fn is_consecutive(a: &ParsedLine, b: &ParsedLine) -> bool {
+    // 1. Check main episode number
+    let a_ep = match a.episode.parse::<i32>() {
+        Ok(n) => n,
+        Err(_) => return false,
+    };
+    let b_ep = match b.episode.parse::<i32>() {
+        Ok(n) => n,
+        Err(_) => return false,
+    };
+    if b_ep != a_ep + 1 {
+        return false;
+    }
+
+    // 2. Check for 'Episode N' in title
+    let a_ep_m = EP_RE.captures(&a.suffix);
+    let b_ep_m = EP_RE.captures(&b.suffix);
+
+    match (a_ep_m, b_ep_m) {
+        (Some(a_m), Some(b_m)) => {
+            // Both have "Episode N", check if they are consecutive
+            let a_num = match a_m[1].parse::<i32>() {
+                Ok(n) => n,
+                Err(_) => return false,
+            };
+            let b_num = match b_m[1].parse::<i32>() {
+                Ok(n) => n,
+                Err(_) => return false,
+            };
+            if b_num != a_num + 1 {
+                return false;
+            }
+        }
+        (None, None) => {
+            // Neither has "Episode N", that's fine
+        }
+        _ => {
+            // One has "Episode N" and one doesn't; they are not sequential
+            return false;
+        }
+    }
+
+    // 3. Check for 'Part N' in title
+    let a_pt_m = PT_RE.captures(&a.suffix);
+    let b_pt_m = PT_RE.captures(&b.suffix);
+
+    match (a_pt_m, b_pt_m) {
+        (Some(a_m), Some(b_m)) => {
+            // Both have "Part N", check if they are consecutive
+            let a_num = match a_m[1].parse::<i32>() {
+                Ok(n) => n,
+                Err(_) => return false,
+            };
+            let b_num = match b_m[1].parse::<i32>() {
+                Ok(n) => n,
+                Err(_) => return false,
+            };
+            if b_num != a_num + 1 {
+                return false;
+            }
+        }
+        (None, None) => {
+            // Neither has "Part N", that's fine
+        }
+        _ => {
+            // One has "Part N" and one doesn't; they are not sequential
+            return false;
+        }
+    }
+
+    // All checks passed
+    true
+}
+
+/// Helper to get title number (Part or Episode) or fall back to main E num.
+fn get_title_num(p: &ParsedLine) -> String {
+    // Check for Part number
+    if let Some(pt_m) = PT_RE.captures(&p.suffix) {
+        return pt_m[1].to_string();
+    }
+
+    // Check for Episode number
+    if let Some(ep_m) = EP_RE.captures(&p.suffix) {
+        return ep_m[1].to_string();
+    }
+
+    // Fallback to main episode number
+    p.episode.clone()
 }
 
 /// Emits a compressed or single line for a group of parsed entries
@@ -92,14 +187,40 @@ fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
         // Replace Episode/Part occurrences with appropriate ranges
         if word_lower == "episode" {
             if let (Some(ep1_m), Some(ep2_m)) = (EP_RE.captures(s1), EP_RE.captures(&last.suffix)) {
-                // Reuse the original-cased word from `word_capture`.
-                return format!("{} {}-{}", word_capture, &ep1_m[1], &ep2_m[1]);
+                let num1 = &ep1_m[1];
+                let num2 = &ep2_m[1];
+                // Check if first number has leading zeros (is padded)
+                let is_padded = num1.starts_with('0') && num1.len() > 1;
+                // Format second number to match first number's padding
+                let formatted_num2 = if is_padded {
+                    format!(
+                        "{:0width$}",
+                        num2.parse::<u32>().unwrap_or(0),
+                        width = num1.len()
+                    )
+                } else {
+                    num2.to_string()
+                };
+                return format!("{} {}-{}", word_capture, num1, formatted_num2);
             }
         }
         if word_lower == "part" {
             if let (Some(pt1_m), Some(pt2_m)) = (PT_RE.captures(s1), PT_RE.captures(&last.suffix)) {
-                // Reuse the original-cased word from `word_capture`.
-                return format!("{} {}-{}", word_capture, &pt1_m[1], &pt2_m[1]);
+                let num1 = &pt1_m[1];
+                let num2 = &pt2_m[1];
+                // Check if first number has leading zeros (is padded)
+                let is_padded = num1.starts_with('0') && num1.len() > 1;
+                // Format second number to match first number's padding
+                let formatted_num2 = if is_padded {
+                    format!(
+                        "{:0width$}",
+                        num2.parse::<u32>().unwrap_or(0),
+                        width = num1.len()
+                    )
+                } else {
+                    num2.to_string()
+                };
+                return format!("{} {}-{}", word_capture, num1, formatted_num2);
             }
         }
         // Fallback: if numbers aren't found, return the original full match.
@@ -113,22 +234,63 @@ fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
 }
 
 /// Processes a vector of pre-normalized lines.
-fn squish_lines(lines: Vec<String>) -> Vec<String> {
+fn squish_lines(lines: Vec<String>, prog_name: &str) -> Vec<String> {
+    const YELLOW_WARNING: &str = "\x1B[33mWarning\x1B[0m";
+
     let mut output_lines = Vec::new();
     let mut group: Vec<ParsedLine> = Vec::new();
 
     for line in &lines {
         if let Some(p) = parse(line) {
-            if group.is_empty() || same(group.last().unwrap(), &p) {
+            if group.is_empty() {
+                // Always start a new group if one isn't active
                 group.push(p);
             } else {
-                append_group(&group, &mut output_lines);
-                group = vec![p];
+                let last_in_group = group.last().unwrap();
+                if same(last_in_group, &p) {
+                    // It's the same show/season/arc.
+                    if is_consecutive(last_in_group, &p) {
+                        // It's consecutive. Add it to the group.
+                        group.push(p);
+                    } else {
+                        // --- GAP DETECTED ---
+                        // It's the same show, but not consecutive.
+
+                        // 1. Emit warning to stderr
+                        let start_num = get_title_num(last_in_group);
+                        let end_num = get_title_num(&p);
+
+                        eprintln!(
+                            "{}: [{}] {} S{}: missing episodes between {} and {}",
+                            prog_name, YELLOW_WARNING, p.prefix, p.season, start_num, end_num
+                        );
+
+                        // 2. Flush the old group
+                        append_group(&group, &mut output_lines);
+
+                        // 3. Start a new group with the current item
+                        group = vec![p];
+                    }
+                } else {
+                    // It's a different show/season/arc. This is a normal break.
+                    append_group(&group, &mut output_lines);
+                    group = vec![p];
+                }
             }
         } else {
+            // Not a parsable line (e.g., a header or missing space after comma)
+            // Flush the last group
             append_group(&group, &mut output_lines);
             group.clear();
-            output_lines.push(line.clone());
+
+            // Fix missing space after comma in non-parsable lines
+            let fixed_line = if line.contains(',') && !line.contains(", ") {
+                line.replace(",", ", ")
+            } else {
+                line.clone()
+            };
+
+            output_lines.push(fixed_line);
         }
     }
     append_group(&group, &mut output_lines);
@@ -193,7 +355,7 @@ fn main() -> io::Result<()> {
                 .map(|line_result| line_result.map(|line| normalize_quotes(&line)))
                 .collect::<Result<Vec<_>, _>>()?;
 
-            let squished = squish_lines(normalized_lines);
+            let squished = squish_lines(normalized_lines, &prog_name);
 
             let mut stdout = io::stdout();
             for line in squished {
