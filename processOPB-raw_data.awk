@@ -132,6 +132,10 @@ function removeHeader() {
         showTitle = "Expedition with Steve Backshall"
     }
 
+    if (shortShowURL ~ /maigret/) {
+        showTitle = "Maigret (2025)"
+    }
+
     if (shortShowURL ~ /miss-scarlet-duke/) {
         showTitle = "Miss Scarlet and The Duke"
     }
