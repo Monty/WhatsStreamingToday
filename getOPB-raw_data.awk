@@ -115,6 +115,7 @@ function clearShowVariables() {
     sub(/"$/, "", episodeTitle)
     sub(/":$/, "", episodeTitle) # new format after 250901
     gsub(/\\"/, "\"", episodeTitle)
+    gsub(/''/, "'", episodeTitle)
     # print "episodeTitle = " episodeTitle > "/dev/stderr"
     print "episodeTitle: " episodeTitle
     next
