@@ -1,0 +1,109 @@
+==> Valid data obtained from programmed extraction
+
+# Quoted sequence
+"The Lava Field, S01E01, ""Episode 1"""
+"The Lava Field, S01E02, ""Episode 2"""
+"The Lava Field, S01E03, ""Episode 3"""
+
+# Quoted non-sequence
+"A Touch of Frost: Season 1: ""Care and Protection"""
+"A Touch of Frost: Season 1: ""Conclusions"""
+"A Touch of Frost: Season 1: ""Not with Kindness"""
+
+# SnnEnnn Episode 1-3
+I, Jack Wright, S01E001, Episode 1
+I, Jack Wright, S01E002, Episode 2
+I, Jack Wright, S01E003, Episode 3
+
+# SnnEnnn Episode 01-02
+Gåsmamman, S01E01, Episode 01
+Gåsmamman, S01E02, Episode 02
+Gåsmamman, S01E03, Episode 03
+
+# Sequence 1-10
+Trapped, S01E01, Episode 1
+Trapped, S01E02, Episode 2
+Trapped, S01E03, Episode 3
+Trapped, S01E04, Episode 4
+Trapped, S01E05, Episode 5
+Trapped, S01E06, Episode 6
+Trapped, S01E07, Episode 7
+Trapped, S01E08, Episode 8
+Trapped, S01E09, Episode 9
+Trapped, S01E10, Episode 10
+
+# Sequence 01-10
+Acquitted, S01E01, Episode 01
+Acquitted, S01E02, Episode 02
+Acquitted, S01E03, Episode 03
+Acquitted, S01E04, Episode 04
+Acquitted, S01E05, Episode 05
+Acquitted, S01E06, Episode 06
+Acquitted, S01E07, Episode 07
+Acquitted, S01E08, Episode 08
+Acquitted, S01E09, Episode 09
+Acquitted, S01E10, Episode 10
+
+# Lowercase Part number
+The Sommerdahl Murders, S02E01, Lost Dreams - part 1
+The Sommerdahl Murders, S02E02, Lost Dreams - part 2
+
+# Part number in parentheses
+Chasing Shadows, S01E01, Only Connect (Part 1)
+Chasing Shadows, S01E02, Only Connect (Part 2)
+Chasing Shadows, S01E03, Off Radar (Part 1)
+Chasing Shadows, S01E04, Off Radar (Part 2)
+
+# Duplicated show title in episode
+Spring Tide, S01E01, Spring Tide: Episode 101
+Spring Tide, S01E02, Spring Tide: Episode 102
+Spring Tide, S01E03, Spring Tide: Episode 103
+
+# French Épisode -- should not parse
+Les Misérables, S01E01, Épisode 01
+Les Misérables, S01E02, Épisode 02
+
+==> Valid but strange data from TV show listings, possibly issue warning
+
+# Consecutive with different SnnEnnn and Episode n-1
+Dirk Gently, S01E001, Pilot
+Dirk Gently, S01E002, Episode 1
+Dirk Gently, S01E003, Episode 2
+Dirk Gently, S01E004, Episode 3
+
+# Non consecutive, 1,3..4 -- missing episode
+Alibi, S01E01, Episode 1
+Alibi, S01E03, Episode 3
+Alibi, S01E04, Episode 4
+
+# Non consecutive, 01..02,04 -- missing episode
+Agatha Christie's Family Murder Party, S01E01, Episode 01
+Agatha Christie's Family Murder Party, S01E02, Episode 02
+Agatha Christie's Family Murder Party, S01E04, Episode 04
+
+# Non consecutive, 101..102,104 -- missing episode
+Death of a Pilgrim, S01E01, Death of a Pilgrim: Episode 101
+Death of a Pilgrim, S01E02, Death of a Pilgrim: Episode 102
+Death of a Pilgrim, S01E04, Death of a Pilgrim: Episode 104
+
+==> Correctable data entry errors, possibly fix and issue warning
+
+# Condensed Part numbers -- Part1 Part2
+Van der Valk, S2024E05, Episode 5: Secrets in Amsterdam: Part1
+Van der Valk, S2024E06, Episode 6: Secrets in Amsterdam: Part2
+
+# Missing space after SnnEnnn - not a sequence
+Grace, S04E001,Dead Man’s Time
+Grace, S04E002,Want You Dead
+Grace, S04E003,You Are Dead
+Grace, S04E004,Love You Dead
+
+# Missing space after SnnEnnn
+The Art of Crime, S07E01,Versailles, Are You There? Part 1
+The Art of Crime, S07E02,Versailles, Are You There? Part 2
+
+# Missing space after SnnEnnn disrupts sequence
+The Gone, S01E01, Episode 1
+The Gone, S01E02,Episode 2
+The Gone, S01E03, Episode 3
+The Gone, S01E04, Episode 4
