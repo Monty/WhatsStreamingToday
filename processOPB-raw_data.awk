@@ -132,9 +132,7 @@ function removeHeader() {
         showTitle = "Expedition with Steve Backshall"
     }
 
-    if (shortShowURL ~ /maigret/) {
-        showTitle = "Maigret (2025)"
-    }
+    if (shortShowURL ~ /maigret/) { showTitle = "Maigret (2025)" }
 
     if (shortShowURL ~ /miss-scarlet-duke/) {
         showTitle = "Miss Scarlet and The Duke"
@@ -297,6 +295,8 @@ function removeHeader() {
     episodeText = $0
 
     if (match(episodeText, /Ep[0-9]{1,4} \|/)) {
+        # Case 1: EpN | ...
+        # episodeText = Ep3 | Maigret’s case is derailed (53m 5s)
         episodeText = substr($0, RSTART + 2, RLENGTH - 4)
         # print "episodeText = " episodeText > "/dev/stderr"
         if (episodeClass != "clip") {
@@ -305,8 +305,15 @@ function removeHeader() {
         }
         else { clipsEpisodeNumber = episodeText }
     }
+    else if (match(episodeTitle, /Episode [0-9]{1,3}$/)) {
+        # Case 2: Episode N (from title)
+        # episodeTitle = Episode 3
+        # episodeText  = 9/22/2018 | As Nella seeks answers (52m 42s)
+        episodeNumber = substr(episodeTitle, RSTART + 8) # skip "Episode "
+        # print "episodeNumber (from title) = " episodeNumber > "/dev/stderr"
+    }
     else {
-        # It's a generic episode
+        # Case 3: Generic (no EpN | or Episode N)
         if (episodeClass == "clip") { clipsEpisodeNumber++ }
 
         if (episodeClass == "special") { specialsEpisodeNumber++ }
