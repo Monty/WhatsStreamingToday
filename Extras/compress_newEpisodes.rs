@@ -33,7 +33,7 @@ struct ParsedLine {
 }
 
 /// Normalizes lines that start with '"' and end with '"""' by removing all quotes.
-fn normalize_quotes(s: &str) -> String {
+fn normalize_quoted_line(s: &str) -> String {
     if s.starts_with('"') && s.trim_end().ends_with("\"\"\"") {
         s.replace('"', "")
     } else {
@@ -42,7 +42,7 @@ fn normalize_quotes(s: &str) -> String {
 }
 
 /// Parses a (normalized) line into its components.
-fn parse(line: &str) -> Option<ParsedLine> {
+fn parse_line(line: &str) -> Option<ParsedLine> {
     PAT.captures(line).map(|caps| {
         // Reconstruct the line with proper formatting (ensuring space after commas)
         let original = format!("{}, S{}E{}, {}", &caps[1], &caps[2], &caps[3], &caps[4]);
@@ -57,7 +57,7 @@ fn parse(line: &str) -> Option<ParsedLine> {
 }
 
 /// Strips Episode/Part numbers for logical grouping comparison
-fn base_suffix(s: &str) -> String {
+fn normalize_line_for_comparison(s: &str) -> String {
     let t = EP_PT.replace_all(s, "");
     let t = WS_RE.replace_all(&t, " ");
     t.trim_matches(|c: char| c.is_whitespace() || c == ':' || c == ',' || c == '-')
@@ -65,21 +65,17 @@ fn base_suffix(s: &str) -> String {
 }
 
 /// Determines if two lines belong to the same show/season/arc
-fn same(a: &ParsedLine, b: &ParsedLine) -> bool {
-    a.prefix == b.prefix && a.season == b.season && base_suffix(&a.suffix) == base_suffix(&b.suffix)
+fn is_same_arc(a: &ParsedLine, b: &ParsedLine) -> bool {
+    a.prefix == b.prefix
+        && a.season == b.season
+        && normalize_line_for_comparison(&a.suffix) == normalize_line_for_comparison(&b.suffix)
 }
 
 /// Checks if all numbers (main E, Episode, Part) are sequential.
-fn is_consecutive(a: &ParsedLine, b: &ParsedLine) -> bool {
+fn is_consecutive_episode(a: &ParsedLine, b: &ParsedLine) -> bool {
     // 1. Check main episode number
-    let a_ep = match a.episode.parse::<i32>() {
-        Ok(n) => n,
-        Err(_) => return false,
-    };
-    let b_ep = match b.episode.parse::<i32>() {
-        Ok(n) => n,
-        Err(_) => return false,
-    };
+    let a_ep = a.episode.parse::<i32>().unwrap();
+    let b_ep = b.episode.parse::<i32>().unwrap();
     if b_ep != a_ep + 1 {
         return false;
     }
@@ -90,15 +86,8 @@ fn is_consecutive(a: &ParsedLine, b: &ParsedLine) -> bool {
 
     match (a_ep_m, b_ep_m) {
         (Some(a_m), Some(b_m)) => {
-            // Both have "Episode N", check if they are consecutive
-            let a_num = match a_m[1].parse::<i32>() {
-                Ok(n) => n,
-                Err(_) => return false,
-            };
-            let b_num = match b_m[1].parse::<i32>() {
-                Ok(n) => n,
-                Err(_) => return false,
-            };
+            let a_num = a_m[1].parse::<i32>().unwrap();
+            let b_num = b_m[1].parse::<i32>().unwrap();
             if b_num != a_num + 1 {
                 return false;
             }
@@ -118,15 +107,8 @@ fn is_consecutive(a: &ParsedLine, b: &ParsedLine) -> bool {
 
     match (a_pt_m, b_pt_m) {
         (Some(a_m), Some(b_m)) => {
-            // Both have "Part N", check if they are consecutive
-            let a_num = match a_m[1].parse::<i32>() {
-                Ok(n) => n,
-                Err(_) => return false,
-            };
-            let b_num = match b_m[1].parse::<i32>() {
-                Ok(n) => n,
-                Err(_) => return false,
-            };
+            let a_num = a_m[1].parse::<i32>().unwrap();
+            let b_num = b_m[1].parse::<i32>().unwrap();
             if b_num != a_num + 1 {
                 return false;
             }
@@ -145,7 +127,7 @@ fn is_consecutive(a: &ParsedLine, b: &ParsedLine) -> bool {
 }
 
 /// Helper to get title number (Part or Episode) or fall back to main E num.
-fn get_title_num(p: &ParsedLine) -> String {
+fn get_best_warning_num(p: &ParsedLine) -> String {
     // Check for Part number
     if let Some(pt_m) = PT_RE.captures(&p.suffix) {
         return pt_m[1].to_string();
@@ -178,20 +160,28 @@ fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
     let e2 = &last.episode;
     let s1 = &first.suffix;
 
+    // --- Run captures ONCE before the closure ---
+    let ep_nums = EP_RE.captures(s1).and_then(|ep1_m| {
+        EP_RE
+            .captures(&last.suffix)
+            .map(|ep2_m| (ep1_m[1].to_string(), ep2_m[1].to_string()))
+    });
+
+    let pt_nums = PT_RE.captures(s1).and_then(|pt1_m| {
+        PT_RE
+            .captures(&last.suffix)
+            .map(|pt2_m| (pt1_m[1].to_string(), pt2_m[1].to_string()))
+    });
+
     // Use `replace_all` to handle lines with both Episode and Part.
+    // --- `replace_all` closure now just uses the captured variables ---
     let new_suffix = EP_PT.replace_all(s1, |caps: &regex::Captures| {
-        // `caps[1]` is the word "Episode" or "part" in its original case.
         let word_capture = &caps[1];
         let word_lower = word_capture.to_lowercase();
 
-        // Replace Episode/Part occurrences with appropriate ranges
         if word_lower == "episode" {
-            if let (Some(ep1_m), Some(ep2_m)) = (EP_RE.captures(s1), EP_RE.captures(&last.suffix)) {
-                let num1 = &ep1_m[1];
-                let num2 = &ep2_m[1];
-                // Check if first number has leading zeros (is padded)
+            if let Some((num1, num2)) = &ep_nums {
                 let is_padded = num1.starts_with('0') && num1.len() > 1;
-                // Format second number to match first number's padding
                 let formatted_num2 = if is_padded {
                     format!(
                         "{:0width$}",
@@ -205,12 +195,8 @@ fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
             }
         }
         if word_lower == "part" {
-            if let (Some(pt1_m), Some(pt2_m)) = (PT_RE.captures(s1), PT_RE.captures(&last.suffix)) {
-                let num1 = &pt1_m[1];
-                let num2 = &pt2_m[1];
-                // Check if first number has leading zeros (is padded)
+            if let Some((num1, num2)) = &pt_nums {
                 let is_padded = num1.starts_with('0') && num1.len() > 1;
-                // Format second number to match first number's padding
                 let formatted_num2 = if is_padded {
                     format!(
                         "{:0width$}",
@@ -241,15 +227,15 @@ fn squish_lines(lines: Vec<String>, prog_name: &str) -> Vec<String> {
     let mut group: Vec<ParsedLine> = Vec::new();
 
     for line in &lines {
-        if let Some(p) = parse(line) {
+        if let Some(p) = parse_line(line) {
             if group.is_empty() {
                 // Always start a new group if one isn't active
                 group.push(p);
             } else {
                 let last_in_group = group.last().unwrap();
-                if same(last_in_group, &p) {
+                if is_same_arc(last_in_group, &p) {
                     // It's the same show/season/arc.
-                    if is_consecutive(last_in_group, &p) {
+                    if is_consecutive_episode(last_in_group, &p) {
                         // It's consecutive. Add it to the group.
                         group.push(p);
                     } else {
@@ -257,8 +243,8 @@ fn squish_lines(lines: Vec<String>, prog_name: &str) -> Vec<String> {
                         // It's the same show, but not consecutive.
 
                         // 1. Emit warning to stderr
-                        let start_num = get_title_num(last_in_group);
-                        let end_num = get_title_num(&p);
+                        let start_num = get_best_warning_num(last_in_group);
+                        let end_num = get_best_warning_num(&p);
 
                         eprintln!(
                             "{}: [{}] {} S{}: missing episodes between {} and {}",
@@ -298,7 +284,23 @@ fn squish_lines(lines: Vec<String>, prog_name: &str) -> Vec<String> {
 }
 
 #[derive(Parser, Debug)]
-#[command(version, about, long_about = None)]
+#[command(
+    name = env!("CARGO_PKG_NAME"),
+    version,
+    about = "Reads show episode listings from stdin or a file and compresses consecutive episode sequences.\n\n\
+For example:\n  \
+Bannan, S08E01, Episode 01\n  \
+Bannan, S08E02, Episode 02\n\
+becomes:\n  \
+Bannan, S08E01-02, Episode 01-02",
+    after_help = concat!(
+        "Examples:\n  ./newEpisodes.sh | ./",
+        env!("CARGO_PKG_NAME"),
+        " > newEpisodes.txt\n  ./",
+        env!("CARGO_PKG_NAME"),
+        " episodes.txt > newEpisodes.txt"
+    )
+)]
 struct Args {
     /// Optional input filename (reads from stdin if omitted)
     input: Option<PathBuf>,
@@ -352,7 +354,7 @@ fn main() -> io::Result<()> {
 
             let normalized_lines = reader
                 .lines()
-                .map(|line_result| line_result.map(|line| normalize_quotes(&line)))
+                .map(|line_result| line_result.map(|line| normalize_quoted_line(&line)))
                 .collect::<Result<Vec<_>, _>>()?;
 
             let squished = squish_lines(normalized_lines, &prog_name);
