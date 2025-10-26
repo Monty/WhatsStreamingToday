@@ -19,21 +19,14 @@ EP_PT = re.compile(r"(?i)\b(Episode|Part)\s*\d{1,4}")
 
 
 # Helper functions
-def normalize_quotes(s: str) -> str:
+def normalize_quoted_line(s: str) -> str:
     # If a line starts with '"' and ends with '"""', remove all '"'
     if s.startswith('"') and s.rstrip().endswith('"""'):
         return s.replace('"', "")
     return s
 
 
-def base_suffix(s: str) -> str:
-    # Strip Episode/Part numbers for logical grouping comparison
-    t = re.sub(r"(?i)\b(?:Episode|Part)\s*\d{1,4}", "", s)
-    t = re.sub(r"\s+", " ", t)
-    return re.sub(r"^[\s:,\-]+|[\s:,\-]+$", "", t).lower()
-
-
-def parse(line: str) -> Optional[dict[str, str]]:
+def parse_line(line: str) -> Optional[dict[str, str]]:
     # Parse a line into prefix, season, episode, suffix dict
     m = PAT.match(line)
     if not m:
@@ -41,20 +34,28 @@ def parse(line: str) -> Optional[dict[str, str]]:
     return {"pre": m[1], "S": m[2], "E": m[3], "suf": m[4]}
 
 
-def same(a: Optional[dict[str, str]], b: Optional[dict[str, str]]) -> bool:
+def _normalize_line_for_comparison(s: str) -> str:
+    # Remove any Episode/Part numbers before logical grouping comparison
+    t = re.sub(r"(?i)\b(?:Episode|Part)\s*\d{1,4}", "", s)
+    t = re.sub(r"\s+", " ", t)
+    return re.sub(r"^[\s:,\-]+|[\s:,\-]+$", "", t).lower()
+
+
+def is_same_arc(a: Optional[dict[str, str]], b: Optional[dict[str, str]]) -> bool:
     # Determine if two lines belong to the same show/season/arc
     return (
         a
         and b
         and a["pre"] == b["pre"]
         and a["S"] == b["S"]
-        and base_suffix(a["suf"]) == base_suffix(b["suf"])
+        and _normalize_line_for_comparison(a["suf"])
+        == _normalize_line_for_comparison(b["suf"])
     )
 
 
-# Checks if all numbers (main E, Episode, Part) are sequential.
-def is_consecutive(a: dict[str, str], b: dict[str, str]) -> bool:
-    """Determine if line 'b' is a direct sequential episode to line 'a'."""
+def is_consecutive_episode(a: dict[str, str], b: dict[str, str]) -> bool:
+    # Check if all numbers (main E, Episode, Part) are sequential
+
     # 1. Check main episode number
     if int(b["E"]) != int(a["E"]) + 1:
         return False
@@ -83,8 +84,25 @@ def is_consecutive(a: dict[str, str], b: dict[str, str]) -> bool:
         # One has "Part N" and  doesn't; they are not sequential
         return False
 
-    # All checks passed
+    # All checks passed, they are sequential
     return True
+
+
+def _get_best_warning_num(p: dict[str, str]) -> str:
+    # Determine the best number to use when warning about a gap
+
+    # Check for Part number
+    pt_m = PT_RE.search(p["suf"])
+    if pt_m:
+        return pt_m.group(1)
+
+    # Check for Episode number
+    ep_m = EP_RE.search(p["suf"])
+    if ep_m:
+        return ep_m.group(1)
+
+    # Fallback to main episode number
+    return p["E"]
 
 
 # Core function: Emit a compressed or single line for a group of parsed entries
@@ -115,8 +133,8 @@ def append_group(group: list[dict[str, str]], output_lines: list[str]) -> None:
     p1_text = pt1_m.group(1) if pt1_m else None
     p2_text = pt2_m.group(1) if pt2_m else None
 
-    # Replace Episode/Part occurrences with appropriate ranges
-    def repl(m):
+    # Replace Episode/Part sequences with appropriate ranges
+    def replace_sequence_with_range(m):
         word = m[1]
         if word.lower() == "episode":
             return f"{word} {e1_text}-{e2_text}"
@@ -124,51 +142,33 @@ def append_group(group: list[dict[str, str]], output_lines: list[str]) -> None:
             return f"{word} {p1_text}-{p2_text}"
         return m[0]
 
-    suf = EP_PT.sub(repl, s1)
+    suf = EP_PT.sub(replace_sequence_with_range, s1)
     output_lines.append(f"{first['pre']}, S{first['S']}E{e1}-{e2}, {suf}")
 
 
-# --- NEW HELPER FUNCTION ---
-def _get_title_num(p: dict[str, str]) -> str:
-    """Helper to get title number (Part or Ep) or fall back to main E num."""
-    # Check for Part number
-    pt_m = PT_RE.search(p["suf"])
-    if pt_m:
-        return pt_m.group(1)
-
-    # Check for Episode number
-    ep_m = EP_RE.search(p["suf"])
-    if ep_m:
-        return ep_m.group(1)
-
-    # Fallback to main episode number
-    return p["E"]
-
-
-# --- MODIFIED FUNCTION ---
 # Process all lines and group/compress consecutive entries
 def squish_lines(lines: list[str]) -> list[str]:
     output_lines, group = [], []
     for line in lines:
-        p = parse(line)
+        p = parse_line(line)
         if p:
             if not group:
                 # Always start a new group if one isn't active
                 group.append(p)
             else:
+                # A group is active
                 last_in_group = group[-1]
-                if same(last_in_group, p):
-                    # It's the same show/season/arc.
-                    if is_consecutive(last_in_group, p):
-                        # It's consecutive. Add it to the group.
+                if is_same_arc(last_in_group, p):
+                    # It's the same show/season/arc
+                    if is_consecutive_episode(last_in_group, p):
+                        # It's consecutive, add it to the group
                         group.append(p)
                     else:
-                        # --- GAP DETECTED ---
-                        # It's the same show, but not consecutive.
+                        # It's the same show, but not consecutive. i.e., a gap
 
                         # 1. Emit warning to stderr
-                        start_num = _get_title_num(last_in_group)
-                        end_num = _get_title_num(p)
+                        start_num = _get_best_warning_num(last_in_group)
+                        end_num = _get_best_warning_num(p)
 
                         sys.stderr.write(
                             f"{prog}: [{YELLOW_WARNING}] "
@@ -182,11 +182,12 @@ def squish_lines(lines: list[str]) -> list[str]:
                         # 3. Start a new group with the current item
                         group = [p]
                 else:
-                    # It's a different show/season/arc. This is a normal break.
+                    # It's a different show/season/arc, i.e., a normal break
                     append_group(group, output_lines)
                     group = [p]
         else:
-            # Not a parsable line (e.g., a header)
+            # It's a non-parsable line (e.g., a header)
+
             # Flush the last group
             append_group(group, output_lines)
             group = []
@@ -198,7 +199,7 @@ def squish_lines(lines: list[str]) -> list[str]:
 
 
 # Provide description and examples for -h or --help
-def build_parser() -> argparse.ArgumentParser:
+def build_argument_parser() -> argparse.ArgumentParser:
     description = (
         "Reads show episode listings from stdin or a file "
         "and compresses consecutive episode sequences.\n\n"
@@ -233,7 +234,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 # Entry point: read from file argument or stdin, write to stdout
 def main() -> None:
-    parser = build_parser()
+    parser = build_argument_parser()
     args, unknown = parser.parse_known_args()
 
     # Handle unknown arguments
@@ -257,14 +258,18 @@ def main() -> None:
     if args.input:
         try:
             with open(args.input, "r") as f:
-                lines_to_process = [normalize_quotes(line.rstrip("\n")) for line in f]
+                lines_to_process = [
+                    normalize_quoted_line(line.rstrip("\n")) for line in f
+                ]
         except FileNotFoundError as e:
             sys.stderr.write(
                 f"{prog}: [{RED_ERROR}] File '{e.filename}' does not exist.\n"
             )
             sys.exit(1)
     else:
-        lines_to_process = [normalize_quotes(line.rstrip("\n")) for line in sys.stdin]
+        lines_to_process = [
+            normalize_quoted_line(line.rstrip("\n")) for line in sys.stdin
+        ]
 
     squished_lines = squish_lines(lines_to_process)
     print("\n".join(squished_lines))
