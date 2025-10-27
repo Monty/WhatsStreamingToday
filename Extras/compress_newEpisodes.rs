@@ -16,7 +16,7 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader, Write};
 use std::path::PathBuf;
 
-// Use Lazy from once_cell to compile regexes only once.
+// Use Lazy from once_cell to compile regexes only once
 static PAT: Lazy<Regex> = Lazy::new(|| Regex::new(r"^(.*),\s*S(\d+)E(\d+),\s*(.*)$").unwrap());
 static EP_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\bEpisode\s*(\d{1,4})").unwrap());
 static PT_RE: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)\bPart\s*(\d{1,4})").unwrap());
@@ -32,7 +32,7 @@ struct ParsedLine {
     suffix: String,
 }
 
-/// Normalizes lines that start with '"' and end with '"""' by removing all quotes.
+/// Normalize lines that start with '"' and end with '"""' by removing all double quotes
 fn normalize_quoted_line(s: &str) -> String {
     if s.starts_with('"') && s.trim_end().ends_with("\"\"\"") {
         s.replace('"', "")
@@ -41,7 +41,7 @@ fn normalize_quoted_line(s: &str) -> String {
     }
 }
 
-/// Parses a (normalized) line into its components.
+/// Parse a (normalized) line into its components
 fn parse_line(line: &str) -> Option<ParsedLine> {
     PAT.captures(line).map(|caps| {
         // Reconstruct the line with proper formatting (ensuring space after commas)
@@ -56,7 +56,7 @@ fn parse_line(line: &str) -> Option<ParsedLine> {
     })
 }
 
-/// Strips Episode/Part numbers for logical grouping comparison
+/// Remove any Episode/Part numbers before logical grouping comparison
 fn normalize_line_for_comparison(s: &str) -> String {
     let t = EP_PT.replace_all(s, "");
     let t = WS_RE.replace_all(&t, " ");
@@ -64,14 +64,14 @@ fn normalize_line_for_comparison(s: &str) -> String {
         .to_lowercase()
 }
 
-/// Determines if two lines belong to the same show/season/arc
+/// Determine if two lines belong to the same show/season/arc
 fn is_same_arc(a: &ParsedLine, b: &ParsedLine) -> bool {
     a.prefix == b.prefix
         && a.season == b.season
         && normalize_line_for_comparison(&a.suffix) == normalize_line_for_comparison(&b.suffix)
 }
 
-/// Checks if all numbers (main E, Episode, Part) are sequential.
+/// Check if all numbers (main E, Episode, Part) are sequential
 fn is_consecutive_episode(a: &ParsedLine, b: &ParsedLine) -> bool {
     // 1. Check main episode number
     let a_ep = a.episode.parse::<i32>().unwrap();
@@ -86,6 +86,7 @@ fn is_consecutive_episode(a: &ParsedLine, b: &ParsedLine) -> bool {
 
     match (a_ep_m, b_ep_m) {
         (Some(a_m), Some(b_m)) => {
+            // Both have "Episode N", check if they are consecutive
             let a_num = a_m[1].parse::<i32>().unwrap();
             let b_num = b_m[1].parse::<i32>().unwrap();
             if b_num != a_num + 1 {
@@ -107,6 +108,7 @@ fn is_consecutive_episode(a: &ParsedLine, b: &ParsedLine) -> bool {
 
     match (a_pt_m, b_pt_m) {
         (Some(a_m), Some(b_m)) => {
+            // Both have "Part N", check if they are consecutive
             let a_num = a_m[1].parse::<i32>().unwrap();
             let b_num = b_m[1].parse::<i32>().unwrap();
             if b_num != a_num + 1 {
@@ -126,7 +128,7 @@ fn is_consecutive_episode(a: &ParsedLine, b: &ParsedLine) -> bool {
     true
 }
 
-/// Helper to get title number (Part or Episode) or fall back to main E num.
+/// Determine the best number to use when warning about a gap
 fn get_best_warning_num(p: &ParsedLine) -> String {
     // Check for Part number
     if let Some(pt_m) = PT_RE.captures(&p.suffix) {
@@ -142,7 +144,7 @@ fn get_best_warning_num(p: &ParsedLine) -> String {
     p.episode.clone()
 }
 
-/// Emits a compressed or single line for a group of parsed entries
+/// Emit a compressed or single line for a group of parsed entries
 fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
     if group.is_empty() {
         return;
@@ -173,7 +175,7 @@ fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
             .map(|pt2_m| (pt1_m[1].to_string(), pt2_m[1].to_string()))
     });
 
-    // Use `replace_all` to handle lines with both Episode and Part.
+    // Use `replace_all` to handle lines with both Episode and Part
     // --- `replace_all` closure now just uses the captured variables ---
     let new_suffix = EP_PT.replace_all(s1, |caps: &regex::Captures| {
         let word_capture = &caps[1];
@@ -209,7 +211,7 @@ fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
                 return format!("{} {}-{}", word_capture, num1, formatted_num2);
             }
         }
-        // Fallback: if numbers aren't found, return the original full match.
+        // Fallback: if numbers aren't found, return the original full match
         caps[0].to_string()
     });
 
@@ -219,7 +221,7 @@ fn append_group(group: &[ParsedLine], output_lines: &mut Vec<String>) {
     ));
 }
 
-/// Processes a vector of pre-normalized lines.
+/// Process all (normalized) lines and group/compress consecutive entries
 fn squish_lines(lines: Vec<String>, prog_name: &str) -> Vec<String> {
     const YELLOW_WARNING: &str = "\x1B[33mWarning\x1B[0m";
 
@@ -234,13 +236,13 @@ fn squish_lines(lines: Vec<String>, prog_name: &str) -> Vec<String> {
             } else {
                 let last_in_group = group.last().unwrap();
                 if is_same_arc(last_in_group, &p) {
-                    // It's the same show/season/arc.
+                    // It's the same show/season/arc
                     if is_consecutive_episode(last_in_group, &p) {
-                        // It's consecutive. Add it to the group.
+                        // It's consecutive. Add it to the group
                         group.push(p);
                     } else {
                         // --- GAP DETECTED ---
-                        // It's the same show, but not consecutive.
+                        // It's the same show, but not consecutive
 
                         // 1. Emit warning to stderr
                         let start_num = get_best_warning_num(last_in_group);
@@ -258,7 +260,7 @@ fn squish_lines(lines: Vec<String>, prog_name: &str) -> Vec<String> {
                         group = vec![p];
                     }
                 } else {
-                    // It's a different show/season/arc. This is a normal break.
+                    // It's a different show/season/arc. This is a normal break
                     append_group(&group, &mut output_lines);
                     group = vec![p];
                 }
@@ -306,7 +308,7 @@ struct Args {
     input: Option<PathBuf>,
 }
 
-/// Reads show episode listings and compresses consecutive episode sequences.
+/// Read show episode listings and compress consecutive episode sequences
 fn main() -> io::Result<()> {
     const RED_ERROR: &str = "\x1B[31mError\x1B[0m";
     let invoked_path = std::env::args().next().unwrap_or_default();
@@ -316,7 +318,7 @@ fn main() -> io::Result<()> {
         .unwrap_or("program")
         .to_string();
 
-    // Use try_parse() which returns a Result, instead of parse().
+    // Use try_parse() which returns a Result, instead of parse()
     match Args::try_parse() {
         Ok(args) => {
             // --- On success
@@ -375,7 +377,7 @@ fn main() -> io::Result<()> {
                 }
                 std::process::exit(2);
             } else {
-                // For other errors let clap print its own helpful message.
+                // For other errors let clap print its own helpful message
                 e.exit();
             }
         }

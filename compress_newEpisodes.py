@@ -27,7 +27,7 @@ def normalize_quoted_line(s: str) -> str:
 
 
 def parse_line(line: str) -> Optional[dict[str, str]]:
-    # Parse a line into prefix, season, episode, suffix dict
+    # Parse a (normalized) line into prefix, season, episode, suffix dict
     m = PAT.match(line)
     if not m:
         return None
@@ -146,7 +146,7 @@ def append_group(group: list[dict[str, str]], output_lines: list[str]) -> None:
     output_lines.append(f"{first['pre']}, S{first['S']}E{e1}-{e2}, {suf}")
 
 
-# Process all lines and group/compress consecutive entries
+# Process all (normalized) lines and group/compress consecutive entries
 def squish_lines(lines: list[str]) -> list[str]:
     output_lines, group = [], []
     for line in lines:
