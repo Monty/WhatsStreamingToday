@@ -277,13 +277,49 @@ func isTerminal(file *os.File) bool {
 	return (stat.Mode() & os.ModeCharDevice) != 0
 }
 
+// printHelp prints the help message
+func printHelp(progName string) {
+	fmt.Printf(`Reads show episode listings from stdin or a file and compresses consecutive episode sequences.
+
+For example:
+  Bannan, S08E01, Episode 01
+  Bannan, S08E02, Episode 02
+becomes:
+  Bannan, S08E01-02, Episode 01-02
+
+Usage:
+  %s [input_file]
+  %s -h, --help
+
+Arguments:
+  input_file    Optional input filename (reads from stdin if omitted)
+
+Options:
+  -h, --help    Show this help message and exit
+
+Examples:
+  ./newEpisodes.sh | ./%s > newEpisodes.txt
+  ./%s episodes.txt > newEpisodes.txt
+`, progName, progName, progName, progName)
+}
+
 func main() {
 	progName := filepath.Base(os.Args[0])
 
 	// Parse arguments
 	args := os.Args[1:]
 
-	// Check for unknown flags
+	// Check for help flags
+	if len(args) > 0 {
+		for _, arg := range args {
+			if arg == "-h" || arg == "--help" {
+				printHelp(progName)
+				os.Exit(0)
+			}
+		}
+	}
+
+	// Check for unknown flags (starting with -)
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "-") {
 			fmt.Fprintf(os.Stderr, "%s: [%s] Unrecognized argument '%s'\n", progName, redError, arg)
