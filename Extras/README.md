@@ -6,10 +6,9 @@ This directory contains Rust and Go source code equivalents of
 It also contains a worst-case test file and the expected results
 from compressing it.
 
-Although Rust and Go are faster than Python, I'd stick with Python
-as it takes less than 45 ms to process a 233k file with 5840 line,
-and skips the setup required for compilation.
-
+Rust and Go are faster, but Python still wins for convenience — it
+handles a 233 KB, 5,840-line file in under 45 ms, and there’s no
+compilation step to worry about.
 
 ```
 $ hyperfine --warmup 10 \
