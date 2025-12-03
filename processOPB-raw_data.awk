@@ -138,8 +138,6 @@ function removeHeader() {
         showTitle = "Miss Scarlet and The Duke"
     }
 
-    if (shortShowURL ~ /modus/) { showTitle = "Modus" }
-
     if (shortShowURL ~ /professor-t/) { showTitle = "Professor T (Belgian)" }
 
     if (shortShowURL ~ /professor-t-uk/) { showTitle = "Professor T (British)" }
