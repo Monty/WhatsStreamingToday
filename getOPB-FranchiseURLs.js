@@ -14,11 +14,13 @@ const RED_ERROR = "\x1b[31mError\x1b[0m";
   const page = await browser.newPage();
   await page.goto(BROWSE_URL);
 
-  await page.waitForSelector("a.ShowPoster_show_poster__link__gzPSH img[alt]");
+  // More stable selector - waits for any image with alt text inside the show grid
+  await page.waitForSelector("ul[class*='show_grid'] img[alt]");
 
   const showData = await page.evaluate(() => {
+    // Find all links that contain show poster images
     const anchors = Array.from(
-      document.querySelectorAll("a.ShowPoster_show_poster__link__gzPSH"),
+      document.querySelectorAll("a[class*='show_poster__link']"),
     );
     return anchors
       .map((a) => {
