@@ -16,6 +16,7 @@
 BEGIN {
     FS = "\t"
     OFS = "\t"
+    printf("In calculateMHzShowDurations.awk\n") > "/dev/stderr"
 }
 
 # No processing on header and other lines unrelated to shows
@@ -89,8 +90,6 @@ $2 != "" {
 
 END {
     printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
-
-    printf("In calculateMHzShowDurations.awk\n") > "/dev/stderr"
 
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     totalSeasons == 1 ? pluralSeasons = "season" : pluralSeasons = "seasons"
