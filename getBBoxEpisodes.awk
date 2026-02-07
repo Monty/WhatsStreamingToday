@@ -32,6 +32,7 @@ function convertDurationToHMS() {
     gsub(/&#225;/, "á")
     gsub(/&#226;/, "â")
     gsub(/&#229;/, "å")
+    gsub(/&#231;/, "ç")
     gsub(/&#232;/, "è")
     gsub(/&#233;/, "é")
     gsub(/&#234;/, "ê")
