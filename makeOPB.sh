@@ -390,7 +390,8 @@ fi
 
 # Look for any leftover HTML character codes or other problems
 # shellcheck disable=SC2086
-probs="$(rg -c --sort path -f rg_problems.rgx $ALL_TXT $ALL_SPREADSHEETS)"
+probs="$(rg -c --sort path -f rg_problems.rgx \
+    $ALL_TXT $ALL_SPREADSHEETS || true)"
 if [ -n "$probs" ]; then
     {
         printf "\n==> Possible formatting problems:\n"
@@ -403,7 +404,7 @@ fi
 # Also send to stdout
 # shellcheck disable=SC2086
 probs="$(rg -c --color ansi --sort path -f rg_problems.rgx \
-    $ALL_TXT $ALL_SPREADSHEETS)"
+    $ALL_TXT $ALL_SPREADSHEETS || true)"
 if [ -n "$probs" ]; then
     printf "\n==> Possible formatting problems:\n"
     printf "    $probs\n"
