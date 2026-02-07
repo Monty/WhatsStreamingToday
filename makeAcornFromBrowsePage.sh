@@ -3,13 +3,23 @@
 #
 # shellcheck disable=SC2317
 
-# trap ctrl-c and call cleanup
-trap cleanup INT
+# Prevent cascading or pipe failures
+set -euo pipefail
+
+# trap and locate errors that might arise from pipefail
+trap 'printf "${ERROR} at or near line %s:\n\t%s\n" \
+    "$LINENO" "$BASH_COMMAND" >&2' ERR
+
+# trap ctrl-c and SIGTERM -- call cleanup and exit
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
 #
 function cleanup() {
+    stty sane
     printf "\n"
-    exit 130
 }
+
+ERROR="\e[0;31m[Error]\e[0m"
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
@@ -25,6 +35,9 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
+DEBUG="no"
+SUMMARY="no"
+PRINT_TOTALS="no"
 while getopts ":dst" opt; do
     case $opt in
     d)
@@ -113,7 +126,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
     curl -sS $BROWSE_URL | grep '<a itemprop="url"' |
         sed -e 's+.*http+http+' -e 's+/">$++' |
-        rg -v 'janeandrohan|rebus' | sort -f >"$SHOW_URLS"
+        rg -v 'janeandrohan' | sort -f >"$SHOW_URLS"
 else
     printf "==> Using existing $SHOW_URLS\n"
 fi

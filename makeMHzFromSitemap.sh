@@ -3,13 +3,23 @@
 #
 # shellcheck disable=SC2317
 
-# trap ctrl-c and call cleanup
-trap cleanup INT
+# Prevent cascading or pipe failures
+set -euo pipefail
+
+# trap and locate errors that might arise from pipefail
+trap 'printf "${ERROR} at or near line %s:\n\t%s\n" \
+    "$LINENO" "$BASH_COMMAND" >&2' ERR
+
+# trap ctrl-c and SIGTERM -- call cleanup and exit
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
 #
 function cleanup() {
+    stty sane
     printf "\n"
-    exit 130
 }
+
+ERROR="\e[0;31m[Error]\e[0m"
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
@@ -25,6 +35,10 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
+QUICK="no"
+DEBUG="no"
+SUMMARY="no"
+PRINT_TOTALS="no"
 while getopts ":dqst" opt; do
     case $opt in
     q)
@@ -191,7 +205,7 @@ sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
 rm -f "$RAW_TITLES"
 
 # For the shortest runtime, exit here
-[ -n "$QUICK" ] && exit
+[ "$QUICK" = "yes" ] && exit 0
 
 # loop through the list of URLs from $EPISODE_URLS and generate an unsorted credits spreadsheet
 while read -r line; do
