@@ -57,7 +57,7 @@ done
 
 # Make sure we can execute curl.
 if ! command -v curl >/dev/null; then
-    printf "[Error] Can't run curl. Install curl and rerun this script.\n"
+    printf "${ERROR} Can't run curl. Install curl and rerun this script.\n"
     printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
 fi
@@ -65,7 +65,7 @@ fi
 # Make sure network is up and the Acorn TV site is reachable
 BROWSE_URL="https://acorn.tv/browse/all"
 if ! curl -o /dev/null -Isf $BROWSE_URL; then
-    printf "[Error] $BROWSE_URL isn't available, or your network is down.\n"
+    printf "${ERROR} $BROWSE_URL isn't available, or your network is down.\n"
     printf "        Try accessing $BROWSE_URL in your browser.\n"
     exit 1
 fi
@@ -317,4 +317,5 @@ if [ "$SUMMARY" = "yes" ]; then
     rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
+cleanup
 exit

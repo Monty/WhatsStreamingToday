@@ -61,7 +61,7 @@ done
 
 # Make sure we can execute curl.
 if ! command -v curl >/dev/null; then
-    printf "[Error] Can't run curl. Install curl and rerun this script.\n"
+    printf "${ERROR} Can't run curl. Install curl and rerun this script.\n"
     printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
 fi
@@ -69,7 +69,7 @@ fi
 # Make sure network is up and MHz Choice site is reachable
 SITEMAP_URL="https://watch.mhzchoice.com/sitemap.xml"
 if ! curl -o /dev/null -Isf $SITEMAP_URL; then
-    printf "[Error] $SITEMAP_URL isn't available, or your network is down.\n"
+    printf "${ERROR} $SITEMAP_URL isn't available, or your network is down.\n"
     printf "        Try accessing $SITEMAP_URL in your browser.\n"
     exit 1
 fi
@@ -384,4 +384,5 @@ if [ "$SUMMARY" = "yes" ]; then
     rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
+cleanup
 exit

@@ -469,3 +469,4 @@ if [ "$SUMMARY" = "yes" ]; then
 fi
 
 cleanup
+exit
