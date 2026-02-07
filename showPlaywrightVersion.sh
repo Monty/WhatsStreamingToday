@@ -2,6 +2,22 @@
 
 # Check if Playwright is installed, then print version numbers
 
+# Prevent cascading or pipe failures
+set -euo pipefail
+
+# trap and locate errors that might arise from pipefail
+trap 'printf "${ERROR} at or near line %s:\n\t%s\n" \
+    "$LINENO" "$BASH_COMMAND" >&2' ERR
+
+# trap ctrl-c and SIGTERM -- call cleanup and exit
+trap 'cleanup; exit 130' INT
+trap 'cleanup; exit 143' TERM
+#
+function cleanup() {
+    stty sane
+    printf "\n"
+}
+
 if command -v playwright >/dev/null; then
     printf "Your installed Playwright and chromium browser versions are:\n"
 
