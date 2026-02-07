@@ -20,6 +20,7 @@ function cleanup() {
 }
 
 ERROR="\e[0;31m[Error]\e[0m"
+INFO="\e[0;34m[Info]\e[0m"
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
@@ -72,18 +73,13 @@ while getopts ":dm:r:st" opt; do
     esac
 done
 
-# Colors used in printing messages
-RED="\e[0;31m"
-BLUE="\e[0;34;1m"
-NO_COLOR="\e[0m"
-
 # Let us know MAX_RETRIES and RETRY_MULTIPLIER
-printf "==> [${BLUE}Info${NO_COLOR}] MAX_RETRIES is $MAX_RETRIES\n"
-printf "==> [${BLUE}Info${NO_COLOR}] RETRY_MULTIPLIER is $RETRY_MULTIPLIER\n"
+printf "==> ${INFO} MAX_RETRIES is $MAX_RETRIES\n"
+printf "==> ${INFO} RETRY_MULTIPLIER is $RETRY_MULTIPLIER\n"
 
 # Make sure we can execute curl.
 if ! command -v curl >/dev/null; then
-    printf "[Error] Can't run curl. Install curl and rerun this script.\n"
+    printf "${ERROR} Can't run curl. Install curl and rerun this script.\n"
     printf "        To test, type:  curl -Is https://github.com/ | head -5\n"
     exit 1
 fi
@@ -92,7 +88,7 @@ getURLsFrom() {
     # Make sure network is up and OPB site is reachable
     local BROWSE_URL="$1"
     if ! curl -o /dev/null -Isf "$BROWSE_URL"; then
-        printf "[Error] %s isn't available, or your network is down.\n" "$BROWSE_URL"
+        printf "${ERROR} %s isn't available, or your network is down.\n" "$BROWSE_URL"
         printf "        Try accessing %s in your browser.\n" "$BROWSE_URL"
         exit 1
     fi
@@ -233,16 +229,12 @@ function printStatus() {
     [ "$attempts" -ne 1 ] && retries="retries"
     if [ "$status" = "succeeded" ]; then
         printf "\n" >>"$LOGFILE"
-        {
-            printf "==> [${BLUE}Info${NO_COLOR}]"
-            printf " Succeeded scraping shows with $attempts $retries.\n"
-        } | tee -a "$LOGFILE"
+        printf "==> $INFO Succeeded scraping shows with $attempts $retries.\n" |
+            tee -a "$LOGFILE"
     else
         printf "\n" >>"$LOGFILE"
-        {
-            printf "==> [${RED}Error${NO_COLOR}]"
-            printf " Failed scraping shows with %s %s.\n" "$attempts" "$retries"
-        } | tee -a "$ERRORS" | tee -a "$LOGFILE"
+        printf "==> $ERROR Failed scraping shows with %s %s.\n" "$attempts" "$retries" |
+            tee -a "$ERRORS" | tee -a "$LOGFILE"
     fi
 }
 
@@ -266,8 +258,7 @@ else
             {
                 printf "\n==> Retry #%s using %s\n" "$retries" "$RETRIES_FILE"
                 printf "    at: %s\n" "$(date '+%y-%m-%d %H:%M:%S')"
-                printf "==> [${BLUE}Info${NO_COLOR}]"
-                printf " Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
+                printf "==> $INFO Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
             } | tee -a "$LOGFILE"
             duration=$((retries * RETRY_MULTIPLIER * 60))
             sleep "$duration"
@@ -477,4 +468,4 @@ if [ "$SUMMARY" = "yes" ]; then
     rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
-exit
+cleanup
