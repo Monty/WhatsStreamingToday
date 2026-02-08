@@ -436,5 +436,4 @@ if [ "$SUMMARY" = "yes" ]; then
     rm -f "$ALL_WORKING" "$ALL_TXT" "$ALL_SPREADSHEETS"
 fi
 
-cleanup
 exit
