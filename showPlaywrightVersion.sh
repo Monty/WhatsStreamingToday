@@ -18,22 +18,25 @@ function cleanup() {
     printf "\n"
 }
 
+ERROR="\e[0;31m[Error]\e[0m"
+WARNING="\e[0;33m[Warning]\e[0m"
+
 if command -v playwright >/dev/null; then
     printf "Your installed Playwright and chromium browser versions are:\n"
 
     if ! playwright --version; then
-        printf "Error: Failed to get Playwright version\n"
+        printf "${ERROR} Failed to get Playwright version\n"
         exit 1
     fi
 
     # Check if chromium-version.js exists before running it
     if [[ -f "chromium-version.js" ]]; then
         if ! node chromium-version.js; then
-            printf "Error: Failed to get Chromium version\n"
+            printf "${ERROR} Failed to get Chromium version\n"
             exit 1
         fi
     else
-        printf "Warning: chromium-version.js not found\n"
+        printf "$WARNING chromium-version.js not found\n"
     fi
 
     printf "\nYou can check the Playwright release notes to find out the latest version.\n"
