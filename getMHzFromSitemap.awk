@@ -31,7 +31,6 @@
     gsub(/&#x27;/, "'", showTitle)
     gsub(/&#39;/, "'", showTitle)
     gsub(/\\"/, "\"", showTitle)
-    # print "==> showTitle = " showTitle > "/dev/stderr"
     # Defer adding showTitle to RAW_TITLES until we check it's not a category-title
     next
 }
@@ -45,86 +44,119 @@
 /<meta name="description" content="/, /">/ {
     # if we're on the first line of this block ...
     if ($0 ~ /name="description" content="/) {
-        headerAdded = "no"
         sub(/.*name="description" content="/, "")
-    }
 
-    # Special case for Preppers which has no rating
-    if (showTitle == "Preppers" && $0 ~ /\|[ ]+.*\|[ ]/) { $0 = $0 " | TV-14" }
-
-    # If we find a header, clean it up and put it before the description
-    if ($0 ~ /\|[ ]+TV[ ]*-/) {
-        # Fix obvious typos
-        sub(/ENGLIGH/, "ENGLISH")
-        sub(/ENGISH/, "ENGLISH")
-        sub(/EGLISH/, "ENGLISH")
-        sub(/IN ENGLISH/, "ENGLISH")
-        sub(/IN GERMAN/, "GERMAN")
-        sub(/FRANCE WITH/, "FRENCH WITH")
-        sub(/IRISH GAELIC/, "IRISH")
-        sub(/GERMANY WITH/, "GERMAN WITH")
-        sub(/SERBIAN \(CYRILLIC\)/, "SERBIAN")
-        sub(/WITH ENGLISH SUBTITLES/, "")
-        sub(/[Ww]ith [Ee]nglish [Ss]ubtitles/, "")
-        # Special case for Maigret: The Classic BBC Series
-        sub(/WITH ENGLISH CAPTIONS/, "")
-        sub(/SCANDINAVIAN CRIME FICTION/, "Sweden")
-        # Handle both hyphen and en-dash which look similar
-        sub(/NON[-]*FICTION[ ]*[-–][ ]*DOCUMENTARY/, "Documentary")
-        gsub(/[ ]*\|[ ]+/, "|")
-        sub(/\r/, "")
-        # Split out header fields
+        # Split out potential header fields to see if its a header
         numFields = split($0, fld, "|")
-        # lowercase everything but the first character in all fields but the last
-        for (i = 1; i < numFields; ++i) {
-            fld[i] = substr(fld[i], 1, 1) tolower(substr(fld[i], 2))
-            # uppercase the first character of any second word
-            if (match(fld[i], / /)) {
-                fld[i] = substr(fld[i], 1, RSTART)\
-                    toupper(substr(fld[i], RSTART + 1, 1))\
-                    (substr(fld[i], RSTART + 2))
-            }
-        }
 
-        # Put the finalized header before the description
-        if (numFields > 3) {
-            sub(/Drama-crime/, "Drama - crime", fld[1])
-            gsub(/ /, "", fld[4])
-            showDescriptor = fld[1] "\t" fld[2] "\t" fld[(numFields - 1)] "\t"\
-                fld[numFields]\
-                "\t"
-            headerAdded = "yes"
-        }
-    }
-    else {
-        # if we didn't find a header in this block, add a blank one
-        if (headerAdded == "no") { showDescriptor = "\t\t\t\t" }
-
-        # We found a description, clean it up and add it
-        gsub(/  */, " ")
-        gsub(/&amp;amp;/, "\\&")
-        gsub(/&amp;/, "\\&")
-        gsub(/&#x27;/, "'")
-        gsub(/&#39;/, "'")
-        gsub(/&quot;/, "\"")
-        gsub(/&lsquo;/, "’")
-        gsub(/&rsquo;/, "’")
-        gsub(/&ldquo;/, "“")
-        gsub(/&rdquo;/, "”")
-        gsub(/\\"/, "\"")
-        gsub(/\r/, " ")
-        # if it's not the last line of the description, add it
-        if ($0 !~ /"\>/) {
-            printf(\
-                "==> Multi line description in \"%s\"\n", showTitle\
-            ) >> ERRORS
-            showDescriptor = showDescriptor $0
+        if (numFields <= 3) {
+            # Must not have a header
+            headerAdded = "no"
+            showDescriptor = "\t\t\t\t"
         }
         else {
-            # if it's the last line of the description, add it
-            sub(/"\>/, "")
-            showDescriptor = showDescriptor $0
+            # Must be a header, possibly one of two lines
+            headerAdded = "yes"
+            headerLine = $0
+
+            if (headerLine !~ /\|[ ]+TV[ ]*-/) {
+                getline possibleHeader
+                # print "possibleHeader = " possibleHeader >> ERRORS
+                if (possibleHeader ~ /[ ]*TV[ ]*-/) {
+                    headerLine = headerLine " " possibleHeader
+                }
+            }
+
+            # Split out header fields from headerLine
+            numFields = split(headerLine, fld, "|")
+
+            # print "==> numFields = " numFields " in " showTitle >> ERRORS
+            # print headerLine >> ERRORS
+
+            # Special case for Beck, Maria Wern, and Wallander
+            sub(/SCANDINAVIAN CRIME FICTION \|/, "", headerLine)
+            # Special case for Fireplaces of the World
+            sub(\
+                /\| ENGLISH \| UNITED STATES \|/,
+                "| UNITED STATES | ENGLISH |",
+                headerLine\
+            )
+            # Special case for Maigret: The Classic BBC Series
+            sub(/WITH ENGLISH CAPTIONS/, "", headerLine)
+            # Special case for Mercy on US
+            sub(/CRIME I ARGENTINA/, "CRIME | ARGENTINA", headerLine)
+            # Special case for Petra
+            sub(/DRAMA \| CRIME /, "DRAMA - CRIME", headerLine)
+            # Special case for The Fighter
+            sub(/\| SWEDISH \| SWEDISH/, "| SWEDEN | SWEDISH", headerLine)
+
+            # Fix obvious typos
+            sub(/ENGLIGH/, "ENGLISH", headerLine)
+            sub(/ENGISH/, "ENGLISH", headerLine)
+            sub(/EGLISH/, "ENGLISH", headerLine)
+            sub(/IN ENGLISH/, "ENGLISH", headerLine)
+            sub(/IN GERMAN/, "GERMAN", headerLine)
+            sub(/FRANCE WITH/, "FRENCH WITH", headerLine)
+            sub(/IRISH GAELIC/, "IRISH", headerLine)
+            sub(/GERMANY WITH/, "GERMAN WITH", headerLine)
+            sub(/SERBIAN \(CYRILLIC\)/, "SERBIAN", headerLine)
+            sub(/WITH ENGLISH SUBTITLES/, "", headerLine)
+            sub(/[Ww]ith [Ee]nglish [Ss]ubtitles/, "", headerLine)
+            # Handle both hyphen and en-dash which look similar
+            sub(\
+                /NON[-]*FICTION[ ]*[-–][ ]*DOCUMENTARY/,
+                "Documentary",
+                headerLine\
+            )
+            gsub(/[ ]*\|[ ]*/, "|", headerLine)
+            sub(/\r/, "", headerLine)
+            sub(/[ ]*/, "", headerLine)
+
+            # lowercase everything but the first character in the first 3 fields
+            numFields = split(headerLine, fld, "|")
+
+            for (i = 1; i <= 3; ++i) {
+                fld[i] = substr(fld[i], 1, 1) tolower(substr(fld[i], 2))
+                # uppercase the first character of any second word
+                if (match(fld[i], / /)) {
+                    fld[i] = substr(fld[i], 1, RSTART)\
+                        toupper(substr(fld[i], RSTART + 1, 1))\
+                        (substr(fld[i], RSTART + 2))
+                }
+            }
+
+            sub(/Drama-crime/, "Drama - crime", fld[1])
+            gsub(/ /, "", fld[4])
+            showDescriptor = fld[1] "\t" fld[2] "\t" fld[3] "\t" fld[4] "\t"
+            # print showDescriptor >> ERRORS
+
+            # We found a headerline, so move past it
+            getline
         }
+    }
+
+    # We found a description, clean it up and add it
+    gsub(/  */, " ")
+    gsub(/&amp;amp;/, "\\&")
+    gsub(/&amp;/, "\\&")
+    gsub(/&#x27;/, "'")
+    gsub(/&#39;/, "'")
+    gsub(/&quot;/, "\"")
+    gsub(/&lsquo;/, "’")
+    gsub(/&rsquo;/, "’")
+    gsub(/&ldquo;/, "“")
+    gsub(/&rdquo;/, "”")
+    gsub(/\\"/, "\"")
+    gsub(/\r/, " ")
+    # if it's not the last line of the description, add it
+    if ($0 !~ /"\>/) {
+        printf("==> Multi line description in \"%s\"\n", showTitle) >> ERRORS
+        showDescriptor = showDescriptor $0
+    }
+    else {
+        # if it's the last line of the description, add it
+        sub(/"\>/, "")
+        showDescriptor = showDescriptor $0
     }
 
     # print "==> showDescriptor = " showDescriptor > "/dev/stderr"
@@ -190,7 +222,7 @@
 #   <form class="form"><input value="https://watch.mhzchoice.com/river-of-grass"
 #
 # But movies from MHz do have a season
-#   <form class="form"><input value="https://watch.mhzchoice.com/the-berken-case/  season:1"
+#   <form class="form"><input value="https://watch.mhzchoice.com/the-berken-case/season:1"
 #
 # So do real shows with seasons
 #    <form class="form"><input value="https://watch.mhzchoice.com/gasmamman/season:1"
