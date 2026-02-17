@@ -160,7 +160,6 @@
     }
 
     # print "==> showDescriptor = " showDescriptor > "/dev/stderr"
-    next
 }
 
 # Show URL
