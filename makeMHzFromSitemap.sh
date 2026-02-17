@@ -155,9 +155,9 @@ fi
 # Separate URLs into episodes, movies, and seasons
 rg 'https://watch.mhzchoice.com/.*-season-[0-9]*/.*$' "$SHOW_URLS" >"$EPISODE_URLS"
 rg 'https://watch.mhzchoice.com.*-season-[0-9]*$' "$SHOW_URLS" >"$SEASON_URLS"
-rg -v -season- "$SHOW_URLS" | rg /videos/ >>"$EPISODE_URLS"
-rg -v -season- "$SHOW_URLS" | rg /videos/ |
-    sd "/videos/.*" "" | zet single >"$MOVIE_URLS"
+rg -v -season- "$SHOW_URLS" | rg /videos/ | tee -a "$EPISODE_URLS" |
+    sd "/videos/.*" "" | zet single >"$MOVIE_URLS" || true
+
 # shellcheck disable=SC2129
 cat "$MOVIE_URLS" >>"$SEASON_URLS"
 sd -- "-season-" "/season:" "$SEASON_URLS"
