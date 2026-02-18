@@ -12,6 +12,7 @@
 
 #   Field Names
 #        1 Title (link)    2 Seasons    3 Episodes    4 Duration    5 Description
+BEGIN { printf("BEGIN getAcornFrom-showPages.awk\n") > "/dev/stderr" }
 
 # Generic functions
 function clearShowVariables() {
@@ -455,9 +456,9 @@ function wrapUpEpisode() {
 }
 
 END {
-    printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
+    printf("END getAcornFrom-showPages.awk\n") > "/dev/stderr"
 
-    printf("In getAcornFrom-showPages.awk\n") > "/dev/stderr"
+    printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
 
     totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
