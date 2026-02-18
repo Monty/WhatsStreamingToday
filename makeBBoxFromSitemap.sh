@@ -141,9 +141,6 @@ ALL_CSVS="$MOVIES_CSV $SHOWS_CSV $EPISODES_CSV"
 # shellcheck disable=SC2086
 rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 
-# Print header for credits file
-printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >"$CREDITS"
-
 # Grab the sitemap file and extract the URLs for en-us items
 # Unless we already have one from today
 if [ ! -e "$SHOW_URLS" ]; then
@@ -243,6 +240,9 @@ tail -r "$LONG_SPREADSHEET" | awk -v ERRORS="$ERRORS" -v DURATION="$DURATION" \
 mv "$LONG_SPREADSHEET" "$TEMP_SPREADSHEET"
 tail -r "$TEMP_SPREADSHEET" | awk -v ERRORS="$ERRORS" \
     -f calculateBBoxEpisodeCount.awk | tail -r >"$LONG_SPREADSHEET"
+
+# Print header for credits file
+printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >"$CREDITS"
 
 # Generate credits spreadsheets
 sort -fu "$RAW_CREDITS" | sort -fb >>"$CREDITS"
