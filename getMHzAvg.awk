@@ -2,8 +2,9 @@
 # average episode length
 #
 BEGIN {
+    printf("BEGIN getMHzAvg.awk\n") > "/dev/stderr"
+
     FS = "\t"
-    printf("In getMHzAvg.awk\n") > "/dev/stderr"
 }
 
 /^Title/ {
@@ -43,3 +44,5 @@ BEGIN {
 }
 
 /^Non-blank values/ || /^Total seasons & episodes/ { print }
+
+END { printf("END getMHzAvg.awk\n") > "/dev/stderr" }

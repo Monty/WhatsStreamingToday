@@ -14,9 +14,9 @@
 #    1 Title    2 Seasons    3 Episodes    4 Duration    5 Genre    6 Country    7 Language
 #    8  Rating    9 Description
 BEGIN {
+    printf("BEGIN calculateMHzShowDurations.awk\n") > "/dev/stderr"
     FS = "\t"
     OFS = "\t"
-    printf("In calculateMHzShowDurations.awk\n") > "/dev/stderr"
 }
 
 # No processing on header and other lines unrelated to shows
@@ -89,6 +89,8 @@ $2 != "" {
 }
 
 END {
+    printf("END calculateMHzShowDurations.awk\n") > "/dev/stderr"
+
     printf("%02dh %02dm\n", totalTime[1], totalTime[2]) >> DURATION
 
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
