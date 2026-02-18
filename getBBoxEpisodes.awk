@@ -4,6 +4,8 @@
 # awk -v ERRORS=$ERRORS -f getBBoxEpisodesFromHTML.awk "$TV_EPISODE_HTML" |
 #     sort -fu --key=4 --field-separator=\" >"$EPISODES_CSV"
 BEGIN {
+    printf("BEGIN getBBoxEpisodes.awk\n") > "/dev/stderr"
+
     # Print spreadsheet header
     printf(\
         "Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t"\
@@ -394,7 +396,7 @@ function clearEpisodeVariables() {
 }
 
 END {
-    printf("In getBBoxEpisodesFromHTML.awk \n") > "/dev/stderr"
+    printf("END getBBoxEpisodes.awk\n") > "/dev/stderr"
 
     totalEpisodes == 1\
         ? pluralEpisodes = "episode"\

@@ -2,9 +2,11 @@
 
 # INVOCATION:
 # awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v RAW_CREDITS=$RAW_CREDITS \
-#   -f getBBoxShowsFromHTML.awk "$TV_SHOW_HTML" |
+#   -f getBBoxShows.awk "$TV_SHOW_HTML" |
 #   sort -fu --key=4 --field-separator=\" >"$SHOWS_CSV"
 BEGIN {
+    printf("BEGIN getBBoxShows.awk\n") > "/dev/stderr"
+
     # Print spreadsheet header
     printf(\
         "Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t"\
@@ -314,7 +316,7 @@ function clearShowVariables() {
 }
 
 END {
-    printf("In getBBoxShowsFromHTML.awk \n") > "/dev/stderr"
+    printf("END getBBoxShows.awk\n") > "/dev/stderr"
 
     totalShows == 1 ? pluralShows = "show" : pluralShows = "shows"
     printf("    Processed %d %s\n", totalShows, pluralShows) > "/dev/stderr"

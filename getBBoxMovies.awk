@@ -5,6 +5,8 @@
 #   -f getBBoxMoviesFromHTML.awk "$TV_MOVIE_HTML" |
 #   sort -fu --key=4 --field-separator=\" >"$MOVIES_CSV"
 BEGIN {
+    printf("BEGIN getBBoxMovies.awk\n") > "/dev/stderr"
+
     # Print spreadsheet header
     printf(\
         "Title\tSeasons\tEpisodes\tDuration\tGenre\tYear\tRating\tDescription\t"\
@@ -307,7 +309,7 @@ function convertDurationToHMS() {
 }
 
 END {
-    printf("In getBBoxMoviesFromHTML.awk \n") > "/dev/stderr"
+    printf("END getBBoxMovies.awk\n") > "/dev/stderr"
 
     totalMovies == 1 ? pluralMovies = "movie" : pluralMovies = "movies"
     printf("    Processed %d %s\n", totalMovies, pluralMovies) > "/dev/stderr"
