@@ -13,18 +13,18 @@
 
 import Foundation
 
-// ANSI color codes for warnings and errors
+/// ANSI color codes for warnings and errors
 let yellowWarning = "\u{001B}[33mWarning\u{001B}[0m"
 let redError = "\u{001B}[31mError\u{001B}[0m"
 
-// Compiled regular expressions
+/// Compiled regular expressions
 let patRe = try! NSRegularExpression(pattern: #"^(.*),\s*S(\d+)E(\d+),\s*(.*)$"#, options: [.caseInsensitive])
 let epRe = try! NSRegularExpression(pattern: #"\bEpisode\s*(\d{1,4})"#, options: [.caseInsensitive])
 let ptRe = try! NSRegularExpression(pattern: #"\bPart\s*(\d{1,4})"#, options: [.caseInsensitive])
 let epPtRe = try! NSRegularExpression(pattern: #"\b(Episode|Part)\s*\d{1,4}"#, options: [.caseInsensitive])
 let wsRe = try! NSRegularExpression(pattern: #"\s+"#, options: [])
 
-// ParsedLine represents a parsed episode line
+/// ParsedLine represents a parsed episode line
 struct ParsedLine {
     let original: String
     let prefix: String
@@ -33,7 +33,7 @@ struct ParsedLine {
     let suffix: String
 }
 
-// Normalize lines that start with '"' and end with '"""' by removing all double quotes
+/// Normalize lines that start with '"' and end with '"""' by removing all double quotes
 func normalizeQuotedLine(_ s: String) -> String {
     let trimmed = s.trimmingCharacters(in: .whitespaces)
     if s.hasPrefix("\""), trimmed.hasSuffix("\"\"\"") {
@@ -42,7 +42,7 @@ func normalizeQuotedLine(_ s: String) -> String {
     return s
 }
 
-// Parse a normalized line into its components
+/// Parse a normalized line into its components
 func parseLine(_ line: String) -> ParsedLine? {
     let nsLine = line as NSString
     let range = NSRange(location: 0, length: nsLine.length)
@@ -61,7 +61,7 @@ func parseLine(_ line: String) -> ParsedLine? {
     return ParsedLine(original: original, prefix: prefix, season: season, episode: episode, suffix: suffix)
 }
 
-// Remove any Episode/Part numbers before logical grouping comparison
+/// Remove any Episode/Part numbers before logical grouping comparison
 func normalizeLineForComparison(_ s: String) -> String {
     var t = s
     let nsString = t as NSString
@@ -77,14 +77,14 @@ func normalizeLineForComparison(_ s: String) -> String {
     return t.lowercased()
 }
 
-// Determine if two lines belong to the same show/season/arc
+/// Determine if two lines belong to the same show/season/arc
 func isSameArc(_ a: ParsedLine, _ b: ParsedLine) -> Bool {
     a.prefix == b.prefix &&
         a.season == b.season &&
         normalizeLineForComparison(a.suffix) == normalizeLineForComparison(b.suffix)
 }
 
-// Check if all numbers (main E, Episode, Part) are sequential
+/// Check if all numbers (main E, Episode, Part) are sequential
 func isConsecutiveEpisode(_ a: ParsedLine, _ b: ParsedLine) -> Bool {
     // 1. Check main episode number
     guard let aEp = Int(a.episode), let bEp = Int(b.episode) else {
@@ -129,7 +129,7 @@ func isConsecutiveEpisode(_ a: ParsedLine, _ b: ParsedLine) -> Bool {
     return true
 }
 
-// Determine the best number to use when warning about a gap
+/// Determine the best number to use when warning about a gap
 func getBestWarningNum(_ p: ParsedLine) -> String {
     // Check for Part number
     if let ptMatch = ptRe.firstMatch(in: p.suffix, options: [], range: NSRange(location: 0, length: p.suffix.count)) {
@@ -147,7 +147,7 @@ func getBestWarningNum(_ p: ParsedLine) -> String {
     return p.episode
 }
 
-// Emit a compressed or single line for a group of parsed entries
+/// Emit a compressed or single line for a group of parsed entries
 func appendGroup(_ group: [ParsedLine], _ outputLines: inout [String]) {
     if group.isEmpty {
         return
@@ -231,7 +231,7 @@ func appendGroup(_ group: [ParsedLine], _ outputLines: inout [String]) {
     outputLines.append(line)
 }
 
-// Process all normalized lines and group/compress consecutive entries
+/// Process all normalized lines and group/compress consecutive entries
 func squishLines(_ lines: [String], _ progName: String) -> [String] {
     var outputLines: [String] = []
     var group: [ParsedLine] = []
@@ -282,7 +282,7 @@ func squishLines(_ lines: [String], _ progName: String) -> [String] {
     return outputLines
 }
 
-// Print help message
+/// Print help message
 func printHelp(_ progName: String) {
     print("""
     Reads show episode listings from stdin or a file and compresses consecutive episode sequences.
@@ -309,7 +309,7 @@ func printHelp(_ progName: String) {
     """)
 }
 
-// Extension to write strings to stderr
+/// Extension to write strings to stderr
 extension FileHandle {
     func write(_ string: String) {
         if let data = string.data(using: .utf8) {
@@ -318,7 +318,7 @@ extension FileHandle {
     }
 }
 
-// Main entry point
+/// Main entry point
 func main() {
     let progName = (CommandLine.arguments[0] as NSString).lastPathComponent
     let args = Array(CommandLine.arguments.dropFirst())
