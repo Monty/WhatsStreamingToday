@@ -6,7 +6,6 @@
 
 const { chromium } = require("playwright");
 const fs = require("fs");
-const noEpisodesRgxFile = "rg_OPB_no-episodes.rgx";
 
 const series_URL = process.env.TARGET;
 const output_file = process.env.RAW_HTML;
@@ -30,19 +29,6 @@ const maxEpisodeRetries = 5; // Maximum number of retries to get episode data
 const waitBetweenRetries = 1000;
 const timeoutForPageLoad = 60000;
 const waitAfterPageLoad = 10000;
-
-// Load the list of series URLs without episodes once, at startup
-let noEpisodesSeriesArr = [];
-try {
-  // Each line in rg_OPB_no-episodes.rgx should be a URL (trim for safety)
-  noEpisodesSeriesArr = fs
-    .readFileSync(noEpisodesRgxFile, "utf8")
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-} catch {
-  console.warn(`==> [${YELLOW_WARNING}] Could not open rg_OPB_no-episodes.rgx`);
-}
 
 async function tabExists(page, role, ariaName, timeout = timeoutForTabExists) {
   const deadline = Date.now() + timeout;
@@ -193,12 +179,7 @@ async function handleTab(page, tabName) {
     }
   } else {
     if (tabName === "Episodes") {
-      if (noEpisodesSeriesArr.includes(series_URL)) {
-        console.log(`==> [Info] ${series_URL} is in no-episodes list.`);
-        console.warn(
-          `==> [${BLUE_INFO}] ${series_URL} is in no-episodes list.`,
-        );
-      } else if (
+      if (
         aboutTabSnapshot.includes(
           "There are no episodes currently available for",
         )
@@ -355,7 +336,7 @@ removeFile(output_file);
       const aboutTab = await page
         .getByRole("tabpanel", { name: "About" })
         .ariaSnapshot();
-      aboutTabSnapshot = aboutTab; // Save for later use
+      aboutTabSnapshot = aboutTab;
       writeEssentialData("About tab", aboutTab, "    - listitem:", 2);
     } else {
       console.error(
