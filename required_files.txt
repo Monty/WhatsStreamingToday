@@ -52,7 +52,6 @@ getOPB-raw_data.awk
 getOPB-raw_data.js
 PBS-only.csv
 processOPB-raw_data.awk
-rg_OPB_no-episodes.rgx
 rg_OPB_skip.rgx
 saveTodaysOPBFiles.sh
 formatUnifiedDiffOutput.awk
