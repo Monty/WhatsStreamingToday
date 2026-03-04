@@ -15,6 +15,10 @@ const RED_ERROR = "\x1b[31mError\x1b[0m";
 const YELLOW_WARNING = "\x1b[33mWarning\x1b[0m";
 const BLUE_INFO = "\x1b[34mInfo\x1b[0m";
 
+// Temporary ABout Tab storage to check for:
+//      "There are no episodes currently available for"
+let aboutTabSnapshot = "";
+
 // Consolidate various waits and timeouts in one place
 const defaultSnapshotWait = 2000;
 const waitBeforeEpisodeSnapshot =
@@ -194,6 +198,15 @@ async function handleTab(page, tabName) {
         console.warn(
           `==> [${BLUE_INFO}] ${series_URL} is in no-episodes list.`,
         );
+      } else if (
+        aboutTabSnapshot.includes(
+          "There are no episodes currently available for",
+        )
+      ) {
+        console.log(
+          `==> [${BLUE_INFO}] No episodes available per About tab for`,
+          series_URL,
+        );
       } else {
         appendToRetriesFile(series_URL);
         console.warn(
@@ -342,6 +355,7 @@ removeFile(output_file);
       const aboutTab = await page
         .getByRole("tabpanel", { name: "About" })
         .ariaSnapshot();
+      aboutTabSnapshot = aboutTab; // Save for later use
       writeEssentialData("About tab", aboutTab, "    - listitem:", 2);
     } else {
       console.error(
