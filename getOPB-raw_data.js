@@ -46,24 +46,24 @@ async function tabExists(page, role, ariaName, timeout = timeoutForTabExists) {
   return false;
 }
 
-function appendToFile(headingTitle, showURL, filePath, sectionHeading) {
-  fs.appendFile(filePath, sectionHeading, (err) => {
-    if (err) {
-      console.error(`==> ${RED_ERROR} writing to file ${filePath}:`, err);
-    } else {
-      console.log(`==> Completed ${headingTitle} from ${showURL}`);
-    }
-  });
+// Notable #3: use fs.promises so callers can await completion and
+// avoid out-of-order writes when many seasons are processed quickly.
+async function appendToFile(headingTitle, showURL, filePath, sectionHeading) {
+  try {
+    await fs.promises.appendFile(filePath, sectionHeading);
+    console.log(`==> Completed ${headingTitle} from ${showURL}`);
+  } catch (err) {
+    console.error(`==> ${RED_ERROR} writing to file ${filePath}:`, err);
+  }
 }
 
-function appendToRetriesFile(showURL) {
-  fs.appendFile(retries_file, showURL + "\n", (err) => {
-    if (err) {
-      console.error(`==> ${RED_ERROR} writing to file ${retries_file}:`, err);
-    } else {
-      console.log(`==> Added ${showURL} to ${retries_file}`);
-    }
-  });
+async function appendToRetriesFile(showURL) {
+  try {
+    await fs.promises.appendFile(retries_file, showURL + "\n");
+    console.log(`==> Added ${showURL} to ${retries_file}`);
+  } catch (err) {
+    console.error(`==> ${RED_ERROR} writing to file ${retries_file}:`, err);
+  }
 }
 
 // Helper function to calculate the number of episodes in a season
@@ -106,7 +106,7 @@ async function handleTab(page, tabName) {
             series_URL,
           );
           // Add the series_URL to the list of URLs to be retried
-          appendToRetriesFile(series_URL);
+          await appendToRetriesFile(series_URL);
         }
       } else {
         if (retries > 0) {
@@ -127,8 +127,11 @@ async function handleTab(page, tabName) {
   if (await tabExists(page, "tab", tabName)) {
     await page.getByRole("tab", { name: tabName }).click();
 
-    // Is there a combobox in this tab?
-    const combobox = await page.getByRole("combobox").first();
+    // Is there a combobox in this tab's panel?
+    // Scoped to the tabpanel to avoid grabbing unrelated comboboxes elsewhere
+    // on the page (e.g. newsletter modals, filters outside the tab area).
+    const tabPanel = page.getByRole("tabpanel", { name: tabName });
+    const combobox = tabPanel.getByRole("combobox").first();
     if (await combobox.isVisible()) {
       // There is a combobox
       const options = await combobox.evaluate((select) =>
@@ -155,7 +158,10 @@ async function handleTab(page, tabName) {
           );
         }
 
-        // Click the selected option to trigger any dependent updates
+        // Notable #4: selectOption fires change/input events but OPB's React
+        // handler appears to require a second call to reliably trigger a
+        // re-render of the episode list. Without this, waitBeforeEpisodeSnapshot
+        // may expire before any episodes appear.
         await combobox.selectOption(option.value);
         // console.log(`Option ${option.label} was selected.`);
 
@@ -189,7 +195,7 @@ async function handleTab(page, tabName) {
           series_URL,
         );
       } else {
-        appendToRetriesFile(series_URL);
+        await appendToRetriesFile(series_URL);
         console.warn(
           `==> [${YELLOW_WARNING}] No "${tabName}" tab in`,
           series_URL,
@@ -281,7 +287,7 @@ async function writeOneSeasonsEpisodesData(page, headingTitle, snapshot) {
       uniqueURLs.clear();
     }
   }
-  appendToFile(
+  await appendToFile(
     headingTitle,
     series_URL,
     output_file,
@@ -291,11 +297,21 @@ async function writeOneSeasonsEpisodesData(page, headingTitle, snapshot) {
 }
 
 async function writeEssentialData(headingTitle, snapshot, eofString, offset) {
-  let essentialData = "";
   const splitLines = snapshot.split("\n");
   const firstIndex = splitLines.indexOf(eofString);
-  essentialData = splitLines.slice(0, firstIndex + offset).join("\n");
-  appendToFile(
+  let essentialData;
+  if (firstIndex === -1) {
+    // Terminator line not found — fall back to the whole snapshot so we don't
+    // silently drop the block if the page structure changes.
+    console.warn(
+      `==> [${YELLOW_WARNING}] Could not find '${eofString}' in ${headingTitle} snapshot for`,
+      series_URL,
+    );
+    essentialData = snapshot;
+  } else {
+    essentialData = splitLines.slice(0, firstIndex + offset).join("\n");
+  }
+  await appendToFile(
     headingTitle,
     series_URL,
     output_file,
@@ -328,7 +344,7 @@ removeFile(output_file);
 
     // 1) Get the top level page
     const mainPage = await page.locator("#maincontent").ariaSnapshot();
-    writeEssentialData("Main page", mainPage, "  - tablist:", 0);
+    await writeEssentialData("Main page", mainPage, "  - tablist:", 0);
 
     // 2) Get the Genre from the About tab, which should always exist
     if (await tabExists(page, "tab", "About")) {
@@ -337,7 +353,7 @@ removeFile(output_file);
         .getByRole("tabpanel", { name: "About" })
         .ariaSnapshot();
       aboutTabSnapshot = aboutTab;
-      writeEssentialData("About tab", aboutTab, "    - listitem:", 2);
+      await writeEssentialData("About tab", aboutTab, "    - listitem:", 2);
     } else {
       console.error(
         `==> [${RED_ERROR}] The "About" tab does not exist in`,
@@ -349,7 +365,13 @@ removeFile(output_file);
     await handleTab(page, "Clips & Previews");
 
     // 4) Get episodes from the Special tab
-    await handleTab(page, "Special");
+    // Notable #5: the tab is labelled "Special" or "Specials" depending on the show.
+    // Check for "Special" first (more common); fall back to "Specials" if not found.
+    // tabExists returns quickly if the tab is absent, so the fallback costs little.
+    const specialTabName = (await tabExists(page, "tab", "Special"))
+      ? "Special"
+      : "Specials";
+    await handleTab(page, specialTabName);
 
     // 5) Get episodes from the Episodes tab
     await handleTab(page, "Episodes");
@@ -357,7 +379,7 @@ removeFile(output_file);
     if (error.name === "TimeoutError") {
       console.error(`==> [${RED_ERROR}] Page load timed out for`, series_URL);
       // Add the series_URL to the list of URLs to be retried
-      appendToRetriesFile(series_URL);
+      await appendToRetriesFile(series_URL);
     } else {
       console.error(`==> ${RED_ERROR} during page navigation:`, error.message);
     }
