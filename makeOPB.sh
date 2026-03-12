@@ -254,32 +254,30 @@ else
             printStatus "succeeded" "$retries"
             break
         fi
-        if [ -e "$RETRIES_FILE" ]; then
-            {
-                printf "\n==> Retry #%s using %s\n" "$retries" "$RETRIES_FILE"
-                printf "    at: %s\n" "$(date '+%y-%m-%d %H:%M:%S')"
-                printf "==> $INFO Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
-            } | tee -a "$LOGFILE"
-            duration=$((retries * RETRY_MULTIPLIER * 60))
-            sleep "$duration"
-            sort -u "$RETRIES_FILE" >"$RETRY_URLS"
-            printf "==> Purging shows to retry from $RAW_DATA\n"
-            purgeRawDataBeforeRetry "$RAW_DATA"
-            # Don't overwrite an existing RETRIES_FILE
-            TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
-            RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
-            CURRENT_RAW_DATA="$COLS/raw_data$TIMESTAMP.txt"
-            getRawDataFromURLs "$RETRY_URLS" "$CURRENT_RAW_DATA"
-            if [ "$CURRENT_RAW_DATA" != "$RAW_DATA" ]; then
-                printf "==> Appending $CURRENT_RAW_DATA to $RAW_DATA\n"
-                cat "$CURRENT_RAW_DATA" >>"$RAW_DATA"
-            fi
-            if [ ! -e "$RETRIES_FILE" ]; then
-                printStatus "succeeded" "$retries"
-                break
-            elif [ "$retries" -eq "$MAX_RETRIES" ]; then
-                printStatus "failed" "$retries"
-            fi
+        {
+            printf "\n==> Retry #%s using %s\n" "$retries" "$RETRIES_FILE"
+            printf "    at: %s\n" "$(date '+%y-%m-%d %H:%M:%S')"
+            printf "==> $INFO Sleeping for $((retries * RETRY_MULTIPLIER)) minutes...\n"
+        } | tee -a "$LOGFILE"
+        duration=$((retries * RETRY_MULTIPLIER * 60))
+        sleep "$duration"
+        sort -u "$RETRIES_FILE" >"$RETRY_URLS"
+        printf "==> Purging shows to retry from $RAW_DATA\n"
+        purgeRawDataBeforeRetry "$RAW_DATA"
+        # Don't overwrite an existing RETRIES_FILE
+        TIMESTAMP="-$(date +%y%m%d.%H%M%S)"
+        RETRIES_FILE="$COLS/retry_urls$TIMESTAMP.txt"
+        CURRENT_RAW_DATA="$COLS/raw_data$TIMESTAMP.txt"
+        getRawDataFromURLs "$RETRY_URLS" "$CURRENT_RAW_DATA"
+        if [ "$CURRENT_RAW_DATA" != "$RAW_DATA" ]; then
+            printf "==> Appending $CURRENT_RAW_DATA to $RAW_DATA\n"
+            cat "$CURRENT_RAW_DATA" >>"$RAW_DATA"
+        fi
+        if [ ! -e "$RETRIES_FILE" ]; then
+            printStatus "succeeded" "$retries"
+            break
+        elif [ "$retries" -eq "$MAX_RETRIES" ]; then
+            printStatus "failed" "$retries"
         fi
     done
 fi
@@ -348,7 +346,7 @@ function addTotalsToSpreadsheet() {
     # Add labels in column A
     # Add totals formula in remaining columns
     colNames=ABCDEFGHIJKLMNOPQRSTU
-    ((lastRow = $(sed -n '$=' "$1")))
+    lastRow=$(($(sed -n '$=' "$1")))
     ((numCountA = $(head -1 "$1" | awk -F"\t" '{print NF}') - 1))
     TOTAL="Non-blank values"
     for ((i = 1; i <= numCountA; i++)); do
