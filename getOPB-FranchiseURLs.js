@@ -50,7 +50,7 @@ const RED_ERROR = "\x1b[31mError\x1b[0m";
     .join("\n");
 
   try {
-    fs.appendFileSync(SHOW_URLS, tsv, "utf8");
+    fs.appendFileSync(SHOW_URLS, tsv + "\n", "utf8");
   } catch (err) {
     console.error(`==> ${RED_ERROR} appending to ${SHOW_URLS}`, err);
   }
