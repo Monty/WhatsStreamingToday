@@ -41,8 +41,6 @@ function clearShowVariables() {
 
     if (tabName == "Main") { print "==> New File" }
 
-    if (tabName == "Specials") { tabName = "Special" }
-
     print "tabName: " tabName
     phase = tabName
 
