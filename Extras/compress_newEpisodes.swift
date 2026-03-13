@@ -18,11 +18,11 @@ let yellowWarning = "\u{001B}[33mWarning\u{001B}[0m"
 let redError = "\u{001B}[31mError\u{001B}[0m"
 
 /// Compiled regular expressions
-let patRe = try! NSRegularExpression(pattern: #"^(.*),\s*S(\d+)E(\d+),\s*(.*)$"#, options: [.caseInsensitive])
-let epRe = try! NSRegularExpression(pattern: #"\bEpisode\s*(\d{1,4})"#, options: [.caseInsensitive])
-let ptRe = try! NSRegularExpression(pattern: #"\bPart\s*(\d{1,4})"#, options: [.caseInsensitive])
-let epPtRe = try! NSRegularExpression(pattern: #"\b(Episode|Part)\s*\d{1,4}"#, options: [.caseInsensitive])
-let wsRe = try! NSRegularExpression(pattern: #"\s+"#, options: [])
+let patRe   = #/(.*),\s*S(\d+)E(\d+),\s*(.*)/#.ignoresCase()
+let epRe    = #/\bEpisode\s*(\d{1,4})/#.ignoresCase()
+let ptRe    = #/\bPart\s*(\d{1,4})/#.ignoresCase()
+let epPtRe  = #/\b(Episode|Part)\s*\d{1,4}/#.ignoresCase()
+let wsRe    = #/\s+/#
 
 /// ParsedLine represents a parsed episode line
 struct ParsedLine {
@@ -44,17 +44,14 @@ func normalizeQuotedLine(_ s: String) -> String {
 
 /// Parse a normalized line into its components
 func parseLine(_ line: String) -> ParsedLine? {
-    let nsLine = line as NSString
-    let range = NSRange(location: 0, length: nsLine.length)
-
-    guard let match = patRe.firstMatch(in: line, options: [], range: range) else {
+    guard let match = line.wholeMatch(of: patRe) else {
         return nil
     }
 
-    let prefix = nsLine.substring(with: match.range(at: 1))
-    let season = nsLine.substring(with: match.range(at: 2))
-    let episode = nsLine.substring(with: match.range(at: 3))
-    let suffix = nsLine.substring(with: match.range(at: 4))
+    let prefix  = String(match.output.1)
+    let season  = String(match.output.2)
+    let episode = String(match.output.3)
+    let suffix  = String(match.output.4)
 
     let original = "\(prefix), S\(season)E\(episode), \(suffix)"
 
@@ -63,18 +60,9 @@ func parseLine(_ line: String) -> ParsedLine? {
 
 /// Remove any Episode/Part numbers before logical grouping comparison
 func normalizeLineForComparison(_ s: String) -> String {
-    var t = s
-    let nsString = t as NSString
-    let range = NSRange(location: 0, length: nsString.length)
-
-    t = epPtRe.stringByReplacingMatches(in: t, options: [], range: range, withTemplate: "")
-
-    let nsT = t as NSString
-    let wsRange = NSRange(location: 0, length: nsT.length)
-    t = wsRe.stringByReplacingMatches(in: t, options: [], range: wsRange, withTemplate: " ")
-
-    t = t.trimmingCharacters(in: CharacterSet(charactersIn: " :,-"))
-    return t.lowercased()
+    let t = s.replacing(epPtRe, with: "")
+    let u = t.replacing(wsRe, with: " ")
+    return u.trimmingCharacters(in: CharacterSet(charactersIn: " :,-")).lowercased()
 }
 
 /// Determine if two lines belong to the same show/season/arc
@@ -95,35 +83,33 @@ func isConsecutiveEpisode(_ a: ParsedLine, _ b: ParsedLine) -> Bool {
     }
 
     // 2. Check for 'Episode N' in title
-    let aEpMatch = epRe.firstMatch(in: a.suffix, options: [], range: NSRange(location: 0, length: a.suffix.count))
-    let bEpMatch = epRe.firstMatch(in: b.suffix, options: [], range: NSRange(location: 0, length: b.suffix.count))
+    let aEpMatch = a.suffix.firstMatch(of: epRe)
+    let bEpMatch = b.suffix.firstMatch(of: epRe)
 
-    if let aMatch = aEpMatch, let bMatch = bEpMatch {
-        let aNs = a.suffix as NSString
-        let bNs = b.suffix as NSString
-        let aNum = Int(aNs.substring(with: aMatch.range(at: 1)))!
-        let bNum = Int(bNs.substring(with: bMatch.range(at: 1)))!
-        if bNum != aNum + 1 {
-            return false
-        }
-    } else if (aEpMatch == nil) != (bEpMatch == nil) {
-        return false
+    switch (aEpMatch, bEpMatch) {
+    case let (aM?, bM?):
+        // Both have "Episode N", check if they are consecutive
+        guard let aNum = Int(aM.output.1), let bNum = Int(bM.output.1) else { return false }
+        if bNum != aNum + 1 { return false }
+    case (nil, nil):
+        break  // Neither has "Episode N", that's fine
+    default:
+        return false  // One has "Episode N" and one doesn't
     }
 
     // 3. Check for 'Part N' in title
-    let aPtMatch = ptRe.firstMatch(in: a.suffix, options: [], range: NSRange(location: 0, length: a.suffix.count))
-    let bPtMatch = ptRe.firstMatch(in: b.suffix, options: [], range: NSRange(location: 0, length: b.suffix.count))
+    let aPtMatch = a.suffix.firstMatch(of: ptRe)
+    let bPtMatch = b.suffix.firstMatch(of: ptRe)
 
-    if let aMatch = aPtMatch, let bMatch = bPtMatch {
-        let aNs = a.suffix as NSString
-        let bNs = b.suffix as NSString
-        let aNum = Int(aNs.substring(with: aMatch.range(at: 1)))!
-        let bNum = Int(bNs.substring(with: bMatch.range(at: 1)))!
-        if bNum != aNum + 1 {
-            return false
-        }
-    } else if (aPtMatch == nil) != (bPtMatch == nil) {
-        return false
+    switch (aPtMatch, bPtMatch) {
+    case let (aM?, bM?):
+        // Both have "Part N", check if they are consecutive
+        guard let aNum = Int(aM.output.1), let bNum = Int(bM.output.1) else { return false }
+        if bNum != aNum + 1 { return false }
+    case (nil, nil):
+        break  // Neither has "Part N", that's fine
+    default:
+        return false  // One has "Part N" and one doesn't
     }
 
     return true
@@ -132,15 +118,13 @@ func isConsecutiveEpisode(_ a: ParsedLine, _ b: ParsedLine) -> Bool {
 /// Determine the best number to use when warning about a gap
 func getBestWarningNum(_ p: ParsedLine) -> String {
     // Check for Part number
-    if let ptMatch = ptRe.firstMatch(in: p.suffix, options: [], range: NSRange(location: 0, length: p.suffix.count)) {
-        let ns = p.suffix as NSString
-        return ns.substring(with: ptMatch.range(at: 1))
+    if let ptMatch = p.suffix.firstMatch(of: ptRe) {
+        return String(ptMatch.output.1)
     }
 
     // Check for Episode number
-    if let epMatch = epRe.firstMatch(in: p.suffix, options: [], range: NSRange(location: 0, length: p.suffix.count)) {
-        let ns = p.suffix as NSString
-        return ns.substring(with: epMatch.range(at: 1))
+    if let epMatch = p.suffix.firstMatch(of: epRe) {
+        return String(epMatch.output.1)
     }
 
     // Fallback to main episode number
@@ -160,71 +144,56 @@ func appendGroup(_ group: [ParsedLine], _ outputLines: inout [String]) {
     }
 
     let first = group[0]
-    let last = group[group.count - 1]
-    let e1 = first.episode
-    let e2 = last.episode
-    let s1 = first.suffix
+    let last  = group[group.count - 1]
+    let e1    = first.episode
+    let e2    = last.episode
+    let s1    = first.suffix
 
-    // Extract episode/part numbers
-    var e1Text = ""
-    var e2Text = ""
-    var p1Text = ""
-    var p2Text = ""
+    // Extract episode/part numbers from first and last entries
+    var e1Text = "", e2Text = ""
+    var p1Text = "", p2Text = ""
 
-    if let ep1Match = epRe.firstMatch(in: s1, options: [], range: NSRange(location: 0, length: s1.count)) {
-        let ns1 = s1 as NSString
-        e1Text = ns1.substring(with: ep1Match.range(at: 1))
+    if let ep1 = s1.firstMatch(of: epRe),
+       let ep2 = last.suffix.firstMatch(of: epRe) {
+        e1Text = String(ep1.output.1)
+        e2Text = String(ep2.output.1)
 
-        if let ep2Match = epRe.firstMatch(in: last.suffix, options: [], range: NSRange(location: 0, length: last.suffix.count)) {
-            let ns2 = last.suffix as NSString
-            e2Text = ns2.substring(with: ep2Match.range(at: 1))
-
-            // Preserve padding
-            if e1Text.hasPrefix("0"), e1Text.count > 1 {
-                if let num = Int(e2Text) {
-                    e2Text = String(format: "%0\(e1Text.count)d", num)
-                }
-            }
+        // Preserve padding
+        if e1Text.hasPrefix("0"), e1Text.count > 1, let num = Int(e2Text) {
+            e2Text = String(format: "%0\(e1Text.count)d", num)
         }
     }
 
-    if let pt1Match = ptRe.firstMatch(in: s1, options: [], range: NSRange(location: 0, length: s1.count)) {
-        let ns1 = s1 as NSString
-        p1Text = ns1.substring(with: pt1Match.range(at: 1))
+    if let pt1 = s1.firstMatch(of: ptRe),
+       let pt2 = last.suffix.firstMatch(of: ptRe) {
+        p1Text = String(pt1.output.1)
+        p2Text = String(pt2.output.1)
 
-        if let pt2Match = ptRe.firstMatch(in: last.suffix, options: [], range: NSRange(location: 0, length: last.suffix.count)) {
-            let ns2 = last.suffix as NSString
-            p2Text = ns2.substring(with: pt2Match.range(at: 1))
-
-            // Preserve padding
-            if p1Text.hasPrefix("0"), p1Text.count > 1 {
-                if let num = Int(p2Text) {
-                    p2Text = String(format: "%0\(p1Text.count)d", num)
-                }
-            }
+        // Preserve padding
+        if p1Text.hasPrefix("0"), p1Text.count > 1, let num = Int(p2Text) {
+            p2Text = String(format: "%0\(p1Text.count)d", num)
         }
     }
 
     // Replace Episode/Part sequences with appropriate ranges
-    var newSuffix = s1
-    let matches = epPtRe.matches(in: s1, options: [], range: NSRange(location: 0, length: s1.count))
-
     // Process matches in reverse to maintain string indices
+    var newSuffix = s1
+    let matches = s1.matches(of: epPtRe)
+
     for match in matches.reversed() {
-        let ns = s1 as NSString
-        let fullMatch = ns.substring(with: match.range)
-        let word = ns.substring(with: match.range(at: 1))
+        let word      = String(match.output.1)
         let wordLower = word.lowercased()
 
-        var replacement = fullMatch
+        let replacement: String
         if wordLower == "episode", !e1Text.isEmpty, !e2Text.isEmpty {
             replacement = "\(word) \(e1Text)-\(e2Text)"
         } else if wordLower == "part", !p1Text.isEmpty, !p2Text.isEmpty {
             replacement = "\(word) \(p1Text)-\(p2Text)"
+        } else {
+            continue
         }
 
-        let nsNewSuffix = newSuffix as NSString
-        newSuffix = nsNewSuffix.replacingCharacters(in: match.range, with: replacement)
+        newSuffix.replaceSubrange(match.range, with: replacement)
     }
 
     let line = "\(first.prefix), S\(first.season)E\(e1)-\(e2), \(newSuffix)"
@@ -248,12 +217,9 @@ func squishLines(_ lines: [String], _ progName: String) -> [String] {
                     } else {
                         // GAP DETECTED
                         let startNum = getBestWarningNum(lastInGroup)
-                        let endNum = getBestWarningNum(p)
+                        let endNum   = getBestWarningNum(p)
 
-                        FileHandle.standardError.write(
-                            "\(progName): [\(yellowWarning)] \(p.prefix) S\(p.season): missing episodes between \(startNum) and \(endNum)\n"
-                                .data(using: .utf8)!,
-                        )
+                        fputs("\(progName): [\(yellowWarning)] \(p.prefix) S\(p.season): missing episodes between \(startNum) and \(endNum)\n", stderr)
 
                         appendGroup(group, &outputLines)
                         group = [p]
@@ -309,19 +275,10 @@ func printHelp(_ progName: String) {
     """)
 }
 
-/// Extension to write strings to stderr
-extension FileHandle {
-    func write(_ string: String) {
-        if let data = string.data(using: .utf8) {
-            write(data)
-        }
-    }
-}
-
 /// Main entry point
 func main() {
-    let progName = (CommandLine.arguments[0] as NSString).lastPathComponent
-    let args = Array(CommandLine.arguments.dropFirst())
+    let progName = URL(fileURLWithPath: CommandLine.arguments[0]).lastPathComponent
+    let args     = Array(CommandLine.arguments.dropFirst())
 
     // Check for help flags
     for arg in args {
@@ -334,7 +291,7 @@ func main() {
     // Check for unknown flags
     for arg in args {
         if arg.hasPrefix("-") {
-            FileHandle.standardError.write("\(progName): [\(redError)] Unrecognized argument '\(arg)'\n")
+            fputs("\(progName): [\(redError)] Unrecognized argument '\(arg)'\n", stderr)
             exit(2)
         }
     }
@@ -344,10 +301,10 @@ func main() {
     if args.isEmpty {
         // Check if stdin is a terminal
         if isatty(STDIN_FILENO) != 0 {
-            FileHandle.standardError.write("\(progName): [\(redError)] No input file or piped input\n")
-            FileHandle.standardError.write("Usage: ./\(progName) <file> or use a pipe, e.g.:\n")
-            FileHandle.standardError.write("  ./\(progName) episodes.txt\n")
-            FileHandle.standardError.write("  ./newEpisodes.sh | ./\(progName)\n")
+            fputs("\(progName): [\(redError)] No input file or piped input\n", stderr)
+            fputs("Usage: ./\(progName) <file> or use a pipe, e.g.:\n", stderr)
+            fputs("  ./\(progName) episodes.txt\n", stderr)
+            fputs("  ./newEpisodes.sh | ./\(progName)\n", stderr)
             exit(2)
         }
 
@@ -360,7 +317,7 @@ func main() {
         let filename = args[0]
 
         guard let content = try? String(contentsOfFile: filename, encoding: .utf8) else {
-            FileHandle.standardError.write("\(progName): [\(redError)] File '\(filename)' does not exist.\n")
+            fputs("\(progName): [\(redError)] File '\(filename)' does not exist.\n", stderr)
             exit(1)
         }
 
@@ -370,7 +327,7 @@ func main() {
             lines.removeLast()
         }
     } else {
-        FileHandle.standardError.write("\(progName): [\(redError)] Too many arguments\n")
+        fputs("\(progName): [\(redError)] Too many arguments\n", stderr)
         exit(2)
     }
 
