@@ -191,6 +191,10 @@ def squish_lines(lines: list[str]) -> list[str]:
             # Flush the last group
             append_group(group, output_lines)
             group = []
+            # Fix missing space after comma in non-parsable lines
+            if "," in line and ", " not in line:
+                line = line.replace(",", ", ")
+
             # and print the non-parsable line
             output_lines.append(line)
 
