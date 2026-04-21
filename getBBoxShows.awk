@@ -70,6 +70,7 @@ function clearShowVariables() {
     gsub(/&#244;/, "ô")
     gsub(/&#246;/, "ö")
     gsub(/&#248;/, "ø")
+    gsub(/&#249;/, "ù")
     gsub(/&#250;/, "ú")
     gsub(/&#253;/, "ý")
     gsub(/&#39;/, "'")
