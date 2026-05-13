@@ -155,6 +155,12 @@ function winnowHTML() {
     printf "==> Generating new $2\n"
     while read -r url; do
         FILE="$url"
+        # Check HTTP status before processing; skip 404s and log them
+        http_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+        if [ "$http_code" -ge 400 ]; then
+            printf "==> SKIPPED (HTTP %s): %s\n" "$http_code" "$url" >>"$ERRORS"
+            continue
+        fi
         # shellcheck disable=SC2016
         curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
             sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
