@@ -47,7 +47,11 @@ BEGIN {
 
     if (fileType == "show" || fileType == "season") { print "--BOS--" }
 
-    print "show_URL: https://www.britbox.com" partial_URL
+    if (partial_URL ~ /^https?:\/\//) {
+        print "show_URL: " partial_URL
+    } else {
+        print "show_URL: https://www.britbox.com" partial_URL
+    }
 
     fileName = fld[4]
     # print "fileName = " fileName > "/dev/stderr"
