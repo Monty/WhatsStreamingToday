@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# diff the most recent TV_ShowsEpisodes files from MHz, Acorn, OPB, and Britbox
+# diff the most recent TV_ShowsEpisodes files from MHz, Acorn, OPB, Britbox, and Apple TV+
 # and print the new episodes
 #
 # Assume episodes have a season mumber in field 1, i.e. ', S[0-9][0-9]'
@@ -39,6 +39,12 @@ source waitUntil.function
 
 ACORN_EPISODES=$(find Acorn_TV_ShowsEpisodes-*csv | tail -1)
 ACORN_EPISODES_OLD=$(find Acorn_TV_ShowsEpisodes-*csv | tail -"$BACK" | head -1)
+#
+# Apple TV+ files are optional -- they can't be gemerated automatically
+# but you can manually create them.
+APPLE_EPISODES=$(find Apple_TV_ShowsEpisodes-*csv 2>/dev/null | tail -1)
+APPLE_EPISODES_OLD=$(find Apple_TV_ShowsEpisodes-*csv 2>/dev/null |
+    tail -"$BACK" | head -1)
 #
 BBOX_EPISODES=$(find BBox_TV_ShowsEpisodes-*csv | tail -1)
 BBOX_EPISODES_OLD=$(find BBox_TV_ShowsEpisodes-*csv | tail -"$BACK" | head -1)
@@ -116,6 +122,21 @@ function printNewOPBEpisodes() {
     fi
 }
 
+function printNewAppleEpisodes() {
+    local result
+    result=$(zet diff \
+        <(cut -f 1 "$APPLE_EPISODES" | rg ', S[0-9]{2}' |
+            awk -f printTitles.awk) \
+        <(cut -f 1 "$APPLE_EPISODES_OLD" | rg ', S[0-9]{2}' |
+            awk -f printTitles.awk) || true)
+
+    if [[ -z $result ]]; then
+        printf "No new episodes since %s\n" "$APPLE_EPISODES_OLD"
+    else
+        printf "%s\n" "$result"
+    fi
+}
+
 if [[ $ASKFIRST != "yes" ]]; then
     printf "==> Show new episodes since $MHZ_EPISODES_OLD? [Y/n]\n"
     printNewMHzEpisodes
@@ -128,6 +149,11 @@ if [[ $ASKFIRST != "yes" ]]; then
     #
     printf "\n==> Show new episodes since $BBOX_EPISODES_OLD? [Y/n]\n"
     printNewBBoxEpisodes
+    #
+    if [[ -n $APPLE_EPISODES ]]; then
+        printf "\n==> Show new episodes since $APPLE_EPISODES_OLD? [Y/n]\n"
+        printNewAppleEpisodes
+    fi
 else
     printf "==> Show new episodes since $MHZ_EPISODES_OLD"
     if waitUntil -Y "?"; then
@@ -147,5 +173,12 @@ else
     printf "\n==> Show new episodes since $BBOX_EPISODES_OLD"
     if waitUntil -Y "?"; then
         printNewBBoxEpisodes
+    fi
+    #
+    if [[ -n $APPLE_EPISODES ]]; then
+        printf "\n==> Show new episodes since $APPLE_EPISODES_OLD"
+        if waitUntil -Y "?"; then
+            printNewAppleEpisodes
+        fi
     fi
 fi

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# prettydiff the most recent uniqTitles files from MHz, Acorn, OPB, and Britbox
+# prettydiff the most recent uniqTitles files from MHz, Acorn, OPB, Britbox, and Apple TV+
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
@@ -34,6 +34,11 @@ source waitUntil.function
 ACORN_TITLES=$(find Acorn_uniqTitles-*txt | tail -1)
 ACORN_TITLES_OLD=$(find Acorn_uniqTitles-*txt | tail -"$BACK" | head -1)
 #
+# Apple TV+ files are optional -- they can't be gemerated automatically
+# but you can manually create them.
+APPLE_TITLES=$(find Apple_uniqTitles-*txt 2>/dev/null | tail -1)
+APPLE_TITLES_OLD=$(find Apple_uniqTitles-*txt 2>/dev/null | tail -"$BACK" | head -1)
+#
 BBOX_TITLES=$(find BBox_uniqTitles-*txt | tail -1)
 BBOX_TITLES_OLD=$(find BBox_uniqTitles-*txt | tail -"$BACK" | head -1)
 #
@@ -64,6 +69,13 @@ if waitUntil -Y "?"; then
     prettydiff "$BBOX_TITLES_OLD" "$BBOX_TITLES"
 fi
 
+if [[ -n $APPLE_TITLES ]]; then
+    printf "\n==> Show new titles since $APPLE_TITLES_OLD"
+    if waitUntil -Y "?"; then
+        prettydiff "$APPLE_TITLES_OLD" "$APPLE_TITLES"
+    fi
+fi
+
 printf '\n==> Show all new titles as plain text'
 if waitUntil -Y "?"; then
     printf "\nNew titles since $MHZ_TITLES_OLD:\n"
@@ -77,6 +89,11 @@ if waitUntil -Y "?"; then
 
     printf "\nNew titles since $BBOX_TITLES_OLD:\n"
     zet diff "$BBOX_TITLES" "$BBOX_TITLES_OLD" | sed "s/^/    /g"
+
+    if [[ -n $APPLE_TITLES ]]; then
+        printf "\nNew titles since $APPLE_TITLES_OLD:\n"
+        zet diff "$APPLE_TITLES" "$APPLE_TITLES_OLD" | sed "s/^/    /g"
+    fi
 fi
 
 printf "\n"
