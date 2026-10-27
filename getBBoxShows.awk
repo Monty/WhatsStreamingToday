@@ -53,6 +53,7 @@ function clearShowVariables() {
 {
     gsub(/&#160;/, " ")
     gsub(/&#163;/, "£")
+    gsub(/&#174;/, "®")
     gsub(/&#193;/, "Á")
     gsub(/&#201;/, "É")
     gsub(/&#211;/, "Ó")
