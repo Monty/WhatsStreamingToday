@@ -20,6 +20,7 @@ function cleanup() {
 }
 
 ERROR="\e[0;31m[Error]\e[0m"
+WARNING="\e[0;33m[Warning]\e[0m"
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")
@@ -134,8 +135,47 @@ fi
 # Print header for possible errors from processing shows
 printf "\n### Possible anomalies from processing shows are listed below.\n\n" >"$ERRORS"
 
-# loop through the list of URLs from $SHOW_URLS and generate a full but unsorted spreadsheet
-xargs <"$SHOW_URLS" curl -sS | prettier --parser html |
+# Report a skipped show page to both the terminal and $ERRORS, then keep going
+function skipPage() {
+    # INVOCATION: skipPage url reason
+    printf "${WARNING} Skipping %s -- %s\n" "$1" "$2" >&2
+    printf "==> Skipped show page %s -- %s\n" "$1" "$2" >>"$ERRORS"
+}
+
+# Download each show page separately so one bad page can't sink the whole run.
+# Acorn sometimes sends a truncated page (e.g. cut off inside the numberOfSeasons
+# meta tag), which used to make prettier reject the entire concatenated stream.
+PAGES_DIR=$(mktemp -d)
+trap 'rm -rf "$PAGES_DIR"' EXIT
+GOOD_PAGES=()
+pageNum=0
+while read -r url; do
+    [ -z "$url" ] && continue
+    pageNum=$((pageNum + 1))
+    page="$PAGES_DIR/$(printf '%05d' "$pageNum").html"
+    if ! curl -sS --fail -o "$page" "$url"; then
+        skipPage "$url" "download failed"
+        continue
+    fi
+    if ! grep -qi '</html>' "$page"; then
+        skipPage "$url" "page is truncated (no closing </html>)"
+        continue
+    fi
+    GOOD_PAGES+=("$page")
+done <"$SHOW_URLS"
+
+if [ ${#GOOD_PAGES[@]} -eq 0 ]; then
+    printf "${ERROR} No usable show pages were downloaded.\n" >&2
+    exit 1
+fi
+
+# Format all good pages in one prettier run. If prettier still can't parse a page,
+# it reports that file, skips it, and continues; we note it rather than quitting.
+{
+    prettier --parser html "${GOOD_PAGES[@]}" ||
+        printf "==> prettier couldn't parse one or more show pages (see [error] lines above); they were skipped\n" |
+        tee -a "$ERRORS" >&2
+} |
     awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
         -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
         -f getAcornFrom-showPages.awk >"$UNSORTED"
