@@ -148,17 +148,21 @@ function skipPage() {
 PAGES_DIR=$(mktemp -d)
 trap 'rm -rf "$PAGES_DIR"' EXIT
 GOOD_PAGES=()
-pageNum=0
 while read -r url; do
     [ -z "$url" ] && continue
-    pageNum=$((pageNum + 1))
-    page="$PAGES_DIR/$(printf '%05d' "$pageNum").html"
+    # Name each page after its show (e.g. wisting.html) so any prettier errors identify the show
+    page="$PAGES_DIR/$(basename "$url").html"
     if ! curl -sS --fail -o "$page" "$url"; then
         skipPage "$url" "download failed"
         continue
     fi
     if ! grep -qi '</html>' "$page"; then
         skipPage "$url" "page is truncated (no closing </html>)"
+        continue
+    fi
+    # A page cut off mid-tag sometimes has a whole second HTML page (a server error) appended
+    if [ "$(grep -ci '<!DOCTYPE' "$page" || true)" -gt 1 ]; then
+        skipPage "$url" "page is truncated (server error page appended mid-page)"
         continue
     fi
     GOOD_PAGES+=("$page")
@@ -171,14 +175,24 @@ fi
 
 # Format all good pages in one prettier run. If prettier still can't parse a page,
 # it reports that file, skips it, and continues; we note it rather than quitting.
+# --ignore-path /dev/null: otherwise a .gitignore/.prettierignore in this directory can mark
+# the pages "ignored", and prettier then passes them through UNFORMATTED, which awk can't parse.
 {
-    prettier --parser html "${GOOD_PAGES[@]}" ||
+    prettier --parser html --ignore-path /dev/null "${GOOD_PAGES[@]}" ||
         printf "==> prettier couldn't parse one or more show pages (see [error] lines above); they were skipped\n" |
         tee -a "$ERRORS" >&2
 } |
     awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
         -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
         -f getAcornFrom-showPages.awk >"$UNSORTED"
+
+# Stop with a clear message if awk found nothing, rather than failing confusingly further down
+if [ ! -s "$UNSORTED" ] || [ ! -s "$RAW_TITLES" ]; then
+    printf "${ERROR} No show data was parsed from the downloaded pages.\n" >&2
+    printf "        Check that prettier formats them: prettier --parser html some_page.html | head\n" >&2
+    printf "==> No show data was parsed from the downloaded pages.\n" >>"$ERRORS"
+    exit 1
+fi
 
 # Field numbers returned by getAcornFrom-showPages.awk
 #     1 Title    2 Seasons   3 Episodes   4 Duration   5 Description
