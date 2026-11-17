@@ -146,7 +146,7 @@ if [ ! -e "$SHOW_URLS" ]; then
     curl -s $SITEMAP_URL |
         rg '<loc>https://watch.mhzchoice.com/..*</loc>' |
         sed -e 's+^[ \t]*<loc>++;s+</loc>++' -e 's+%2F+/+' |
-        rg -v -- '-dubbed-|-hjerson-english-|/coming-soon' |
+        rg -v -- '-dubbed(/|-|$)|-hjerson-english(/|-|$)|/coming-soon' |
         sort -f >"$SHOW_URLS"
 else
     printf "==> Using existing $SHOW_URLS\n"
