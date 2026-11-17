@@ -61,6 +61,7 @@ function fixUnicode() {
     gsub(/\\u00eb/, "ë", showDescription)
     gsub(/\\u00ed/, "í", showDescription)
     gsub(/\\u00f6/, "ö", showDescription)
+    gsub(/\\u00f8/, "ø", showDescription)
     gsub(/\\u00fa/, "ú", showDescription)
     gsub(/\\u0101/, "ā", showDescription)
     gsub(/\\u01a0/, "Ơ", showDescription)
