@@ -214,10 +214,12 @@ def clean_episode_title(title, show_title, ctx):
     if t.startswith("Vincenzo Malinconico-The Italian Lawyer: "):
         t = t[len("Vincenzo Malinconico-The Italian Lawyer: ") :]
     else:
-        for sep in (": ", ":", "; ", " - "):
-            if low.startswith(st + sep):
-                t = t[len(st + sep) :]
-                break
+        # Ignore spaces in the show title so "Sex (Re) Education: ..." still
+        # matches "Sex (Re)Education"
+        loose = r"\s*".join(re.escape(c) for c in st.replace(" ", ""))
+        m = re.match(loose + r"(: |:|; | - )", low)
+        if m:
+            t = t[m.end() :]
 
     return t
 
@@ -369,6 +371,7 @@ def process_show(show_url, ctx, out):
         pr_count = 0
         counted = 0
         e_count = 0  # regular episodes so far, for the position fallback
+        x_count = 0  # extras (X) so far
 
         for ent in season_items(api, site, season["id"], token, ctx, label):
             ep_url = ent.get("page_url") or ""
@@ -403,6 +406,9 @@ def process_show(show_url, ctx, out):
                 epnum = api_num
             elif sn_num:
                 epnum = sn_num
+            elif etype == "X":
+                # Unnumbered extras: count them within the season, like trailers
+                epnum = x_count + 1
             elif etype == "E":
                 # Last resort: position within the season, as the old
                 # season page's "Episode N" label gave it
@@ -444,6 +450,8 @@ def process_show(show_url, ctx, out):
                 counted += 1
             if etype == "E":
                 e_count += 1
+            elif etype == "X":
+                x_count += 1
 
             label_title = title.replace('"', '""')
             link = hyperlink(
