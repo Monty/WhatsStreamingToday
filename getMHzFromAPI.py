@@ -158,7 +158,11 @@ def show_descriptor(desc, show_title, ctx):
     header = None
     if len(lines[0].split("|")) >= 4:
         header = lines.pop(0)
-        if not re.search(r"\| +TV *-", header) and lines and re.search(r" *TV *-", lines[0]):
+        if (
+            not re.search(r"\| +TV *-", header)
+            and lines
+            and re.search(r" *TV *-", lines[0])
+        ):
             header = header + " " + lines.pop(0)
     if len(lines) > 1:
         ctx.err(f'==> Multi line description in "{show_title}"')
@@ -193,7 +197,7 @@ SNEP_STRIP = re.compile(r"[ ]*\([ ]*[Ss][Nnm]*[ ]*\d+[ ]+[Ee][Pp]*[ ]*\d+\s*\)")
 
 
 def clean_episode_title(title, show_title, ctx):
-    t = unescape_all(title).strip()
+    t = unescape_all(title).strip().replace('\\"', '"')
 
     # Make Montalbano titles agree with MHz listing
     if re.match(r"^Montalbano|^Detective Montalbano:", t):
@@ -292,6 +296,9 @@ def season_items(api, site, coll_id, token, ctx, label):
             f"?page={page}&per_page={PER_PAGE}&include_coming_soon=1"
         )
         status, body = fetch(url, token)
+        # A season with exactly PER_PAGE items: the API rejects the next page
+        if status in (400, 404) and page > 1:
+            return
         if status != 200:
             ctx.err(f"==> API status {status} for {label} page {page}")
             return
@@ -329,7 +336,7 @@ def process_show(show_url, ctx, out):
     ctype = coll.get("type", "")
     seasons = (coll.get("series") or {}).get("seasons") or []
     if ctype not in ("series", "movie") and not seasons:
-        ctx.err(f'==> Skipped {ctype or "unknown"} collection {show_url}')
+        ctx.err(f"==> Skipped {ctype or 'unknown'} collection {show_url}")
         return
 
     try:
@@ -393,6 +400,10 @@ def process_show(show_url, ctx, out):
                 epnum = api_num
             elif sn_num:
                 epnum = sn_num
+            elif etype != "T":
+                # Last resort: position within the season, as the old
+                # season page's "Episode N" label gave it
+                epnum = counted + 1
             if is_movie and not epnum:
                 epnum = 1
             if "what-to-watch-after-baylon-berlin" in ep_url:
@@ -400,7 +411,9 @@ def process_show(show_url, ctx, out):
             if "swan-company-matteo-s-arrival" in ep_url:
                 epnum = 1
             if not epnum:
-                ctx.err(f'==> Missing episodeNumber in "{show_title}: {title}" {ep_url}')
+                ctx.err(
+                    f'==> Missing episodeNumber in "{show_title}: {title}" {ep_url}'
+                )
                 epnum = 0
 
             # Duration
@@ -413,8 +426,10 @@ def process_show(show_url, ctx, out):
                 dur = ""
 
             # Description
-            desc = unescape_all(ent.get("description") or ent.get("short_description") or "")
-            desc = re.sub(r"\s+", " ", desc).strip()
+            desc = unescape_all(
+                ent.get("description") or ent.get("short_description") or ""
+            )
+            desc = re.sub(r"\s+", " ", desc).strip().replace('\\"', '"')
             if not desc:
                 if etype == "T":
                     desc = title
@@ -426,7 +441,10 @@ def process_show(show_url, ctx, out):
                 counted += 1
 
             label_title = title.replace('"', '""')
-            link = hyperlink(ep_url, f"{show_title}, S{snum:02d}{etype}{int(epnum):02d}, {label_title}")
+            link = hyperlink(
+                ep_url,
+                f"{show_title}, S{snum:02d}{etype}{int(epnum):02d}, {label_title}",
+            )
             ep_rows.append(f"{link}\t\t\t{dur}\t\t\t\t\t{desc}")
 
             # Credits: Show_Title is the display title (matches baseline),
@@ -491,8 +509,12 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     ap.add_argument("-e", "--errors", required=True, help="anomalies file (appended)")
-    ap.add_argument("-t", "--raw-titles", required=True, help="show titles file (appended)")
-    ap.add_argument("-c", "--raw-credits", required=True, help="credits file (appended)")
+    ap.add_argument(
+        "-t", "--raw-titles", required=True, help="show titles file (appended)"
+    )
+    ap.add_argument(
+        "-c", "--raw-credits", required=True, help="credits file (appended)"
+    )
     ap.add_argument("urls", nargs="*", help="show URLs (default: read from stdin)")
 
     if len(sys.argv) == 1:
@@ -507,7 +529,11 @@ def main():
     else:
         urls = [u.strip() for u in sys.stdin if u.strip()]
 
-    with open(args.errors, "a") as e, open(args.raw_titles, "a") as t, open(args.raw_credits, "a") as c:
+    with (
+        open(args.errors, "a") as e,
+        open(args.raw_titles, "a") as t,
+        open(args.raw_credits, "a") as c,
+    ):
         ctx = Ctx(e, t, c)
         for url in urls:
             try:
