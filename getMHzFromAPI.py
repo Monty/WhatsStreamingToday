@@ -368,6 +368,7 @@ def process_show(show_url, ctx, out):
         ep_rows = []
         pr_count = 0
         counted = 0
+        e_count = 0  # regular episodes so far, for the position fallback
 
         for ent in season_items(api, site, season["id"], token, ctx, label):
             ep_url = ent.get("page_url") or ""
@@ -379,9 +380,11 @@ def process_show(show_url, ctx, out):
             etype = "M" if is_movie else "E"
             if "BONUS" in title and not show_title.startswith("Detective Montalbano"):
                 etype = "X"
-            if title.startswith("PR |"):
+            if title.startswith("PR |") or re.search(r"\bTrailer\b", title, re.I):
                 etype = "T"
                 pr_count += 1
+            elif re.search(r"\bInterview\b", title, re.I):
+                etype = "X"
 
             # Episode number, same priority as the old awk:
             #   -c-x URL number (not Montalbano), trailer count,
@@ -400,10 +403,10 @@ def process_show(show_url, ctx, out):
                 epnum = api_num
             elif sn_num:
                 epnum = sn_num
-            elif etype != "T":
+            elif etype == "E":
                 # Last resort: position within the season, as the old
                 # season page's "Episode N" label gave it
-                epnum = counted + 1
+                epnum = e_count + 1
             if is_movie and not epnum:
                 epnum = 1
             if "what-to-watch-after-baylon-berlin" in ep_url:
@@ -439,6 +442,8 @@ def process_show(show_url, ctx, out):
 
             if etype != "T":
                 counted += 1
+            if etype == "E":
+                e_count += 1
 
             label_title = title.replace('"', '""')
             link = hyperlink(
