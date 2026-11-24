@@ -161,9 +161,6 @@ rg -v '/season:' "$SHOW_URLS" | rg /videos/ | tee -a "$EPISODE_URLS" |
 # shellcheck disable=SC2129
 cat "$MOVIE_URLS" >>"$SEASON_URLS"
 
-# Special processing for Montalbano which has episodes on page 2
-printf "https://watch.mhzchoice.com/detective-montalbano/season:1?page=2\n" >>"$SEASON_URLS"
-printf "https://watch.mhzchoice.com/movie-of-the-week/season:1?page=2\n" >>"$SEASON_URLS"
 # Print header for error file
 printf "### Possible anomalies from processing $SITEMAP_URL are listed below.\n\n" >"$ERRORS"
 
@@ -175,18 +172,21 @@ printf "Title\tSeasons\tEpisodes\tDuration\tGenre\tCountry\tLanguage\tRating\tDe
     >"$UNSORTED"
 printf "Person\tJob\tShow_Type\tShow_Title\tCharacter_Name\n" >"$RAW_CREDITS"
 
-# loop through the list of URLs from $SEASON_URLS and generate a full but unsorted spreadsheet
-# output any URLs that don't work to $ERRORS
-while read -r line; do
-    http_status=$(curl -o /dev/null -s -w "%{response_code}" "$line")
-    if [ "$http_status" = "200" ]; then
-        curl -sS "$line" |
-            awk -v ERRORS="$ERRORS" -v RAW_CREDITS="$RAW_CREDITS" -v RAW_TITLES="$RAW_TITLES" \
-                -f getMHzFromSitemap.awk >>"$UNSORTED"
-    else
-        printf "==> HTTP status for $line is $http_status\n" | tee -a "$ERRORS"
-    fi
-done <"$SEASON_URLS"
+# Make sure RAW_TITLES exists even if no shows are parsed
+: >"$RAW_TITLES"
+
+# Reduce $SEASON_URLS to one URL per show, then fetch each show's seasons,
+# episodes, and credits from the VHX API. Generates a full but unsorted
+# spreadsheet on stdout plus RAW_TITLES and RAW_CREDITS.
+# Output any URLs that don't work to $ERRORS
+sed -E 's|/season:[0-9]+$||' "$SEASON_URLS" | sort -fu |
+    python3 getMHzFromAPI.py -e "$ERRORS" -t "$RAW_TITLES" -c "$RAW_CREDITS" >>"$UNSORTED"
+
+# Stop with a clear message if nothing was parsed (e.g. MHz changed their site again)
+if [ "$(sed -n '$=' "$UNSORTED")" -le 1 ]; then
+    printf "${ERROR} No shows parsed -- has the MHz site or API changed?\n" | tee -a "$ERRORS" >&2
+    exit 1
+fi
 
 # Create both SHORT_SPREADSHEET and LONG_SPREADSHEET
 # Roll up seasons episodes into show episodes, don't print seasons lines
@@ -199,19 +199,14 @@ mv "$LONG_SPREADSHEET" "$UNSORTED"
 tail -r "$UNSORTED" >"$LONG_SPREADSHEET"
 rm -f "$UNSORTED"
 
-# Sort the titles produced by getMHzFromSitemap.awk
+# Sort the titles produced by getMHzFromAPI.py
 sort -fu "$RAW_TITLES" >"$UNIQUE_TITLES"
 rm -f "$RAW_TITLES"
 
 # For the shortest runtime, exit here
 [ "$QUICK" = "yes" ] && exit 0
 
-# loop through the list of URLs from $EPISODE_URLS and generate an unsorted credits spreadsheet
-while read -r line; do
-    curl -sS "$line" |
-        awk -v ERRORS="$ERRORS" -f getMHzCast.awk >>"$RAW_CREDITS"
-done <"$EPISODE_URLS"
-
+# Credits were already collected into $RAW_CREDITS by getMHzFromAPI.py
 # Generate credits spreadsheets
 head -1 "$RAW_CREDITS" >"$CREDITS"
 # Need sort -fu to get rid of dupes, followed by sort -fb to make Mac/Linux the same

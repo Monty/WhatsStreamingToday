@@ -36,10 +36,9 @@ rg_problems.rgx
 
 MHZ_FILES="
 makeMHzFromSitemap.sh
-getMHzFromSitemap.awk
+getMHzFromAPI.py
 calculateMHzShowDurations.awk
 getMHzAvg.awk
-getMHzCast.awk
 saveTodaysMHzFiles.sh
 formatUnifiedDiffOutput.awk
 rg_problems.rgx
