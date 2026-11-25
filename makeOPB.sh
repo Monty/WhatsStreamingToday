@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Create a .csv spreadsheet of shows available on OPB TV
+# API version: uses pbs.org JSON endpoints instead of Playwright scraping
 #
 # shellcheck disable=SC2034,SC2155,SC2317
 
@@ -92,8 +93,8 @@ getURLsFrom() {
         printf "        Try accessing %s in your browser.\n" "$BROWSE_URL"
         exit 1
     fi
-    # If successful, run the Node.js script
-    BROWSE_URL="$BROWSE_URL" node getOPB-FranchiseURLs.js
+    # If successful, list the franchise's shows (plain HTTP, no browser)
+    node getOPB-api.js --franchise "$BROWSE_URL" >>"$SHOW_URLS"
 }
 
 # Required subdirectories
@@ -166,7 +167,7 @@ printf "### Possible anomalies from processing shows are listed below.\n\n" >"$E
 
 # Make sure we are logged in for the next few hours
 # This contains your OPB login and password so don't put it in git
-node save_password-02.js
+# node save_password-02.js
 
 if [ ! -e "$SHOW_URLS" ]; then
     printf "==> Downloading new $SHOW_URLS\n"
@@ -183,26 +184,14 @@ else
     printf "==> Using existing $SHOW_URLS\n"
 fi
 
-# Loop through $SHOW_URLS to generate $RAW_DATA
+# Generate $RAW_DATA for every show in $1 using pbs.org's JSON endpoints
+# (one HTML fetch per show plus one API call per season -- no browser).
+# Failed shows are appended to $RETRIES_FILE, so the retry loop below still works.
 function getRawDataFromURLs() {
-    while read -r line; do
-        IFS="$TAB" read -r show_addr show_title <<<"$line"
-        # printf "show_addr = '$show_addr'\n" >"/dev/stderr"
-        # printf "show_title = '$show_title'\n" >"/dev/stderr"
-        export TARGET="$show_addr"
-        export RETRIES_FILE # Shows with errors as of current time
-        node getOPB-raw_data.js >>"$LOGFILE"
-        # If getOPB-raw_data.js succeeded, RAW_HTML file was created
-        if [ -e "$RAW_HTML" ]; then
-            # Produce a RAW_DATA file
-            rg -vf rg_OPB_skip.rgx "$RAW_HTML" |
-                awk -v ERRORS="$ERRORS" -f getOPB-raw_data.awk >>"$2"
-            rm -f "$RAW_HTML"
-        else
-            # getOPB-raw_data.js failed, since no RAW_HTML file was created
-            printf "==> getOPB-raw_data.js failed on $line\n" >>"$ERRORS"
-        fi
-    done <"$1"
+    if ! ERRORS="$ERRORS" RETRIES_FILE="$RETRIES_FILE" \
+        node getOPB-api.js "$1" >>"$2" 2>>"$LOGFILE"; then
+        printf "==> getOPB-api.js failed on $1\n" >>"$ERRORS"
+    fi
 }
 
 function purgeRawDataBeforeRetry() {
