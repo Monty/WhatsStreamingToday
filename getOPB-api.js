@@ -1,3 +1,7 @@
+/* eslint capitalized-comments: "off", no-magic-numbers: "off"
+    --------
+    Magic numbers are time conversions, retry delays and parseInt radixes
+  */
 // getOPB-api.js -- build OPB RAW_DATA straight from pbs.org's own JSON endpoints.
 //
 // Replaces the per-show Playwright loop (getOPB-raw_data.js + rg + getOPB-raw_data.awk).
@@ -40,19 +44,25 @@ const UA =
 // Episode lists are localized: without a station the episodes endpoint returns [].
 // Defaults are OPB (KOPB); override with STATION / STATION_ID / COUNTRY_ID.
 const STATION = process.env.STATION || "KOPB";
-const STATION_ID = process.env.STATION_ID || "908d1940-5074-4a1e-b111-169206513fef";
+const STATION_ID =
+  process.env.STATION_ID || "908d1940-5074-4a1e-b111-169206513fef";
 const COUNTRY_ID = process.env.COUNTRY_ID || "US";
-const COOKIE =
-  `pbsol.station=${STATION}; pbsol.station_id=${STATION_ID}; pbsol.country_id=${COUNTRY_ID}`;
+const COOKIE = `pbsol.station=${STATION}; pbsol.station_id=${STATION_ID}; pbsol.country_id=${COUNTRY_ID}`;
 const CONCURRENCY = parseInt(process.env.CONCURRENCY, 10) || 4;
 const SHOW_LIMIT = parseInt(process.env.SHOW_LIMIT, 10) || Infinity;
 const MAX_TRIES = 4;
 
 function usage() {
   console.error("Usage: node getOPB-api.js SHOW_URLS_FILE > RAW_DATA");
-  console.error("       node getOPB-api.js --franchise https://www.pbs.org/franchise/<name>/ >> SHOW_URLS");
-  console.error("  SHOW_URLS_FILE: tab-separated lines of  url<TAB>title[<TAB>...]");
-  console.error("  Env: ERRORS, RETRIES_FILE, CONCURRENCY (default 4), SHOW_LIMIT,");
+  console.error(
+    "       node getOPB-api.js --franchise https://www.pbs.org/franchise/<name>/ >> SHOW_URLS",
+  );
+  console.error(
+    "  SHOW_URLS_FILE: tab-separated lines of  url<TAB>title[<TAB>...]",
+  );
+  console.error(
+    "  Env: ERRORS, RETRIES_FILE, CONCURRENCY (default 4), SHOW_LIMIT,",
+  );
   console.error("       STATION, STATION_ID, COUNTRY_ID (default KOPB, US)");
   process.exit(1);
 }
@@ -70,9 +80,13 @@ async function get(url, kind) {
           Accept: kind === "json" ? "application/json" : "text/html",
         },
       });
-      if (res.ok) {return kind === "json" ? await res.json() : await res.text();}
+      if (res.ok) {
+        return kind === "json" ? await res.json() : await res.text();
+      }
       lastErr = new Error(`HTTP ${res.status} for ${url}`);
-      if (res.status === 404) {break;} // No point retrying
+      if (res.status === 404) {
+        break;
+      } // No point retrying
     } catch (err) {
       lastErr = err;
     }
@@ -86,7 +100,9 @@ async function get(url, kind) {
 function decodeRSC(html) {
   const re = /self\.__next_f\.push\(\[1,("(?:[^"\\]|\\.)*")\]\)/g;
   let out = "";
-  for (const m of html.matchAll(re)) {out += JSON.parse(m[1]);}
+  for (const m of html.matchAll(re)) {
+    out += JSON.parse(m[1]);
+  }
   return out;
 }
 
@@ -96,7 +112,9 @@ function tvSeries(html) {
     try {
       const j = JSON.parse(m[1]);
       for (const o of Array.isArray(j) ? j : [j]) {
-        if (o && o["@type"] === "TVSeries") {return o;}
+        if (o && o["@type"] === "TVSeries") {
+          return o;
+        }
       }
     } catch {
       /* Ignore malformed blocks */
@@ -107,16 +125,24 @@ function tvSeries(html) {
 
 // Parse the JSON array that starts at rsc[start] ('[')
 function arrayAt(rsc, start) {
-  let depth = 0; let inStr = false;
+  let depth = 0;
+  let inStr = false;
   for (let i = start; i < rsc.length; i++) {
     const c = rsc[i];
     if (inStr) {
-      if (c === "\\") {i++;}
-      else if (c === '"') {inStr = false;}
-    } else if (c === '"') {inStr = true;}
-    else if (c === "[" || c === "{") {depth++;}
-    else if (c === "]" || c === "}") {
-      if (--depth === 0) {return JSON.parse(rsc.slice(start, i + 1));}
+      if (c === "\\") {
+        i++;
+      } else if (c === '"') {
+        inStr = false;
+      }
+    } else if (c === '"') {
+      inStr = true;
+    } else if (c === "[" || c === "{") {
+      depth++;
+    } else if (c === "]" || c === "}") {
+      if (--depth === 0) {
+        return JSON.parse(rsc.slice(start, i + 1));
+      }
     }
   }
   return null;
@@ -126,27 +152,34 @@ function arrayAt(rsc, start) {
 // e.g. "EpisodesTab.tsx" or '"contentType":"extras"'
 function seasonsBefore(rsc, marker) {
   const at = rsc.indexOf(marker);
-  if (at < 0) {return null;}
+  if (at < 0) {
+    return null;
+  }
   const s = rsc.lastIndexOf('"seasons":[', at);
-  if (s < 0) {return null;}
+  if (s < 0) {
+    return null;
+  }
   return arrayAt(rsc, s + '"seasons":'.length);
 }
 
 function seasonLists(rsc) {
-  const episodes = seasonsBefore(rsc, '"data-sentry-source-file":"EpisodesTab.tsx"') || [];
+  const episodes =
+    seasonsBefore(rsc, '"data-sentry-source-file":"EpisodesTab.tsx"') || [];
   let clips = seasonsBefore(rsc, '"contentType":"extras"') || [];
   // Clips entries may be references into the Episodes list:
   //   "$4b:props:tabs:0:content:0:props:children:0:props:seasons:4"
   clips = clips
     .map((c) => {
-      if (typeof c !== "string") {return c;}
+      if (typeof c !== "string") {
+        return c;
+      }
       const m = c.match(/:seasons:(\d+)$/);
       return m ? episodes[parseInt(m[1], 10)] : null;
     })
     .filter(Boolean);
-  const tabs = [...rsc.matchAll(/\{"title":"([^"]+)","slug":"([^"]+)","content"/g)].map(
-    (m) => m[1],
-  );
+  const tabs = [
+    ...rsc.matchAll(/\{"title":"([^"]+)","slug":"([^"]+)","content"/g),
+  ].map((m) => m[1]);
   return { episodes, clips, tabs };
 }
 
@@ -164,8 +197,12 @@ function clean(s) {
 
 function fmtDuration(sec) {
   sec = Math.floor(Number(sec) || 0);
-  if (!sec) {return "";}
-  const h = Math.floor(sec / 3600); const m = Math.floor((sec % 3600) / 60); const s = sec % 60;
+  if (!sec) {
+    return "";
+  }
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
   return [h && `${h}h`, m && `${m}m`, s && `${s}s`].filter(Boolean).join(" ");
 }
 
@@ -186,7 +223,10 @@ function summary(v) {
   } else if (ptype === "episode") {
     const season = p.season ? p.season.ordinal : "";
     if (displayEp) {
-      h = show.seasons_count === 1 ? `Ep${p.ordinal}` : `S${season || ""} Ep${p.ordinal}`;
+      h =
+        show.seasons_count === 1
+          ? `Ep${p.ordinal}`
+          : `S${season || ""} Ep${p.ordinal}`;
     } else if (v.premiere_date) {
       const d = v.premiere_date.slice(0, 10).split("-").map(Number);
       h = `${d[1]}/${d[2]}/${d[0]}`;
@@ -198,9 +238,13 @@ function summary(v) {
 function description(v) {
   const { text, displayEp } = summary(v);
   let d = clean(v.description_short);
-  if (text && displayEp) {d = `${text} | ${d}`;}
+  if (text && displayEp) {
+    d = `${text} | ${d}`;
+  }
   const dur = fmtDuration(v.duration);
-  if (dur) {d += ` (${dur})`;}
+  if (dur) {
+    d += ` (${dur})`;
+  }
   return d;
 }
 
@@ -215,14 +259,20 @@ function episodeLines(videos, plain = false) {
   for (const v of videos) {
     out.push(`episodeTitle: ${clean(v.title)}`);
     out.push(`episodeURL: /video/${v.slug}/`);
-    out.push(`episodeDescription: ${plain ? plainDescription(v) : description(v)}`);
+    out.push(
+      `episodeDescription: ${plain ? plainDescription(v) : description(v)}`,
+    );
     out.push("--EOE--");
   }
   return out;
 }
 
 function header(tab, count, name) {
-  return [`tabName: ${tab}`, `numberOfSeasons: ${count}`, `seasonName: ${name}`];
+  return [
+    `tabName: ${tab}`,
+    `numberOfSeasons: ${count}`,
+    `seasonName: ${name}`,
+  ];
 }
 
 // ---- One show -----------------------------------------------------------
@@ -232,7 +282,11 @@ async function scrapeShow(showURL, anomalies) {
   const shortURL = showURL.replace(/.*pbs\.org/, "pbs.org");
   const html = await get(showURL, "text");
   const raw = tvSeries(html) || {};
-  const ld = { name: clean(raw.name), description: clean(raw.description), genre: clean(raw.genre) };
+  const ld = {
+    name: clean(raw.name),
+    description: clean(raw.description),
+    genre: clean(raw.genre),
+  };
   const rsc = decodeRSC(html);
   const { episodes, clips, tabs } = seasonLists(rsc);
   const api = (path) => get(`${BASE}/api/show/${slug}/${path}`, "json");
@@ -240,10 +294,16 @@ async function scrapeShow(showURL, anomalies) {
   const out = ["==> New File"];
   out.push(...header("Main", 1, "Season 1"), `showURL: ${showURL}`);
   const title = ld.name || "";
-  if (title) {out.push(`showTitle: ${title}`);}
-  if (ld.description) {out.push(`showDescription: ${ld.description}`);}
+  if (title) {
+    out.push(`showTitle: ${title}`);
+  }
+  if (ld.description) {
+    out.push(`showDescription: ${ld.description}`);
+  }
   out.push(...header("About", 1, "Season 1"));
-  if (ld.genre) {out.push(`showGenre: ${ld.genre}`);}
+  if (ld.genre) {
+    out.push(`showGenre: ${ld.genre}`);
+  }
 
   // A tab with one season has no season picker; the old scraper then
   // labelled it "Season 1" of 1 regardless of the real season number.
@@ -252,23 +312,30 @@ async function scrapeShow(showURL, anomalies) {
       seasons.map((s) => api(`season/${s.cid}/${kind}/`)),
     );
     if (kind === "episodes" && lists.every((l) => l.length === 0)) {
-      throw new Error(`every Episodes season is empty (station cookie problem?)`);
+      throw new Error(
+        `every Episodes season is empty (station cookie problem?)`,
+      );
     }
     seasons.forEach((s, i) => {
       if (seasons.length > 1) {
-        const name = s.ordinal === 0 ? "More Clips & Previews" : `Season ${s.ordinal}`;
+        const name =
+          s.ordinal === 0 ? "More Clips & Previews" : `Season ${s.ordinal}`;
         out.push(...header(tab, seasons.length, name));
       } else {
         out.push(...header(tab, 1, "Season 1"));
       }
       if (lists[i].length === 0) {
-        anomalies.push(`==> 0 ${kind} in ${tab} season ${s.ordinal}: ${shortURL} '${title}'`);
+        anomalies.push(
+          `==> 0 ${kind} in ${tab} season ${s.ordinal}: ${shortURL} '${title}'`,
+        );
       }
       out.push(...episodeLines(lists[i]));
     });
   }
 
-  if (clips.length) {await seasonTab("Clips", clips, "extras");}
+  if (clips.length) {
+    await seasonTab("Clips", clips, "extras");
+  }
 
   if (tabs.some((t) => /^Specials?$/.test(t))) {
     const specials = await api("specials/");
@@ -278,27 +345,44 @@ async function scrapeShow(showURL, anomalies) {
     }
   }
 
-  if (episodes.length) {await seasonTab("Episodes", episodes, "episodes");}
-  else if (!/There are no episodes currently available/.test(rsc)) {
+  if (episodes.length) {
+    await seasonTab("Episodes", episodes, "episodes");
+  } else if (!/There are no episodes currently available/.test(rsc)) {
     anomalies.push(`==> No Episodes tab: ${shortURL} '${title}'`);
   }
 
   out.push("--EOS--", "");
 
   // Same checks getOPB-raw_data.awk made
-  if (!title) {anomalies.push(`==> No show title found: ${shortURL}`);}
-  if (!ld.description) {anomalies.push(`==> No show descriptions found: ${shortURL} '${title}'`);}
-  if (!ld.genre) {anomalies.push(`==> No show genre found: ${shortURL} '${title}'`);}
+  if (!title) {
+    anomalies.push(`==> No show title found: ${shortURL}`);
+  }
+  if (!ld.description) {
+    anomalies.push(`==> No show descriptions found: ${shortURL} '${title}'`);
+  }
+  if (!ld.genre) {
+    anomalies.push(`==> No show genre found: ${shortURL} '${title}'`);
+  }
   return out.join("\n") + "\n";
 }
 
 // ---- Franchise pages (replaces getOPB-FranchiseURLs.js) -----------------
 
 function decodeEntities(s) {
-  const named = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: "\u00a0" };
+  const named = {
+    amp: "&",
+    lt: "<",
+    gt: ">",
+    quot: '"',
+    apos: "'",
+    nbsp: "\u00a0",
+  };
   return s.replace(/&(#x[0-9a-f]+|#\d+|\w+);/gi, (m, e) => {
     if (e[0] === "#") {
-      const n = e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10);
+      const n =
+        e[1].toLowerCase() === "x"
+          ? parseInt(e.slice(2), 16)
+          : parseInt(e.slice(1), 10);
       return String.fromCodePoint(n);
     }
     return named[e.toLowerCase()] ?? m;
@@ -309,15 +393,22 @@ function decodeEntities(s) {
 // in the same order and format getOPB-FranchiseURLs.js produced.
 async function franchise(browseURL) {
   const html = await get(browseURL, "text");
-  const re = /<a\b[^>]*class="[^"]*show_poster__link[^"]*"[^>]*>([\s\S]*?)<\/a>/g;
+  const re =
+    /<a\b[^>]*class="[^"]*show_poster__link[^"]*"[^>]*>([\s\S]*?)<\/a>/g;
   const shows = new Map();
   for (const m of html.matchAll(re)) {
     const href = (m[0].match(/href="([^"]+)"/) || [])[1];
     const alt = (m[1].match(/<img\b[^>]*alt="([^"]*)"/) || [])[1];
-    if (!href || !alt) {continue;}
-    const url = href.startsWith("http") ? href : `${BASE}${decodeEntities(href)}`;
+    if (!href || !alt) {
+      continue;
+    }
+    const url = href.startsWith("http")
+      ? href
+      : `${BASE}${decodeEntities(href)}`;
     const name = decodeEntities(alt).trim();
-    if (name && !shows.has(url)) {shows.set(url, name);}
+    if (name && !shows.has(url)) {
+      shows.set(url, name);
+    }
   }
   const rows = [...shows]
     .sort((a, b) => a[1].localeCompare(b[1], "en", { sensitivity: "base" }))
@@ -325,7 +416,9 @@ async function franchise(browseURL) {
       const clean = name.replace(/[^a-zA-Z0-9 ]/g, "").replace(/ /g, "_");
       return `${url}\t${name}\t${clean}`;
     });
-  if (rows.length === 0) {throw new Error(`No show posters found on ${browseURL}`);}
+  if (rows.length === 0) {
+    throw new Error(`No show posters found on ${browseURL}`);
+  }
   process.stdout.write(rows.join("\n") + "\n");
   console.error(`==> Found ${rows.length} shows on ${browseURL}`);
 }
@@ -334,7 +427,9 @@ async function franchise(browseURL) {
 
 async function main() {
   if (process.argv[2] === "--franchise") {
-    if (!process.argv[3]) {usage();}
+    if (!process.argv[3]) {
+      usage();
+    }
     try {
       await franchise(process.argv[3]);
     } catch (err) {
@@ -344,7 +439,9 @@ async function main() {
     return;
   }
   const file = process.argv[2];
-  if (!file || !fs.existsSync(file)) {usage();}
+  if (!file || !fs.existsSync(file)) {
+    usage();
+  }
   const shows = fs
     .readFileSync(file, "utf8")
     .split("\n")
@@ -364,7 +461,9 @@ async function main() {
         console.error(`==> Completed ${shows[i]}`);
       } catch (err) {
         failed.push(shows[i]);
-        anomalies.push(`==> getOPB-api.js failed on ${shows[i]}: ${err.message}`);
+        anomalies.push(
+          `==> getOPB-api.js failed on ${shows[i]}: ${err.message}`,
+        );
         console.error(`==> \x1b[31mError\x1b[0m ${shows[i]}: ${err.message}`);
       }
     }
@@ -374,13 +473,18 @@ async function main() {
   process.stdout.write(results.filter(Boolean).join(""));
   if (anomalies.length) {
     const text = anomalies.join("\n") + "\n";
-    if (process.env.ERRORS) {fs.appendFileSync(process.env.ERRORS, text);}
-    else {process.stderr.write(text);}
+    if (process.env.ERRORS) {
+      fs.appendFileSync(process.env.ERRORS, text);
+    } else {
+      process.stderr.write(text);
+    }
   }
   if (failed.length && process.env.RETRIES_FILE) {
     fs.appendFileSync(process.env.RETRIES_FILE, failed.join("\n") + "\n");
   }
 }
 
-if (require.main === module) {main();}
+if (require.main === module) {
+  main();
+}
 module.exports = { scrapeShow };
