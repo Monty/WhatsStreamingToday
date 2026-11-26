@@ -17,6 +17,7 @@ rg_Acorn_MovieTypes.rgx
 
 BBOX_FILES="
 makeBBoxFromSitemap.sh
+getBBoxFromAPI.py
 getBBoxURLsFromSitemap.awk
 getBBox-preprocess.awk
 getBBoxMovies.awk

@@ -35,13 +35,18 @@ LONGDATE="-$(date +%y%m%d.%H%M%S)"
 # Use "-d" switch to output a "diffs" file useful for debugging
 # Use "-s" switch to only output a summary. Delete any created files except anomalies and info
 # Use "-t" switch to print "Totals" and "Counts" lines at the end of the spreadsheet
+# Use "-H" switch to scrape the HTML pages instead of using the BritBox API
 DEBUG="no"
 SUMMARY="no"
 PRINT_TOTALS="no"
-while getopts ":dst" opt; do
+USE_HTML="no"
+while getopts ":dstH" opt; do
     case $opt in
     d)
         DEBUG="yes"
+        ;;
+    H)
+        USE_HTML="yes"
         ;;
     s)
         SUMMARY="yes"
@@ -144,6 +149,14 @@ rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 # Make sure we have a file to hold errors
 touch "$ERRORS"
 
+# Number of simultaneous page downloads and preprocessing jobs.
+# Override from the command line, e.g.  MAX_PARALLEL=4 ./makeBBoxFromSitemap.sh -td
+MAX_PARALLEL="${MAX_PARALLEL:-8}"
+
+# Scratch directory for downloaded pages, removed when the script exits
+WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/BBox.XXXXXX")"
+trap 'rm -rf "$WORK_DIR"' EXIT
+
 # Grab the sitemap file and extract the URLs for en-us items
 # Unless we already have one from today
 if [ ! -e "$SHOW_URLS" ]; then
@@ -154,32 +167,155 @@ else
     printf "==> Using existing $SHOW_URLS\n"
 fi
 
+# Extract fields from one downloaded page. Runs in parallel child shells.
+#   INVOCATION: preprocessPage url html_file
+function preprocessPage() {
+    # shellcheck disable=SC2016
+    rg -f rg_BBox_keep.rgx <"$2" | sd '&quot;' '"' |
+        sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
+        sd '"offers".*' '' | sd '"subtype":"",' '' | sd '\\"' '&#39;' |
+        sd '"path":"",' '' | sd '^[[:space:]]+' '' |
+        rg -v -f rg_BBox_skip.rgx | sort -ur |
+        awk -v FILE="$1" -f getBBox-preprocess.awk
+}
+export -f preprocessPage
+
+# Download every page matching a URL pattern in parallel, preprocess them in
+# parallel, then append the results in URL order so output matches a serial run.
+#   INVOCATION: winnowHTML url_pattern output_file
 function winnowHTML() {
     printf "==> Generating new $2\n"
-    while read -r url; do
-        FILE="$url"
-        # Check HTTP status before processing; skip 404s and log them
-        http_code=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-        if [ "$http_code" -ge 400 ]; then
-            printf "==> SKIPPED (HTTP %s): %s\n" "$http_code" "$url" >>"$ERRORS"
-            continue
-        fi
+    local dir="$WORK_DIR/${2##*/}"
+    mkdir -p "$dir"
+    rg -N "$1" "$SHOW_URLS" >"$dir/urls.txt" || true
+
+    # One request per page (the old separate status check doubled the requests)
+    awk -v DIR="$dir" \
+        '{ printf("url = \"%s\"\noutput = \"%s/%d.html\"\n", $0, DIR, NR) }' \
+        "$dir/urls.txt" >"$dir/curl.cfg"
+    if [ -s "$dir/urls.txt" ]; then
+        curl -sS --parallel --parallel-max "$MAX_PARALLEL" \
+            --retry 3 --retry-delay 2 \
+            -w '%{http_code}\t%{filename_effective}\n' \
+            -K "$dir/curl.cfg" >"$dir/codes.txt" || true
+    fi
+    touch "$dir/codes.txt"
+
+    # Log failed pages; list the good ones as "url html_file txt_file" jobs
+    awk -v DIR="$dir" -v ERRORS="$ERRORS" '
+        FNR == NR {
+            n = $2; sub(/.*\//, "", n); sub(/\.html$/, "", n)
+            code[n] = $1
+            next
+        }
+        {
+            c = (FNR in code) ? code[FNR] : "000"
+            if (c + 0 == 0 || c + 0 >= 400) {
+                printf("==> SKIPPED (HTTP %s): %s\n", c, $0) >> ERRORS
+                next
+            }
+            printf("%s %s/%d.html %s/%d.txt\n", $0, DIR, FNR, DIR, FNR)
+        }' "$dir/codes.txt" "$dir/urls.txt" >"$dir/jobs.txt"
+
+    # Concatenate in URL order, then move into place so an interrupted run
+    # never leaves a partial file that a rerun would treat as "existing".
+    # Always creates $2, even when no URLs match (the 102146 failure).
+    : >"$dir/all.txt"
+    if [ -s "$dir/jobs.txt" ]; then
         # shellcheck disable=SC2016
-        curl -s "$url" | rg -f rg_BBox_keep.rgx | sd '&quot;' '"' |
-            sd '"type":"(movie|episode|show|season)"' '\n"type":"$1"' |
-            sd '"offers".*' '' | sd '"subtype":"",' '' | sd '\\"' '&#39;' |
-            sd '"path":"",' '' | sd '^[[:space:]]+' '' |
-            rg -v -f rg_BBox_skip.rgx | sort -ur |
-            awk -v FILE="$FILE" -f getBBox-preprocess.awk >>"$2"
-    done < <(rg -N "$1" "$SHOW_URLS")
+        xargs -P "$MAX_PARALLEL" -n 3 "$BASH" -c 'preprocessPage "$1" "$2" >"$3"' _ \
+            <"$dir/jobs.txt"
+        awk '{ print $3 }' "$dir/jobs.txt" | xargs cat >"$dir/all.txt"
+    fi
+    mv "$dir/all.txt" "$2"
 }
+
+# The JSON the BritBox pages load their data from
+API_URL="https://api.britbox.com/v1/content/Page"
+API_QUERY="useCustomId=true&listPageSize=100&maxListPrefetch=15&itemDetailExpand=all"
+API_QUERY+="&textEntryFormat=html&device=web_browser&sub=&segments=us"
+
+# Download the API JSON for a list of BritBox URLs, 8 at a time.
+# Failed downloads are logged by URL and their files removed so they are skipped.
+#   INVOCATION: fetchAPIPages url_list json_dir
+function fetchAPIPages() {
+    local list="$1" dir="$2"
+    [ -s "$list" ] || return 0
+
+    # /us/season/Grace_S1_10097327 -> season_Grace_S1_10097327.json
+    awk -v DIR="$dir" -v API="$API_URL" -v Q="$API_QUERY" '{
+        path = $0; sub(/^.*\/us\//, "/", path)
+        name = substr(path, 2); gsub(/\//, "_", name)
+        qpath = path; gsub(/\//, "%2F", qpath)
+        printf("url = \"%s?path=%s&%s\"\noutput = \"%s/%s.json\"\n",
+            API, qpath, Q, DIR, name)
+    }' "$list" >"$list.cfg"
+    # --retry without --retry-delay backs off 1, 2, 4, 8, 16 seconds and
+    # honors Retry-After, in case the API rate-limits us (HTTP 429)
+    curl -sS --parallel --parallel-max "$MAX_PARALLEL" --retry 5 \
+        -w '%{http_code}\t%{filename_effective}\n' \
+        -K "$list.cfg" >"$list.codes" || true
+
+    awk -v ERRORS="$ERRORS" '
+        FNR == NR {
+            n = $2; sub(/.*\//, "", n); sub(/\.json$/, "", n)
+            code[n] = $1
+            next
+        }
+        {
+            name = $0; sub(/^.*\/us\//, "", name); gsub(/\//, "_", name)
+            c = (name in code) ? code[name] : "000"
+            if (c + 0 == 0 || c + 0 >= 400) {
+                printf("==> SKIPPED (HTTP %s): %s\n", c, $0) >> ERRORS
+                print name ".json"
+            }
+        }' "$list.codes" "$list" >"$list.failed"
+    while read -r f; do
+        rm -f "$dir/$f"
+    done <"$list.failed"
+}
+
+# Get API JSON for movies and seasons, plus any show that no season page
+# covers (each season page carries its show's full record), then convert
+# it into the same tv_*.txt files that winnowHTML produces.
+function fetchFromAPI() {
+    printf "==> Generating new $TV_MOVIE_TXT, $TV_SHOW_TXT,\n"
+    printf "    and $TV_EPISODE_TXT from the BritBox API\n"
+    local dir="$WORK_DIR/api"
+    mkdir -p "$dir"
+
+    rg -N '/us/(movie|season)/' "$SHOW_URLS" >"$WORK_DIR/api_urls.txt" || true
+    fetchAPIPages "$WORK_DIR/api_urls.txt" "$dir"
+
+    python3 getBBoxFromAPI.py --missing-shows "$SHOW_URLS" "$dir" \
+        >"$WORK_DIR/api_shows.txt"
+    fetchAPIPages "$WORK_DIR/api_shows.txt" "$dir"
+
+    python3 getBBoxFromAPI.py -e "$ERRORS" "$SHOW_URLS" "$dir" \
+        "$dir/movies.txt" "$dir/shows.txt" "$dir/episodes.txt"
+    mv "$dir/movies.txt" "$TV_MOVIE_TXT"
+    mv "$dir/shows.txt" "$TV_SHOW_TXT"
+    mv "$dir/episodes.txt" "$TV_EPISODE_TXT"
+    API_DONE="yes"
+}
+
+# Unless all three exist from today, get the movie, show, and season data
+# from the API in one pass. With -H, winnowHTML scrapes each type below.
+API_DONE="no"
+if [ "$USE_HTML" != "yes" ] &&
+    { [ ! -e "$TV_MOVIE_TXT" ] || [ ! -e "$TV_SHOW_TXT" ] ||
+        [ ! -e "$TV_EPISODE_TXT" ]; }; then
+    printf "### Possible anomalies from downloading API data\n" >>"$ERRORS"
+    fetchFromAPI
+    printf "\n" >>"$ERRORS"
+fi
 
 # Get data for movies from /movie/ URLs
 # Unless we already have one from today
 printf "### Possible anomalies from processing $TV_MOVIE_TXT\n" >>"$ERRORS"
 if [ ! -e "$TV_MOVIE_TXT" ]; then
     winnowHTML "/movie/" "$TV_MOVIE_TXT"
-else
+elif [ "$API_DONE" != "yes" ]; then
     printf "==> Using existing $TV_MOVIE_TXT\n"
 fi
 # Generate movies spreadsheet
@@ -192,7 +328,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS="$RAW_CREDITS
 printf "\n### Possible anomalies from processing $TV_SHOW_TXT\n" >>"$ERRORS"
 if [ ! -e "$TV_SHOW_TXT" ]; then
     winnowHTML "/show/" "$TV_SHOW_TXT"
-else
+elif [ "$API_DONE" != "yes" ]; then
     printf "==> Using existing $TV_SHOW_TXT\n"
 fi
 # Generate shows spreadsheet
@@ -205,7 +341,7 @@ awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v RAW_CREDITS="$RAW_CREDITS
 printf "\n### Possible anomalies from processing $TV_EPISODE_TXT\n" >>"$ERRORS"
 if [ ! -e "$TV_EPISODE_TXT" ]; then
     winnowHTML "/season/" "$TV_EPISODE_TXT"
-else
+elif [ "$API_DONE" != "yes" ]; then
     printf "==> Using existing $TV_EPISODE_TXT\n"
 fi
 # Generate episodes spreadsheet
@@ -442,7 +578,8 @@ $(wc $ALL_TXT $ALL_SPREADSHEETS)
 EOF
 
 if [ "$SUMMARY" = "yes" ]; then
-    rm -f "$ALL_WORKING" "$ALL_TXT" "$ALL_SPREADSHEETS"
+    # shellcheck disable=SC2086
+    rm -f $ALL_WORKING $ALL_TXT $ALL_SPREADSHEETS
 fi
 
 exit

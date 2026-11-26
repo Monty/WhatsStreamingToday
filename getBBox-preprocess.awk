@@ -37,10 +37,15 @@ BEGIN {
 # <meta property="og:url" content="/us/movie/63_Up_p09668r0" />
 # <meta property="og:url" content="/us/show/Grace_65424" />
 # <meta property="og:url" content="/us/season/Grace_S1_10097327" />
+# Now a full URL:
+# <meta property="og:url" content="https://www.britbox.com/us/season/Grace_S1_10097327" />
 /<meta property="og:url" content=/ {
     split($0, fld, "\"")
     partial_URL = fld[4]
-    split(partial_URL, fld, "/")
+    # Strip any scheme and host so fileType comes from the path, /us/<type>/<name>
+    path = partial_URL
+    sub(/^https?:\/\/[^\/]+/, "", path)
+    split(path, fld, "/")
     fileType = fld[3]
     # print "fileType = " fileType > "/dev/stderr"
     if (fileType == "movie") { print "--BOM--" }
