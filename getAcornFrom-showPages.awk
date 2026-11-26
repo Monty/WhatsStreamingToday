@@ -2,13 +2,14 @@
 #
 # Note that IN_CANADA affects processing.
 #
-# INVOCATION:
-#    while read -r line; do
-#        curl -sS "$line" |
-#            awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
-#                -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
-#                -f getAcornFrom-showPages.awk >$UNSORTED
-#    done <"$SHOW_URLS"
+# INVOCATION (input is the prettier-formatted show pages):
+#    awk -v ERRORS=$ERRORS -v RAW_TITLES=$RAW_TITLES -v EPISODE_URLS=$EPISODE_URLS \
+#        -v DURATION=$DURATION -v SHORT_SPREADSHEET=$SHORT_SPREADSHEET \
+#        -v EPISODES_DIR=$EPISODES_DIR \
+#        -f getAcornFrom-showPages.awk $PRETTY >$UNSORTED
+#
+# EPISODES_DIR holds episode pages pre-fetched in parallel. Any episode not found
+# there (or if EPISODES_DIR is unset) is fetched live with curl, one at a time.
 
 #   Field Names
 #        1 Title (link)    2 Seasons    3 Episodes    4 Duration    5 Description
@@ -138,35 +139,65 @@ function computeEpisodeDuration() {
     # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL "\n" > "/dev/stderr"
 }
 
-function getDataFromEpisode() {
-    # Extract the episode description
+function episodeCacheFile(url,    file) {
+    # Must match the naming in makeAcornFromBrowsePage.sh:
+    # https://acorn.tv/rebus/series1/the-falls -> EPISODES_DIR/rebus_series1_the-falls.html
+    file = url
+    sub(/^https:\/\/acorn\.tv\//, "", file)
+    gsub(/\//, "_", file)
+    return EPISODES_DIR "/" file ".html"
+}
+
+function processEpisodeLine() {
+    if (episodeData ~ /itemprop="description"/) {
+        split(episodeData, fld, "\"")
+        episodeDescription = fld[4]
+        fixEpisodeDescription()
+    }
+
+    if (episodeData ~ /itemprop="episodeNumber"/) {
+        # Get episodeNumber which is no longer available from showURL
+        # <meta itemprop="episodeNumber" content="1"> acorn.tv/192/season1
+        split(episodeData, fld, "\"")
+        episodeNumber = fld[4]
+        # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
+    }
+
+    if (episodeData ~ /itemprop="timeRequired"/) {
+        # Get duration which is no longer available from showURL
+        # <meta itemprop="timeRequired" content="T115M26S"> acorn.tv/betrayaloftrust/feature
+        # <meta itemprop="timeRequired" content="T00M05S">
+        durationLinesFound += 1
+        split(episodeData, fld, "\"")
+        episodeTMS = fld[4]
+        computeEpisodeDuration()
+    }
+}
+
+function getDataFromEpisode(    epFile, found) {
+    # Use the episode page pre-fetched in parallel by makeAcornFromBrowsePage.sh.
+    # Read it directly (no subprocess), stopping after the first 3 matching lines,
+    # exactly as "rg -m 3" did.
+    epFile = (EPISODES_DIR == "") ? "" : episodeCacheFile(episodeURL)
+    if (epFile != "" && (getline episodeData < epFile) > 0) {
+        found = 0
+        do {
+            if (episodeData ~ /^ {8}<meta itemprop="(description|episodeNumber|timeRequired)"/) {
+                processEpisodeLine()
+                if (++found >= 3) break
+            }
+        } while ((getline episodeData < epFile) > 0)
+        close(epFile)
+        return
+    }
+    if (epFile != "") close(epFile)
+
+    # Not in the cache (download failed, or run without EPISODES_DIR): fetch it live
     cmd = "curl -s " episodeURL\
         " | rg -m 3 '^ {8}<meta itemprop=\"description\"|^ {8}<meta itemprop=\"episodeNumber\"|^ {8}<meta itemprop=\"timeRequired\"'"
 
     while ((cmd | getline episodeData) > 0) {
-        if (episodeData ~ /itemprop="description"/) {
-            split(episodeData, fld, "\"")
-            episodeDescription = fld[4]
-            fixEpisodeDescription()
-        }
-
-        if (episodeData ~ /itemprop="episodeNumber"/) {
-            # Get episodeNumber which is no longer available from showURL
-            # <meta itemprop="episodeNumber" content="1"> acorn.tv/192/season1
-            split(episodeData, fld, "\"")
-            episodeNumber = fld[4]
-            # print "==> episodeNumber = " episodeNumber > "/dev/stderr"
-        }
-
-        if (episodeData ~ /itemprop="timeRequired"/) {
-            # Get duration which is no longer available from showURL
-            # <meta itemprop="timeRequired" content="T115M26S"> acorn.tv/betrayaloftrust/feature
-            # <meta itemprop="timeRequired" content="T00M05S">
-            durationLinesFound += 1
-            split(episodeData, fld, "\"")
-            episodeTMS = fld[4]
-            computeEpisodeDuration()
-        }
+        processEpisodeLine()
     }
 
     close(cmd)

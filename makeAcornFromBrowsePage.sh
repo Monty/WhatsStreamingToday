@@ -145,24 +145,56 @@ function skipPage() {
 # Download each show page separately so one bad page can't sink the whole run.
 # Acorn sometimes sends a truncated page (e.g. cut off inside the numberOfSeasons
 # meta tag), which used to make prettier reject the entire concatenated stream.
+#
+# Speed: almost all run time is network latency, one request at a time.
+# Show pages and episode pages are now fetched PARALLEL at a time with curl --parallel
+# (needs curl 7.66+; macOS ships 8.x). Acorn has no public catalog API: episode
+# descriptions only exist on each episode's own page, so those pages are still
+# fetched -- just concurrently, into $EPISODES_DIR, where the awk script reads them.
+PARALLEL=8
 PAGES_DIR=$(mktemp -d)
+EPISODES_DIR="$PAGES_DIR/episodes"
+mkdir -p "$EPISODES_DIR"
 trap 'rm -rf "$PAGES_DIR"' EXIT
+
+# Fetch every show page concurrently, recording the HTTP status of each
+SHOW_CONFIG="$PAGES_DIR/shows.cfg"
+SHOW_STATUS="$PAGES_DIR/shows.status"
+while read -r url; do
+    [ -z "$url" ] && continue
+    printf 'url = "%s"\noutput = "%s/%s.html"\n' "$url" "$PAGES_DIR" "$(basename "$url")"
+done <"$SHOW_URLS" >"$SHOW_CONFIG"
+curl -sS --fail --parallel --parallel-max "$PARALLEL" \
+    -w '%{http_code} %{url_effective}\n' -K "$SHOW_CONFIG" >"$SHOW_STATUS" || true
+
+# Print the reason a downloaded show page is unusable, or nothing if it's good
+function pageProblem() {
+    # INVOCATION: pageProblem url page
+    if ! grep -qxF "200 $1" "$SHOW_STATUS" || [ ! -s "$2" ]; then
+        printf "download failed"
+    elif ! grep -qi '</html>' "$2"; then
+        printf "page is truncated (no closing </html>)"
+    # A page cut off mid-tag sometimes has a whole second HTML page (a server error) appended
+    elif [ "$(grep -ci '<!DOCTYPE' "$2" || true)" -gt 1 ]; then
+        printf "page is truncated (server error page appended mid-page)"
+    fi
+}
+
 GOOD_PAGES=()
 while read -r url; do
     [ -z "$url" ] && continue
     # Name each page after its show (e.g. wisting.html) so any prettier errors identify the show
     page="$PAGES_DIR/$(basename "$url").html"
-    if ! curl -sS --fail -o "$page" "$url"; then
-        skipPage "$url" "download failed"
-        continue
+    problem="$(pageProblem "$url" "$page")"
+    if [ -n "$problem" ]; then
+        # Parallel fetches occasionally get a cut-off HTTP/2 stream; retry once, on its own
+        sleep 1
+        rm -f "$page"
+        curl -sS --fail -w '%{http_code} %{url_effective}\n' -o "$page" "$url" >>"$SHOW_STATUS" || true
+        problem="$(pageProblem "$url" "$page")"
     fi
-    if ! grep -qi '</html>' "$page"; then
-        skipPage "$url" "page is truncated (no closing </html>)"
-        continue
-    fi
-    # A page cut off mid-tag sometimes has a whole second HTML page (a server error) appended
-    if [ "$(grep -ci '<!DOCTYPE' "$page" || true)" -gt 1 ]; then
-        skipPage "$url" "page is truncated (server error page appended mid-page)"
+    if [ -n "$problem" ]; then
+        skipPage "$url" "$problem"
         continue
     fi
     GOOD_PAGES+=("$page")
@@ -177,14 +209,33 @@ fi
 # it reports that file, skips it, and continues; we note it rather than quitting.
 # --ignore-path /dev/null: otherwise a .gitignore/.prettierignore in this directory can mark
 # the pages "ignored", and prettier then passes them through UNFORMATTED, which awk can't parse.
-{
-    prettier --parser html --ignore-path /dev/null "${GOOD_PAGES[@]}" ||
-        printf "==> prettier couldn't parse one or more show pages (see [error] lines above); they were skipped\n" |
-        tee -a "$ERRORS" >&2
-} |
-    awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
-        -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
-        -f getAcornFrom-showPages.awk >"$UNSORTED"
+PRETTY="$PAGES_DIR/pretty.html"
+prettier --parser html --ignore-path /dev/null "${GOOD_PAGES[@]}" >"$PRETTY" ||
+    printf "==> prettier couldn't parse one or more show pages (see [error] lines above); they were skipped\n" |
+    tee -a "$ERRORS" >&2
+
+# Pre-fetch every episode page concurrently. The URL selection mirrors the episode
+# rules in getAcornFrom-showPages.awk, and the cache file naming must match
+# episodeCacheFile() there: acorn.tv/rebus/series1/the-falls -> rebus_series1_the-falls.html
+# An episode missing from the cache is fetched by the awk script itself, as before.
+awk '/^ {16}<a href="https:\/\/acorn.tv\// || /^ {18}href="https:\/\/acorn.tv\// {
+        split($0, fld, "\"")
+        url = fld[2]
+        sub(/\/$/, "", url)
+        file = url
+        sub(/^https:\/\/acorn\.tv\//, "", file)
+        gsub(/\//, "_", file)
+        if (!(url in seen)) {
+            seen[url] = 1
+            printf("url = \"%s\"\noutput = \"%s/%s.html\"\n", url, dir, file)
+        }
+    }' dir="$EPISODES_DIR" "$PRETTY" >"$PAGES_DIR/episodes.cfg"
+curl -s --retry 2 --parallel --parallel-max "$PARALLEL" -K "$PAGES_DIR/episodes.cfg" || true
+
+awk -v ERRORS="$ERRORS" -v RAW_TITLES="$RAW_TITLES" -v EPISODE_URLS="$EPISODE_URLS" \
+    -v DURATION="$DURATION" -v SHORT_SPREADSHEET="$SHORT_SPREADSHEET" \
+    -v EPISODES_DIR="$EPISODES_DIR" \
+    -f getAcornFrom-showPages.awk "$PRETTY" >"$UNSORTED"
 
 # Stop with a clear message if awk found nothing, rather than failing confusingly further down
 if [ ! -s "$UNSORTED" ] || [ ! -s "$RAW_TITLES" ]; then
