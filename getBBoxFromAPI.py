@@ -38,6 +38,17 @@ def num(value):
     return json.dumps(value)
 
 
+def plain(line):
+    """The API uses non-breaking spaces (U+00A0) in some text where the HTML
+    pages had ordinary spaces, sometimes at the end of a description.
+    Make them ordinary spaces and drop any left trailing a value, but keep
+    the space after an empty "key: " so the awk patterns still match."""
+    line = line.replace("\u00a0", " ")
+    if line.endswith(" ") and not line.endswith(": "):
+        line = line.rstrip(" ")
+    return line
+
+
 MISSING = object()  # no file: the download failed and was already logged
 
 
@@ -62,10 +73,14 @@ def by_id_desc(items):
     )
 
 
-def single(values):
-    """The genre rules only matched one-element arrays."""
-    if isinstance(values, list) and len(values) == 1:
-        return values[0]
+def genre_text(values):
+    """One genre as is; several joined, e.g. "Mystery, Drama".
+    (The HTML rules only matched one-element arrays, so multi-genre
+    titles used to come out blank.) None if there are no genres."""
+    if isinstance(values, list) and values:
+        if len(values) == 1:
+            return values[0]
+        return ", ".join(str(v) for v in values)
     return None
 
 
@@ -114,7 +129,7 @@ def movie_block(url, item):
         "showDescription: " + item.get("shortDescription", ""),
         "itemType: movie",
     ]
-    genre = single(item.get("genres"))
+    genre = genre_text(item.get("genres"))
     if genre:
         out.append("showGenre: " + esc(genre))
     credit_lines(out, item.get("credits"))
@@ -143,7 +158,7 @@ def show_block(url, item, warn):
         "showDescription: " + item.get("shortDescription", ""),
         "itemType: show",
     ]
-    genre = single(item.get("genres"))
+    genre = genre_text(item.get("genres"))
     if genre:
         out.append("showGenre: " + esc(genre))
     credit_lines(out, item.get("credits"))
@@ -185,7 +200,7 @@ def season_block(url, item, warn):
             out.append("seasonId: " + esc(e["seasonId"]))
         if "shortDescription" in e:
             out.append("episodeDescription: " + esc(e["shortDescription"]))
-        genre = single(e.get("genres"))
+        genre = genre_text(e.get("genres"))
         if genre is not None:
             out.append("episodeGenre: " + esc(genre))
         rating = (e.get("classification") or {}).get("name")
@@ -293,7 +308,7 @@ def main():
                 lines = ["==> New File", "--BOF-- " + source]
                 lines += make_block(url, item)
                 lines += ["--EOF-- " + source, ""]
-                out.write("\n".join(lines) + "\n")
+                out.write("\n".join(plain(line) for line in lines) + "\n")
 
     write(
         args.movies_txt,
