@@ -80,7 +80,7 @@ done
 shift $((OPTIND - 1))
 
 # Make sure we can execute rg.
-if ! command -v curl >/dev/null; then
+if ! command -v rg >/dev/null; then
     printf "[Error] Can't run rg. Install rg and rerun this script.\n"
     printf "        zgrep could be used, but is 15x slower in my tests.\n"
     printf "        See https://crates.io/crates/ripgrep for details.\n"
