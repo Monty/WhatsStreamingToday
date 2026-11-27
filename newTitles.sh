@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# prettydiff the most recent uniqTitles files from MHz, Acorn, OPB, Britbox, and Apple TV+
+# prettydiff the most recent uniqTitles files from MHz, Acorn, OPB, BritBox, and Apple TV+
 
 # Make sure we are in the correct directory
 DIRNAME=$(dirname "$0")

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-    <!-- This plist works with MacOS launchd to run timeAllscripts.sh on a weekly schedule -->
-    <!-- Required: Change all 4 occurences of 'path/to' to the full path of timeAllscripts.sh -->
+    <!-- This plist works with MacOS launchd to run timeAllScripts.sh on a weekly schedule -->
+    <!-- Required: Change all 4 occurences of 'path/to' to the full path of timeAllScripts.sh -->
     <!-- Optional: Change 'example' in both the file name and the plist Label string -->
     <!-- Optional: Change the StartCalendarInterval -->
+    <!-- Required: Edit PATH so launchd can find node, rg, sd, and zet. launchd starts jobs -->
+    <!--           with only /usr/bin:/bin:/usr/sbin:/sbin and doesn't expand ~ or $HOME -->
     <!-- Required: Save the modified plist to ~/Library/LaunchAgents/ -->
     <!-- Required: Log out then log back in to make launchd use the plist -->
     <dict>
@@ -12,7 +14,7 @@
         <string>com.example.makeTVspreadsheets</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/path/to/timeAllscripts.sh</string>
+            <string>/path/to/timeAllScripts.sh</string>
         </array>
         <key>StartCalendarInterval</key>
         <array>
@@ -25,6 +27,11 @@
                 <integer>5</integer>
             </dict>
         </array>
+        <key>EnvironmentVariables</key>
+        <dict>
+            <key>PATH</key>
+            <string>/Users/YOU/.volta/bin:/Users/YOU/.cargo/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        </dict>
         <key>WorkingDirectory</key>
         <string>/path/to/WhatsStreamingToday</string>
         <key>StandardOutPath</key>

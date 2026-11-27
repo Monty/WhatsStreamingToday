@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# diff the most recent TV_ShowsEpisodes files from MHz, Acorn, OPB, and Britbox
+# diff the most recent TV_ShowsEpisodes files from MHz, Acorn, OPB, and BritBox
 # and print the removed episodes
 #
 # Assume episodes have a season mumber in field 1, i.e. ', S[0-9][0-9]'

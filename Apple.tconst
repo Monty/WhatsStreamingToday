@@ -1,0 +1,40 @@
+# This is a sample of IMDb tconst identifiers of shows on Apple TV
+#       See https://www.imdb.com/interfaces/ for a description of IMDb Datasets
+#       tconst (string) - alphanumeric unique identifier of the title
+#
+# Create a similar tconst file of shows you've watched or are interested in, with any name and extension.
+# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh MyShows.tconst
+# If you don't pass it a file parameter, it will process all *.tconst files
+
+# Only the tconst column is used, the other columns are considered comments. You can add those columns
+# after processing by using the data in IMDb-columns/raw_shows*.csv
+
+# List a single tvEpisode only when it's offered as a standalone show (e.g. one Tatort film)
+# and its parent tvSeries isn't listed. Episodes of listed series are found automatically
+# and appear in IMDb_suggestedEpisodes-[DATE].csv
+
+# tconst	Type	Primary Title	Alternate Title	Date
+tt15203646	tvSeries	Bad Monkey	Bad Monkey	2024
+tt15469618	tvSeries	Bad Sisters	Bad Sisters	2022
+tt6418084	tvSeries	Carême	Carême	2025
+tt21088136	tvSeries	Criminal Record	Criminal Record	2024
+tt16294384	tvSeries	Disclaimer	Disclaimer	2024
+tt32132630	tvSeries	Down Cemetery Road	Down Cemetery Road	2025
+tt6867482	tvSeries	Drops of God	Les Gouttes de Dieu	2023
+tt0804484	tvSeries	Foundation	Foundation	2021
+tt33096033	tvSeries	Long Way Home	Long Way Home	2025
+tt0403778	tvMiniSeries	Long Way Round	Long Way Round	2004
+tt12824922	tvSeries	Long Way Up	Long Way Up	2020
+tt26598805	tvSeries	Nocturne	Nocturne	2026
+tt22202452	tvSeries	Pluribus	Pluribus	2025
+tt17677860	tvSeries	Presumed Innocent	Presumed Innocent	2024
+tt31186958	tvSeries	Prime Target	Prime Target	2025
+tt7949218	tvSeries	See	See	2019
+tt5875444	tvSeries	Slow Horses	Slow Horses	2022
+tt38504111	tvSeries	Small Prophets	Small Prophets	2026
+tt16418808	tvSeries	Sugar	Sugar	2024
+tt13745850	tvSeries	The Last Thing He Told Me	The Last Thing He Told Me	2023
+tt11041132	tvSeries	The Mosquito Coast	The Mosquito Coast	2021
+tt28486633	movie	The Pigeon Tunnel	The Pigeon Tunnel	2023
+tt10095582	movie	The Tragedy of Macbeth	The Tragedy of Macbeth	2021
+tt29011445	tvSeries	Where's Wanda?	Where's Wanda?	2024

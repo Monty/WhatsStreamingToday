@@ -253,7 +253,7 @@ if [ -s "$CONFLICTS" ]; then
     printf "\n==> These shows have more than one tconst.\n"
     rg -H -f "$CONFLICTS" "$RAW_SHOWS"
     printf "\n"
-    printf "==> Make sure to delete corresponding lines in Episode.tconst and Episode.xlate.\n"
+    printf "==> Delete the duplicate entries from the .tconst and .xlate lines listed below.\n"
     # shellcheck disable=SC2086
     rg -f "$CONFLICTS" $XLATE_FILES $TCONST_FILES
     printf "\n"

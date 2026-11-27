@@ -1,0 +1,12 @@
+# Tab separated translations from foreign film titles to their English equivalents
+#
+# Create a similar file for titles you want translated, with any name and extension.
+# Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t MyShows.xlate
+
+# Don't use this to map tvEpisode titles to their parent tvSeries. To include a single
+# episode, list it in a .tconst file and translate its own title here.
+
+# primaryTitle	Title
+Grenseland	Borderliner
+Okkupert	Occupied
+Ørnen	The Eagle

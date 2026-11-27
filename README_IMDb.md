@@ -3,7 +3,13 @@
 Simplify finding information from IMDb about shows, actors, and the characters
 they portray.
 
-**IMDb_Credits-Person.xls** lists primary cast members, show titles, and
+**makeIMDbFromFiles.sh** is a self-contained script that builds these
+spreadsheets from downloaded IMDb datasets. It's a legacy extra -- it still
+works, but it only knows about the shows listed in the **\*.tconst** files,
+which are maintained by hand. A more comprehensive IMDb cross-referencing
+toolkit is maintained as a separate project.
+
+**IMDb_Credits-Person-[DATE].csv** lists primary cast members, show titles, and
 characters portrayed for all shows for which we have IMDb information — sorted
 by cast member name.
 
@@ -13,7 +19,7 @@ and "Gåsmamman".
 
 “Person” and “Primary Title” are both clickable links to IMDb pages.
 
-**IMDb_Credits-Show.xls** also lists primary cast members, show titles, and
+**IMDb_Credits-Show-[DATE].csv** also lists primary cast members, show titles, and
 characters portrayed, but sorted by primary title.
 
 Useful to see who stars in a show, and what character they portrayed.
@@ -22,7 +28,7 @@ Useful to see who stars in a show, and what character they portrayed.
 be up to 10 primary cast members for each show title, sorted by IMDb’s billing
 rank.
 
-**IMDb_Shows.xls** lists all the shows for which we have IMDb information.
+**IMDb_Shows-[DATE].csv** lists all the shows for which we have IMDb information.
 
 Useful as a short list of what shows are (*and aren't*) included.
 
@@ -34,20 +40,44 @@ search term on IMDb.
 separate IMDb page with no parent series - *e.g.* “Bukow and König” and “Murder
 In…”.
 
-**IMDb_Persons-Titles.xls** lists the top titles a person is known for.
+**IMDb_Persons-Titles-[DATE].csv** lists the top titles a person is known for.
 
 Useful to find other shows by persons credited in other spreadsheets.
 
-**Note:** **\*-noHype-\*** spreadsheets have the same data, but without hyperlinks,
-which is more readable in text searches.
+**IMDb_suggestedEpisodes-[DATE].csv** lists the episodes IMDb has for each
+series, *except* those in series listed in **skipEpisodes.TCONST** (series with
+hundreds of episodes, or with episode titles like "Episode 1").
 
-**Note:** Spreadsheets were generated from downloaded IMDb .gz movie and TV
-datasets, *i.e.*
+**IMDb_associatedTitles-[DATE].csv** lists every title that appears in the
+"Known For" columns of **IMDb_Persons-Titles**, with links to IMDb.
+
+**Note:** **\*-noHype-\*** spreadsheets, made by **makeIMDbFromFiles-noHype.sh**,
+have the same data, but without hyperlinks, which is more readable in text
+searches.
+
+### Choosing which shows to include
+
+Each **\*.tconst** file lists IMDb title identifiers, one per line. Only the
+first column is used; the rest are comments. By default every **\*.tconst**
+file is processed, or you can name files on the command line, *e.g.*
+`./makeIMDbFromFiles.sh MyShows.tconst`. See the comments at the top of any
+**.tconst** file for details.
+
+Each **\*.xlate** file contains tab separated pairs of non-English titles and
+their English equivalents. By default every **\*.xlate** file is used, or pick
+one with `-t file`.
+
+After checking the results, run **saveTodaysIMDbFiles.sh** (or
+**saveTodaysIMDbFiles-noHype.sh**) to make them the baseline for future diffs.
+
+**Note:** Spreadsheets are generated from these downloaded IMDb datasets:
 
 		* name.basics.tsv.gz
 		* title.basics.tsv.gz
+		* title.episode.tsv.gz
 		* title.principals.tsv.gz
 
-See [https://www.imdb.com/interfaces/](https://www.imdb.com/interfaces/) for a
-description of these IMDb Datasets.
-
+If they aren't present, the script downloads them. Run **downloadFromIMDb.sh**
+to refresh them. See
+[https://www.imdb.com/interfaces/](https://www.imdb.com/interfaces/)
+for a description of these IMDb Datasets.

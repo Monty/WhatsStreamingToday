@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# diff the most recent TV_ShowsEpisodes files from MHz, Acorn, OPB, Britbox, and Apple TV+
+# diff the most recent TV_ShowsEpisodes files from MHz, Acorn, OPB, BritBox, and Apple TV+
 # and print the new episodes
 #
 # Assume episodes have a season mumber in field 1, i.e. ', S[0-9][0-9]'

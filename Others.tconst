@@ -3,13 +3,15 @@
 #       tconst (string) - alphanumeric unique identifier of the title
 #
 # Create a similar tconst file of shows you've watched or are interested in, with any name and extension.
-# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh Netflix-tconst.txt
+# Pass it as a parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh MyShows.tconst
 # If you don't pass it a file parameter, it will process all *.tconst files
 
 # Only the tconst column is used, the other columns are considered comments. You can add those columns
 # after processing by using the data in IMDb-columns/raw_shows*.csv
 
-# Avoid tvEpisodes that have a parent tvSeries, put those in Episode.tconst instead
+# List a single tvEpisode only when it's offered as a standalone show (e.g. one Tatort film)
+# and its parent tvSeries isn't listed. Episodes of listed series are found automatically
+# and appear in IMDb_suggestedEpisodes-[DATE].csv
 
 # tconst	Service	Primary Title	Original Title
 tt4271918	Amazon	An Inspector Calls	An Inspector Calls

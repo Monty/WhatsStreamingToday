@@ -1,13 +1,17 @@
 # This is a sample file of tab separated translations from foreign film titles to their English equivalents
 #
 # Create a similar file for titles you want translated, with any name and extension.
-# Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t Netflix-xlate.txt
+# Pass it as a -t parameter to makeIMDbFromFiles.sh, i.e. ./makeIMDbFromFiles.sh -t MyShows.xlate
 
-# Avoid using this to translate tvEpisodes into their parent tvSeries, put those in Episode.xlate instead
+# Don't use this to map tvEpisode titles to their parent tvSeries. To include a single
+# episode, list it in a .tconst file and translate its own title here.
 
 35 Diwrnod	35 Days
-Maigret in Montmartre	Maigret
-Maigret Sets a Trap	Maigret
-Maigret: Night at the Crossroads	Maigret
-Maigret's Dead Man	Maigret
-Shakespeare & Hathaway: Private Investigators	Shakespeare & Hathaway
+Crime	Irvine Welsh's Crime
+Murder Is Easy	Agatha Christie's Murder is Easy
+Poirot	Agatha Christie's Poirot
+Retribution	One of Us
+Shakespeare & Hathaway: Private Investigators	Shakespeare & Hathaway - Private Investigators
+The Pale Horse	Agatha Christie: The Pale Horse
+The Pembrokeshire Murders: Catching the Gameshow Killer	The Pembrokeshire Murders: Catching the Game Show Killer
+Towards Zero	Agatha Christie's Towards Zero
