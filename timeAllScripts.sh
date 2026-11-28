@@ -47,7 +47,7 @@ MINS=$((SECONDS / 60))
 SECS=$((SECONDS % 60))
 [ "$MINS" -eq 1 ] && MIN_UNIT=minute || MIN_UNIT=minutes
 [ "$SECS" -eq 1 ] && SEC_UNIT=second || SEC_UNIT=seconds
-printf "==> Completed at %s in %d %s %d %s\n" "$(date)" \
+printf "==> Completed on %s in %d %s %d %s\n" "$(date)" \
     "$MINS" "$MIN_UNIT" "$SECS" "$SEC_UNIT" | tee /dev/stderr
 
 exit
