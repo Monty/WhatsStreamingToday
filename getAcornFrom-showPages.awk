@@ -139,7 +139,7 @@ function computeEpisodeDuration() {
     # print "==> episodeDuration = " episodeDuration " " shortEpisodeURL "\n" > "/dev/stderr"
 }
 
-function episodeCacheFile(url,    file) {
+function episodeCacheFile(url,   file) {
     # Must match the naming in makeAcornFromBrowsePage.sh:
     # https://acorn.tv/rebus/series1/the-falls -> EPISODES_DIR/rebus_series1_the-falls.html
     file = url
@@ -174,31 +174,37 @@ function processEpisodeLine() {
     }
 }
 
-function getDataFromEpisode(    epFile, found) {
+function getDataFromEpisode(epFile, found) {
     # Use the episode page pre-fetched in parallel by makeAcornFromBrowsePage.sh.
     # Read it directly (no subprocess), stopping after the first 3 matching lines,
     # exactly as "rg -m 3" did.
     epFile = (EPISODES_DIR == "") ? "" : episodeCacheFile(episodeURL)
+
     if (epFile != "" && (getline episodeData < epFile) > 0) {
         found = 0
+
         do {
-            if (episodeData ~ /^ {8}<meta itemprop="(description|episodeNumber|timeRequired)"/) {
+            if (\
+                episodeData ~ /^ {8}<meta itemprop="(description|episodeNumber|timeRequired)"/\
+            ) {
                 processEpisodeLine()
+
                 if (++found >= 3) break
             }
-        } while ((getline episodeData < epFile) > 0)
+        }
+        while ((getline episodeData < epFile) > 0)
+
         close(epFile)
         return
     }
+
     if (epFile != "") close(epFile)
 
     # Not in the cache (download failed, or run without EPISODES_DIR): fetch it live
     cmd = "curl -s " episodeURL\
         " | rg -m 3 '^ {8}<meta itemprop=\"description\"|^ {8}<meta itemprop=\"episodeNumber\"|^ {8}<meta itemprop=\"timeRequired\"'"
 
-    while ((cmd | getline episodeData) > 0) {
-        processEpisodeLine()
-    }
+    while ((cmd | getline episodeData) > 0) { processEpisodeLine() }
 
     close(cmd)
 }
