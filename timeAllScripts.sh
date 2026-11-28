@@ -18,6 +18,7 @@ fi
 
 printf "========================================\n" | tee /dev/stderr
 export LANG=en_US.UTF-8
+SECONDS=0 # bash builtin: seconds since it was set
 
 printf "==> time ./makeOPB.sh -td\n" | tee /dev/stderr
 date | tee /dev/stderr
@@ -42,7 +43,12 @@ date | tee /dev/stderr
 time ./makeAcornFromBrowsePage.sh -td
 printf "\n" | tee /dev/stderr
 
-date | tee /dev/stderr
+MINS=$((SECONDS / 60))
+SECS=$((SECONDS % 60))
+[ "$MINS" -eq 1 ] && MIN_UNIT=minute || MIN_UNIT=minutes
+[ "$SECS" -eq 1 ] && SEC_UNIT=second || SEC_UNIT=seconds
+printf "==> Completed at %s in %d %s %d %s\n" "$(date)" \
+    "$MINS" "$MIN_UNIT" "$SECS" "$SEC_UNIT" | tee /dev/stderr
 
 exit
 
